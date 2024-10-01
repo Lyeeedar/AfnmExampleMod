@@ -1,0 +1,23 @@
+{
+  "name": "my-afnm-mod",
+  "version": "0.0.1",
+  "description": "A mod for AFNM",
+  "author": {
+    "name": "<your name>"
+  },
+  "main": "dist/mod.js",
+  "scripts": {
+    "build": "webpack --mode production",
+    "postbuild": "node scripts/zip-dist.js"
+  },
+  "devDependencies": {
+    "afnm-types": "^0.5.0",
+    "file-loader": "^6.2.0",
+    "ts-loader": "^9.4.2",
+    "typescript": "^4.9.5",
+    "webpack": "^5.75.0",
+    "webpack-cli": "^5.0.1",
+    "zip-a-folder": "^3.1.7",
+    "prettier": "^3.3.3"
+  }
+}
