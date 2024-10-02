@@ -6,7 +6,7 @@ const myTreasure: TreasureItem = {
   kind: 'treasure',
   name: 'The Best Treasure',
   description: 'Wooo mod content.',
-  icon,
+  icon: icon,
   stacks: 1,
   rarity: 'mundane',
   realm: 'coreFormation',
