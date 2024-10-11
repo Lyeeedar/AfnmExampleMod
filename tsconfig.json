@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "es5",
-    "module": "esnext",
+    "module": "NodeNext",
     "moduleResolution": "nodenext",
     "strict": true,
     "esModuleInterop": true,

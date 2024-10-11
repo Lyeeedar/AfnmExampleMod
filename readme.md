@@ -120,9 +120,16 @@ export interface ModAPI {
     addTriggeredEvent: (event: TriggeredEvent) => void;
     addCrop: (realm: Realm, crop: Crop) => void;
     addLocation: (location: GameLocation) => void;
-    linkLocations: (existing: string, link: ConditionalLink | ExplorationLink) => void;
+    linkLocations: (
+      existing: string,
+      link: ConditionalLink | ExplorationLink,
+    ) => void;
     addManual: (manual: Manual) => void;
-    addMineChamber: (realm: Realm, progress: RealmProgress, chamber: MineChamber) => void;
+    addMineChamber: (
+      realm: Realm,
+      progress: RealmProgress,
+      chamber: MineChamber,
+    ) => void;
     addQuest: (quest: Quest) => void;
     addTechnique: (technique: Technique) => void;
   };
@@ -204,17 +211,6 @@ export interface ModAPI {
       exit: QuestionAnswer,
       showExitOnAllComplete?: boolean,
     ) => EventStep[];
-    deriveRecipeDifficulty: (
-      realm: Realm,
-      realmProgress: RealmProgress,
-      difficulty: RecipeDifficulty,
-      kind: ItemKind,
-    ) => {
-      completion: number;
-      perfection: number;
-      stability: number;
-      conditions?: CraftingCondition[];
-    };
     getExpectedHealth: (realm: Realm, progress: RealmProgress) => number;
     getExpectedPower: (realm: Realm, progress: RealmProgress) => number;
     getExpectedDefense: (realm: Realm, progress: RealmProgress) => number;
@@ -229,7 +225,11 @@ export interface ModAPI {
     getClothingCharisma: (realm: Realm, mult: number) => number;
     getRealmQi: (realm: Realm, realmProgress: RealmProgress) => number;
     getBreakthroughQi: (realm: Realm, realmProgress: RealmProgress) => number;
-    getNumericReward: (base: number, realm: Realm, progress: RealmProgress) => number;
+    getNumericReward: (
+      base: number,
+      realm: Realm,
+      progress: RealmProgress,
+    ) => number;
   };
 }
 ```
