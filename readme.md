@@ -45,6 +45,7 @@ export interface ModAPI {
     breakthroughs: Record<Realm, Breakthrough[]>;
     calendarEvents: CalendarEvent[];
     craftingTechniques: Record<string, CraftingTechnique>;
+    craftingConditions: Record<string, CraftingCondition>;
     destinies: Record<string, Destiny>;
     triggeredEvents: TriggeredEvent[];
     crops: Record<Realm, Crop[]>;
@@ -73,6 +74,9 @@ export interface ModAPI {
         moonlight: Buff;
         moonchill: Buff;
         sunfury: Buff;
+        lunarAttunement: Buff;
+        solarAttunement: Buff;
+        moonScorched: Buff;
       };
       cloud: {
         clouds: Buff;
@@ -132,6 +136,8 @@ export interface ModAPI {
     ) => void;
     addQuest: (quest: Quest) => void;
     addTechnique: (technique: Technique) => void;
+    addMusic: (name: string, path: string[]) => void;
+    addSfx: (name: string, path: string) => void;
   };
   utils: {
     alpha: (enemy: EnemyEntity) => EnemyEntity;
