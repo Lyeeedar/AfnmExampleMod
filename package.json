@@ -1,9 +1,9 @@
 {
-  "name": "my-afnm-mod",
+  "name": "mundane-ascension",
   "version": "0.0.1",
-  "description": "A mod for AFNM",
+  "description": "A mod for playing a Mundane-only run",
   "author": {
-    "name": "<your name>"
+    "name": "Lyeeedar"
   },
   "main": "dist/mod.js",
   "scripts": {
