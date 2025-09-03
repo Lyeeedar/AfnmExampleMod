@@ -45,7 +45,7 @@ export interface ModAPI {
     breakthroughs: Record<Realm, Breakthrough[]>;
     calendarEvents: CalendarEvent[];
     craftingTechniques: Record<string, CraftingTechnique>;
-    craftingConditions: Record<string, CraftingCondition>;
+    recipeConditionEffects: RecipeConditionEffect[];
     destinies: Record<string, Destiny>;
     triggeredEvents: TriggeredEvent[];
     crops: Record<Realm, Crop[]>;
@@ -62,12 +62,15 @@ export interface ModAPI {
         empoweredBlood: Buff;
         hardenedBlood: Buff;
         pureBlood: Buff;
+        bloodEcho: Buff;
       };
       blossom: {
         fragrantBlossom: Buff;
         fatalFlora: Buff;
         razorBlossom: Buff;
         ironBlossom: Buff;
+        witheringBlossom: Buff;
+        soilDepletion: Buff;
       };
       celestial: {
         sunlight: Buff;
@@ -87,12 +90,23 @@ export interface ModAPI {
         rippleForce: Buff;
         transcendentFocus: Buff;
         weakness: Buff;
+        goldenAura: Buff;
       };
       weapon: {
         metalShard: Buff;
         metalFragment: Buff;
+        magnetizedMetal: Buff;
+        stormOfSteel: Buff;
       };
     };
+    guilds: Record<string, Guild>;
+    dualCultivationTechniques: IntimateTechnique[];
+    enchantments: Enchantment[];
+    fallenStars: FallenStar[];
+    rooms: Room[];
+    researchableMap: Record<string, RecipeItem[]>;
+    uncutStones: Record<Realm, UncutStonePool | undefined>;
+    mysticalRegionBlessings: Blessing[];
   };
   actions: {
     addBirthBackground: (background: Background) => void;
@@ -138,10 +152,20 @@ export interface ModAPI {
     addTechnique: (technique: Technique) => void;
     addMusic: (name: string, path: string[]) => void;
     addSfx: (name: string, path: string) => void;
+    addGuild: (guild: Guild) => void;
+    addDualCultivationTechnique: (technique: IntimateTechnique) => void;
+    addEnchantment: (enchantment: Enchantment) => void;
+    addFallenStar: (fallenStar: FallenStar) => void;
+    addRoom: (room: Room) => void;
+    addResearchableRecipe: (baseItem: string, recipe: RecipeItem) => void;
+    addUncutStone: (realm: Realm, uncutStone: Item) => void;
+    addMysticalRegionBlessing: (blessing: Blessing) => void;
   };
   utils: {
     alpha: (enemy: EnemyEntity) => EnemyEntity;
     alphaPlus: (enemy: EnemyEntity) => EnemyEntity;
+    realmbreaker: (enemy: EnemyEntity) => EnemyEntity[];
+    corrupted: (enemy: EnemyEntity) => EnemyEntity;
     createCombatEvent: (enemy: LocationEnemy) => LocationEvent;
     createCullingMission: (
       monster: EnemyEntity,
@@ -225,6 +249,7 @@ export interface ModAPI {
     getExpectedPool: (realm: Realm, progress: RealmProgress) => number;
     getExpectedIntensity: (realm: Realm, progress: RealmProgress) => number;
     getExpectedControl: (realm: Realm, progress: RealmProgress) => number;
+    getExpectedPlayerPower: (realm: Realm, progress: RealmProgress) => number;
     getExpectedArtefactPower: (realm: Realm, progress: RealmProgress) => number;
     getBreakthroughCharisma: (realm: Realm, mult: number) => number;
     getClothingDefense: (realm: Realm, scale: number) => number;
@@ -258,17 +283,14 @@ import icon from '../assets/image.png';
 
 Once you have completed work on your mod, you are ready to package for sharing with others (or for testing in game). To do this, simply run the command `npm run build`. This will compile the content to a single file `mod.js` and all the referenced assets, then zip it up. You can find the final zip in the `builds` folder.
 
-### Step 5: Use your mod
+### Step 5: Test your mod
 
-To use the mod, create a new `mods` folder in the root of the game directory (the same one that contains the game exe). Unzip your mod into this folder, so the final structure looks like:
+To test the mod, create a new `mods` folder in the root of the game directory (the same one that contains the game exe). Place the zip of your mod into this folder, so the final structure looks like:
 
 ```
 ├── Ascend from Nine Mountains.exe
 └── mods/
-    └── my-afnm-mod-0.0.1/
-        ├── mod.js
-        └── assets/
-            └── *.png
+    └── my-afnm-mod-0.0.1.zip
 ```
 
 You might also find it useful to enable `devMode` when doing this (so you can see any errors in the console). You can do this by adding a file called `devMode` to this same directory (no extension). This will make the structure look like this:
@@ -277,8 +299,15 @@ You might also find it useful to enable `devMode` when doing this (so you can se
 ├── Ascend from Nine Mountains.exe
 ├── devMode
 └── mods/
-    └── my-afnm-mod-0.0.1/
-        ├── mod.js
-        └── assets/
-            └── *.png
+    └── my-afnm-mod-0.0.1.zip
 ```
+
+To make changes, simply rebuild your mod and place into the folder, then restart the game.
+
+### Step 6: Release your mod to the Steam Workshop
+
+Once you are happy with how your mod behaves, you are ready to release it to the Workshop for others to use. You can find the uploader executable at `/uploader/Mod Uploader 1.0.0 Portable.exe`. Running this will allow you to edit any of your existing uploaded mods, or upload a new one. You can also edit your uploaded mod manually after upload in the steam workshop UI.
+
+### Step 7: Feedback
+
+I am always interested in feedback on the features of the mod framework, so if there's something you are trying to do but aren't able to, then drop me a message on discord or raise an issue in this project. I will always endeavour to made the framework powerful enough to handle all your exciting ideas!
