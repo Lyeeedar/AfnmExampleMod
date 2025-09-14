@@ -4,7 +4,7 @@ baseurl: '/AfnmExampleMod'
 url: 'https://lyeeedar.github.io'
 
 # Jekyll configuration
-theme: midnight
+remote_theme: pages-themes/midnight@v0.2.0
 markdown: kramdown
 highlighter: rouge
 
@@ -25,10 +25,66 @@ header_pages:
   - index.md
   - getting-started.md
 
+# Sidebar Navigation
+sidebar:
+  - title: 'Getting Started'
+    children:
+      - title: 'Home'
+        url: /
+      - title: 'Getting Started'
+        url: /getting-started/
+
+  - title: 'Core Concepts'
+    children:
+      - title: 'Scaling System'
+        url: /concepts/scaling/
+      - title: 'Flags & State'
+        url: /concepts/flags/
+
+  - title: 'Events System'
+    children:
+      - title: 'Events Overview'
+        url: /concepts/events/
+      - title: 'Triggered Events'
+        url: /concepts/triggered-events/
+      - title: 'Event Steps'
+        url: /concepts/event-steps/
+
+  - title: 'Event Step Types'
+    children:
+      - title: 'Text & Speech'
+        url: /concepts/text-speech/
+      - title: 'Choices'
+        url: /concepts/choices/
+      - title: 'State Management'
+        url: /concepts/state/
+      - title: 'Items & Resources'
+        url: /concepts/items/
+      - title: 'Combat & Challenges'
+        url: /concepts/combat/
+      - title: 'Character Interaction'
+        url: /concepts/characters/
+      - title: 'World & Location'
+        url: /concepts/world/
+      - title: 'Advanced Systems'
+        url: /concepts/advanced/
+
+  - title: 'Buffs & Resources'
+    children:
+      - title: 'Buffs Overview'
+        url: /concepts/buffs/
+      - title: 'Combat Buffs'
+        url: /concepts/combat-buffs/
+      - title: 'Crafting Buffs'
+        url: /concepts/crafting-buffs/
+      - title: 'Design Patterns'
+        url: /concepts/design-patterns/
+
 # Plugins
 plugins:
   - jekyll-feed
   - jekyll-sitemap
+  - jekyll-remote-theme
 
 # Exclude files
 exclude:

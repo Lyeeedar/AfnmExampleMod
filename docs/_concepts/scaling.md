@@ -5,456 +5,525 @@ title: Scaling
 
 # Scaling
 
-Scaling is the fundamental system that determines how values in Ascend from Nine Mountains are calculated. It appears everywhere - damage calculations, buff effects, healing amounts, crafting outcomes, and more. Understanding scaling is essential for creating balanced and interesting content.
-
-## What is Scaling?
-
-Scaling defines a numeric value that can be:
-- **Static** - A fixed number
-- **Dynamic** - Based on statistics, buff stacks, or other variables
-- **Complex** - Using custom equations and caps
-- **Conditional** - Different values based on game state
+Scaling is the mathematical foundation that determines all value calculations in Ascend from Nine Mountains. Every damage, healing, buff effect, and stat modifier uses the Scaling system to create dynamic, progression-based gameplay.
 
 ## The Scaling Interface
 
 ```typescript
 interface Scaling {
-  value: number;                    // Base multiplier or fixed value
-  stat?: string;                    // Optional stat to scale with
-  scaling?: 'stacks' | 'consumed' | string; // Special scaling modes
-  eqn?: string;                     // Custom equation for complex scaling
-  max?: Scaling;                    // Maximum value cap
-  divideByStanceLength?: boolean;   // For stance-based techniques
-  upgradeKey?: string;              // For upgrade-based scaling
-  buff?: Buff;                      // Reference buff for scaling
+  value: number; // Base multiplier
+  stat?: string; // Stat to multiply by
+  scaling?: string; // Special scaling mode
+  eqn?: string; // Custom equation
+  max?: Scaling; // Cap the final value
+  divideByStanceLength?: boolean; // For stance techniques
+  upgradeKey?: string; // Links to mastery upgrades
+  buff?: Buff; // Reference another buff
 }
 ```
 
-## Basic Scaling Patterns
+## Core Pattern: Base × Stat × Scaling × Equation
 
-### Fixed Value
+The evaluation order is: `value * stat * scaling * eqn`
 
-The simplest form - a static number:
+## Pattern 1: Flat Values (No Stat Scaling)
+
+**When to use**: Fixed effects, buff stacks, equation-only calculations, utility effects, resource generation/consumption
 
 ```typescript
-// Always deals exactly 50 damage
-{ value: 50 }
+// Fixed damage amount (rare, usually for utility)
+{
+  value: 100,
+  stat: undefined  // No stat multiplication
+}
 
-// Always heals for 100
-{ value: 100 }
+// Fixed stacks granted (very common)
+{
+  value: 3,
+  stat: undefined  // Always 3 stacks
+}
 
-// Always adds 3 stacks
-{ value: 3 }
+// Equation-only calculation
+{
+  value: 1,
+  stat: undefined,
+  eqn: 'toxicity * 2'  // Only uses equation result
+}
+
+// Scaling-only (no base stat multiplication)
+{
+  value: 1,
+  stat: undefined,
+  scaling: 'stacks'  // 1 per stack, no stat involved
+}
+
 ```
 
-### Single Stat Scaling
+**Real examples**:
 
-Scales with one statistic:
+Concentrate Force uses flat buff name scaling:
 
 ```typescript
-// 1.5x power as damage
-{ value: 1.5, stat: 'power' }
-
-// 2x defense as barrier
-{ value: 2, stat: 'defense' }
-
-// 0.3x maxhp as healing
-{ value: 0.3, stat: 'maxhp' }
+amount: {
+  value: 1,
+  stat: undefined,
+  scaling: rippleForce.name,  // 1 per Ripple Force stack
+  max: {
+    value: 7,
+    stat: undefined,
+    upgradeKey: 'maxStacks'  // Max increases with mastery
+  }
+}
 ```
 
-### Stack-Based Scaling
-
-Use the `scaling` property for buff stacks:
+Transcend Focus uses flat equation value:
 
 ```typescript
-// Scale with current buff stacks
-{ value: 10, scaling: 'stacks' }
+amount: {
+  value: 1,
+  stat: undefined,
+  eqn: `${flag(deadlyFocus.name)} / 5`  // 1 per 5 Deadly Focus, no stat scaling
+}
+```
 
-// Scale with consumed stacks
-{ value: 5, scaling: 'consumed' }
+Unveil the Skies uses flat floor calculation:
 
-// In a buff definition
-const rage: Buff = {
-  name: 'Rage',
-  canStack: true,
-  stats: {
-    // +10% power per stack
-    power: { value: 0.1, scaling: 'stacks' }
+```typescript
+amount: {
+  value: 1,
+  stat: undefined,
+  eqn: `floor(${flag(clouds.name)} / 20)`  // 1 per 20 cloud stacks
+}
+```
+
+**When to use `stat: undefined`**:
+
+- **Utility effects** - Cleanse, dispel, status removal
+- **Resource generation** - Fixed stack amounts
+- **Equation-only scaling** - When equation provides all the scaling
+- **Pure scaling effects** - When scaling/buff name provides the multiplier
+- **Caps and limits** - Max values that don't scale with stats
+- **Upgrade-driven values** - When upgradeKey provides progression
+- **Conditional flat bonuses** - Fixed amounts under certain conditions
+
+## Pattern 2: Basic Stat Scaling
+
+**When to use**: Most technique effects, simple buff bonuses
+
+```typescript
+// Basic damage: 150% of power
+{
+  value: 1.5,
+  stat: 'power'
+}
+
+// Defense-based barrier: 300% of defense
+{
+  value: 3,
+  stat: 'defense'
+}
+
+// Crafting: 80% of control for perfection
+{
+  value: 0.8,
+  stat: 'control'
+}
+```
+
+**Real example**: Sun Blast technique deals `2 × power` damage:
+
+```typescript
+amount: {
+  value: 2,
+  stat: 'power',
+  upgradeKey: 'power'  // Improves with mastery
+}
+```
+
+## Pattern 3: Stack-Based Scaling
+
+**When to use**: Buff effects that scale with stacks, resource consumption
+
+```typescript
+// Damage per stack
+{
+  value: 0.3,
+  stat: 'power',
+  scaling: 'stacks'  // 30% power per stack
+}
+
+// Fixed amount per stack
+{
+  value: 10,
+  scaling: 'stacks'  // 10 damage per stack
+}
+```
+
+**Real example**: Blossom technique damage scales with Vitality stacks:
+
+```typescript
+onTechniqueEffects: [
+  {
+    kind: 'damage',
+    amount: {
+      value: 0.3,
+      stat: 'power',
+      scaling: 'stacks', // 30% power per Vitality stack
+    },
   },
-  onRoundEffects: [
-    // Deal 5 damage per stack
-    { kind: 'damage', amount: { value: 5, scaling: 'stacks' } }
-  ]
-};
+];
 ```
 
-### Custom Equations
+## Pattern 4: Stat-Based Scaling
 
-For complex calculations:
+**When to use**: Effects that scale with game state (toxicity, stability, pool)
 
 ```typescript
-// Custom equation scaling
+// Scale with current toxicity
 {
-  value: 1,
-  eqn: 'power * 0.5 + defense * 0.3'
+  value: 0.1,
+  stat: 'power',
+  scaling: 'toxicity'  // Power × toxicity level
 }
 
-// Conditional equation
+// Scale with stability percentage
 {
-  value: 1,
-  eqn: 'hp < maxhp * 0.5 ? power * 2 : power'
+  value: -100,
+  scaling: 'stability'  // Costs current stability
 }
 ```
 
-### Capped Scaling
-
-Limit maximum values:
+**Real example**: Lianjin Bandolier power scales with toxicity:
 
 ```typescript
-// Damage capped at 1000
+stats: {
+  power: {
+    value: 0.005,
+    stat: 'power',
+    scaling: 'toxicity',  // 0.5% power per toxicity point
+    max: { value: 1, stat: 'power' }  // Capped at 100% power
+  }
+}
+```
+
+## Pattern 5: Buff Name Scaling
+
+**When to use**: Effects that scale with specific buff stacks
+
+```typescript
+// Scale with named buff stacks
+{
+  value: 1,
+  scaling: buffName  // Uses that buff's stack count
+}
+```
+
+**Real example**: Concentrate Force scales with Ripple Force stacks:
+
+```typescript
+amount: {
+  value: 1,
+  scaling: rippleForce.name,  // 1 per Ripple Force stack
+  max: {
+    value: 7,
+    upgradeKey: 'maxStacks'  // Max stacks increase with mastery
+  }
+}
+```
+
+## Pattern 6: Target Buff Scaling
+
+**When to use**: Effects based on enemy/ally buffs
+
+```typescript
+// Scale with target's buff stacks
 {
   value: 2,
   stat: 'power',
-  max: { value: 1000 }
+  scaling: 'target.' + debuffName  // Power × target's debuff stacks
+}
+```
+
+**Real example**: Celestial Discordance scales with target's discord:
+
+```typescript
+amount: {
+  value: 1,
+  scaling: 'target.' + harmonicDiscord.name  // Damage per target's discord
+}
+```
+
+## Pattern 7: Equation-Based Scaling
+
+**When to use**: Complex calculations, percentages, conditional logic
+
+```typescript
+// Toxicity percentage
+{
+  value: 3,
+  stat: 'power',
+  eqn: 'toxicity/maxtoxicity'  // Power × toxicity percentage
 }
 
-// Stacks capped at player level
+// Buff counting with division
 {
   value: 1,
-  scaling: 'stacks',
-  max: { value: 1, stat: 'level' }
+  eqn: `floor(${flag(buffName)} / 20)`  // 1 per 20 buff stacks
 }
-```
 
-## Combat Scaling Examples
-
-### Damage Calculations
-
-```typescript
-// Basic attack - scales with power
-const basicStrike: Technique = {
-  name: 'Basic Strike',
-  effects: [
-    { kind: 'damage', amount: { value: 1, stat: 'power' } }
-  ]
-};
-
-// Heavy attack - higher multiplier
-const heavyStrike: Technique = {
-  name: 'Heavy Strike',
-  effects: [
-    { kind: 'damage', amount: { value: 2.5, stat: 'power' } }
-  ]
-};
-
-// Multi-hit with fixed hits
-const flurry: Technique = {
-  name: 'Flurry',
-  effects: [
-    {
-      kind: 'damage',
-      amount: { value: 0.5, stat: 'power' },
-      hits: { value: 3 }  // Hit 3 times
-    }
-  ]
-};
-
-// Percentage-based damage
-const percentDamage: Technique = {
-  name: 'Vital Strike',
-  effects: [
-    { kind: 'damage', amount: { value: 0.15, stat: 'enemyMaxHp' } }
-  ]
-};
-```
-
-### Healing Patterns
-
-```typescript
-// Flat healing
-{ kind: 'heal', amount: { value: 50 } }
-
-// Scale with power (typical for most healing)
-{ kind: 'heal', amount: { value: 1.2, stat: 'power' } }
-
-// Percentage of max HP
-{ kind: 'heal', amount: { value: 0.25, stat: 'maxhp' } }
-
-// Scale with missing health
-{ kind: 'heal', amount: { value: 1, eqn: 'maxhp - hp' } }
-```
-
-### Barrier Generation
-
-```typescript
-// Fixed barrier
-{ kind: 'barrier', amount: { value: 100 } }
-
-// Power-based barrier
-{ kind: 'barrier', amount: { value: 2, stat: 'power' } }
-
-// Scaling with buff stacks
+// Multi-buff addition
 {
-  kind: 'barrier',
-  amount: { value: 20, scaling: 'stacks' }  // 20 barrier per stack
+  value: 4,
+  eqn: `${flag(buff1.name)} + ${flag(buff2.name)}`  // Sum of two buffs
 }
 ```
 
-## Buff Effect Scaling
-
-### Resource Generation
+**Real example**: Transcend Focus uses flag division:
 
 ```typescript
-// Generate fixed stacks
+amount: {
+  value: 1,
+  eqn: `${flag(deadlyFocus.name)} / 5`  // 1 per 5 Deadly Focus
+}
+```
+
+## Pattern 8: Capped Scaling
+
+**When to use**: Preventing runaway scaling, balance caps
+
+```typescript
+// Stat scaling with percentage cap
+{
+  value: 0.05,
+  stat: 'power',
+  scaling: 'stacks',
+  max: { value: 2, stat: 'power' }  // Max 200% power bonus
+}
+
+// Fixed cap
+{
+  value: 10,
+  scaling: 'stacks',
+  max: { value: 100 }  // Max 100 regardless of stacks
+}
+```
+
+**Real example**: Ripple Force power bonus caps at 200%:
+
+```typescript
+stats: {
+  power: {
+    value: 0.05,          // 5% per stack
+    stat: 'power',
+    scaling: 'stacks',
+    max: {
+      value: 2,           // Cap at 200% power
+      stat: 'power'
+    }
+  }
+}
+```
+
+## Pattern 9: Upgrade Key Integration
+
+**When to use**: Techniques that improve with mastery
+
+```typescript
+// Basic upgrade scaling
+{
+  value: 0.65,
+  stat: 'intensity',
+  upgradeKey: 'completion'  // Improves with mastery level
+}
+
+// Upgrade affects max value
+{
+  value: 3,
+  scaling: 'stacks',
+  max: {
+    value: 5,
+    upgradeKey: 'maxStacks'  // Max stacks increase with mastery
+  }
+}
+```
+
+## Common Stat Values
+
+### Combat Stats
+
+- `power` - Primary damage stat
+- `defense` - Damage reduction
+- `maxhp`, `barrier` - Health and shields
+- `critchance`, `lifesteal` - Combat mechanics
+- Element boosts: `fistBoost`, `weaponBoost`, `blossomBoost`, `celestialBoost`, `cloudBoost`, `bloodBoost`
+
+### Crafting Stats
+
+- `control` - Perfection effectiveness
+- `intensity` - Completion effectiveness
+- `maxpool`, `pool` - Qi management
+- `critchance` - Crafting critical chance
+- `stabilityCostPercentage`, `poolCostPercentage` - Cost modifiers
+
+### Physical Stats
+
+- `flesh`, `muscles`, `dantian`, `meridians`, `eyes`, `digestion` - Core physical attributes
+
+## Special Scaling Values
+
+### Built-in Values
+
+- `'stacks'` - Current buff stacks (most common)
+- `'consumed'` - Recently consumed stacks
+- `'toxicity'` - Current toxicity level
+- `'stability'` - Current stability value
+- `'pool'` - Current qi pool
+
+### Dynamic Values
+
+- `buffName` - Any buff's stack count
+- `'target.buffName'` - Target's buff stacks
+- Flag expressions via `flag()` helper function
+
+## Real-World Examples
+
+### Fist School: Stack Accumulation
+
+```typescript
+// Generate Flow stacks
 {
   kind: 'buffSelf',
-  buff: flowBuff,
+  buff: flow,
   amount: { value: 1 }  // Always 1 stack
 }
 
-// Generate based on damage dealt
+// Spend Flow for damage
 {
-  kind: 'buffSelf',
-  buff: rageBuff,
-  amount: { value: 0.1, stat: 'damageDealt' }  // 1 stack per 10 damage
-}
-
-// Generate based on existing stacks
-{
-  kind: 'buffSelf',
-  buff: momentumBuff,
-  amount: { value: 0.5, scaling: 'stacks' }  // Half of current stacks
+  kind: 'damage',
+  amount: {
+    value: 0.8,           // 80% power per Flow stack
+    stat: 'power',
+    scaling: flow.name
+  }
 }
 ```
 
-### Resource Consumption
+### Weapon School: Progressive Scaling
 
 ```typescript
-// Consume fixed amount
-{
-  kind: 'consumeSelf',
-  amount: { value: 3 }  // Always consume 3
-}
-
-// Consume all stacks
-{
-  kind: 'consumeSelf',
-  amount: { value: 1, scaling: 'stacks' }  // Consume all
-}
-
-// Consume percentage of stacks
-{
-  kind: 'consumeSelf',
-  amount: { value: 0.5, scaling: 'stacks' }  // Consume half
+// Momentum builds over time
+stats: {
+  power: {
+    value: 0.02,          // 2% power per stack
+    stat: 'power',
+    scaling: 'stacks',
+    max: {
+      value: 0.5,         // Cap at 50% power
+      stat: 'power'
+    }
+  }
 }
 ```
 
-## Crafting Scaling Examples
-
-### Completion and Perfection
+### Celestial School: Dual Buff Synergy
 
 ```typescript
-// Fixed completion bonus
-{ kind: 'completion', amount: { value: 10 } }
+// Power from both light/dark attunement
+stats: {
+  celestialBoost: {
+    value: 4,
+    eqn: `${flag(lunarAttunement.name)} + ${flag(solarAttunement.name)}`
+  }
+}
+```
 
-// Scale with crafting skill
-{ kind: 'completion', amount: { value: 0.2, stat: 'craftskill' } }
+### Blood School: Risk/Reward Scaling
 
-// Scale with buff stacks
-{ kind: 'perfection', amount: { value: 3, scaling: 'stacks' } }
+```typescript
+// More power at higher toxicity
+{
+  value: 0.1,
+  stat: 'power',
+  scaling: 'toxicity',   // Risk increases reward
+  max: {
+    value: 3,           // Cap at 300% power
+    stat: 'power'
+  }
+}
+```
 
-// Complex scaling with control and intensity
+### Crafting: State-Based Effects
+
+```typescript
+// Bonus when stability is low (risky crafting)
 {
   kind: 'perfection',
-  amount: { value: 1, eqn: 'control * 0.5 + intensity * 0.3' }
+  amount: {
+    value: 20,
+    eqn: 'stability < 30 ? 20 : 0'  // Bonus when desperate
+  }
 }
 ```
 
-### Pool Management
+## Design Guidelines
 
-```typescript
-// Restore fixed pool
-{ kind: 'pool', amount: { value: 15 } }
+### Scaling Multipliers
 
-// Restore based on max pool
-{ kind: 'pool', amount: { value: 0.3, stat: 'maxpool' } }
+- **Basic effects**: 0.5-1.2x stat
+- **Strong effects**: 1.5-2.5x stat
+- **Ultimate effects**: 3.0-4.0x stat
+- **Per-stack scaling**: 0.05-0.1x stat per stack
 
-// Drain based on toxicity
-{ kind: 'pool', amount: { value: -0.5, stat: 'toxicity' } }
-```
+### When to Use Each Pattern
 
-## Advanced Scaling Features
+1. **Flat values (`stat: undefined`)**:
 
-### Custom Equations
+   - Utility effects that shouldn't scale with power
+   - Resource generation/consumption
+   - Equation-only calculations
+   - Pure scaling/buff-dependent effects
+   - Fixed caps and upgrade-driven values
 
-The `eqn` field allows complex mathematical expressions:
+2. **Basic stat scaling**: Standard damage/healing that grows with stats
+3. **Stack scaling**: Resource systems, combo effects
+4. **Stat scaling**: State-dependent effects (toxicity, stability)
+5. **Buff name scaling**: Cross-buff interactions
+6. **Equation scaling**: Complex conditions, percentages
+7. **Capped scaling**: Balanced power progression
 
-```typescript
-// Health-based scaling
-{ value: 1, eqn: '(maxhp - hp) / maxhp * 100' }
+### Stat vs Flat Decision Tree
 
-// Multi-stat calculations
-{ value: 1, eqn: 'power * 0.6 + defense * 0.4' }
+**Use `stat: undefined` when**:
 
-// Conditional scaling
-{ value: 1, eqn: 'stacks > 5 ? power * 2 : power' }
+- Effect is purely utility (cleanse, dispel)
+- Amount comes entirely from equation or scaling
+- Fixed resource amounts regardless of power
+- Upgrade keys provide the progression
+- Effect shouldn't benefit from stat growth
 
-// Realm-based scaling
-{ value: 1, eqn: 'power * (1 + realm * 0.1)' }
-```
+**Use stat scaling when**:
 
-### Upgrade Scaling
+- Effect should grow with character power
+- Standard damage/healing/barrier effects
+- Buff bonuses that scale with stats
+- Effects that become more powerful as player progresses
 
-For techniques that improve with mastery:
+### Balance Considerations
 
-```typescript
-{
-  value: 100,
-  stat: 'power',
-  upgradeKey: 'basicStrike',  // References technique upgrade level
-  eqn: 'power * (1 + upgradeLevel * 0.1)'
-}
-```
+- Always use `max` for percentage-based scaling
+- Consider upgrade keys for player progression
+- Test equations thoroughly for edge cases
+- Use meaningful stat relationships (power for damage, control for perfection)
 
-### Stance-Based Scaling
+## Common Mistakes
 
-For techniques affected by stance length:
+1. **No caps on percentage scaling** - Leads to exponential growth
+2. **Wrong stat relationships** - Defense scaling damage makes no sense
+3. **Complex equations without testing** - Can break in unexpected ways
+4. **Missing upgrade keys** - No progression feels bad
+5. **Inconsistent scaling patterns** - Confuses players
 
-```typescript
-{
-  value: 200,
-  stat: 'power',
-  divideByStanceLength: true  // Damage spread across stance duration
-}
-```
-
-### Buff Reference Scaling
-
-Scale based on other buffs:
-
-```typescript
-{
-  value: 10,
-  buff: otherBuff,  // References another buff
-  scaling: 'stacks'  // Uses that buff's stacks
-}
-```
-
-## Available Statistics
-
-### Combat Statistics
-- `maxhp`, `hp` - Health values
-- `maxbarrier`, `barrier` - Shield values
-- `power` - Primary damage stat
-- `defense` - Damage reduction
-- `critchance`, `critdam` - Critical hit stats
-- `lifesteal` - Health recovery on damage
-- Element boosts: `fistBoost`, `weaponBoost`, `blossomBoost`, `celestialBoost`, `cloudBoost`, `bloodBoost`
-- Affinities: `fistAffinity`, `weaponAffinity`, etc.
-- Resistances: `fistResistance`, `weaponResistance`, etc.
-
-### Crafting Statistics
-- `maxpool`, `pool` - Qi pool values
-- `control` - Perfection effectiveness
-- `intensity` - Completion effectiveness
-- `critchance`, `critmultiplier` - Crafting crits
-- `maxtoxicity`, `toxicity`, `resistance` - Toxicity handling
-- `itemEffectiveness` - Pill/reagent effectiveness
-
-### Physical Statistics
-- `flesh` - Health and barrier effectiveness
-- `muscles` - Power and intensity
-- `dantian` - Qi pool and barrier capacity
-- `meridians` - Control and artefact power
-- `eyes` - Critical chance and damage
-- `digestion` - Toxicity resistance and item effectiveness
-
-### Social Statistics
-- `craftskill` - Crafting bonuses
-- `battlesense` - Combat experience
-- `charisma` - Social interactions
-- `age`, `lifespan` - Character aging
-
-## Special Scaling Keywords
-
-### Dynamic Values
-- `damageDealt` - Last damage dealt
-- `damageTaken` - Last damage received
-- `enemyMaxHp`, `enemyHp` - Target health
-- `stacks` - Current buff stacks (via scaling property)
-- `consumed` - Recently consumed stacks (via scaling property)
-
-### Realm and Progress
-- `realm` - Cultivation realm (0=mundane, 1=bodyForging, etc.)
-- `realmProgress` - Progress within realm (0=early, 1=middle, 2=late)
-
-## Balancing Guidelines
-
-### Damage Scaling
-- **Basic attacks**: 0.8-1.2x power
-- **Strong attacks**: 1.5-2.5x power
-- **Ultimate attacks**: 3.0-4.0x power
-- **Multi-hit**: 0.3-0.6x power per hit
-
-### Healing Scaling
-- **Minor healing**: 0.5-1.0x power
-- **Major healing**: 1.2-2.0x power
-- **Percentage healing**: 10-25% max HP
-
-### Barrier Scaling
-- **Light barriers**: 1.0-2.0x power
-- **Heavy barriers**: 2.5-4.0x power
-- **Temporary barriers**: 0.5-1.5x power per stack
-
-### Resource Generation
-- **Basic techniques**: 1-2 stacks
-- **Advanced techniques**: 3-5 stacks
-- **Percentage-based**: 10-50% of stat value
-
-## Common Patterns
-
-### Progressive Scaling
-```typescript
-// Increases with realm
-{ value: 50, stat: 'realm', eqn: '50 + realm * 25' }
-```
-
-### Threshold Scaling
-```typescript
-// Bonus damage at low health
-{ value: 1, stat: 'power', eqn: 'hp < maxhp * 0.3 ? power * 1.5 : power' }
-```
-
-### Efficiency Scaling
-```typescript
-// More efficient at higher stacks
-{ value: 10, scaling: 'stacks', eqn: 'stacks * (1 + stacks * 0.1)' }
-```
-
-### Diminishing Returns
-```typescript
-// Logarithmic scaling
-{ value: 1, stat: 'power', eqn: 'power * log(1 + stacks)' }
-```
-
-## Best Practices
-
-1. **Start Simple** - Use basic stat scaling before complex equations
-2. **Test Thoroughly** - Equations can have unexpected interactions
-3. **Use Caps** - Prevent runaway scaling with max values
-4. **Clear Purpose** - Each scaling should have a clear gameplay reason
-5. **Consistent Patterns** - Similar effects should scale similarly
-6. **Document Equations** - Complex formulas need explanatory tooltips
-
-## Common Pitfalls
-
-1. **Division by Zero** - Always check for zero denominators
-2. **Integer Overflow** - Very large calculations can break
-3. **Circular References** - Don't reference stats that reference back
-4. **Missing Stats** - Ensure referenced stats actually exist
-5. **Performance** - Complex equations calculated frequently can lag
-
-Scaling is the mathematical foundation that makes cultivation progression meaningful and strategic choices impactful.
+The key to good scaling design is understanding that players will optimize around your scaling patterns, so make them intuitive and balanced.
 
 ---
 
