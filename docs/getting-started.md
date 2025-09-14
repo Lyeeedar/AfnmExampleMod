@@ -1,6 +1,7 @@
 ---
-layout: default
 title: Getting Started
+sidebar:
+  nav: "docs"
 ---
 
 # Getting Started with Modding
