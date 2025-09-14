@@ -8,13 +8,15 @@ remote_theme: just-the-docs/just-the-docs
 
 # GitHub Pages settings
 url: 'https://lyeeedar.github.io'
-baseurl: ''
+baseurl: '/AfnmExampleMod'
 
 # Plugins
 plugins:
   - jekyll-feed
   - jekyll-sitemap
   - jekyll-seo-tag
+  - jekyll-github-metadata
+  - jekyll-optional-front-matter
 
 # Navigation
 nav_sort: case_insensitive
