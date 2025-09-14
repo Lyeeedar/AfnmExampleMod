@@ -19,9 +19,11 @@ Welcome to the comprehensive modding guide for Ascend from Nine Mountains! This 
 ## Quick Links
 
 ### Essential Guides
+
 - [Getting Started](getting-started.md)
 
 ### Coming Soon
+
 - Mod Structure Overview
 - Development Workflow
 - Cultivation Schools Guide
@@ -43,5 +45,3 @@ Welcome to the comprehensive modding guide for Ascend from Nine Mountains! This 
 This documentation is open source! If you find errors or want to add content, please submit a pull request to the [AfnmExampleMod repository](https://github.com/Lyeeedar/AfnmExampleMod).
 
 ---
-
-*Last updated: September 2024*

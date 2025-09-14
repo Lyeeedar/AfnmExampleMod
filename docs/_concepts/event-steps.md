@@ -5,34 +5,34 @@ title: Event Steps
 
 # Event Steps
 
-Event Steps are the building blocks of [Events](events.md). Each step represents a single action or interaction that occurs during an event sequence.
+Event Steps are the building blocks of [Events](/concepts/events/). Each step represents a single action or interaction that occurs during an event sequence.
 
 ## Step Categories
 
 Event steps are organized into logical categories based on their functionality:
 
-### [Text & Speech](event-steps/text-speech.md)
+### [Text & Speech](/concepts/text-speech/)
 
 Display narrative content and dialogue:
 
 - **Text Step** - Narration and description
 - **Speech Step** - Character dialogue
 
-### [Choices](event-steps/choices.md)
+### [Choices](/concepts/choices/)
 
 Player decision points and branching:
 
 - **Choice Step** - Present options to the player
 - **Conditional branching** - Different paths based on choice
 
-### [State Management](event-steps/state.md)
+### [State Management](/concepts/state/)
 
 Modify game state and flags:
 
 - **Flag Step** - Set or modify flag values
 - **Conditional Step** - Execute steps based on conditions
 
-### [Items & Resources](event-steps/items.md)
+### [Items & Resources](/concepts/items/)
 
 Manage player inventory and resources:
 
@@ -41,14 +41,14 @@ Manage player inventory and resources:
 - **Change Money Step** - Modify spirit stones
 - **Change Favour Step** - Adjust favour points
 
-### [Combat & Challenges](event-steps/combat.md)
+### [Combat & Challenges](/concepts/combat/)
 
 Create encounters and challenges:
 
 - **Combat Step** - Battle encounters
 - **Crafting Step** - Crafting challenges
 
-### [Character Interaction](event-steps/characters.md)
+### [Character Interaction](/concepts/characters/)
 
 Manage NPCs and relationships:
 
@@ -56,7 +56,7 @@ Manage NPCs and relationships:
 - **Clear Character Step** - Remove character
 - **Talk/Trade/Fight Character Steps** - Interact with NPCs
 
-### [World & Location](event-steps/world.md)
+### [World & Location](/concepts/world/)
 
 Modify the game world:
 
@@ -64,7 +64,7 @@ Modify the game world:
 - **Unlock Location Step** - Make new areas accessible
 - **Pass Time Step** - Advance the calendar
 
-### [Advanced Systems](event-steps/advanced.md)
+### [Advanced Systems](/concepts/advanced/)
 
 Specialized functionality:
 
@@ -148,15 +148,15 @@ Choice steps create **branches** - different paths through the event:
 
 Choose a step category to learn about specific step types and see detailed examples:
 
-- **[Text & Speech](event-steps/text-speech.md)** - Start here for basic narrative
-- **[Choices](event-steps/choices.md)** - Essential for interactive content
-- **[State Management](event-steps/state.md)** - Control game state with flags
-- **[Items & Resources](event-steps/items.md)** - Manage player inventory
-- **[Combat & Challenges](event-steps/combat.md)** - Create encounters
-- **[Character Interaction](event-steps/characters.md)** - Work with NPCs
-- **[World & Location](event-steps/world.md)** - Modify the game world
-- **[Advanced Systems](event-steps/advanced.md)** - Specialized functionality
+- **[Text & Speech](/concepts/text-speech/)** - Start here for basic narrative
+- **[Choices](/concepts/choices/)** - Essential for interactive content
+- **[State Management](/concepts/state/)** - Control game state with flags
+- **[Items & Resources](/concepts/items/)** - Manage player inventory
+- **[Combat & Challenges](/concepts/combat/)** - Create encounters
+- **[Character Interaction](/concepts/characters/)** - Work with NPCs
+- **[World & Location](/concepts/world/)** - Modify the game world
+- **[Advanced Systems](/concepts/advanced/)** - Specialized functionality
 
 ---
 
-[← Events](events.md) | [Text & Speech →](event-steps/text-speech.md)
+[← Events](/concepts/events/) | [Text & Speech →](/concepts/text-speech/)

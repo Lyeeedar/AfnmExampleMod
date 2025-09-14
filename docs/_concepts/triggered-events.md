@@ -5,11 +5,11 @@ title: Triggered Events
 
 # Triggered Events
 
-TriggeredEvents are one way to automatically start [Events](events.md) based on specific conditions. They watch for opportunities to fire events when the player is on certain screens or at certain locations.
+TriggeredEvents are one way to automatically start [Events](/concepts/events/) based on specific conditions. They watch for opportunities to fire events when the player is on certain screens or at certain locations.
 
 ## What Triggered Events Are
 
-A **TriggeredEvent** wraps a [GameEvent](events.md) with trigger conditions that control when and where it activates automatically:
+A **TriggeredEvent** wraps a [GameEvent](/concepts/events/) with trigger conditions that control when and where it activates automatically:
 
 ```typescript
 interface TriggeredEvent {
@@ -34,7 +34,7 @@ interface TriggeredEvent {
 
 ## Trigger Conditions
 
-The `trigger` field uses [flag expressions](flags.md) to determine when an event can fire:
+The `trigger` field uses [flag expressions](/concepts/flags/) to determine when an event can fire:
 
 ```typescript
 trigger: '1'                    // Always trigger
@@ -149,4 +149,4 @@ Remember, TriggeredEvents are just one way to start events. Events can also be s
 
 ---
 
-[← Events](events.md) | [Event Steps →](event-steps.md)
+[← Events](/concepts/events/) | [Event Steps →](/concepts/event-steps/)

@@ -1,10 +1,10 @@
-title: "Ascend from Nine Mountains - Modding Guide"
-description: "Comprehensive documentation for modding the cultivation game"
-baseurl: "/AfnmExampleMod"
-url: "https://lyeeedar.github.io"
+title: 'Ascend from Nine Mountains - Modding Guide'
+description: 'Comprehensive documentation for modding the cultivation game'
+baseurl: '/AfnmExampleMod'
+url: 'https://lyeeedar.github.io'
 
 # Jekyll configuration
-theme: minima
+theme: midnight
 markdown: kramdown
 highlighter: rouge
 

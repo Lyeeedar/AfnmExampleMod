@@ -26,7 +26,7 @@ interface ChangeReputationStep {
 ### Properties
 
 - **`kind`** - Always `'reputation'`
-- **`condition`** (optional) - [Flag expression](../flags.md) that must be true for the step to execute
+- **`condition`** (optional) - [Flag expression](/concepts/flags/) that must be true for the step to execute
 - **`amount`** - Expression for reputation change (positive increases, negative decreases)
 - **`name`** - Name of the reputation category
 - **`max`** (optional) - Maximum reputation tier this change can reach
@@ -60,7 +60,7 @@ interface UnlockTechniqueStep {
 ### Properties
 
 - **`kind`** - Always `'unlockTechnique'`
-- **`condition`** (optional) - [Flag expression](../flags.md) that must be true for the step to execute
+- **`condition`** (optional) - [Flag expression](/concepts/flags/) that must be true for the step to execute
 - **`technique`** - Name of the technique to unlock. This must refer to an existing technique or a new technique you have added to the game using the `addTechnique` modAPI function.
 
 ### Examples
@@ -132,7 +132,7 @@ interface UnlockCraftingTechniqueStep {
 ### Properties
 
 - **`kind`** - Always `'unlockCraftingTechnique'`
-- **`condition`** (optional) - [Flag expression](../flags.md) that must be true for the step to execute
+- **`condition`** (optional) - [Flag expression](/concepts/flags/) that must be true for the step to execute
 - **`craftingTechnique`** - Name of the crafting technique to unlock. This must refer to an existing crafting action or a new action you have added to the game using the `addCraftingTechnique` modAPI function.
 
 ### Examples
@@ -185,7 +185,7 @@ interface AddRecipeStep {
 ### Properties
 
 - **`kind`** - Always `'addRecipe'`
-- **`condition`** (optional) - [Flag expression](../flags.md) that must be true for the step to execute
+- **`condition`** (optional) - [Flag expression](/concepts/flags/) that must be true for the step to execute
 - **`recipe`** - Name of the recipe to add. This must refer to an existing recipe or a new recipe you have added to the game using the `addItem` modAPI function.
 
 ### Examples
@@ -244,7 +244,7 @@ interface GiveItemStep {
 ### Properties
 
 - **`kind`** - Always `'giveItem'`
-- **`condition`** (optional) - [Flag expression](../flags.md) that must be true for the step to execute
+- **`condition`** (optional) - [Flag expression](/concepts/flags/) that must be true for the step to execute
 - **`description`** - Text describing the choice presented to the player
 - **`itemNames`** - Array of item names the player can choose from. Each option will only be presented if the player carries at least one of that item in their inventory
 - **`branches`** - Event sequences for each item choice
@@ -322,7 +322,7 @@ interface ChangeHpStep {
 ### Properties
 
 - **`kind`** - Always `'changeHp'`
-- **`condition`** (optional) - [Flag expression](../flags.md) that must be true for the step to execute
+- **`condition`** (optional) - [Flag expression](/concepts/flags/) that must be true for the step to execute
 - **`amount`** - Expression for HP change (positive heals, negative damages)
 
 ### Examples
@@ -356,4 +356,4 @@ interface ChangeHpStep {
 
 ---
 
-[← World & Location](world.md) | [API Reference →](../api-reference.md)
+[← World & Location](world/) | [API Reference →](../api-reference/)

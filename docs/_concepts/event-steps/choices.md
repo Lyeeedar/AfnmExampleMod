@@ -32,13 +32,13 @@ interface ChoiceStepChoice {
 ### Properties
 
 - **`kind`** - Always `'choice'`
-- **`condition`** (optional) - [Flag expression](../flags.md) that must be true for the entire choice step to appear
+- **`condition`** (optional) - [Flag expression](/concepts/flags/) that must be true for the entire choice step to appear
 - **`choices`** - Array of individual choice options
 
 ### Choice Properties
 
 - **`text`** - The text displayed for this choice option
-- **`showCondition`** (optional) - [Flag expression](../flags.md) - choice only appears if true
+- **`showCondition`** (optional) - [Flag expression](/concepts/flags/) - choice only appears if true
 - **`condition`** (optional) - Structured condition object (see below)
 - **`hideIfDisabled`** (optional) - If true, hide the choice when its condition fails (instead of graying it out)
 - **`children`** - Array of event steps that execute when this choice is selected
@@ -398,4 +398,4 @@ From the Mausoleum Gate event:
 
 ---
 
-[← Text & Speech](text-speech.md) | [State Management →](state.md)
+[← Text & Speech](text-speech/) | [State Management →](state/)

@@ -39,7 +39,7 @@ Events can be started in many different ways:
 
 ### Triggered Events
 
-Automatic events that fire based on conditions - see [Triggered Events](triggered-events.md)
+Automatic events that fire based on conditions - see [Triggered Events](/concepts/triggered-events/)
 
 ### Character Interactions
 
@@ -153,12 +153,12 @@ Steps execute **sequentially** in the order they appear in the `steps` array. St
 
 Learn about the different types of Event Steps:
 
-- **[Event Steps Overview](event-steps.md)** - Complete guide to all step types
-- **[Triggered Events](triggered-events.md)** - How to automatically trigger events
-- **[Flags](flags.md)** - State management system used by events
+- **[Event Steps Overview](/concepts/event-steps/)** - Complete guide to all step types
+- **[Triggered Events](/concepts/triggered-events/)** - How to automatically trigger events
+- **[Flags](/concepts/flags/)** - State management system used by events
 
 Understanding these systems will allow you to create rich, interactive experiences that respond to player choices and game state.
 
 ---
 
-[← Flags](flags.md) | [Event Steps →](event-steps.md) | [Triggered Events →](triggered-events.md)
+[← Flags](/concepts/flags/) | [Event Steps →](/concepts/event-steps/) | [Triggered Events →](/concepts/triggered-events/)
