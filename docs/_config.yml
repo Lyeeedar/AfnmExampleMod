@@ -4,12 +4,10 @@ baseurl: '/AfnmExampleMod'
 url: 'https://lyeeedar.github.io'
 
 # Jekyll configuration
-remote_theme: mmistakes/minimal-mistakes@4.24.0
+remote_theme: just-the-docs/just-the-docs@v0.7.0
 markdown: kramdown
 highlighter: rouge
-minimal_mistakes_skin: "dark" # Use dark theme as base
-search: false
-breadcrumbs: false
+color_scheme: custom
 
 # Collections for organizing documentation
 collections:
@@ -23,14 +21,12 @@ collections:
     output: true
     permalink: /:collection/:name/
 
-# Default layout settings
-defaults:
-  - scope:
-      path: ""
-    values:
-      layout: single
-      sidebar:
-        nav: "docs"
+# Just the Docs settings
+search_enabled: false
+heading_anchors: true
+nav_sort: case_sensitive
+back_to_top: true
+back_to_top_text: "Back to top"
 
 
 # Plugins

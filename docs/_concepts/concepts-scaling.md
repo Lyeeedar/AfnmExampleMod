@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Scaling
+parent: Core Concepts
 ---
 
 # Scaling

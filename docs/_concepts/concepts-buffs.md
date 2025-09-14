@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Buffs and Resources
+parent: Core Concepts
 ---
 
 # Buffs and Resources

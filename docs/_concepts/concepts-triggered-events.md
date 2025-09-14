@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Triggered Events
+parent: Core Concepts
 ---
 
 # Triggered Events

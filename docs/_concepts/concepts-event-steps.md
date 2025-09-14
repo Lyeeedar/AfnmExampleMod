@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Event Steps
+parent: Core Concepts
 ---
 
 # Event Steps

@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Events
+parent: Core Concepts
 ---
 
 # Events

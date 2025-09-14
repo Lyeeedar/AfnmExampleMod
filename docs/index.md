@@ -1,7 +1,7 @@
 ---
+layout: default
 title: Home
-sidebar:
-  nav: "docs"
+nav_order: 1
 ---
 
 # Ascend from Nine Mountains - Modding Documentation

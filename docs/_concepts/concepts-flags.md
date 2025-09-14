@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Flags
+parent: Core Concepts
 ---
 
 # Flags
