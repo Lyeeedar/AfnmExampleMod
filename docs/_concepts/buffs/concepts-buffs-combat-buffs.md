@@ -36,7 +36,7 @@ interface Buff {
 
 ### Stat Modifications
 
-Buffs can modify combat statistics using [Scaling](/concepts/scaling/):
+Buffs can modify combat statistics using [Scaling](/concepts/concepts-scaling/):
 
 ```typescript
 stats?: Partial<{ [key in CombatStatistic]: Scaling }>;
@@ -483,4 +483,4 @@ const lastStand: Buff = {
 
 ---
 
-[← Buffs Overview](/concepts/buffs/) | [Scaling](/concepts/scaling/) | [Crafting Buffs →](/concepts/crafting-buffs/) | [Design Patterns →](/concepts/design-patterns/)
+[← Buffs Overview](/concepts/concepts-buffs/) | [Scaling](/concepts/concepts-scaling/) | [Crafting Buffs →](/concepts/concepts-buffs-crafting-buffs/) | [Design Patterns →](/concepts/concepts-buffs-design-patterns/)

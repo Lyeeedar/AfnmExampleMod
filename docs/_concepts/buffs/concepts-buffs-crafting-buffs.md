@@ -56,7 +56,7 @@ type CraftingBuffDisplayLocation =
 
 ### Stat Modifications
 
-Modify crafting statistics using [Scaling](/concepts/scaling/):
+Modify crafting statistics using [Scaling](/concepts/concepts-scaling/):
 
 ```typescript
 stats?: Partial<{ [key in CraftingStatistic]: Scaling }>;
@@ -517,4 +517,4 @@ const breakthrough: CraftingBuff = {
 
 ---
 
-[← Combat Buffs](/concepts/combat-buffs/) | [Scaling](/concepts/scaling/) | [Design Patterns →](/concepts/design-patterns/)
+[← Combat Buffs](/concepts/concepts-buffs-combat-buffs/) | [Scaling](/concepts/concepts-scaling/) | [Design Patterns →](/concepts/concepts-buffs-design-patterns/)

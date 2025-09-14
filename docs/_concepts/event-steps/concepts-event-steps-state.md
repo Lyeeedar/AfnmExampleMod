@@ -26,10 +26,10 @@ interface SetFlagStep {
 ### Properties
 
 - **`kind`** - Always `'flag'`
-- **`condition`** (optional) - [Flag expression](/concepts/flags/) that must be true for the step to execute
+- **`condition`** (optional) - [Flag expression](/concepts/concepts-flags/) that must be true for the step to execute
 - **`global`** - Whether to store the flag permanently (`true`) or only for the current event (`false`)
 - **`flag`** - The flag name/key to set
-- **`value`** - Expression that evaluates to the number to store (see [Flags](/concepts/flags/))
+- **`value`** - Expression that evaluates to the number to store (see [Flags](/concepts/concepts-flags/))
 
 ### Examples
 
@@ -106,7 +106,7 @@ interface ConditionalStep {
 ### Properties
 
 - **`kind`** - Always `'conditional'`
-- **`condition`** (optional) - [Flag expression](/concepts/flags/) that must be true for the entire step to execute
+- **`condition`** (optional) - [Flag expression](/concepts/concepts-flags/) that must be true for the entire step to execute
 - **`branches`** - Array of condition/children pairs that are evaluated in order
 
 ### Examples
@@ -450,4 +450,4 @@ Conditional branches are evaluated **in order**, and only the **first matching b
 
 ---
 
-[← Choices](choices/) | [Items & Resources →](items/)
+[← Choices](concepts-event-steps-choices/) | [Items & Resources →](concepts-event-steps-items/)

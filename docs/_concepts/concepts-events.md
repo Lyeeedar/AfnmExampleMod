@@ -39,7 +39,7 @@ Events can be started in many different ways:
 
 ### Triggered Events
 
-Automatic events that fire based on conditions - see [Triggered Events](/concepts/triggered-events/)
+Automatic events that fire based on conditions - see [Triggered Events](/concepts/concepts-triggered-events/)
 
 ### Character Interactions
 
@@ -111,7 +111,7 @@ const crystalShoreEnterEvent: GameEvent = {
 };
 ```
 
-This example shows a complete event with narrative text, dialogue, player choices, and flag setting. The event would be used by a [Triggered Event](triggered-events.md) or other system to actually execute it.
+This example shows a complete event with narrative text, dialogue, player choices, and flag setting. The event would be used by a [Triggered Event](concepts-triggered-events.md) or other system to actually execute it.
 
 ## Event Steps
 
@@ -153,12 +153,12 @@ Steps execute **sequentially** in the order they appear in the `steps` array. St
 
 Learn about the different types of Event Steps:
 
-- **[Event Steps Overview](/concepts/event-steps/)** - Complete guide to all step types
-- **[Triggered Events](/concepts/triggered-events/)** - How to automatically trigger events
-- **[Flags](/concepts/flags/)** - State management system used by events
+- **[Event Steps Overview](/concepts/concepts-event-steps/)** - Complete guide to all step types
+- **[Triggered Events](/concepts/concepts-triggered-events/)** - How to automatically trigger events
+- **[Flags](/concepts/concepts-flags/)** - State management system used by events
 
 Understanding these systems will allow you to create rich, interactive experiences that respond to player choices and game state.
 
 ---
 
-[← Flags](/concepts/flags/) | [Event Steps →](/concepts/event-steps/) | [Triggered Events →](/concepts/triggered-events/)
+[← Flags](/concepts/concepts-flags/) | [Event Steps →](/concepts/concepts-event-steps/) | [Triggered Events →](/concepts/concepts-triggered-events/)

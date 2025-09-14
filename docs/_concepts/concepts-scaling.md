@@ -527,4 +527,4 @@ The key to good scaling design is understanding that players will optimize aroun
 
 ---
 
-[← Core Concepts](/concepts/) | [Buffs →](/concepts/buffs/) | [Events →](/concepts/events/)
+[← Core Concepts](/concepts/index/) | [Buffs →](/concepts/concepts-buffs/) | [Events →](/concepts/concepts-events/)

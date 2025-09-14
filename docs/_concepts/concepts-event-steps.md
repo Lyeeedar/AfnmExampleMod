@@ -5,34 +5,34 @@ title: Event Steps
 
 # Event Steps
 
-Event Steps are the building blocks of [Events](/concepts/events/). Each step represents a single action or interaction that occurs during an event sequence.
+Event Steps are the building blocks of [Events](/concepts/concepts-events/). Each step represents a single action or interaction that occurs during an event sequence.
 
 ## Step Categories
 
 Event steps are organized into logical categories based on their functionality:
 
-### [Text & Speech](/concepts/text-speech/)
+### [Text & Speech](/concepts/concepts-event-steps-text-speech/)
 
 Display narrative content and dialogue:
 
 - **Text Step** - Narration and description
 - **Speech Step** - Character dialogue
 
-### [Choices](/concepts/choices/)
+### [Choices](/concepts/concepts-event-steps-choices/)
 
 Player decision points and branching:
 
 - **Choice Step** - Present options to the player
 - **Conditional branching** - Different paths based on choice
 
-### [State Management](/concepts/state/)
+### [State Management](/concepts/concepts-event-steps-state/)
 
 Modify game state and flags:
 
 - **Flag Step** - Set or modify flag values
 - **Conditional Step** - Execute steps based on conditions
 
-### [Items & Resources](/concepts/items/)
+### [Items & Resources](/concepts/concepts-event-steps-items/)
 
 Manage player inventory and resources:
 
@@ -41,14 +41,14 @@ Manage player inventory and resources:
 - **Change Money Step** - Modify spirit stones
 - **Change Favour Step** - Adjust favour points
 
-### [Combat & Challenges](/concepts/combat/)
+### [Combat & Challenges](/concepts/concepts-event-steps-combat/)
 
 Create encounters and challenges:
 
 - **Combat Step** - Battle encounters
 - **Crafting Step** - Crafting challenges
 
-### [Character Interaction](/concepts/characters/)
+### [Character Interaction](/concepts/concepts-event-steps-characters/)
 
 Manage NPCs and relationships:
 
@@ -56,7 +56,7 @@ Manage NPCs and relationships:
 - **Clear Character Step** - Remove character
 - **Talk/Trade/Fight Character Steps** - Interact with NPCs
 
-### [World & Location](/concepts/world/)
+### [World & Location](/concepts/concepts-event-steps-world/)
 
 Modify the game world:
 
@@ -64,7 +64,7 @@ Modify the game world:
 - **Unlock Location Step** - Make new areas accessible
 - **Pass Time Step** - Advance the calendar
 
-### [Advanced Systems](/concepts/advanced/)
+### [Advanced Systems](/concepts/concepts-event-steps-advanced/)
 
 Specialized functionality:
 
@@ -148,15 +148,15 @@ Choice steps create **branches** - different paths through the event:
 
 Choose a step category to learn about specific step types and see detailed examples:
 
-- **[Text & Speech](/concepts/text-speech/)** - Start here for basic narrative
-- **[Choices](/concepts/choices/)** - Essential for interactive content
-- **[State Management](/concepts/state/)** - Control game state with flags
-- **[Items & Resources](/concepts/items/)** - Manage player inventory
-- **[Combat & Challenges](/concepts/combat/)** - Create encounters
-- **[Character Interaction](/concepts/characters/)** - Work with NPCs
-- **[World & Location](/concepts/world/)** - Modify the game world
-- **[Advanced Systems](/concepts/advanced/)** - Specialized functionality
+- **[Text & Speech](/concepts/concepts-event-steps-text-speech/)** - Start here for basic narrative
+- **[Choices](/concepts/concepts-event-steps-choices/)** - Essential for interactive content
+- **[State Management](/concepts/concepts-event-steps-state/)** - Control game state with flags
+- **[Items & Resources](/concepts/concepts-event-steps-items/)** - Manage player inventory
+- **[Combat & Challenges](/concepts/concepts-event-steps-combat/)** - Create encounters
+- **[Character Interaction](/concepts/concepts-event-steps-characters/)** - Work with NPCs
+- **[World & Location](/concepts/concepts-event-steps-world/)** - Modify the game world
+- **[Advanced Systems](/concepts/concepts-event-steps-advanced/)** - Specialized functionality
 
 ---
 
-[← Events](/concepts/events/) | [Text & Speech →](/concepts/text-speech/)
+[← Events](/concepts/concepts-events/) | [Text & Speech →](/concepts/concepts-event-steps-text-speech/)

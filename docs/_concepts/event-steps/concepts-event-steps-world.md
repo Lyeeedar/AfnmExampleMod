@@ -25,7 +25,7 @@ interface ChangeLocationStep {
 ### Properties
 
 - **`kind`** - Always `'location'`
-- **`condition`** (optional) - [Flag expression](/concepts/flags/) that must be true for the step to execute
+- **`condition`** (optional) - [Flag expression](/concepts/concepts-flags/) that must be true for the step to execute
 - **`location`** - Name of the location to change to
 - **`updatePlayerLocation`** (optional) - Whether to update the player's actual world location
 
@@ -93,7 +93,7 @@ interface UnlockLocationStep {
 ### Properties
 
 - **`kind`** - Always `'unlockLocation'`
-- **`condition`** (optional) - [Flag expression](/concepts/flags/) that must be true for the step to execute
+- **`condition`** (optional) - [Flag expression](/concepts/concepts-flags/) that must be true for the step to execute
 - **`location`** - Name of the location to unlock
 
 ### Examples
@@ -161,7 +161,7 @@ interface ChangeScreenStep {
 ### Properties
 
 - **`kind`** - Always `'changeScreen'`
-- **`condition`** (optional) - [Flag expression](/concepts/flags/) that must be true for the step to execute
+- **`condition`** (optional) - [Flag expression](/concepts/concepts-flags/) that must be true for the step to execute
 - **`screen`** - The game screen to switch to (e.g., 'research', 'crafting', 'location')
 
 ### Examples
@@ -214,7 +214,7 @@ interface PassTimeStep {
 ### Properties
 
 - **`kind`** - Always `'passTime'`
-- **`condition`** (optional) - [Flag expression](/concepts/flags/) that must be true for the step to execute
+- **`condition`** (optional) - [Flag expression](/concepts/concepts-flags/) that must be true for the step to execute
 - **`days`** - Expression for the number of days to advance
 
 ### Examples
@@ -303,7 +303,7 @@ interface ExitStep {
 
 - **`kind`** - Always `'exit'`
 - **`preventQuestStepCompletion`** (optional) - Prevents quest progression if true
-- **`condition`** (optional) - [Flag expression](/concepts/flags/) that must be true for the step to execute
+- **`condition`** (optional) - [Flag expression](/concepts/concepts-flags/) that must be true for the step to execute
 
 ### Examples
 
@@ -382,7 +382,7 @@ interface GotoLabelStep {
 ### Properties
 
 - **`kind`** - Always `'label'` or `'gotoLabel'`
-- **`condition`** (optional) - [Flag expression](/concepts/flags/) that must be true for the step to execute
+- **`condition`** (optional) - [Flag expression](/concepts/concepts-flags/) that must be true for the step to execute
 - **`label`** - The label name to mark or jump to
 
 ### Examples
@@ -756,4 +756,4 @@ interface GotoLabelStep {
 
 ---
 
-[← Character Interactions](characters/) | [Advanced Systems →](advanced/)
+[← Character Interactions](concepts-event-steps-characters/) | [Advanced Systems →](concepts-event-steps-advanced/)

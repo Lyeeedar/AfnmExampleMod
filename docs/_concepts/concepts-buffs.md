@@ -393,11 +393,11 @@ const evolving: Buff = {
 
 ## Next Steps
 
-- **[Scaling](/concepts/scaling/)** - Understanding value calculations
-- **[Combat Buffs](/concepts/combat-buffs/)** - Detailed combat buff reference
-- **[Crafting Buffs](/concepts/crafting-buffs/)** - Crafting buff system
-- **[Buff Design Patterns](/concepts/design-patterns/)** - Best practices and examples
+- **[Scaling](/concepts/concepts-scaling/)** - Understanding value calculations
+- **[Combat Buffs](/concepts/concepts-buffs-combat-buffs/)** - Detailed combat buff reference
+- **[Crafting Buffs](/concepts/concepts-buffs-crafting-buffs/)** - Crafting buff system
+- **[Buff Design Patterns](/concepts/concepts-buffs-design-patterns/)** - Best practices and examples
 
 ---
 
-[← Events](/concepts/events/) | [Combat Buffs →](/concepts/combat-buffs/)
+[← Events](/concepts/concepts-events/) | [Combat Buffs →](/concepts/concepts-buffs-combat-buffs/)

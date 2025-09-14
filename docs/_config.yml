@@ -37,48 +37,48 @@ sidebar:
   - title: 'Core Concepts'
     children:
       - title: 'Scaling System'
-        url: /concepts/scaling/
+        url: /concepts/concepts-scaling/
       - title: 'Flags & State'
-        url: /concepts/flags/
+        url: /concepts/concepts-flags/
 
   - title: 'Events System'
     children:
       - title: 'Events Overview'
-        url: /concepts/events/
+        url: /concepts/concepts-events/
       - title: 'Triggered Events'
-        url: /concepts/triggered-events/
+        url: /concepts/concepts-triggered-events/
       - title: 'Event Steps'
-        url: /concepts/event-steps/
+        url: /concepts/concepts-event-steps/
 
   - title: 'Event Step Types'
     children:
       - title: 'Text & Speech'
-        url: /concepts/event-steps/text-speech/
+        url: /concepts/concepts-event-steps-text-speech/
       - title: 'Choices'
-        url: /concepts/event-steps/choices/
+        url: /concepts/concepts-event-steps-choices/
       - title: 'State Management'
-        url: /concepts/event-steps/state/
+        url: /concepts/concepts-event-steps-state/
       - title: 'Items & Resources'
-        url: /concepts/event-steps/items/
+        url: /concepts/concepts-event-steps-items/
       - title: 'Combat & Challenges'
-        url: /concepts/event-steps/combat/
+        url: /concepts/concepts-event-steps-combat/
       - title: 'Character Interaction'
-        url: /concepts/event-steps/characters/
+        url: /concepts/concepts-event-steps-characters/
       - title: 'World & Location'
-        url: /concepts/event-steps/world/
+        url: /concepts/concepts-event-steps-world/
       - title: 'Advanced Systems'
-        url: /concepts/event-steps/advanced/
+        url: /concepts/concepts-event-steps-advanced/
 
   - title: 'Buffs & Resources'
     children:
       - title: 'Buffs Overview'
-        url: /concepts/buffs/
+        url: /concepts/concepts-buffs/
       - title: 'Combat Buffs'
-        url: /concepts/buffs/combat-buffs/
+        url: /concepts/concepts-buffs-combat-buffs/
       - title: 'Crafting Buffs'
-        url: /concepts/buffs/crafting-buffs/
+        url: /concepts/concepts-buffs-crafting-buffs/
       - title: 'Design Patterns'
-        url: /concepts/buffs/design-patterns/
+        url: /concepts/concepts-buffs-design-patterns/
 
 # Plugins
 plugins:

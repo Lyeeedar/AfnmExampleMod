@@ -25,7 +25,7 @@ interface TextStep {
 ### Properties
 
 - **`kind`** - Always `'text'`
-- **`condition`** (optional) - [Flag expression](/concepts/flags/) that must be true for the step to execute
+- **`condition`** (optional) - [Flag expression](/concepts/concepts-flags/) that must be true for the step to execute
 - **`text`** - The text content to display to the player
 - **`sfx`** (optional) - Sound effect to play when the text appears
 
@@ -76,7 +76,7 @@ interface SpeechStep {
 ### Properties
 
 - **`kind`** - Always `'speech'`
-- **`condition`** (optional) - [Flag expression](/concepts/flags/) that must be true for the step to execute
+- **`condition`** (optional) - [Flag expression](/concepts/concepts-flags/) that must be true for the step to execute
 - **`character`** - Name of the character speaking
 - **`text`** - The dialogue text
 
@@ -249,4 +249,4 @@ const steps: EventStep[] = [
 
 ---
 
-[← Event Steps](../event-steps/) | [Choices →](choices/)
+[← Event Steps](../concepts-event-steps/) | [Choices →](concepts-event-steps-choices/)

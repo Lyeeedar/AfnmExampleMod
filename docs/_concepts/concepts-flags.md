@@ -298,4 +298,4 @@ Flags are fundamental to creating dynamic, responsive content that remembers the
 
 ---
 
-[← Core Concepts](/concepts/) | [Events →](/concepts/events/)
+[← Core Concepts](/concepts/index/) | [Events →](/concepts/concepts-events/)

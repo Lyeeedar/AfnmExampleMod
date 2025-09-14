@@ -5,11 +5,11 @@ title: Triggered Events
 
 # Triggered Events
 
-TriggeredEvents are one way to automatically start [Events](/concepts/events/) based on specific conditions. They watch for opportunities to fire events when the player is on certain screens or at certain locations.
+TriggeredEvents are one way to automatically start [Events](/concepts/concepts-events/) based on specific conditions. They watch for opportunities to fire events when the player is on certain screens or at certain locations.
 
 ## What Triggered Events Are
 
-A **TriggeredEvent** wraps a [GameEvent](/concepts/events/) with trigger conditions that control when and where it activates automatically:
+A **TriggeredEvent** wraps a [GameEvent](/concepts/concepts-events/) with trigger conditions that control when and where it activates automatically:
 
 ```typescript
 interface TriggeredEvent {
@@ -27,14 +27,14 @@ interface TriggeredEvent {
 ## How Triggered Events Work
 
 1. **Game checks triggers** - Evaluates all TriggeredEvents for current screen/location
-2. **Condition evaluation** - Tests `trigger` condition using current [flags](flags.md)
+2. **Condition evaluation** - Tests `trigger` condition using current [flags](concepts-flags.md)
 3. **Random chance** - Applies `triggerChance` if specified
 4. **Cooldown check** - Verifies cooldown period has passed
 5. **Event execution** - Processes the GameEvent's steps in sequence
 
 ## Trigger Conditions
 
-The `trigger` field uses [flag expressions](/concepts/flags/) to determine when an event can fire:
+The `trigger` field uses [flag expressions](/concepts/concepts-flags/) to determine when an event can fire:
 
 ```typescript
 trigger: '1'                    // Always trigger
@@ -149,4 +149,4 @@ Remember, TriggeredEvents are just one way to start events. Events can also be s
 
 ---
 
-[← Events](/concepts/events/) | [Event Steps →](/concepts/event-steps/)
+[← Events](/concepts/concepts-events/) | [Event Steps →](/concepts/concepts-event-steps/)

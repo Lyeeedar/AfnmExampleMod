@@ -38,7 +38,7 @@ Buffs should create interesting decisions:
 
 ## Combat Resource Patterns
 
-For detailed information on how values are calculated, see the [Scaling](/concepts/scaling/) documentation.
+For detailed information on how values are calculated, see the [Scaling](/concepts/concepts-scaling/) documentation.
 
 ### The Basic Resource Loop
 
@@ -519,4 +519,4 @@ Remember: **Buffs are not just effects - they're the heartbeat of combat and cra
 
 ---
 
-[← Crafting Buffs](/concepts/crafting-buffs/) | [Buffs Overview](/concepts/buffs/)
+[← Crafting Buffs](/concepts/concepts-buffs-crafting-buffs/) | [Buffs Overview](/concepts/concepts-buffs/)
