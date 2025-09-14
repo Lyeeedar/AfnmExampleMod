@@ -18,14 +18,11 @@ $btn-primary-color: #ffd700;
 // Borders
 $border-color: #444444;
 
-// Navigation
-$nav-width: 300px;
+// Navigation - use consistent units
+$nav-width: 18.75rem; // 300px converted to rem
 $nav-list-item-height: 2rem;
 $nav-list-item-height-sm: 2.5rem;
 $nav-list-expander-right: 1rem;
-
-// Custom styles to enhance midnight theme look
-@import "./vendor/OneDarkJekyll/syntax";  // Use OneDark syntax highlighting
 
 .side-bar {
   background-color: $sidebar-color;
