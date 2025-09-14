@@ -14,22 +14,22 @@ Combat buffs are temporary effects and resources used during battle. They track 
 ```typescript
 interface Buff {
   // Identity
-  name: string;           // Unique identifier
-  icon: string;           // Visual icon path
-  colour?: string;        // Tint color for the icon
+  name: string; // Unique identifier
+  icon: string; // Visual icon path
+  colour?: string; // Tint color for the icon
 
   // Stacking behavior
-  canStack: boolean;      // Whether multiple stacks allowed
-  stacks: number;         // Current stack count
-  maxStacks?: number;     // Maximum stack limit
+  canStack: boolean; // Whether multiple stacks allowed
+  stacks: number; // Current stack count
+  maxStacks?: number; // Maximum stack limit
 
   // Display
-  tooltip?: string;       // Detailed tooltip text
-  statsTooltip?: string;  // Additional stat information
+  tooltip?: string; // Detailed tooltip text
+  statsTooltip?: string; // Additional stat information
 
   // Gameplay
-  flag?: string;          // Flag key for condition checking
-  priority?: number;      // Execution order (higher = first)
+  flag?: string; // Flag key for condition checking
+  priority?: number; // Execution order (higher = first)
   afterTechnique?: boolean; // Execute after technique resolution
 }
 ```
@@ -49,15 +49,6 @@ stats: {
 // Available combat statistics:
 // power, defense, barrier, control, intensity,
 // critchance, lifesteal, speed
-```
-
-### Special Modifiers
-
-```typescript
-charisma?: number;        // Flat charisma bonus
-masteryPoints?: number;   // Bonus mastery gain
-speed?: number;           // Turn order modifier
-enhancement?: number;     // Damage multiplier
 ```
 
 ## Buff Conditions
@@ -131,7 +122,7 @@ onCombatStartEffects?: BuffEffect[];
 {
   kind: 'damage',
   amount: { value: 2, stat: 'power' },  // 2x power - see Scaling docs
-  hits: { value: 3 },                   // Hit 3 times
+  hits: { value: 3, stat: undefined },                   // Hit 3 times
   damageType: 'piercing'                // Damage type
 }
 
@@ -252,13 +243,15 @@ onCombatStartEffects?: BuffEffect[];
 React when specific buffs are applied:
 
 ```typescript
-interceptBuffEffects: [{
-  buff: damageBuff,
-  effects: [
-    { kind: 'multiply', amount: { value: 0.5 } }  // Halve damage
-  ],
-  cancelApplication: false  // Still apply the damage
-}]
+interceptBuffEffects: [
+  {
+    buff: damageBuff,
+    effects: [
+      { kind: 'multiply', amount: { value: 0.5 } }, // Halve damage
+    ],
+    cancelApplication: false, // Still apply the damage
+  },
+];
 ```
 
 ### Triggered Effects
@@ -266,12 +259,12 @@ interceptBuffEffects: [{
 Respond to combat events:
 
 ```typescript
-triggeredBuffEffects: [{
-  trigger: 'onCrit',
-  effects: [
-    { kind: 'buffSelf', buff: focusBuff, amount: { value: 1 } }
-  ]
-}]
+triggeredBuffEffects: [
+  {
+    trigger: 'onCrit',
+    effects: [{ kind: 'buffSelf', buff: focusBuff, amount: { value: 1 } }],
+  },
+];
 
 // Common triggers:
 // 'onDamageDealt', 'onDamageTaken', 'onCrit',
@@ -367,7 +360,7 @@ const momentum: Buff = {
   maxStacks: 10,
   stacks: 0,
   onTechniqueEffects: [],
-  onRoundEffects: []
+  onRoundEffects: [],
 };
 ```
 
@@ -382,9 +375,9 @@ const focus: Buff = {
   onRoundEffects: [
     {
       kind: 'consumeSelf',
-      amount: { value: 1 }  // Lose 1 per round
-    }
-  ]
+      amount: { value: 1 }, // Lose 1 per round
+    },
+  ],
 };
 ```
 
@@ -397,9 +390,9 @@ const rage: Buff = {
   canStack: true,
   maxStacks: 10,
   stats: {
-    power: { value: 0.05, stat: 'stacks' },     // +5% per stack
-    defense: { value: -0.03, stat: 'stacks' }   // -3% per stack
-  }
+    power: { value: 0.05, stat: 'stacks' }, // +5% per stack
+    defense: { value: -0.03, stat: 'stacks' }, // -3% per stack
+  },
 };
 ```
 
@@ -417,9 +410,9 @@ const charge: Buff = {
       condition: { kind: 'buff', buff: 'self', count: 5, mode: 'equal' },
       sourceStacks: { value: 5 },
       targetBuff: lightningStrike,
-      targetStacks: { value: 1 }
-    }
-  ]
+      targetStacks: { value: 1 },
+    },
+  ],
 };
 ```
 
@@ -435,13 +428,13 @@ const burn: Buff = {
   onRoundEffects: [
     {
       kind: 'damage',
-      amount: { value: 10, stat: 'stacks' }
+      amount: { value: 10, stat: 'stacks' },
     },
     {
       kind: 'consumeSelf',
-      amount: { value: 1 }
-    }
-  ]
+      amount: { value: 1 },
+    },
+  ],
 };
 ```
 
@@ -453,10 +446,10 @@ const weakness: Buff = {
   icon: 'weak-icon',
   canStack: false,
   stats: {
-    power: { value: -0.25 },    // -25% power
-    defense: { value: -0.25 }    // -25% defense
+    power: { value: -0.25 }, // -25% power
+    defense: { value: -0.25 }, // -25% defense
   },
-  stacks: 1
+  stacks: 1,
 };
 ```
 
@@ -469,12 +462,12 @@ const lastStand: Buff = {
   condition: {
     kind: 'hp',
     percentage: 25,
-    mode: 'less'
+    mode: 'less',
   },
   stats: {
-    power: { value: 2.0 },       // Double power
-    lifesteal: { value: 0.5 }    // 50% lifesteal
-  }
+    power: { value: 2.0 }, // Double power
+    lifesteal: { value: 0.5 }, // 50% lifesteal
+  },
 };
 ```
 
