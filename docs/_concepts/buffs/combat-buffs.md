@@ -122,8 +122,8 @@ onCombatStartEffects?: BuffEffect[];
 {
   kind: 'damage',
   amount: { value: 2, stat: 'power' },  // 2x power - see Scaling docs
-  hits: { value: 3, stat: undefined },                   // Hit 3 times
-  damageType: 'piercing'                // Damage type
+  hits: { value: 3, stat: undefined },  // Hit 3 times
+  damageType: 'corrupt'                // Damage type
 }
 
 // Damage self
