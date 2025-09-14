@@ -37,48 +37,48 @@ sidebar:
   - title: 'Core Concepts'
     children:
       - title: 'Scaling System'
-        url: /concepts/scaling/
+        url: /_concepts/scaling/
       - title: 'Flags & State'
-        url: /concepts/flags/
+        url: /_concepts/flags/
 
   - title: 'Events System'
     children:
       - title: 'Events Overview'
-        url: /concepts/events/
+        url: /_concepts/events/
       - title: 'Triggered Events'
-        url: /concepts/triggered-events/
+        url: /_concepts/triggered-events/
       - title: 'Event Steps'
-        url: /concepts/event-steps/
+        url: /_concepts/event-steps/
 
   - title: 'Event Step Types'
     children:
       - title: 'Text & Speech'
-        url: /concepts/text-speech/
+        url: /_concepts/text-speech/
       - title: 'Choices'
-        url: /concepts/choices/
+        url: /_concepts/choices/
       - title: 'State Management'
-        url: /concepts/state/
+        url: /_concepts/state/
       - title: 'Items & Resources'
-        url: /concepts/items/
+        url: /_concepts/items/
       - title: 'Combat & Challenges'
-        url: /concepts/combat/
+        url: /_concepts/combat/
       - title: 'Character Interaction'
-        url: /concepts/characters/
+        url: /_concepts/characters/
       - title: 'World & Location'
-        url: /concepts/world/
+        url: /_concepts/world/
       - title: 'Advanced Systems'
-        url: /concepts/advanced/
+        url: /_concepts/advanced/
 
   - title: 'Buffs & Resources'
     children:
       - title: 'Buffs Overview'
-        url: /concepts/buffs/
+        url: /_concepts/buffs/
       - title: 'Combat Buffs'
-        url: /concepts/combat-buffs/
+        url: /_concepts/combat-buffs/
       - title: 'Crafting Buffs'
-        url: /concepts/crafting-buffs/
+        url: /_concepts/crafting-buffs/
       - title: 'Design Patterns'
-        url: /concepts/design-patterns/
+        url: /_concepts/design-patterns/
 
 # Plugins
 plugins:

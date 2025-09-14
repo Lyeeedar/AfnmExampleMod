@@ -1,0 +1,80 @@
+/* Custom Sidebar Styles for Midnight Theme */
+
+.sidebar {
+  margin-top: 20px;
+  border-top: 1px solid #444;
+  padding-top: 20px;
+}
+
+.nav-section {
+  margin-bottom: 25px;
+}
+
+.nav-section-title {
+  color: #ffd700;
+  font-size: 14px;
+  font-weight: bold;
+  margin: 0 0 10px 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.nav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-item {
+  margin: 0;
+  padding: 0;
+}
+
+.nav-link {
+  display: block;
+  color: #ccc;
+  text-decoration: none;
+  padding: 5px 10px;
+  font-size: 13px;
+  border-radius: 3px;
+  transition: all 0.3s ease;
+  border-left: 2px solid transparent;
+}
+
+.nav-link:hover {
+  color: #fff;
+  background-color: rgba(255, 215, 0, 0.1);
+  border-left-color: #ffd700;
+  text-decoration: none;
+}
+
+.nav-link:focus {
+  outline: 1px dotted #ffd700;
+  outline-offset: 2px;
+}
+
+/* Active state styling */
+.nav-link.active {
+  color: #ffd700;
+  background-color: rgba(255, 215, 0, 0.15);
+  border-left-color: #ffd700;
+}
+
+/* Responsive adjustments */
+@media print, screen and (max-width: 960px) {
+  .sidebar {
+    display: none;
+  }
+}
+
+@media print, screen and (max-width: 720px) {
+  .sidebar {
+    display: none;
+  }
+}
+
+@media print, screen and (max-width: 480px) {
+  .sidebar {
+    display: none;
+  }
+}

@@ -1,7 +1,6 @@
 ---
 layout: default
 title: Home
-nav_order: 1
 ---
 
 # Ascend from Nine Mountains - Modding Documentation

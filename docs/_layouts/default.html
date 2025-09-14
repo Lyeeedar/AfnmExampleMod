@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="{{ site.lang | default: "en-US" }}">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>{{ page.title | default: site.title }}</title>
+    <link rel="stylesheet" href="{{ '/assets/css/style.css?v=' | append: site.github.build_revision | relative_url }}">
+    <link rel="stylesheet" href="{{ '/assets/css/sidebar.css' | relative_url }}">
+    <script src="{{ '/assets/js/scale.fix.js' | relative_url }}"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1 class="header">{{ site.title | default: site.github.repository_name }}</h1>
+        <p class="header">{{ site.description | default: site.github.project_tagline }}</p>
+        
+        <!-- Custom Sidebar Navigation -->
+        {% if site.sidebar %}
+          <nav class="sidebar">
+            {% for section in site.sidebar %}
+              <div class="nav-section">
+                <h3 class="nav-section-title">{{ section.title }}</h3>
+                <ul class="nav-list">
+                  {% for item in section.children %}
+                    <li class="nav-item">
+                      <a href="{{ item.url | relative_url }}" class="nav-link">{{ item.title }}</a>
+                    </li>
+                  {% endfor %}
+                </ul>
+              </div>
+            {% endfor %}
+          </nav>
+        {% endif %}
+
+        <ul>
+          {% if site.github.is_project_page %}
+            <li class="buttons"><a href="{{ site.github.repository_url }}">View On GitHub</a></li>
+          {% endif %}
+        </ul>
+      </header>
+
+      <section>
+        {{ content }}
+      </section>
+
+      <footer>
+        <p><small>Hosted on <a href="https://pages.github.com">GitHub Pages</a> using the Midnight theme</small></p>
+      </footer>
+    </div>
+  </body>
+</html>
