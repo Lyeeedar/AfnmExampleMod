@@ -18,7 +18,7 @@ collections:
     permalink: /:collection/:name/
   concepts:
     output: true
-    permalink: /:collection/:path/
+    permalink: /:collection/:name/
 
 # Navigation
 header_pages:
