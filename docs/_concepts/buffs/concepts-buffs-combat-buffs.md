@@ -1,6 +1,9 @@
 ---
 layout: default
 title: Combat Buffs
+parent: Buffs and Resources
+grand_parent: Core Concepts
+nav_order: 1
 ---
 
 # Combat Buffs
@@ -36,7 +39,7 @@ interface Buff {
 
 ### Stat Modifications
 
-Buffs can modify combat statistics using [Scaling](/concepts/concepts-scaling/):
+Buffs can modify combat statistics using [Scaling]({{ site.baseurl }}/concepts/concepts-scaling/):
 
 ```typescript
 stats?: Partial<{ [key in CombatStatistic]: Scaling }>;
@@ -483,4 +486,4 @@ const lastStand: Buff = {
 
 ---
 
-[← Buffs Overview](/concepts/concepts-buffs/) | [Scaling](/concepts/concepts-scaling/) | [Crafting Buffs →](/concepts/concepts-buffs-crafting-buffs/) | [Design Patterns →](/concepts/concepts-buffs-design-patterns/)
+[← Buffs Overview]({{ site.baseurl }}/concepts/concepts-buffs/) | [Scaling]({{ site.baseurl }}/concepts/concepts-scaling/) | [Crafting Buffs →]({{ site.baseurl }}/concepts/concepts-buffs-crafting-buffs/) | [Design Patterns →]({{ site.baseurl }}/concepts/concepts-buffs-design-patterns/)

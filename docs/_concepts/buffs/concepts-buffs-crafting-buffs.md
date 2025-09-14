@@ -1,6 +1,9 @@
 ---
 layout: default
 title: Crafting Buffs
+parent: Buffs and Resources
+grand_parent: Core Concepts
+nav_order: 2
 ---
 
 # Crafting Buffs
@@ -56,7 +59,7 @@ type CraftingBuffDisplayLocation =
 
 ### Stat Modifications
 
-Modify crafting statistics using [Scaling](/concepts/concepts-scaling/):
+Modify crafting statistics using [Scaling]({{ site.baseurl }}/concepts/concepts-scaling/):
 
 ```typescript
 stats?: Partial<{ [key in CraftingStatistic]: Scaling }>;
@@ -517,4 +520,4 @@ const breakthrough: CraftingBuff = {
 
 ---
 
-[← Combat Buffs](/concepts/concepts-buffs-combat-buffs/) | [Scaling](/concepts/concepts-scaling/) | [Design Patterns →](/concepts/concepts-buffs-design-patterns/)
+[← Combat Buffs]({{ site.baseurl }}/concepts/concepts-buffs-combat-buffs/) | [Scaling]({{ site.baseurl }}/concepts/concepts-scaling/) | [Design Patterns →]({{ site.baseurl }}/concepts/concepts-buffs-design-patterns/)

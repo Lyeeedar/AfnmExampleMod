@@ -185,9 +185,9 @@ Items have six rarity tiers that affect their power and value:
 
 Once you can build and install your first mod:
 
-1. Study [Core Concepts](/concepts/index/)
-2. Browse [Asset Types](/assets/index/) for specific content creation guides
+1. Study [Core Concepts]({{ site.baseurl }}/concepts/index/)
+2. Browse [Asset Types]({{ site.baseurl }}/assets/index/) for specific content creation guides
 
 ---
 
-[← Home](/) | [Core Concepts →](/concepts/index/)
+[← Home]({{ site.baseurl }}/) | [Core Concepts →]({{ site.baseurl }}/concepts/index/)

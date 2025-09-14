@@ -2,6 +2,7 @@
 layout: default
 title: Flags
 parent: Core Concepts
+nav_order: 5
 ---
 
 # Flags
@@ -299,4 +300,4 @@ Flags are fundamental to creating dynamic, responsive content that remembers the
 
 ---
 
-[← Core Concepts](/concepts/index/) | [Events →](/concepts/concepts-events/)
+[← Core Concepts]({{ site.baseurl }}/concepts/index/) | [Events →]({{ site.baseurl }}/concepts/concepts-events/)

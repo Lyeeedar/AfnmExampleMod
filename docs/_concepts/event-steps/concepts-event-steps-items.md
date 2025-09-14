@@ -1,6 +1,9 @@
 ---
 layout: default
 title: Items & Resources Steps
+parent: Event Steps
+grand_parent: Core Concepts
+nav_order: 4
 ---
 
 # Items & Resources Steps
@@ -25,9 +28,9 @@ interface AddItemStep {
 ### Properties
 
 - **`kind`** - Always `'addItem'`
-- **`condition`** (optional) - [Flag expression](/concepts/concepts-flags/) that must be true for the step to execute
+- **`condition`** (optional) - [Flag expression]({{ site.baseurl }}/concepts/concepts-flags/) that must be true for the step to execute
 - **`item`** - Item to add. Normally just a { name: string } unless you wish to add enchantments or quality.
-- **`amount`** - Expression that evaluates to the quantity (see [Flags](/concepts/concepts-flags/))
+- **`amount`** - Expression that evaluates to the quantity (see [Flags]({{ site.baseurl }}/concepts/concepts-flags/))
 
 ### Examples
 
@@ -78,7 +81,7 @@ interface AddMultipleItemStep {
 ### Properties
 
 - **`kind`** - Always `'addMultipleItem'`
-- **`condition`** (optional) - [Flag expression](/concepts/concepts-flags/) that must be true for the step to execute
+- **`condition`** (optional) - [Flag expression]({{ site.baseurl }}/concepts/concepts-flags/) that must be true for the step to execute
 - **`items`** - Array of item/amount pairs to add simultaneously
 
 ### Examples
@@ -142,7 +145,7 @@ interface RemoveItemStep {
 ### Properties
 
 - **`kind`** - Always `'removeItem'`
-- **`condition`** (optional) - [Flag expression](/concepts/concepts-flags/) that must be true for the step to execute
+- **`condition`** (optional) - [Flag expression]({{ site.baseurl }}/concepts/concepts-flags/) that must be true for the step to execute
 - **`item`** - Primary item to remove
 - **`alternates`** (optional) - Alternative items that can be removed instead
 - **`amount`** - Expression for quantity to remove
@@ -201,7 +204,7 @@ interface ReplaceItemStep {
 ### Properties
 
 - **`kind`** - Always `'replaceItem'`
-- **`condition`** (optional) - [Flag expression](/concepts/concepts-flags/) that must be true for the step to execute
+- **`condition`** (optional) - [Flag expression]({{ site.baseurl }}/concepts/concepts-flags/) that must be true for the step to execute
 - **`source`** - Item to be replaced
 - **`target`** - Item to replace it with
 
@@ -244,7 +247,7 @@ interface ChangeMoneyStep {
 ### Properties
 
 - **`kind`** - Always `'money'`
-- **`condition`** (optional) - [Flag expression](/concepts/concepts-flags/) that must be true for the step to execute
+- **`condition`** (optional) - [Flag expression]({{ site.baseurl }}/concepts/concepts-flags/) that must be true for the step to execute
 - **`amount`** - Expression for currency change (positive adds, negative removes)
 
 ### Examples
@@ -293,7 +296,7 @@ interface QiStep {
 ### Properties
 
 - **`kind`** - Always `'qi'`
-- **`condition`** (optional) - [Flag expression](/concepts/concepts-flags/) that must be true for the step to execute
+- **`condition`** (optional) - [Flag expression]({{ site.baseurl }}/concepts/concepts-flags/) that must be true for the step to execute
 - **`amount`** - Expression for qi change (positive adds, negative removes)
 
 ### Examples
@@ -343,7 +346,7 @@ interface DropItemStep {
 ### Properties
 
 - **`kind`** - Always `'dropItem'`
-- **`condition`** (optional) - [Flag expression](/concepts/concepts-flags/) that must be true for the step to execute
+- **`condition`** (optional) - [Flag expression]({{ site.baseurl }}/concepts/concepts-flags/) that must be true for the step to execute
 - **`items`** - Array of possible items that can be dropped
 - **`count`** - Expression for how many items to drop
 

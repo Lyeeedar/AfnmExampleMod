@@ -1,6 +1,9 @@
 ---
 layout: default
 title: Buff Design Patterns
+parent: Buffs and Resources
+grand_parent: Core Concepts
+nav_order: 3
 ---
 
 # Buff Design Patterns
@@ -38,7 +41,7 @@ Buffs should create interesting decisions:
 
 ## Combat Resource Patterns
 
-For detailed information on how values are calculated, see the [Scaling](/concepts/concepts-scaling/) documentation.
+For detailed information on how values are calculated, see the [Scaling]({{ site.baseurl }}/concepts/concepts-scaling/) documentation.
 
 ### The Basic Resource Loop
 
@@ -519,4 +522,4 @@ Remember: **Buffs are not just effects - they're the heartbeat of combat and cra
 
 ---
 
-[← Crafting Buffs](/concepts/concepts-buffs-crafting-buffs/) | [Buffs Overview](/concepts/concepts-buffs/)
+[← Crafting Buffs]({{ site.baseurl }}/concepts/concepts-buffs-crafting-buffs/) | [Buffs Overview]({{ site.baseurl }}/concepts/concepts-buffs/)

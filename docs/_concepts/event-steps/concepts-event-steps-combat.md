@@ -1,6 +1,9 @@
 ---
 layout: default
 title: Combat & Challenges Steps
+parent: Event Steps
+grand_parent: Core Concepts
+nav_order: 5
 ---
 
 # Combat & Challenges Steps
@@ -30,7 +33,7 @@ interface CombatStep {
 ### Properties
 
 - **`kind`** - Always `'combat'`
-- **`condition`** (optional) - [Flag expression](/concepts/concepts-flags/) that must be true for the step to execute
+- **`condition`** (optional) - [Flag expression]({{ site.baseurl }}/concepts/concepts-flags/) that must be true for the step to execute
 - **`enemies`** - Array of enemy entities to fight against
 - **`playerBuffs`** (optional) - Temporary buffs applied to the player during combat
 - **`numEnemies`** (optional) - Limits how many enemies from the array actually participate
@@ -174,7 +177,7 @@ interface CraftingStep {
 ### Properties
 
 - **`kind`** - Always `'crafting'`
-- **`condition`** (optional) - [Flag expression](/concepts/concepts-flags/) that must be true for the step to execute
+- **`condition`** (optional) - [Flag expression]({{ site.baseurl }}/concepts/concepts-flags/) that must be true for the step to execute
 - **`recipe`** - Name of the recipe to attempt crafting
 - **`basicCraftSkill`** - Craft skill given on basic success. This should rarely be anything over 0 as otherwise it becomes too easy to farm craft skill
 - **`perfectCraftSkill`** - Craft skill given on perfect success
@@ -319,7 +322,7 @@ interface TournamentStep {
 ### Properties
 
 - **`kind`** - Always `'tournament'`
-- **`condition`** (optional) - [Flag expression](/concepts/concepts-flags/) that must be true for the step to execute
+- **`condition`** (optional) - [Flag expression]({{ site.baseurl }}/concepts/concepts-flags/) that must be true for the step to execute
 - **`title`** - Display name for the tournament
 - **`participantPool`** - Enemy entities that serve as tournament opponents
 - **`participantCharacters`** (optional) - Named characters also participating

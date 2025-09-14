@@ -1,6 +1,9 @@
 ---
 layout: default
 title: Character Interactions Steps
+parent: Event Steps
+grand_parent: Core Concepts
+nav_order: 6
 ---
 
 # Character Interactions Steps
@@ -25,7 +28,7 @@ interface ApprovalStep {
 ### Properties
 
 - **`kind`** - Always `'approval'`
-- **`condition`** (optional) - [Flag expression](/concepts/concepts-flags/) that must be true for the step to execute
+- **`condition`** (optional) - [Flag expression]({{ site.baseurl }}/concepts/concepts-flags/) that must be true for the step to execute
 - **`character`** - Name of the character whose approval changes
 - **`amount`** - Expression for approval change (positive increases, negative decreases)
 
@@ -78,7 +81,7 @@ interface ProgressRelationshipStep {
 ### Properties
 
 - **`kind`** - Always `'progressRelationship'`
-- **`condition`** (optional) - [Flag expression](/concepts/concepts-flags/) that must be true for the step to execute
+- **`condition`** (optional) - [Flag expression]({{ site.baseurl }}/concepts/concepts-flags/) that must be true for the step to execute
 - **`character`** - Name of the character whose relationship may progress
 
 ### Examples
@@ -132,7 +135,7 @@ interface TeamUpStep {
 ### Properties
 
 - **`kind`** - Always `'teamUp'`
-- **`condition`** (optional) - [Flag expression](/concepts/concepts-flags/) that must be true for the step to execute
+- **`condition`** (optional) - [Flag expression]({{ site.baseurl }}/concepts/concepts-flags/) that must be true for the step to execute
 - **`character`** - Name of the character joining the player's party
 - **`fallbackBuff`** (optional) - Buff to apply if character's normal team-up isn't available
 
@@ -201,7 +204,7 @@ interface AddFollowerStep {
 ### Properties
 
 - **`kind`** - Always `'addFollower'`
-- **`condition`** (optional) - [Flag expression](/concepts/concepts-flags/) that must be true for the step to execute
+- **`condition`** (optional) - [Flag expression]({{ site.baseurl }}/concepts/concepts-flags/) that must be true for the step to execute
 - **`character`** - Name of the character becoming a follower
 - **`followDef`** - Follower definition including buffs, duration, and interactions
 
@@ -256,7 +259,7 @@ interface ClearTeamUpStep {
 ### Properties
 
 - **`kind`** - Always `'clearTeamUp'`
-- **`condition`** (optional) - [Flag expression](/concepts/concepts-flags/) that must be true for the step to execute
+- **`condition`** (optional) - [Flag expression]({{ site.baseurl }}/concepts/concepts-flags/) that must be true for the step to execute
 
 ### Examples
 
@@ -309,7 +312,7 @@ interface DualCultivationStep {
 ### Properties
 
 - **`kind`** - Always `'dualCultivation'`
-- **`condition`** (optional) - [Flag expression](/concepts/concepts-flags/) that must be true for the step to execute
+- **`condition`** (optional) - [Flag expression]({{ site.baseurl }}/concepts/concepts-flags/) that must be true for the step to execute
 - **`character`** - Name of the cultivation partner
 - **`traits`** - Array of intimate traits affecting the session
 - **`success`** - Steps executed when the session succeeds
@@ -400,7 +403,7 @@ interface TalkToCharacterStep {
 ### Properties
 
 - **`kind`** - Always `'talkToCharacter'`
-- **`condition`** (optional) - [Flag expression](/concepts/concepts-flags/) that must be true for the step to execute
+- **`condition`** (optional) - [Flag expression]({{ site.baseurl }}/concepts/concepts-flags/) that must be true for the step to execute
 - **`character`** - Name of the character to talk to
 
 ### Examples
@@ -452,7 +455,7 @@ interface TradeWithCharacterStep {
 ### Properties
 
 - **`kind`** - Always `'tradeWithCharacter'`
-- **`condition`** (optional) - [Flag expression](/concepts/concepts-flags/) that must be true for the step to execute
+- **`condition`** (optional) - [Flag expression]({{ site.baseurl }}/concepts/concepts-flags/) that must be true for the step to execute
 - **`character`** - Name of the character to trade with
 
 ### Examples
@@ -505,7 +508,7 @@ interface CraftWithCharacterStep {
 ### Properties
 
 - **`kind`** - Always `'craftWithCharacter'`
-- **`condition`** (optional) - [Flag expression](/concepts/concepts-flags/) that must be true for the step to execute
+- **`condition`** (optional) - [Flag expression]({{ site.baseurl }}/concepts/concepts-flags/) that must be true for the step to execute
 - **`character`** - Name of the character to craft with
 
 ### Examples
@@ -565,7 +568,7 @@ interface FightCharacterStep {
 ### Properties
 
 - **`kind`** - Always `'fightCharacter'`
-- **`condition`** (optional) - [Flag expression](/concepts/concepts-flags/) that must be true for the step to execute
+- **`condition`** (optional) - [Flag expression]({{ site.baseurl }}/concepts/concepts-flags/) that must be true for the step to execute
 - **`character`** - Name of the character to fight
 - **`isSpar`** (optional) - If true, makes this a non-lethal sparring match
 - **`spawnCondition`** (optional) - Modifies the character's combat stats

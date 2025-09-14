@@ -2,6 +2,8 @@
 layout: default
 title: Buffs and Resources
 parent: Core Concepts
+nav_order: 1
+has_children: true
 ---
 
 # Buffs and Resources
@@ -394,11 +396,11 @@ const evolving: Buff = {
 
 ## Next Steps
 
-- **[Scaling](/concepts/concepts-scaling/)** - Understanding value calculations
-- **[Combat Buffs](/concepts/concepts-buffs-combat-buffs/)** - Detailed combat buff reference
-- **[Crafting Buffs](/concepts/concepts-buffs-crafting-buffs/)** - Crafting buff system
-- **[Buff Design Patterns](/concepts/concepts-buffs-design-patterns/)** - Best practices and examples
+- **[Scaling]({{ site.baseurl }}/concepts/concepts-scaling/)** - Understanding value calculations
+- **[Combat Buffs]({{ site.baseurl }}/concepts/concepts-buffs-combat-buffs/)** - Detailed combat buff reference
+- **[Crafting Buffs]({{ site.baseurl }}/concepts/concepts-buffs-crafting-buffs/)** - Crafting buff system
+- **[Buff Design Patterns]({{ site.baseurl }}/concepts/concepts-buffs-design-patterns/)** - Best practices and examples
 
 ---
 
-[← Events](/concepts/concepts-events/) | [Combat Buffs →](/concepts/concepts-buffs-combat-buffs/)
+[← Events]({{ site.baseurl }}/concepts/concepts-events/) | [Combat Buffs →]({{ site.baseurl }}/concepts/concepts-buffs-combat-buffs/)

@@ -2,6 +2,7 @@
 layout: default
 title: Scaling
 parent: Core Concepts
+nav_order: 4
 ---
 
 # Scaling
@@ -528,4 +529,4 @@ The key to good scaling design is understanding that players will optimize aroun
 
 ---
 
-[← Core Concepts](/concepts/index/) | [Buffs →](/concepts/concepts-buffs/) | [Events →](/concepts/concepts-events/)
+[← Core Concepts]({{ site.baseurl }}/concepts/index/) | [Buffs →]({{ site.baseurl }}/concepts/concepts-buffs/) | [Events →]({{ site.baseurl }}/concepts/concepts-events/)

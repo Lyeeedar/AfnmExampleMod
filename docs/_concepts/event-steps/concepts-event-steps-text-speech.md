@@ -1,6 +1,9 @@
 ---
 layout: default
 title: Text & Speech Steps
+parent: Event Steps
+grand_parent: Core Concepts
+nav_order: 1
 ---
 
 # Text & Speech Steps
@@ -25,7 +28,7 @@ interface TextStep {
 ### Properties
 
 - **`kind`** - Always `'text'`
-- **`condition`** (optional) - [Flag expression](/concepts/concepts-flags/) that must be true for the step to execute
+- **`condition`** (optional) - [Flag expression]({{ site.baseurl }}/concepts/concepts-flags/) that must be true for the step to execute
 - **`text`** - The text content to display to the player
 - **`sfx`** (optional) - Sound effect to play when the text appears
 
@@ -76,7 +79,7 @@ interface SpeechStep {
 ### Properties
 
 - **`kind`** - Always `'speech'`
-- **`condition`** (optional) - [Flag expression](/concepts/concepts-flags/) that must be true for the step to execute
+- **`condition`** (optional) - [Flag expression]({{ site.baseurl }}/concepts/concepts-flags/) that must be true for the step to execute
 - **`character`** - Name of the character speaking
 - **`text`** - The dialogue text
 

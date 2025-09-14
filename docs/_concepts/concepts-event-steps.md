@@ -2,38 +2,40 @@
 layout: default
 title: Event Steps
 parent: Core Concepts
+nav_order: 3
+has_children: true
 ---
 
 # Event Steps
 
-Event Steps are the building blocks of [Events](/concepts/concepts-events/). Each step represents a single action or interaction that occurs during an event sequence.
+Event Steps are the building blocks of [Events]({{ site.baseurl }}/concepts/concepts-events/). Each step represents a single action or interaction that occurs during an event sequence.
 
 ## Step Categories
 
 Event steps are organized into logical categories based on their functionality:
 
-### [Text & Speech](/concepts/concepts-event-steps-text-speech/)
+### [Text & Speech]({{ site.baseurl }}/concepts/concepts-event-steps-text-speech/)
 
 Display narrative content and dialogue:
 
 - **Text Step** - Narration and description
 - **Speech Step** - Character dialogue
 
-### [Choices](/concepts/concepts-event-steps-choices/)
+### [Choices]({{ site.baseurl }}/concepts/concepts-event-steps-choices/)
 
 Player decision points and branching:
 
 - **Choice Step** - Present options to the player
 - **Conditional branching** - Different paths based on choice
 
-### [State Management](/concepts/concepts-event-steps-state/)
+### [State Management]({{ site.baseurl }}/concepts/concepts-event-steps-state/)
 
 Modify game state and flags:
 
 - **Flag Step** - Set or modify flag values
 - **Conditional Step** - Execute steps based on conditions
 
-### [Items & Resources](/concepts/concepts-event-steps-items/)
+### [Items & Resources]({{ site.baseurl }}/concepts/concepts-event-steps-items/)
 
 Manage player inventory and resources:
 
@@ -42,14 +44,14 @@ Manage player inventory and resources:
 - **Change Money Step** - Modify spirit stones
 - **Change Favour Step** - Adjust favour points
 
-### [Combat & Challenges](/concepts/concepts-event-steps-combat/)
+### [Combat & Challenges]({{ site.baseurl }}/concepts/concepts-event-steps-combat/)
 
 Create encounters and challenges:
 
 - **Combat Step** - Battle encounters
 - **Crafting Step** - Crafting challenges
 
-### [Character Interaction](/concepts/concepts-event-steps-characters/)
+### [Character Interaction]({{ site.baseurl }}/concepts/concepts-event-steps-characters/)
 
 Manage NPCs and relationships:
 
@@ -57,7 +59,7 @@ Manage NPCs and relationships:
 - **Clear Character Step** - Remove character
 - **Talk/Trade/Fight Character Steps** - Interact with NPCs
 
-### [World & Location](/concepts/concepts-event-steps-world/)
+### [World & Location]({{ site.baseurl }}/concepts/concepts-event-steps-world/)
 
 Modify the game world:
 
@@ -65,7 +67,7 @@ Modify the game world:
 - **Unlock Location Step** - Make new areas accessible
 - **Pass Time Step** - Advance the calendar
 
-### [Advanced Systems](/concepts/concepts-event-steps-advanced/)
+### [Advanced Systems]({{ site.baseurl }}/concepts/concepts-event-steps-advanced/)
 
 Specialized functionality:
 
@@ -149,15 +151,15 @@ Choice steps create **branches** - different paths through the event:
 
 Choose a step category to learn about specific step types and see detailed examples:
 
-- **[Text & Speech](/concepts/concepts-event-steps-text-speech/)** - Start here for basic narrative
-- **[Choices](/concepts/concepts-event-steps-choices/)** - Essential for interactive content
-- **[State Management](/concepts/concepts-event-steps-state/)** - Control game state with flags
-- **[Items & Resources](/concepts/concepts-event-steps-items/)** - Manage player inventory
-- **[Combat & Challenges](/concepts/concepts-event-steps-combat/)** - Create encounters
-- **[Character Interaction](/concepts/concepts-event-steps-characters/)** - Work with NPCs
-- **[World & Location](/concepts/concepts-event-steps-world/)** - Modify the game world
-- **[Advanced Systems](/concepts/concepts-event-steps-advanced/)** - Specialized functionality
+- **[Text & Speech]({{ site.baseurl }}/concepts/concepts-event-steps-text-speech/)** - Start here for basic narrative
+- **[Choices]({{ site.baseurl }}/concepts/concepts-event-steps-choices/)** - Essential for interactive content
+- **[State Management]({{ site.baseurl }}/concepts/concepts-event-steps-state/)** - Control game state with flags
+- **[Items & Resources]({{ site.baseurl }}/concepts/concepts-event-steps-items/)** - Manage player inventory
+- **[Combat & Challenges]({{ site.baseurl }}/concepts/concepts-event-steps-combat/)** - Create encounters
+- **[Character Interaction]({{ site.baseurl }}/concepts/concepts-event-steps-characters/)** - Work with NPCs
+- **[World & Location]({{ site.baseurl }}/concepts/concepts-event-steps-world/)** - Modify the game world
+- **[Advanced Systems]({{ site.baseurl }}/concepts/concepts-event-steps-advanced/)** - Specialized functionality
 
 ---
 
-[← Events](/concepts/concepts-events/) | [Text & Speech →](/concepts/concepts-event-steps-text-speech/)
+[← Events]({{ site.baseurl }}/concepts/concepts-events/) | [Text & Speech →]({{ site.baseurl }}/concepts/concepts-event-steps-text-speech/)

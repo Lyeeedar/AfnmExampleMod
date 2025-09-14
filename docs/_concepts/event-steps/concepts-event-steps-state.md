@@ -1,6 +1,9 @@
 ---
 layout: default
 title: State Management Steps
+parent: Event Steps
+grand_parent: Core Concepts
+nav_order: 3
 ---
 
 # State Management Steps
@@ -26,10 +29,10 @@ interface SetFlagStep {
 ### Properties
 
 - **`kind`** - Always `'flag'`
-- **`condition`** (optional) - [Flag expression](/concepts/concepts-flags/) that must be true for the step to execute
+- **`condition`** (optional) - [Flag expression]({{ site.baseurl }}/concepts/concepts-flags/) that must be true for the step to execute
 - **`global`** - Whether to store the flag permanently (`true`) or only for the current event (`false`)
 - **`flag`** - The flag name/key to set
-- **`value`** - Expression that evaluates to the number to store (see [Flags](/concepts/concepts-flags/))
+- **`value`** - Expression that evaluates to the number to store (see [Flags]({{ site.baseurl }}/concepts/concepts-flags/))
 
 ### Examples
 
@@ -106,7 +109,7 @@ interface ConditionalStep {
 ### Properties
 
 - **`kind`** - Always `'conditional'`
-- **`condition`** (optional) - [Flag expression](/concepts/concepts-flags/) that must be true for the entire step to execute
+- **`condition`** (optional) - [Flag expression]({{ site.baseurl }}/concepts/concepts-flags/) that must be true for the entire step to execute
 - **`branches`** - Array of condition/children pairs that are evaluated in order
 
 ### Examples

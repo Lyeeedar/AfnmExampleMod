@@ -2,6 +2,7 @@
 layout: default
 title: Events
 parent: Core Concepts
+nav_order: 2
 ---
 
 # Events
@@ -40,7 +41,7 @@ Events can be started in many different ways:
 
 ### Triggered Events
 
-Automatic events that fire based on conditions - see [Triggered Events](/concepts/concepts-triggered-events/)
+Automatic events that fire based on conditions - see [Triggered Events]({{ site.baseurl }}/concepts/concepts-triggered-events/)
 
 ### Character Interactions
 
@@ -154,12 +155,12 @@ Steps execute **sequentially** in the order they appear in the `steps` array. St
 
 Learn about the different types of Event Steps:
 
-- **[Event Steps Overview](/concepts/concepts-event-steps/)** - Complete guide to all step types
-- **[Triggered Events](/concepts/concepts-triggered-events/)** - How to automatically trigger events
-- **[Flags](/concepts/concepts-flags/)** - State management system used by events
+- **[Event Steps Overview]({{ site.baseurl }}/concepts/concepts-event-steps/)** - Complete guide to all step types
+- **[Triggered Events]({{ site.baseurl }}/concepts/concepts-triggered-events/)** - How to automatically trigger events
+- **[Flags]({{ site.baseurl }}/concepts/concepts-flags/)** - State management system used by events
 
 Understanding these systems will allow you to create rich, interactive experiences that respond to player choices and game state.
 
 ---
 
-[← Flags](/concepts/concepts-flags/) | [Event Steps →](/concepts/concepts-event-steps/) | [Triggered Events →](/concepts/concepts-triggered-events/)
+[← Flags]({{ site.baseurl }}/concepts/concepts-flags/) | [Event Steps →]({{ site.baseurl }}/concepts/concepts-event-steps/) | [Triggered Events →]({{ site.baseurl }}/concepts/concepts-triggered-events/)

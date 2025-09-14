@@ -1,6 +1,9 @@
 ---
 layout: default
 title: Choice Steps
+parent: Event Steps
+grand_parent: Core Concepts
+nav_order: 2
 ---
 
 # Choice Steps
@@ -32,13 +35,13 @@ interface ChoiceStepChoice {
 ### Properties
 
 - **`kind`** - Always `'choice'`
-- **`condition`** (optional) - [Flag expression](/concepts/concepts-flags/) that must be true for the entire choice step to appear
+- **`condition`** (optional) - [Flag expression]({{ site.baseurl }}/concepts/concepts-flags/) that must be true for the entire choice step to appear
 - **`choices`** - Array of individual choice options
 
 ### Choice Properties
 
 - **`text`** - The text displayed for this choice option
-- **`showCondition`** (optional) - [Flag expression](/concepts/concepts-flags/) - choice only appears if true
+- **`showCondition`** (optional) - [Flag expression]({{ site.baseurl }}/concepts/concepts-flags/) - choice only appears if true
 - **`condition`** (optional) - Structured condition object (see below)
 - **`hideIfDisabled`** (optional) - If true, hide the choice when its condition fails (instead of graying it out)
 - **`children`** - Array of event steps that execute when this choice is selected
