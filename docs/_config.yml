@@ -1,0 +1,42 @@
+title: "Ascend from Nine Mountains - Modding Guide"
+description: "Comprehensive documentation for modding the cultivation game"
+baseurl: "/AfnmExampleMod"
+url: "https://lyeeedar.github.io"
+
+# Jekyll configuration
+theme: minima
+markdown: kramdown
+highlighter: rouge
+
+# Collections for organizing documentation
+collections:
+  guides:
+    output: true
+    permalink: /:collection/:name/
+  assets:
+    output: true
+    permalink: /:collection/:name/
+  concepts:
+    output: true
+    permalink: /:collection/:name/
+
+# Navigation
+header_pages:
+  - index.md
+  - getting-started.md
+
+# Plugins
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+
+# Exclude files
+exclude:
+  - README.md
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - src
+  - dist
+  - scripts
+  - builds
