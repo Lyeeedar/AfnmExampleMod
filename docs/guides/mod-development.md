@@ -35,7 +35,7 @@ This contains all existing game content in maps of `name` → `object`:
 - `quests` - Available quests
 - And much more...
 
-**Important:** Though you 'can' modify these object directly (such as to edit existing content) it is not recommended.! Use the `actions` functions instead to have better integration into the game itself.
+**Important:** Though you 'can' modify these object directly (such as to edit existing content) it is not recommended! Use the `actions` functions instead to have better integration into the game itself.
 
 ### 2. actions - Adding Your Content
 
