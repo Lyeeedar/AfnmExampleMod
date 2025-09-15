@@ -17,8 +17,10 @@ Items are the foundation of character progression, crafting, and equipment in As
 Core item interfaces, shared fields, and rarity system
 
 ### [Recipe System](recipes)
-
 Crafting recipes, ingredients, and difficulty mechanics
+
+### [Item Types](item-types)
+Detailed documentation for each item category
 
 ## Quick Reference
 
