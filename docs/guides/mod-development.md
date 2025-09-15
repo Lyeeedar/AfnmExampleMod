@@ -8,207 +8,438 @@ description: 'Building content with the AFNM ModAPI'
 
 # Mod Development
 
-## Introduction
+## What You'll Learn
 
-Now that your environment is set up, it's time to start building actual content for your mod! This guide covers the ModAPI, its three main components, and how to create your first items, characters, and events.
+In this guide, you'll learn to use the ModAPI (Mod Application Programming Interface) - think of it as your toolkit for adding content to the game. You'll create your first items, understand how the game stores data, and see how everything connects together.
 
-The root entry point of your mod is `src/modContent/index.ts`. You can split your mod over multiple files, but all must be imported into this root one for the content to be loaded.
+**By the end of this guide, you'll have:**
 
-At the window level you have access to the ModAPI. This is a set of helpers to allow you to more easily integrate your mod content into the game. It can be accessed from any file in your mod under the `window.modAPI` path.
+- Created your first custom item
+- Understood how the game organizes content
+- Learned the basic patterns for adding content
+
+## How Modding Works in AFNM
+
+### The Big Picture
+
+When you create a mod, you're essentially writing instructions that tell the game:
+
+1. **"Here's new content I want to add"** (items, NPCs, locations, etc.)
+2. **"Here's where players can find it"** (shops, quests, drops, etc.)
+3. **"Here's how it should behave"** (effects, interactions, etc.)
+
+The game reads your instructions when it starts up and integrates your content seamlessly.
+
+### Your Mod's Entry Point
+
+All mods start from one file: **`src/modContent/index.ts`**
+
+This is like the front door to your mod - the game looks here first to find all your content. You can organize your mod across multiple files, but they must all be imported into this main file.
 
 ## Understanding the ModAPI
 
-The ModAPI is your gateway to the game's systems. It's structured into three main sections:
+The ModAPI is your connection to the game's systems. It's available globally as `window.modAPI` and has three main sections:
 
-### 1. gameData - The Game's Current State
+### 1. `gameData` - What's Already in the Game
 
 ```typescript
 window.modAPI.gameData;
 ```
 
-This contains all existing game content in maps of `name` → `object`:
+This is like a giant catalog of everything that already exists in the game:
 
-- `items` - All current items in the game
-- `characters` - NPCs and their data
-- `locations` - All game locations
-- `techniques` - Combat and cultivation techniques
-- `quests` - Available quests
+- `items` - All existing items (weapons, consumables, artifacts, etc.)
+- `characters` - NPCs you can interact with
+- `locations` - All areas in the game world
+- `techniques` - Combat and cultivation abilities
+- `quests` - Available questlines
 - And much more...
 
-**Important:** Though you 'can' modify these object directly (such as to edit existing content) it is not recommended! Use the `actions` functions instead to have better integration into the game itself.
+**Think of this as read-only information.** You can look at what exists, but you shouldn't modify it directly.
 
-### 2. actions - Adding Your Content
+**Example - Looking at existing content:**
+
+```typescript
+// See all existing items
+console.log(window.modAPI.gameData.items);
+
+// Check if a specific item exists
+const healingPill = window.modAPI.gameData.items['Healing Pill'];
+console.log(healingPill.description); // Shows the item's description
+```
+
+### 2. `actions` - Adding Your Content to the Game
 
 ```typescript
 window.modAPI.actions;
 ```
 
-These functions register your new content into the game:
+These are the functions that actually add your content to the game. Think of them as "registration functions" - they tell the game about your new creations.
 
-**Core Content:**
+**Core Content Functions:**
 
-- `addItem(item)` - Add new items
-- `addCharacter(character)` - Add NPCs
-- `addLocation(location)` - Add new areas
-- `addTechnique(technique)` - Add cultivation techniques
-- `addQuest(quest)` - Add questlines
+- `addItem(item)` - Register a new item
+- `addCharacter(character)` - Add an NPC
+- `addLocation(location)` - Create new areas
+- `addTechnique(technique)` - Add cultivation abilities
+- `addQuest(quest)` - Create questlines
 
 **Integration Functions:**
 
-- `addItemToShop(item, stacks, location, ...)` - Make items purchasable
-- `addItemToAuction(item, chance, condition, ...)` - Add to auctions
-- `linkLocations(existing, link)` - Connect areas
-- `addCalendarEvent(event)` - Add seasonal events
+- `addItemToShop(item, quantity, location, ...)` - Make items purchasable
+- `addItemToAuction(item, chance, condition, ...)` - Add to auction house
+- `linkLocations(existing, newLocation)` - Connect areas together
+- `addCalendarEvent(event)` - Add seasonal/timed events
 
-**Rule:** Always `add` something before using it elsewhere. For example, call both `addItem()` and `addItemToShop()` to create a purchasable item.
+**Golden Rule:** Always `add` your content before using it elsewhere.
 
-### 3. utils - Helper Functions
+For example, to create a purchasable item:
+
+1. First: `addItem(myItem)` - Register the item
+2. Then: `addItemToShop(myItem, ...)` - Make it buyable
+
+### 3. `utils` - Helper Functions
 
 ```typescript
 window.modAPI.utils;
 ```
 
-Utility functions to make content creation easier:
+These are convenience functions that handle common tasks and help with game balance:
 
 **Enemy Scaling:**
 
-- `alpha(enemy)` - Create alpha variant (+50% stats)
-- `realmbreaker(enemy)` - Create multiple realm variants
+- `alpha(enemy)` - Create stronger variant (+50% stats)
+- `realmbreaker(enemy)` - Create cross-realm variants
 - `corrupted(enemy)` - Add corruption effects
 
-**Quest Creation:**
+**Quest Templates:**
 
-- `createCullingMission(...)` - Kill X enemies quest
-- `createDeliveryMission(...)` - Fetch/deliver quest
-- `createHuntQuest(...)` - Hunt specific enemy
+- `createCullingMission(...)` - "Kill X enemies" quest
+- `createDeliveryMission(...)` - "Fetch/deliver item" quest
+- `createHuntQuest(...)` - "Hunt specific enemy" quest
 
 **Balance Helpers:**
 
-- `getExpectedPower(realm, progress)` - Recommended stats by realm
-- `getExpectedHealth(realm, progress)` - HP scaling guidelines
+- `getExpectedPower(realm, progress)` - Recommended combat stats
+- `getExpectedHealth(realm, progress)` - HP scaling by level
 - `getNumericReward(base, realm, progress)` - Scale rewards properly
 
-## Your First Content
+**Why use these?** They ensure your content fits well with the game's existing balance and difficulty curve.
 
-### Creating Your First Item
+## Your First Item - Step by Step
 
-Let's create a simple consumable item:
+Let's create your first mod content: a simple combat pill that restores health and provides a temporary power boost, similar to the healing pills already in the game.
+
+### Step 1: Prepare Your Assets
+
+First, you'll need an image for your item.
+
+**Add an image:**
+
+1. Find or create an image (256x256 pixels recommended, but anything square works) for your combat pill
+2. Save it as `src/assets/vigor-pill.png`
+3. **If you don't have an image:** You can temporarily use any small `.png` file just to test
+
+### Step 2: Create the Item Code
+
+Open **`src/modContent/index.ts`** and replace the contents with:
 
 ```typescript
-// src/modContent/index.ts
-import icon from '../assets/mystic-tea.png';
+import { CombatPillItem } from 'afnm-cultivation/types/item';
+// Import your item's image
+import pillIcon from '../assets/vigor-pill.png';
 
-// Create the item
-const mysticTea = {
-  name: 'Mystic Tea',
-  description: 'A soothing blend that calms the spirit and restores qi.',
-  icon,
-  rarity: 'Common',
-  itemKind: 'Consumable',
-  value: 100,
+// Define your item's properties
+const vigorPill: CombatPillItem = {
+  name: 'Vigor Pill',
+  description:
+    'A carefully refined pill that restores health and grants temporary strength. Popular among cultivators entering combat.',
+  icon: pillIcon,
+  rarity: 'mundane', // Valid rarities: 'mundane', 'qitouched', 'empowered', 'resplendent', 'incandescent', 'transcendent'
+  kind: 'pill',
+  pillKind: 'combat', // Pills need this additional classification
+  toxicity: 10, // Pills have toxicity (how much they poison you)
+  realm: 'bodyForging', // What realm this pill is designed for
+  stacks: 1,
   effects: [
     {
-      kind: 'restoreQi',
-      amount: { value: 50 },
-    },
-    {
-      kind: 'buffSelf',
-      buff: 'calmMind', // Reference to a buff you'll create
-      duration: 3,
+      kind: 'heal', // Direct healing effect
+      amount: {
+        value: 50, // Restores 50 health when consumed
+        stat: undefined,
+      },
     },
   ],
 };
 
-// Register it with the game
-window.modAPI.actions.addItem(mysticTea);
+// Register the item with the game
+window.modAPI.actions.addItem(vigorPill);
 
-// Make it available in shops
+// Make it available for purchase
 window.modAPI.actions.addItemToShop(
-  mysticTea,
-  5, // 5 in stock
-  'Liang Tiao Village', // Location
-  'bodyForging', // Required realm
+  vigorPill,
+  12, // 12 items in stock
+  'Liang Tiao Village', // Location name (this location exists in the base game)
+  'bodyForging', // Minimum cultivation realm required
 );
 ```
 
-### Working with Assets
+### Understanding the Code
 
-When you reference images or other assets:
+Let's break down what each part does:
 
-1. **Place the file** in `src/assets/` folder
-2. **Import it** at the top of your file
-3. **Use the import** in your content
+**Import Statement:**
 
 ```typescript
-import mysticTeaIcon from '../assets/items/mystic-tea.png';
-import elderPortrait from '../assets/characters/elder-chen.png';
-import locationBackground from '../assets/locations/tea-garden.jpg';
+import pillIcon from '../assets/vigor-pill.png';
+```
 
-// Then use in your content:
-const item = {
-  name: 'Mystic Tea',
-  icon: mysticTeaIcon, // Use the import
-  // ... rest of item definition
+This tells the build system to include your image file and gives you a reference to use later.
+
+**Pill Item Definition:**
+
+```typescript
+const vigorPill: CombatPillItem = {
+  //...
 };
 ```
 
-## Advanced Patterns
+**Property Details:**
 
-### Content Organization
+- `name`: Display name in-game
+- `description`: Flavour text shown to players
+- `icon`: Reference to your image
+- `rarity`: Affects text color and power ('mundane', 'qitouched', 'empowered', 'resplendent', 'incandescent', 'transcendent')
+- `kind`: Type of item ('pill', 'weapon', 'armour', 'artefact', etc.)
+- `pillKind`: For pills only - 'combat', 'crafting', etc.
+- `toxicity`: How much toxicity consuming this pill costs
+- `realm`: What cultivation realm the pill is designed for
+- `effects`: What happens when used (see **[Techniques](../combat/techniques)**)
 
-As your mod grows, organize your content into logical modules:
+**Registration:**
 
 ```typescript
-// src/modContent/index.ts
+window.modAPI.actions.addItem(vigorPill);
+```
+
+This tells the game "this item exists now."
+
+**Shop Integration:**
+
+```typescript
+window.modAPI.actions.addItemToShop(...)
+```
+
+This makes your item purchasable in the specified location.
+
+### Step 3: Test Your First Item
+
+Let's test this basic version before adding more complexity:
+
+**Build your mod:**
+
+```bash
+npm run build
+```
+
+**Expected result:** You should see a new ZIP file in your `builds/` folder.
+
+**If you get errors:** Check that:
+
+- Your image file exists at `src/assets/vigor-pill.png`
+- There are no typos in your code
+- VS Code isn't showing any red error underlines
+
+## Working with Assets (Images)
+
+### File Organization
+
+```
+src/assets/
+├── items/
+│   ├── vigor-pill.png
+│   ├── strength-pill.png
+│   └── healing-pill.png
+├── characters/
+│   └── pill-master-chen.png
+└── locations/
+    └── ancient-alchemy-hall.jpg
+```
+
+### Import Patterns
+
+```typescript
+// Single import
+import pillIcon from '../assets/items/vigor-pill.png';
+
+// Multiple imports
+import strengthPillIcon from '../assets/items/strength-pill.png';
+import pillMasterPortrait from '../assets/characters/pill-master-chen.png';
+import alchemyHallBackground from '../assets/locations/ancient-alchemy-hall.jpg';
+```
+
+### Image Guidelines
+
+- **Size:** 256x256 pixels for items, 1536x1536 for characters
+- **Format:** PNG with transparency preferred
+- **Style:** Should match the game's art style if possible
+- **Naming:** Use kebab-case (my-item.png) for consistency
+
+## Organizing Your Mod
+
+As your mod grows beyond a single item, you'll want to organize your code into separate files.
+
+### Recommended Structure
+
+```typescript
+// src/modContent/index.ts (main entry point)
 import { initializeItems } from './items';
 import { initializeCharacters } from './characters';
 import { initializeLocations } from './locations';
-import { initializeQuests } from './quests';
 
-// Initialize all content modules
+// Initialize all content when mod loads
 initializeItems();
 initializeCharacters();
 initializeLocations();
-initializeQuests();
 ```
 
 ```typescript
 // src/modContent/items.ts
+import { CombatPillItem } from 'afnm-cultivation/types/item';
+import pillIcon from '../assets/items/vigor-pill.png';
+import strengthPillIcon from '../assets/items/strength-pill.png';
+
 export function initializeItems() {
-  // Create tea-related items
-  const mysticTea = {
-    /* ... */
-  };
-  const dragonWellTea = {
-    /* ... */
+  // Create your items
+  const vigorPill: CombatPillItem = {
+    name: 'Vigor Pill',
+    kind: 'pill',
+    pillKind: 'combat',
+    toxicity: 10,
+    realm: 'bodyForging',
+    rarity: 'mundane',
+    stacks: 1,
+    icon: pillIcon,
+    description: 'A healing pill.',
+    effects: [
+      {
+        kind: 'heal',
+        amount: {
+          value: 50,
+          stat: undefined,
+        },
+      },
+    ],
   };
 
-  window.modAPI.actions.addItem(mysticTea);
-  window.modAPI.actions.addItem(dragonWellTea);
+  const strengthPill: CombatPillItem = {
+    name: 'Strength Pill',
+    kind: 'pill',
+    pillKind: 'combat',
+    toxicity: 15,
+    realm: 'coreFormation',
+    rarity: 'qitouched',
+    stacks: 1,
+    icon: strengthPillIcon,
+    description: 'A pill that boosts power temporarily.',
+    effects: [
+      {
+        kind: 'buffSelf',
+        buff: {
+          name: 'Strength Boost',
+          icon: strengthPillIcon,
+          canStack: false,
+          buffType: 'Pill',
+          stats: {
+            power: {
+              value: 100,
+              stat: undefined,
+            },
+          },
+          onTechniqueEffects: [],
+          onRoundEffects: [
+            {
+              kind: 'add',
+              amount: {
+                value: -1,
+                stat: undefined,
+              },
+            },
+          ],
+          stacks: 1,
+        },
+        amount: {
+          value: 10,
+          stat: undefined,
+        },
+      },
+    ],
+  };
+
+  // Register them all
+  window.modAPI.actions.addItem(vigorPill);
+  window.modAPI.actions.addItem(strengthPill);
 
   // Add to shops
   window.modAPI.actions.addItemToShop(
-    mysticTea,
-    10,
-    'townMarket',
+    vigorPill,
+    15,
+    'Liang Tiao Village',
     'bodyForging',
+  );
+  window.modAPI.actions.addItemToShop(
+    strengthPill,
+    8,
+    'Liang Tiao Village',
+    'coreFormation',
   );
 }
 ```
 
-### Scaling and Balance
+### Why Organize This Way?
 
-Use the utility functions to create properly balanced content:
+**Benefits:**
+
+- Easier to find and edit specific content
+- Multiple people can work on different files
+- Reduces merge conflicts when using Git
+- Makes debugging easier when things go wrong
+
+**When to split:**
+
+- More than ~5 items in one category
+- Different team members working on different content types
+- Content has complex inter-relationships
+
+## Scaling and Game Balance
+
+### Using Balance Helpers
+
+The game provides utility functions to keep your content balanced:
 
 ```typescript
-// Create realm-appropriate rewards
+// Create appropriately scaled rewards
 const rewardAmount = window.modAPI.utils.getNumericReward(
-  100,
-  'coreFormation',
-  'middle',
+  100, // Base amount
+  'coreFormation', // Player's realm
+  'Middle', // Progress through realm ('Early', 'Middle', 'Late')
 );
+
+// Result: automatically scaled number appropriate for core formation cultivators
 ```
 
-You now have the foundation to create rich, integrated content for AFNM! Continue to learn about packaging and testing your creations.
+## Next Steps
 
-Next: **[Packaging & Testing](packaging-testing)**
+🎉 **Great work!** You've learned the fundamentals of AFNM modding:
+
+**You now understand:**
+
+- ✅ How the ModAPI works (`gameData`, `actions`, `utils`)
+- ✅ Creating and registering items
+- ✅ Working with images and assets
+- ✅ Organizing mod code across files
+- ✅ Basic game balance concepts
+
+**Ready for more?** Your mod is functional but needs to be packaged for the game to load it.
+
+Continue to: **[Packaging & Testing](packaging-testing)**

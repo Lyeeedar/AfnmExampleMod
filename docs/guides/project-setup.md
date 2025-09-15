@@ -8,57 +8,146 @@ description: 'Setting up your development environment for AFNM modding'
 
 # Project Setup
 
-## Introduction
+## What We're Building
 
-Before you can start creating content for your AFNM mod, you need to properly configure your development environment and project metadata. This guide will walk you through cloning the template, installing dependencies, and customizing the project for your specific mod.
+In this guide, you'll set up a complete modding environment that lets you:
 
-## Development Environment
+- Write mod code with helpful auto-completion (IntelliSense)
+- Automatically build and package your mod
+- Test changes quickly without manual file copying
 
-### Prerequisites
+Think of this as setting up a workshop with all the right tools before you start crafting.
 
-- **Node.js**
-- **Code Editor** (Visual Studio Code recommended)
-- **Git** (for version control)
-- **Basic TypeScript knowledge** (helpful but not required)
+## Prerequisites & Installation
 
-### Step 1: Get the Template
+### What You Need
 
-You have a couple options to start your project:
+Before we begin, you'll need to install a few tools. Don't worry - they're all free and we'll walk through each one.
 
-**Option A: Fork the Repository (Recommended)**
+**Required Tools:**
 
-1. Visit the [AFNM Example Mod repository](https://github.com/Lyeeedar/AfnmExampleMod)
-2. Click **"Fork"** to create your own copy
-3. Clone your fork: `git clone https://github.com/YOUR-USERNAME/AfnmExampleMod.git`
+### 1. Node.js (JavaScript Runtime)
 
-**Option B: Download the Template**
+Node.js lets us run the build tools that compile and package your mod.
 
-1. Download the repository as a ZIP file
-2. Extract it to your desired location
-3. Initialize a new git repository: `git init`
+**Windows Installation:**
 
-### Step 2: Install Dependencies
+1. Go to [nodejs.org](https://nodejs.org/)
+2. Click "Download the LTS version" (the green button)
+3. Run the downloaded installer (.msi file)
+4. **Important:** Check "Add to PATH" during installation (should be default)
+5. Restart any open command prompts after installation
 
-Open a terminal in your project directory and run:
+**Verify it worked:**
 
 ```bash
-npm install
+# Open Command Prompt or PowerShell and run:
+node --version
+# Should show something like: v18.17.0
 ```
 
-This will download all necessary dependencies including:
+### 2. Code Editor (VS Code Recommended)
 
-- TypeScript compiler and type definitions
-- Build tools (Vite, Rollup)
-- AFNM type definitions for IntelliSense
-- Development utilities
+You can use any text editor, but VS Code provides the best experience with auto-completion and error highlighting.
 
-If you're using VS Code and haven't worked with TypeScript before, it should automatically prompt you to install recommended extensions.
+**Windows Installation:**
 
-## Project Configuration
+1. Go to [code.visualstudio.com](https://code.visualstudio.com/)
+2. Download and run the installer
+3. During setup, check "Add to PATH" and "Register Code as editor for supported file types"
 
-### Step 3: Configure Mod Metadata
+### 3. Git (Version Control)
 
-Open `package.json` in your project root. You'll see a configuration block at the top:
+Git helps you manage your code changes and download the mod template.
+
+**Windows Installation:**
+
+1. Go to [git-scm.com](https://git-scm.com/download/win)
+2. Download and run the installer
+3. Use default settings (they're fine for our needs)
+
+**Verify it worked:**
+
+```bash
+git --version
+# Should show something like: git version 2.40.1
+```
+
+## Getting the Mod Template
+
+Now that your tools are installed, let's get the starter template for your mod.
+
+### Step 1: Choose Your Approach
+
+You have two options to start your project:
+
+**Option A: Fork on GitHub (Recommended)** _Best if you want to use GitHub for backup and collaboration_
+
+1. **Create a GitHub account** (if you don't have one) at [github.com](https://github.com)
+2. **Visit the template:** [AFNM Example Mod repository](https://github.com/Lyeeedar/AfnmExampleMod)
+3. **Click "Fork"** (top-right corner) to create your own copy
+4. **Clone your fork locally:**
+   ```bash
+   # Replace YOUR-USERNAME with your actual GitHub username
+   git clone https://github.com/YOUR-USERNAME/AfnmExampleMod.git my-mod-project
+   ```
+
+**Option B: Direct Download (Simpler)** _Good for getting started quickly_
+
+1. **Download the template:** Go to the [AFNM Example Mod repository](https://github.com/Lyeeedar/AfnmExampleMod)
+2. **Click "Code" → "Download ZIP"**
+3. **Extract the ZIP** to a folder like `C:\Users\YourName\Documents\my-mod-project`
+4. **Open Command Prompt/PowerShell** in that folder and run:
+   ```bash
+   git init
+   ```
+
+### Step 2: Open Your Project
+
+1. **Open VS Code**
+2. **File → Open Folder**
+3. **Navigate to and select your mod project folder**
+
+VS Code will open with your project files visible in the sidebar.
+
+### Step 3: Install Project Dependencies
+
+Dependencies are pre-built code libraries that your mod uses (like TypeScript compiler, build tools, etc.).
+
+**In VS Code:**
+
+1. **Open the terminal:** View → Terminal (or Ctrl+`)
+2. **Run the install command:**
+   ```bash
+   npm install
+   ```
+
+**What this downloads:**
+
+- TypeScript compiler and AFNM type definitions (for auto-completion)
+- Build tools (Vite, Rollup) that package your mod
+- Development utilities for testing and debugging
+
+**This may take 1-2 minutes.** You'll see a progress indicator as packages download.
+
+**Success indicators:**
+
+- No red error messages
+- A new `node_modules/` folder appears in your project
+- VS Code shows TypeScript IntelliSense when you open `.ts` files
+
+**Common Issues:**
+
+- **"npm: command not found"** - Node.js wasn't installed correctly. Reinstall and make sure "Add to PATH" is checked.
+- **Permission errors on Windows** - Try running VS Code as Administrator, or use PowerShell instead of Command Prompt.
+
+## Personalizing Your Mod
+
+### Step 4: Update Mod Information
+
+Your mod needs a name, description, and author information. This appears in-game and on Steam Workshop.
+
+**Open `package.json`** (in your project root) and find this section:
 
 ```json
 {
@@ -71,121 +160,183 @@ Open `package.json` in your project root. You'll see a configuration block at th
 }
 ```
 
-**Customize these fields:**
+**Update it to something like:**
 
 ```json
 {
-  "name": "my-awesome-cultivation-mod",
+  "name": "mystic-tea-cultivation",
   "version": "1.0.0",
-  "description": "Adds new cultivation techniques and mystical locations",
+  "description": "Adds tea-based cultivation techniques and mystical tea gardens to explore",
   "author": {
-    "name": "YourModdingName"
+    "name": "TeaMaster92"
   }
 }
 ```
 
-### Naming Guidelines
+**Field Guidelines:**
 
-- **name**: Use lowercase with hyphens, no spaces
-- **version**: Follow semantic versioning (major.minor.patch)
-- **description**: Brief, descriptive summary of your mod's features
-- **author.name**: Your preferred modding alias. Using your real name is not recommended
+- **name**: Lowercase, use hyphens instead of spaces (this becomes your mod's technical ID)
+- **version**: Start with "1.0.0" for your first release
+- **description**: 1-2 sentences explaining what your mod adds
+- **author.name**: Your modding alias (avoid using your real name for privacy)
 
-### Step 4: Verify Setup
+### Step 5: Test Your Setup
 
-Test that everything is working correctly:
+Let's verify everything is working correctly by building your mod:
+
+**In VS Code terminal, run:**
 
 ```bash
-# Run the development build
-npm run dev
-
-# Build the mod package
+# Build your mod package
 npm run build
 ```
 
-If successful, you should see:
-
-- No compilation errors
-- A `builds/` folder with your packaged mod
-- TypeScript IntelliSense working in your editor
-
-## Project Structure
-
-Understanding the project layout will help you navigate and organize your content:
+**Expected output:**
 
 ```
-AfnmExampleMod/
+> afnm-example-mod@1.0.0 build
+> vite build
+
+✓ built in 1.23s
+```
+
+This command:
+
+- Compiles your TypeScript code
+- Bundles your assets
+- Creates a packaged mod ready for the game
+- Outputs a ZIP file in the `builds/` folder
+
+**If you see errors:** Double-check that you installed Node.js correctly and ran `npm install` without errors.
+
+**Success indicators:**
+
+- No red error messages
+- A new `builds/` folder appears
+- Inside `builds/` you should see a ZIP file like `my-mod-1.0.0.zip`
+
+## Understanding Your Project
+
+### Project Structure Explained
+
+Here's what each folder and file does in your mod project:
+
+```
+your-mod-project/
 ├── src/
 │   ├── modContent/
-│   │   └── index.ts          # Your main mod entry point
-│   ├── assets/               # Images and other resources
-│   └── types/                # TypeScript type definitions
-├── builds/                   # Generated mod packages
-├── docs/                     # Documentation (this site)
-├── package.json             # Project metadata
-└── tsconfig.json           # TypeScript configuration
+│   │   └── index.ts              # ← Your mod code goes here
+│   └── assets/                   # ← Images, sounds, etc.
+├── builds/                       # ← Generated mod packages (appears after build)
+├── docs/                         # ← This documentation site
+├── package.json                  # ← Mod information and settings
+├── tsconfig.json                 # ← TypeScript compiler settings
+└── node_modules/                 # ← Downloaded dependencies (don't edit)
 ```
 
-### Key Files
+**Key files you'll work with:**
 
-- **`src/modContent/index.ts`** - Where you'll write your mod logic
-- **`src/assets/`** - Store images, sounds, and other resources
-- **`package.json`** - Contains your mod's metadata and version
-- **`builds/`** - Generated when you run `npm run build`
+- **`src/modContent/index.ts`** - This is where you write your mod logic
+- **`src/assets/`** - Put your images, sounds, and other files here
+- **`package.json`** - Contains your mod's name, version, and description
+- **`builds/`** - Contains packaged mod files ready for the game
+
+**Files you can ignore:**
+
+- **`node_modules/`** - Auto-generated, never edit these files
+- **`tsconfig.json`** - Compiler settings, rarely needs changes
+- **`docs/`** - The documentation website you're reading now
 
 ## Development Workflow
 
-### Basic Commands
+### Essential Commands
+
+Here are the commands you'll use regularly while developing your mod:
 
 ```bash
-# Install dependencies (run once after setup)
+# Install dependencies (run once after downloading template)
 npm install
 
-# Development mode with file watching
-npm run dev
-
-# Build final mod package
+# Build mod package for testing in-game
 npm run build
 
-# Clean build artifacts
+# Clean up generated files (if you need to start fresh)
 npm run clean
 ```
 
-### IDE Setup (VS Code)
+**Important:** Unlike web development, you can't run mods directly with `npm run dev`. You must build your mod and install it in the game to test it.
 
-**Recommended Extensions:**
+**Typical workflow:**
 
-- TypeScript and JavaScript Language Features (built-in)
-- Prettier - Code formatter
+1. Edit your mod files in VS Code
+2. Run `npm run build` to package your mod
+3. Copy the ZIP file from `builds/` to your game's `mods/` folder
+4. Restart the game to test your changes
+5. Repeat the cycle for iteration
 
-**Settings for optimal experience:**
+### VS Code Setup Tips
 
-1. Enable TypeScript IntelliSense
-2. Set up auto-formatting on save
-3. Configure Git integration for version control
+**Recommended Extensions** (VS Code should auto-suggest these):
 
-### Version Control
+- **TypeScript and JavaScript Language Features** (built-in, should be enabled)
+- **Prettier - Code formatter** (keeps your code neat)
 
-It's highly recommended to use Git for your mod development:
+**Useful VS Code features:**
+
+- **Auto-completion:** Type `window.modAPI.` and VS Code shows available functions
+- **Error highlighting:** Red squiggly lines show syntax errors
+- **Integrated terminal:** View → Terminal to run commands without leaving VS Code
+
+### Version Control (Optional but Recommended)
+
+Git helps you track changes and backup your work. Basic workflow:
 
 ```bash
-# Initialize repository (if not already done)
-git init
-
-# Add your changes
+# Save your current work
 git add .
+git commit -m "Added my first tea item"
 
-# Commit your work
-git commit -m "Initial mod setup"
+# Create a branch for new features
+git checkout -b feature/tea-garden-location
 
-# Create development branch
-git checkout -b feature/new-techniques
+# Push to GitHub (if you forked the repo)
+git push origin main
 ```
 
-Or even better, use **[Github Desktop](https://desktop.github.com/download/)** to make working with git simple.
+**Or use GitHub Desktop** for a visual interface: [desktop.github.com](https://desktop.github.com/)
+
+## Troubleshooting
+
+### Common Setup Issues
+
+**"npm: command not found"**
+
+- Node.js wasn't installed correctly
+- Solution: Reinstall Node.js, ensure "Add to PATH" is checked, restart VS Code
+
+**"No TypeScript IntelliSense"**
+
+- VS Code isn't recognizing TypeScript files
+- Solution: Open a `.ts` file, then press Ctrl+Shift+P, type "TypeScript: Restart TS Server"
+
+**Build errors about missing files**
+
+- Dependencies weren't installed properly
+- Solution: Delete `node_modules/` folder, run `npm install` again
+
+**Permission errors on Windows**
+
+- Windows blocking npm from writing files
+- Solution: Run VS Code as Administrator, or use PowerShell instead of Command Prompt
 
 ## Next Steps
 
-With your environment set up, you're ready to start building content! The next step is learning about the ModAPI and creating your first mod content.
+🎉 **Congratulations!** Your development environment is now set up and ready for modding.
 
-Continue to: **[Mod Development Guide](mod-development)**
+**You now have:**
+
+- ✅ A working mod project with auto-completion
+- ✅ Build tools that package your mod automatically
+- ✅ A development workflow for quick iteration
+
+**Ready to create content?** Continue to: **[Mod Development Guide](mod-development)**
