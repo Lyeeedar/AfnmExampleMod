@@ -13,31 +13,36 @@ Techniques are active combat abilities that players use to deal damage, apply bu
 ## Complete Technique Interface
 
 ```typescript
-import { Technique, TechniqueEffect, TechniqueCost, TechniqueRequirement } from 'afnm-cultivation/types/technique';
+import {
+  Technique,
+  TechniqueEffect,
+  TechniqueCost,
+  TechniqueRequirement,
+} from 'afnm-cultivation/types/technique';
 
 interface Technique {
   // Identity
-  name: string;                    // Display name
-  icon: string;                    // Visual representation
-  type: TechniqueElement;          // School/element type
-  realm?: Realm;                   // Minimum cultivation level
-  tooltip?: string;                // Custom description (auto-generated if omitted)
+  name: string; // Display name
+  icon: string; // Visual representation
+  type: TechniqueElement; // School/element type
+  realm?: Realm; // Minimum cultivation level
+  tooltip?: string; // Custom description (auto-generated if omitted)
 
   // Resource costs (consumed when used)
-  costs?: TechniqueCost[];         // Buff stacks to consume
-  toxicityCost?: number;           // Toxicity granted when used
-  dropletCost?: number;            // Special resource cost
+  costs?: TechniqueCost[]; // Buff stacks to consume
+  toxicityCost?: number; // Toxicity granted when used
+  dropletCost?: number; // Special resource cost
 
   // Requirements (must be met but not consumed)
   requirements?: TechniqueRequirement[]; // Conditions for usage
 
   // Usage restrictions
-  maxInstances?: number;           // Uses per stance (default: 3)
+  maxInstances?: number; // Uses per stance (default: 3)
   stanceRestriction?: 'opener' | 'finisher'; // Position in stance sequence
 
   // Effects and mechanics
-  effects: TechniqueEffect[];      // What happens when used
-  enhancement?: number;            // Bonus from element matching
+  effects: TechniqueEffect[]; // What happens when used
+  enhancement?: number; // Bonus from element matching
   secondaryType?: TechniqueElement | 'origin'; // Additional element
 
   // Mastery system

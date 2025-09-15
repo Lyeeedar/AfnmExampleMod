@@ -3,7 +3,7 @@ layout: default
 title: Combat System
 nav_order: 4
 has_children: true
-description: "Understanding the AFNM combat buff system"
+description: 'Understanding the AFNM combat buff system'
 ---
 
 # Combat System
@@ -14,7 +14,7 @@ The combat system in AFNM revolves around buffs and their interactions. Understa
 
 **New to combat systems?** Follow this recommended progression:
 
-1. **[Buff System Overview](buffs)** - Core concepts and mechanics  
+1. **[Buff System Overview](buffs)** - Core concepts and mechanics
 2. **[Effect Types](effects)** - Available buff effect types with examples
 3. **[Buff Interceptions](interceptions)** - How buffs can intercept other buffs
 4. **[Combat Images](images)** - Visual representation system for buffs

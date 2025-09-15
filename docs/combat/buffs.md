@@ -17,42 +17,42 @@ import { Buff, BuffEffect, Scaling } from 'afnm-cultivation/types/buff';
 
 interface Buff {
   // Identity
-  name: string;                    // Unique identifier displayed to players
-  icon: string;                    // Image asset for visual representation
-  
+  name: string; // Unique identifier displayed to players
+  icon: string; // Image asset for visual representation
+
   // Stacking behavior
-  canStack: boolean;               // Whether multiple instances can exist
-  stacks: number;                  // Current number of stacks
-  maxStacks?: number;              // Optional stack limit
-  
+  canStack: boolean; // Whether multiple instances can exist
+  stacks: number; // Current number of stacks
+  maxStacks?: number; // Optional stack limit
+
   // Visual properties
-  colour?: string;                 // Optional background color for buff icon
-  effectHint?: string;             // Brief description when tooltip isn't sufficient
-  tooltip?: string;                // Custom tooltip (auto-generated if omitted)
-  combatImage?: CombatImage;       // Visual effects during combat
-  
+  colour?: string; // Optional background color for buff icon
+  effectHint?: string; // Brief description when tooltip isn't sufficient
+  tooltip?: string; // Custom tooltip (auto-generated if omitted)
+  combatImage?: CombatImage; // Visual effects during combat
+
   // Combat properties
   stats?: { [key: string]: Scaling }; // Passive stat modifications
-  type?: TechniqueElement;         // Element type for enhancement/affinity
-  buffType?: string;               // Grouping for modifyBuffGroup effects
-  priority?: number;               // Execution order (lower = earlier)
-  
+  type?: TechniqueElement; // Element type for enhancement/affinity
+  buffType?: string; // Grouping for modifyBuffGroup effects
+  priority?: number; // Execution order (lower = earlier)
+
   // Effect timing
-  onCombatStartEffects?: BuffEffect[];  // Once when combat begins
-  onRoundStartEffects?: BuffEffect[];   // Start of each round
-  onTechniqueEffects?: BuffEffect[];    // Before/after each technique
-  onRoundEffects?: BuffEffect[];        // End of each round
-  
+  onCombatStartEffects?: BuffEffect[]; // Once when combat begins
+  onRoundStartEffects?: BuffEffect[]; // Start of each round
+  onTechniqueEffects?: BuffEffect[]; // Before/after each technique
+  onRoundEffects?: BuffEffect[]; // End of each round
+
   // Advanced mechanics
   interceptBuffEffects?: InterceptEffect[]; // Intercept other buff applications
   triggeredBuffEffects?: TriggeredEffect[]; // Respond to custom triggers
-  condition?: BuffCondition;               // When buff effects are active
-  
+  condition?: BuffCondition; // When buff effects are active
+
   // Timing modifiers
-  afterTechnique?: boolean;        // onTechniqueEffects trigger after instead of before
-  
+  afterTechnique?: boolean; // onTechniqueEffects trigger after instead of before
+
   // System properties
-  cantUpgrade?: boolean;           // Prevent mastery upgrades
+  cantUpgrade?: boolean; // Prevent mastery upgrades
 }
 ```
 
@@ -61,25 +61,33 @@ interface Buff {
 Understanding when and how buffs execute is crucial for creating effective combat content:
 
 ### 1. Application Phase
+
 When a buff is applied to a character, the system:
+
 - Checks if the buff can stack with existing instances
 - Applies any intercept effects from other buffs
 - Updates the character's buff list
 
 ### 2. Execution Phase
+
 During combat, buffs execute their effects based on timing:
+
 - **Priority order**: Lower `priority` values execute first
 - **Timing triggers**: Each timing type executes at its designated moment
 - **Condition checks**: Effects only execute if conditions are met
 
 ### 3. Modification Phase
+
 Buffs can be modified during combat:
+
 - Stack counts can increase/decrease
 - Effects can be intercepted or triggered
 - Buffs can be consumed or negated
 
 ### 4. Cleanup Phase
+
 Buffs are removed when:
+
 - Stack count reaches zero (through `add` effects with negative values)
 - Explicitly consumed by techniques or other buffs
 - Combat ends (most buffs don't persist)
