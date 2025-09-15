@@ -12,7 +12,7 @@ Welcome to the documentation for modding Ascend from Nine Mountains. This site p
 
 ## Quick Start
 
-- [Getting Started](getting-started) - Learn the basics of modding AFNM
+- [Project Setup](guides/project-setup) - Set up your development environment and start your first mod
 - [Guides](guides/) - Step-by-step modding tutorials
 - [Core Concepts](concepts/) - Understanding game systems
 

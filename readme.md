@@ -6,16 +6,17 @@ This project provides a complete framework for creating mods for **Ascend From N
 
 ## Documentation
 
-For comprehensive guides on modding AFNM, visit our **[complete documentation site](docs/)**:
+For comprehensive guides on modding AFNM, visit our **[complete documentation site](https://lyeeedar.github.io/AfnmExampleMod/)**:
 
 ### Step-by-Step Guides
-- **[Getting Started](docs/getting-started)** - Initial setup and first steps
-- **[Project Setup](docs/guides/project-setup)** - Environment configuration and metadata
+
+- **[Project Setup](https://lyeeedar.github.io/AfnmExampleMod/guides/project-setup.html)** - Environment setup and first steps
 - **[Mod Development](docs/guides/mod-development)** - Using the ModAPI and building content
 - **[Packaging & Testing](docs/guides/packaging-testing)** - Building and testing your mod
 - **[Publishing](docs/guides/publishing)** - Releasing to Steam Workshop
 
 ### Core Concepts
+
 - **[Flags System](docs/concepts/flags)** - State management and tracking
 - **[Scaling System](docs/concepts/scaling)** - Dynamic value calculations
 
@@ -34,4 +35,4 @@ For comprehensive guides on modding AFNM, visit our **[complete documentation si
 - Raise an issue in this repository
 - Join the community Discord for support
 
-Ready to start your cultivation journey? Begin with the [Getting Started guide](docs/getting-started)!
+Ready to start your cultivation journey? Begin with the [Project Setup guide](docs/guides/project-setup)!
