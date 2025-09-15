@@ -8,31 +8,81 @@ description: 'Core concepts and mechanics of the AFNM buff system'
 
 # Buff System Overview
 
-Buffs are the core of AFNM's combat system. They represent temporary effects, enhancements, debuffs, and resource pools that drive combat mechanics.
+Buffs are the core of AFNM's combat system. They represent temporary effects, enhancements, debuffs, and resource pools that drive combat mechanics. Understanding buffs is essential because techniques primarily work by creating and manipulating buffs.
 
-## Buff Structure
+## Complete Buff Interface
 
-Every buff is defined by the `Buff` interface with these key properties:
+```typescript
+import { Buff, BuffEffect, Scaling } from 'afnm-cultivation/types/buff';
 
-### Basic Properties
+interface Buff {
+  // Identity
+  name: string;                    // Unique identifier displayed to players
+  icon: string;                    // Image asset for visual representation
+  
+  // Stacking behavior
+  canStack: boolean;               // Whether multiple instances can exist
+  stacks: number;                  // Current number of stacks
+  maxStacks?: number;              // Optional stack limit
+  
+  // Visual properties
+  colour?: string;                 // Optional background color for buff icon
+  effectHint?: string;             // Brief description when tooltip isn't sufficient
+  tooltip?: string;                // Custom tooltip (auto-generated if omitted)
+  combatImage?: CombatImage;       // Visual effects during combat
+  
+  // Combat properties
+  stats?: { [key: string]: Scaling }; // Passive stat modifications
+  type?: TechniqueElement;         // Element type for enhancement/affinity
+  buffType?: string;               // Grouping for modifyBuffGroup effects
+  priority?: number;               // Execution order (lower = earlier)
+  
+  // Effect timing
+  onCombatStartEffects?: BuffEffect[];  // Once when combat begins
+  onRoundStartEffects?: BuffEffect[];   // Start of each round
+  onTechniqueEffects?: BuffEffect[];    // Before/after each technique
+  onRoundEffects?: BuffEffect[];        // End of each round
+  
+  // Advanced mechanics
+  interceptBuffEffects?: InterceptEffect[]; // Intercept other buff applications
+  triggeredBuffEffects?: TriggeredEffect[]; // Respond to custom triggers
+  condition?: BuffCondition;               // When buff effects are active
+  
+  // Timing modifiers
+  afterTechnique?: boolean;        // onTechniqueEffects trigger after instead of before
+  
+  // System properties
+  cantUpgrade?: boolean;           // Prevent mastery upgrades
+}
+```
 
-- **`name`** - Unique identifier displayed to players
-- **`icon`** - Image asset for visual representation
-- **`canStack`** - Whether multiple instances can exist
-- **`stacks`** - Current number of stacks
-- **`maxStacks`** - Optional stack limit
+## Buff Lifecycle
 
-### Visual Properties
+Understanding when and how buffs execute is crucial for creating effective combat content:
 
-- **`colour`** - Optional background color for the buff icon
-- **`effectHint`** - Optional short description of the buff's purpose if there's not enough information in the tooltip
-- **`tooltip`** - Custom tooltip text (auto-generated if not provided)
-- **`combatImage`** - Visual effects during combat
+### 1. Application Phase
+When a buff is applied to a character, the system:
+- Checks if the buff can stack with existing instances
+- Applies any intercept effects from other buffs
+- Updates the character's buff list
 
-### Stats and Enhancement
+### 2. Execution Phase
+During combat, buffs execute their effects based on timing:
+- **Priority order**: Lower `priority` values execute first
+- **Timing triggers**: Each timing type executes at its designated moment
+- **Condition checks**: Effects only execute if conditions are met
 
-- **`stats`** - Passive stat modifications
-- **`type`** - Element type for enhancement calculations and applying affinity
+### 3. Modification Phase
+Buffs can be modified during combat:
+- Stack counts can increase/decrease
+- Effects can be intercepted or triggered
+- Buffs can be consumed or negated
+
+### 4. Cleanup Phase
+Buffs are removed when:
+- Stack count reaches zero (through `add` effects with negative values)
+- Explicitly consumed by techniques or other buffs
+- Combat ends (most buffs don't persist)
 
 ## Effect Timing
 
@@ -65,6 +115,9 @@ Triggers at the end of each round, after all techniques have been used.
 ### Resource Buffer - Sunlight
 
 ```typescript
+import { Buff } from 'afnm-cultivation/types/buff';
+import sunIcon from '../assets/icons/sunlight.png';
+
 export const sunlight: Buff = {
   name: 'Sunlight',
   icon: sunIcon,
@@ -94,6 +147,9 @@ export const sunlight: Buff = {
 ### Self-Consuming Effect - Moonchill
 
 ```typescript
+import { Buff } from 'afnm-cultivation/types/buff';
+import moonchillIcon from '../assets/icons/moonchill.png';
+
 export const moonchill: Buff = {
   name: 'Moonchill',
   icon: moonchillIcon,
@@ -117,6 +173,10 @@ export const moonchill: Buff = {
 ### Conditional Buff - Lunar Attunement
 
 ```typescript
+import { Buff } from 'afnm-cultivation/types/buff';
+import lunarAttunementIcon from '../assets/icons/lunar-attunement.png';
+import { flag } from 'afnm-cultivation/utils/flags';
+
 export const lunarAttunement: Buff = {
   name: 'Lunar Attunement',
   icon: lunarAttunementIcon,
@@ -145,6 +205,9 @@ export const lunarAttunement: Buff = {
 ### Healing Over Time - Restoring Fragrance
 
 ```typescript
+import { Buff } from 'afnm-cultivation/types/buff';
+import icon from '../assets/icons/restoring-fragrance.png';
+
 const restoringFragranceBuff: Buff = {
   name: 'Restoring Fragrance',
   icon: icon,

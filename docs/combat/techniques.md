@@ -10,36 +10,39 @@ description: 'Core concepts and structure of the AFNM technique system'
 
 Techniques are active combat abilities that players use to deal damage, apply buffs, and manipulate resources. Unlike buffs which have ongoing effects, techniques execute their effects immediately when used.
 
-## Basic Structure
-
-Every technique is defined by the `Technique` interface:
+## Complete Technique Interface
 
 ```typescript
-interface Technique {
-  name: string; // Display name
-  icon: string; // Visual representation
-  type: TechniqueElement; // School/element type
-  realm?: Realm; // Minimum cultivation level
-  tooltip?: string; // Custom description
+import { Technique, TechniqueEffect, TechniqueCost, TechniqueRequirement } from 'afnm-cultivation/types/technique';
 
-  // Resource costs and requirements
-  costs?: TechniqueCost[];
-  toxicityCost?: number;
-  dropletCost?: number;
-  requirements?: TechniqueRequirement[];
+interface Technique {
+  // Identity
+  name: string;                    // Display name
+  icon: string;                    // Visual representation
+  type: TechniqueElement;          // School/element type
+  realm?: Realm;                   // Minimum cultivation level
+  tooltip?: string;                // Custom description (auto-generated if omitted)
+
+  // Resource costs (consumed when used)
+  costs?: TechniqueCost[];         // Buff stacks to consume
+  toxicityCost?: number;           // Toxicity granted when used
+  dropletCost?: number;            // Special resource cost
+
+  // Requirements (must be met but not consumed)
+  requirements?: TechniqueRequirement[]; // Conditions for usage
 
   // Usage restrictions
-  maxInstances?: number;
-  stanceRestriction?: StanceRestriction;
+  maxInstances?: number;           // Uses per stance (default: 3)
+  stanceRestriction?: 'opener' | 'finisher'; // Position in stance sequence
 
-  // Effects and scaling
-  effects: TechniqueEffect[];
-  enhancement?: number;
-  secondaryType?: TechniqueElement | 'origin';
+  // Effects and mechanics
+  effects: TechniqueEffect[];      // What happens when used
+  enhancement?: number;            // Bonus from element matching
+  secondaryType?: TechniqueElement | 'origin'; // Additional element
 
   // Mastery system
-  upgradeMasteries?: { [key: string]: TechniqueMasteryRarityMap };
-  masteryKindPools?: TechniqueEffectKind[];
+  upgradeMasteries?: { [key: string]: TechniqueMasteryRarityMap }; // Fixed upgrades
+  masteryKindPools?: TechniqueEffectKind[]; // Random upgrade pools
 }
 ```
 
@@ -440,6 +443,10 @@ hits: {
 ### Simple Damage Technique - Advancing Fist
 
 ```typescript
+import { Technique } from 'afnm-cultivation/types/technique';
+import icon from '../assets/techniques/advancing-fist.png';
+import { flow } from '../buffs/flow';
+
 export const advancingFist: Technique = {
   name: 'Advancing Fist',
   icon: icon,
@@ -472,6 +479,11 @@ export const advancingFist: Technique = {
 ### Resource Management - Restoring Fragrance
 
 ```typescript
+import { Technique } from 'afnm-cultivation/types/technique';
+import icon from '../assets/techniques/restoring-fragrance.png';
+import { fragrantBlossom } from '../buffs/fragrant-blossom';
+import { restoringFragranceBuff } from '../buffs/restoring-fragrance';
+
 export const restoringFragrance: Technique = {
   name: 'Restoring Fragrance',
   icon: icon,
@@ -504,6 +516,11 @@ export const restoringFragrance: Technique = {
 ### Conditional Toggle - Profane Exchange
 
 ```typescript
+import { Technique } from 'afnm-cultivation/types/technique';
+import { flag } from 'afnm-cultivation/utils/flags';
+import icon from '../assets/techniques/profane-exchange.png';
+import { profaneExchangeBuff } from '../buffs/profane-exchange';
+
 export const profaneExchange: Technique = {
   name: 'Profane Exchange',
   icon: icon,
@@ -541,6 +558,11 @@ export const profaneExchange: Technique = {
 ### Resource Conversion - Sunrise
 
 ```typescript
+import { Technique } from 'afnm-cultivation/types/technique';
+import icon from '../assets/techniques/sunrise.png';
+import { solarAttunement, sunlight, moonlight } from '../buffs/celestial-buffs';
+import { celestialRotation } from '../triggers/celestial-rotation';
+
 export const sunrise: Technique = {
   name: 'Sunrise',
   icon: icon,

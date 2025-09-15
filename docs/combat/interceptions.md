@@ -27,6 +27,10 @@ interceptBuffEffects?: {
 The best example of interception comes from the Blood school's Profane Exchange technique:
 
 ```typescript
+import { Buff } from 'afnm-cultivation/types/buff';
+import icon from '../assets/buffs/profane-exchange.png';
+import { bloodCorruption } from '../buffs/blood-corruption';
+
 export const profaneExchangeBuff: Buff = {
   name: 'Profane Exchange',
   icon: icon,
