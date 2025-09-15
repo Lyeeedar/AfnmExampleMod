@@ -19,6 +19,12 @@ This system enables dynamic, responsive content that enhances the player experie
 A **TriggeredEvent** wraps a [GameEvent](events) with trigger conditions that control when and where it activates automatically:
 
 ```typescript
+import {
+  TriggeredEvent,
+  GameEvent,
+  GameScreen,
+} from 'afnm-cultivation/types/event';
+
 interface TriggeredEvent {
   event: GameEvent; // The actual event content to execute
   name: string; // Unique identifier for this trigger
@@ -95,6 +101,8 @@ locations: ['Sect Grounds', 'Ancient Library']; // Multiple specific locations
 Perfect for first-time location visits:
 
 ```typescript
+import { GameEvent, TriggeredEvent } from 'afnm-cultivation/types/event';
+
 const ancientLibraryIntro: GameEvent = {
   location: 'Ancient Library',
   steps: [
@@ -133,6 +141,8 @@ window.modAPI.actions.addTriggeredEvent(libraryIntroTrigger);
 Create chance-based encounters while exploring:
 
 ```typescript
+import { GameEvent, TriggeredEvent } from 'afnm-cultivation/types/event';
+
 const mysteriousStranger: GameEvent = {
   location: 'Mountain Path',
   steps: [

@@ -47,18 +47,22 @@ condition: 'yearMonth >= 6 && yearMonth <= 8'; // Time-based
 Steps execute **sequentially** in the order they appear in the `steps` array:
 
 ```typescript
-steps: [
+import { EventStep } from 'afnm-cultivation/types/event';
+
+const steps: EventStep[] = [
   { kind: 'text', text: 'You approach the ancient door...' },      // Step 1
   { kind: 'text', text: 'Mystical runes glow as you near...' },    // Step 2
   { kind: 'speech', character: 'Guardian', text: `"State your purpose!"` }, // Step 3
   { kind: 'choice', choices: [...] }                               // Step 4
-]
+];
 ```
 
 When executing nested groups of steps, it will fall through the remaining steps at a higher level once the child steps are completed.
 
 ```typescript
-steps: [
+import { EventStep } from 'afnm-cultivation/types/event';
+
+const steps: EventStep[] = [
   { kind: 'text', text: 'Step 1' },
   {
     kind: 'choice',
