@@ -15,12 +15,13 @@ Combat consumables that apply effects through the TechniqueEffect system. Unlike
 ```typescript
 interface ConcoctionItem extends ItemBase {
   kind: 'concoction';
-  effects: TechniqueEffect[];  // Combat effects to apply
-  tooltip?: string;             // Optional description
+  effects: TechniqueEffect[]; // Combat effects to apply
+  tooltip?: string; // Optional description
 }
 ```
 
 ## Key Differences from Pills
+
 - **No toxicity limit** - Can be used freely
 - **Target flexibility** - Can target self or enemies via effect types
 - **Uses TechniqueEffect** - Same effects as combat techniques
@@ -43,8 +44,8 @@ export const toxicConcoction: ConcoctionItem = {
       amount: { value: 3, stat: undefined },
     },
   ],
-  tooltip: 'Applies 3 stacks of poison'
+  tooltip: 'Applies 3 stacks of poison',
 };
 ```
 
-See [TechniqueEffect documentation](../combat/effects.md) for available effect types.
+See [TechniqueEffect documentation](../combat/techniques) for available effect types.

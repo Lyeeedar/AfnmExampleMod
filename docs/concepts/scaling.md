@@ -263,6 +263,59 @@ stats: {
 }
 ```
 
+## Standard scaling
+
+To keep numbers consistent, there are a few standard patterns for scaling you want to follow:
+
+### For technique effects
+
+Anything that creates a direct effect (damage, healing, barrier) on techniques should scale from power:
+
+```typescript
+{
+  value: 1, // 100% of power
+  stat: "power"
+}
+```
+
+### For stacks of buffs
+
+Anything that produces stacks of buffs should not scale off any stat, but can scale off other field to increase those stacks
+
+```typescript
+{
+  value: 1, // Create 1 stack
+  stat: undefined,
+  scaling: "Flow" // Multiply by the flow stacks
+}
+```
+
+### For items
+
+Consumables should normally have a flat scaling to ensure that lower realm items are not excessively powerful in higher realms.
+
+```typescript
+{
+  value: Math.floor(window.modAPI.utils.getExpectedHealth("bodyForging", "Late") * 0.5), // A flat 50% of the players expected hp in the Body Forging realm
+  stat: undefined,
+  eqn: '1 + (itemEffectiveness * 0.01)', // Multiplied by item effectiveness
+}
+```
+
+### For artefacts / formation parts
+
+Externally controlled / powered items like artefacts and formation parts should scale off artefact power, not power
+
+```typescript
+{
+  value: 1,
+  stat: 'artefactpower',
+  eqn: '1 + (itemEffectiveness * 0.01)', // Only for formation parts scale by item effectiveness too
+}
+```
+
+### For
+
 ## Practical Examples by School
 
 ### Fist School: Stack Accumulation

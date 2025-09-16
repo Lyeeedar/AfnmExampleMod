@@ -15,12 +15,13 @@ Combat consumables using the TechniqueEffect system. Despite the confusing name,
 ```typescript
 interface CombatItem extends ItemBase {
   kind: 'consumable';
-  effects: TechniqueEffect[];  // Combat effects to apply
-  tooltip?: string;             // Optional description
+  effects: TechniqueEffect[]; // Combat effects to apply
+  tooltip?: string; // Optional description
 }
 ```
 
 ## Difference from Concoctions
+
 Functionally identical to concoctions - both use TechniqueEffect arrays. The distinction is primarily organizational.
 
 ## Common Use Case: Formation Triggers
@@ -37,11 +38,11 @@ export const formationSlip: CombatItem = {
   effects: [
     {
       kind: 'buffSelf',
-      buff: formationTriggerBuff,  // Buff that counts techniques and triggers
+      buff: formationTriggerBuff, // Buff that counts techniques and triggers
       amount: { value: 1, stat: undefined },
     },
   ],
 };
 ```
 
-See [TechniqueEffect documentation](../combat/effects.md) for available effect types.
+See [TechniqueEffect documentation](../combat/techniques) for available effect types.
