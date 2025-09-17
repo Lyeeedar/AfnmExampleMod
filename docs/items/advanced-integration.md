@@ -148,7 +148,7 @@ Uncut stones are obtained from mystical region exploration:
 
 ```typescript
 // Create a valuable artefact
-const legendaryWeapon: ArtefactItem = {
+const powerfulWeapon: ArtefactItem = {
   kind: 'artefact',
   name: 'Starfall Spear',
   description: 'A spear forged from fallen star metal, radiating cosmic power.',
@@ -159,11 +159,11 @@ const legendaryWeapon: ArtefactItem = {
 };
 
 // Add to multiple distribution channels
-window.modAPI.actions.addItem(legendaryWeapon);
+window.modAPI.actions.addItem(powerfulWeapon);
 
 // Rare shop appearance in capital city
 window.modAPI.actions.addItemToShop(
-  legendaryWeapon,
+  powerfulWeapon,
   1, // Only 1 in stock
   'Starfall Capital',
   'coreFormation',
@@ -173,7 +173,7 @@ window.modAPI.actions.addItemToShop(
 
 // Very rare auction appearance
 window.modAPI.actions.addItemToAuction(
-  legendaryWeapon,
+  powerfulWeapon,
   0.05, // 5% chance
   'completedStarfallQuest == 1',
   1, // Single item

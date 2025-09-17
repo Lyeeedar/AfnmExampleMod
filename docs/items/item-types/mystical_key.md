@@ -66,7 +66,7 @@ When `hasCorePedestal: true`, the region contains a special central chamber with
 
 - **Guaranteed Rare Reward**: Always drops high-quality items
 - **Unique Encounters**: Special bosses or challenges
-- **Faction Artifacts**: Faction-specific legendary items
+- **Faction Artifacts**: Faction-specific high-tier items
 - **Cultivation Resources**: Breakthrough materials or rare techniques
 
 ## Faction System

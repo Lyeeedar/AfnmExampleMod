@@ -337,7 +337,7 @@ export const celestialTalonRecipe: RecipeItem = {
     'Instructions for forging a weapon that channels the power of the stars.',
   icon: artefactRecipeIcon,
   stacks: 1,
-  rarity: 'legendary',
+  rarity: 'resplendent',
   realm: 'coreFormation',
 
   baseItem: celestialTalon,

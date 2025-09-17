@@ -80,7 +80,7 @@ All items share these core properties:
 
 - **Name & Description**: Identity and lore
 - **Icon**: Visual representation
-- **Rarity**: Quality tier (mundane → legendary → mythic)
+- **Rarity**: Quality tier (mundane → qitouched → empowered → resplendent)
 - **Realm**: Cultivation level requirement
 - **Stacks**: Inventory quantity
 - **Value Tier**: Economic worth

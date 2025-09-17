@@ -300,8 +300,8 @@ window.modAPI.actions.addItemToShop(basicSword, 1, 'Sect Armory', 'bodyForging')
 // Add enhanced version to later shops
 window.modAPI.actions.addItemToShop(enhancedSword, 1, 'Core Armory', 'coreFormation');
 
-// Add legendary version to auctions
-window.modAPI.actions.addItemToAuction(legendarySword, 0.05, 'realm >= 4');
+// Add powerful version to auctions
+window.modAPI.actions.addItemToAuction(powerfulSword, 0.05, 'realm >= 4');
 ```
 
 **Crafting Material Chain**:
