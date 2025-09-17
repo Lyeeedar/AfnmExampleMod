@@ -13,7 +13,7 @@ With items and characters ready, we need a place for players to interact with th
 
 ## Why Custom Buildings?
 
-We'll use a [custom building](../../locations/building-types.md#custom-buildings) because we need:
+We'll use a [custom building](../../locations/building-types.md#custom-building) because we need:
 
 - **Interactive brewing system** - Transform raw materials through player choices
 - **Character integration** - Access Master Chen's dialogue and shop

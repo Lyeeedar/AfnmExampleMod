@@ -47,6 +47,5 @@ Before diving into events, ensure you're familiar with:
 
 - **[Mod Development Basics](../guides/mod-development)** - Understanding the ModAPI
 - **[Flags System](../concepts/flags)** - Events rely heavily on flags for conditions and state tracking
-- **[Game Data Structure](../concepts/game-data)** - How the game organizes characters, locations, and items
 
 The system is designed to be both powerful and approachable, allowing you to create everything from simple item interactions to complex, multi-branched storylines that respond to player choices and game state.
