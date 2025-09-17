@@ -314,8 +314,6 @@ Externally controlled / powered items like artefacts and formation parts should 
 }
 ```
 
-### For
-
 ## Practical Examples by School
 
 ### Fist School: Stack Accumulation
