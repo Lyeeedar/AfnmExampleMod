@@ -15,6 +15,7 @@ Welcome to the documentation for modding Ascend from Nine Mountains. This site p
 - [Project Setup](guides/project-setup) - Set up your development environment and start your first mod
 - [Guides](guides/) - Step-by-step modding tutorials
 - [Core Concepts](concepts/) - Understanding game systems
+- [Enemy Entities](enemies/) - Design and implement enemy encounters
 
 ## What You'll Find Here
 
@@ -22,5 +23,5 @@ This documentation covers everything you need to know about creating mods for As
 
 - Setting up your modding environment
 - Understanding game mechanics and data structures
-- Creating custom content like items, characters, and events
+- Creating custom content like items, characters, enemies, and events
 - Advanced modding techniques and best practices
