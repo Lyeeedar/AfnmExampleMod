@@ -366,12 +366,11 @@ stats: {
 ### Blood School: Risk/Reward
 
 ```typescript
-// High toxicity = high power
+// Low health = high power
 {
-  value: 0.1,
+  value: 2,
   stat: 'power',
-  scaling: 'toxicity',   // Risk increases reward
-  max: { value: 3, stat: 'power' }  // 300% power cap
+  scaling: '1 - (hp / maxhp)',   // max power at 0 hp
 }
 ```
 
