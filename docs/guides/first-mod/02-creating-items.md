@@ -223,8 +223,6 @@ Notice how we import `greenTeaLeaves` and `jasmineTeaLeaves` and use `.name` ins
 
 This is especially important for crops since they must match item names exactly to work.
 
-````
-
 ## Why Tea Crops Work Well
 
 **Player agency** - Instead of relying on shops or random drops, players can grow their own tea leaves through dedicated farming effort.
@@ -262,7 +260,7 @@ export function initializeTeaItems() {
 
   console.log(`✅ Added ${allTeaItems.length} tea items`);
 }
-````
+```
 
 **Important**: Export your items so other files can import them! This lets you use `greenTeaLeaves.name` in quests and characters instead of hard-coding strings like `'Green Tea Leaves'`. This approach:
 
