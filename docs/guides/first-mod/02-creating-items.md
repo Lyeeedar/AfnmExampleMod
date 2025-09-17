@@ -213,16 +213,6 @@ export function initializeTeaCrops() {
 }
 ```
 
-## Why Import Item References?
-
-Notice how we import `greenTeaLeaves` and `jasmineTeaLeaves` and use `.name` instead of hard-coding strings like `'Green Tea Leaves'`. This follows the same best practices as the rest of our mod:
-
-- **Prevents typos** - TypeScript will catch name mismatches between items and crops
-- **Enables refactoring** - Change an item name once and it updates everywhere
-- **Ensures consistency** - Same item referenced identically across all files
-
-This is especially important for crops since they must match item names exactly to work.
-
 ## Why Tea Crops Work Well
 
 **Player agency** - Instead of relying on shops or random drops, players can grow their own tea leaves through dedicated farming effort.
