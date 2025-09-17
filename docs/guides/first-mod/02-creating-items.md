@@ -32,6 +32,10 @@ We'll create two types of items:
 - They have limited uses (encouraging repeated purchases)
 - They represent the "output" side - the reason players want tea leaves
 
+## Images
+
+Note, for this example mod we will be using placeholder images from [placehold.co](https://placehold.co/). For an actual mod, replace those images with real ones of the same resolution.
+
 ## Creating Our Tea Items
 
 Create `src/modContent/items/teaItems.ts`:
@@ -39,12 +43,10 @@ Create `src/modContent/items/teaItems.ts`:
 ```typescript
 import { CraftingItem, CombatItem, Buff } from 'afnm-types';
 
-const icon = 'https://placeholder-icon.png';
-
 // First, we need buff definitions for our consumables
 export const calmMindBuff: Buff = {
   name: 'Calm Mind',
-  icon: icon,
+  icon: 'https://placehold.co/256x256/transparent/d98d00?text=Calm Mind',
   canStack: true,
   stats: {
     resistance: {
@@ -68,7 +70,7 @@ export const greenTeaLeaves: CraftingItem = {
   kind: 'material',
   name: 'Green Tea Leaves',
   description: 'Fresh tea leaves suitable for basic brewing.',
-  icon: icon,
+  icon: 'https://placehold.co/256x256/transparent/d98d00?text=Green Tea Leaves',
   stacks: 1,
   rarity: 'mundane', // Basic ingredient
   realm: 'meridianOpening', // Inventory sorting
@@ -79,7 +81,7 @@ export const brewedGreenTea: CombatItem = {
   kind: 'consumable',
   name: 'Brewed Green Tea',
   description: 'A calming tea that enhances focus and resilience.',
-  icon: icon,
+  icon: 'https://placehold.co/256x256/transparent/d98d00?text=Brewed Green Tea',
   stacks: 1,
   rarity: 'mundane',
   realm: 'meridianOpening',
@@ -106,7 +108,7 @@ export const jasmineTeaLeaves: CraftingItem = {
   kind: 'material',
   name: 'Jasmine Tea Leaves',
   description: 'Fragrant jasmine-infused tea leaves.',
-  icon: icon,
+  icon: 'https://placehold.co/256x256/transparent/d98d00?text=Jasmine Tea Leaves',
   stacks: 1,
   rarity: 'qitouched', // Better quality
   realm: 'qiCondensation',
@@ -114,7 +116,7 @@ export const jasmineTeaLeaves: CraftingItem = {
 
 export const spiritualClarityBuff: Buff = {
   name: 'Spiritual Clarity',
-  icon: icon,
+  icon: 'https://placehold.co/256x256/transparent/d98d00?text=Spiritual Clarity',
   canStack: true,
   tooltip: 'Enhanced spiritual awareness from refined tea.',
   stats: {
@@ -138,7 +140,7 @@ export const brewedJasmineTea: CombatItem = {
   kind: 'consumable',
   name: 'Brewed Jasmine Tea',
   description: 'An aromatic tea that sharpens spiritual awareness.',
-  icon: icon,
+  icon: 'https://placehold.co/256x256/transparent/d98d00?text=Brewed Jasmine Tea',
   stacks: 1,
   rarity: 'qitouched',
   realm: 'qiCondensation',
@@ -160,20 +162,74 @@ export const brewedJasmineTea: CombatItem = {
 };
 ```
 
+## Adding Tea Crops
+
+Now let's make our tea leaves growable! This gives players agency over their progression - instead of just buying materials, they can cultivate their own tea garden.
+
+Create `src/modContent/crops/teaCrops.ts`:
+
+```typescript
+// Tea leaf crops for the herb garden
+export const greenTeaLeafCrop = {
+  item: 'Green Tea Leaves', // Must match the item name exactly
+  yield: 2, // Produces 2 tea leaves per harvest
+  growthDays: 10, // Takes 10 days to mature
+  cost: {
+    condition: 'Vita', // Consumes basic Vita soil
+    amount: 3, // Uses 3 Vita per plant
+  },
+  change: {
+    condition: 'Aurum', // Produces Aurum soil
+    amount: 1, // Creates 1 Aurum after harvest
+  },
+};
+
+export const jasmineTeaLeafCrop = {
+  item: 'Jasmine Tea Leaves',
+  yield: 1, // Lower yield but higher tier
+  growthDays: 20, // Takes longer to grow
+  cost: {
+    condition: 'Condensed Vita', // Needs refined soil
+    amount: 4, // Higher soil cost
+  },
+  change: {
+    condition: 'Etherite', // Produces valuable Etherite
+    amount: 1,
+  },
+};
+
+export function initializeTeaCrops() {
+  console.log('🌱 Adding tea leaf crops...');
+
+  // Green tea leaves available in Meridian Opening (when farming unlocks)
+  window.modAPI.actions.addCrop('meridianOpening', greenTeaLeafCrop);
+
+  // Jasmine tea leaves available in Qi Condensation (advanced farming)
+  window.modAPI.actions.addCrop('qiCondensation', jasmineTeaLeafCrop);
+
+  console.log('✅ Added 2 tea leaf crops');
+}
+```
+
+## Why Tea Crops Work Well
+
+**Player agency** - Instead of relying on shops or random drops, players can grow their own tea leaves through dedicated farming effort.
+
+**Resource transformation** - Green tea crops consume basic Vita but produce valuable Aurum soil, creating a beneficial cycle for the herb garden economy.
+
+**Progression gating** - Jasmine crops require advanced soil conditions (Condensed Vita) that players won't have until later realms, creating natural progression.
+
+**Balanced yields** - Lower yields (1-2 items) prevent farming from trivializing the tea economy while still being worthwhile.
+
 ## Why This Structure Works
 
 **Buffs are separate objects** because they can be reused. Multiple items, techniques, or effects might all grant "Calm Mind" - so we define it once and reference it.
 
 **Effects array** lets consumables do multiple things. Our teas both buff the player AND heal them. This makes them more valuable than single-effect items.
 
-**Rarity progression** shows quality differences. Jasmine tea is 'qitouched' (better) than green tea's 'mundane' rating, so it costs more and provides stronger effects.
+**Flat scaling** fixes the effectiveness of the item to be detached from player realm, so a higher realm player gets no value from consuming large numbers of lower realm items
 
-**Stack counts matter**:
-
-- Materials (50 stacks) - players collect lots of these
-- Consumables (10 stacks) - limited use items that get consumed
-
-## Registering Items
+## Registering Items and Crops
 
 ```typescript
 export const allTeaItems = [
@@ -194,17 +250,25 @@ export function initializeTeaItems() {
 }
 ```
 
+**Important**: Export your items so other files can import them! This lets you use `greenTeaLeaves.name` in quests and characters instead of hard-coding strings like `'Green Tea Leaves'`. This approach:
+
+- **Prevents typos** - TypeScript will catch name mismatches
+- **Enables refactoring** - Change the name once and it updates everywhere
+- **Ensures consistency** - Same item referenced identically across all files
+
 ## Connect to Your Mod
 
 Update `src/modContent/index.ts`:
 
 ```typescript
 import { initializeTeaItems } from './items/teaItems';
+import { initializeTeaCrops } from './crops/teaCrops';
 
 function initializeMysticalTeaGarden() {
   console.log('🍵 Initializing Mystical Tea Garden Mod...');
 
   initializeTeaItems();
+  initializeTeaCrops();
 
   console.log('✅ Mystical Tea Garden Mod loaded successfully!');
 }
@@ -214,12 +278,19 @@ initializeMysticalTeaGarden();
 
 ## What We've Created
 
-- **Green Tea Leaves** - Basic material players can buy/find
+**Items:**
+
+- **Green Tea Leaves** - Basic material players can buy/find/grow
 - **Brewed Green Tea** - Entry-level consumable that gives defensive buffs
 - **Jasmine Tea Leaves** - Higher tier material for advanced players
 - **Brewed Jasmine Tea** - Premium consumable with offensive buffs
 
-This creates a simple but complete tea economy. Players can collect ingredients, NPCs can sell finished products, and there's clear progression from basic to advanced teas.
+**Crops:**
+
+- **Green Tea Leaf Crop** - Available in Meridian Opening, transforms Vita into Aurum
+- **Jasmine Tea Leaf Crop** - Available in Qi Condensation, transforms Condensed Vita into Etherite
+
+This creates a complete tea economy with multiple acquisition paths. Players can buy ingredients from NPCs, grow their own through farming, and craft finished products for various benefits. The herb garden integration gives players long-term agency over their tea supply.
 
 ## Next Steps
 

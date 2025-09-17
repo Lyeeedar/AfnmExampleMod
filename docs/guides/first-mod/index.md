@@ -9,7 +9,7 @@ description: 'Complete step-by-step tutorial for creating your first AFNM mod'
 
 # Your First Mod: Tea House Tutorial
 
-This comprehensive tutorial walks you through creating your first AFNM mod from scratch. You'll build a complete Tea House feature that demonstrates all the core modding concepts and game systems.
+This comprehensive tutorial walks you through creating your first AFNM mod from scratch. You'll build a complete Tea House feature that uses all the core modding concepts and game systems.
 
 ## What You'll Build
 

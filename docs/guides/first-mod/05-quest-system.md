@@ -9,35 +9,29 @@ description: 'Creating multi-step quests with events and progression'
 
 # Step 5: Quest System
 
-Quests tie all your mod content together into a cohesive player experience. AFNM's quest system is powerful and flexible, supporting everything from simple collection tasks to complex multi-branched storylines. Let's create two quests that guide players through discovering and restoring our tea house.
+Now we have items, characters, and locations - time to connect them with a quest! We'll create a simple but complete quest that:
 
-## Understanding Quest Architecture
+1. **Introduces Master Chen** to the player
+2. **Creates a goal** - help restore his tea house
+3. **Uses our items** - player needs to gather tea leaves
+4. **Rewards progression** - unlocks his shop when complete
 
-The [Quest System documentation](../../quests/index.md) shows that quests consist of:
+This demonstrates how quests tie all your mod systems together into a cohesive experience.
 
-1. **Basic metadata** (name, description, category)
-2. **Sequential steps** that players must complete
-3. **Rewards** given upon completion
-4. **Optional conditions** for failure or gating
+## Why This Quest Structure Works
 
-Our tea house story needs two connected quests:
-- **"The Forgotten Tea House"** - Discovery and initial exploration
-- **"Master of Tea"** - Restoration and meeting Master Chen
+The quest we'll build follows a proven pattern:
 
-## Quest Categories
+**Discovery → Goal → Collection → Reward**
 
-The [quest structure guide](../../quests/quest-structure.md#category-system) defines six quest categories:
+- **Discover Master Chen** - Player finds him by his abandoned tea house via quest distribution
+- **Learn his story** - He explains the tea house's history and asks for help
+- **Collect tea leaves** - Gives purpose to our items and creates gameplay
+- **Unlock the shop** - Creates lasting progression and rewards helping
 
-- **`main`** - Core storyline progression
-- **`side`** - Optional character stories and world building
-- **`missionHall`** - Sect-based assignments
-- **`craftingHall`** - Artisan skill development
-- **`requestBoard`** - Community needs
-- **`guild`** - Organization-specific content
+This structure works because each step naturally leads to the next, and the reward (shop access) makes the effort worthwhile.
 
-Our tea house quests fit perfectly in the **`side`** category - they're optional character-driven stories that build the world.
-
-## Creating the Discovery Quest
+## Creating the Tea House Quest
 
 Create `src/modContent/quests/teaQuests.ts`:
 
@@ -45,399 +39,152 @@ Create `src/modContent/quests/teaQuests.ts`:
 import { Quest, EventStep } from 'afnm-types';
 import { greenTeaLeaves, brewedGreenTea } from '../items/teaItems';
 
-// First quest: Discovering the tea house
-const teaHouseDiscoveryEvents: EventStep[] = [
-  {
-    kind: 'text',
-    text: 'While exploring Liang Tiao Village, you notice an old building with a faded sign depicting a tea cup.',
-  },
-  {
-    kind: 'choice',
-    choices: [
-      {
-        text: 'Investigate the building',
-        children: [
-          {
-            kind: 'text',
-            text: 'Pushing open the wooden door, you discover a dusty but well-preserved tea house. Ancient brewing equipment sits covered in cloth.',
-          },
-          {
-            kind: 'choice',
-            choices: [
-              {
-                text: 'Search for clues about the owner',
-                children: [
-                  {
-                    kind: 'text',
-                    text: 'Among the dust, you find a letter written in elegant calligraphy. It mentions Master Chen, a tea cultivator who once ran this establishment.',
-                  },
-                  {
-                    kind: 'flag',
-                    flag: 'foundTeaHouseClue',
-                    value: '1',
-                    global: true,
-                  },
-                ],
-              },
-              {
-                text: 'Clean up the tea house',
-                showCondition: 'foundTeaHouseClue == 1',
-                children: [
-                  {
-                    kind: 'text',
-                    text: 'You spend time clearing away dust and arranging the tea brewing equipment. The house begins to look welcoming again.',
-                  },
-                  {
-                    kind: 'flag',
-                    flag: 'cleanedTeaHouse',
-                    value: '1',
-                    global: true,
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-      },
-      {
-        text: 'Leave for now',
-        children: [
-          {
-            kind: 'text',
-            text: 'You decide to come back later when you have more time to investigate.',
-          },
-        ],
-      },
-    ],
-  },
-];
-
-export const discoverTeaHouseQuest: Quest = {
-  name: 'The Forgotten Tea House',
-  description: 'Investigate the mysterious old building in Liang Tiao Village and uncover its secrets.',
-  category: 'side',
-  steps: [
-    {
-      kind: 'event',
-      hint: 'Discover the abandoned tea house',
-      event: {
-        location: 'Liang Tiao Village',
-        steps: teaHouseDiscoveryEvents,
-      },
-    },
-    {
-      kind: 'condition',
-      hint: 'Find clues about the owner',
-      completionCondition: 'foundTeaHouseClue == 1',
-    },
-    {
-      kind: 'condition',
-      hint: 'Clean the tea house',
-      completionCondition: 'cleanedTeaHouse == 1',
-    },
-  ],
-  rewards: [
-    {
-      kind: 'item',
-      item: { name: greenTeaLeaves.name },
-      amount: 5,
-    },
-  ],
-};
-```
-
-## Understanding Quest Steps
-
-Our discovery quest uses three [quest step types](../../quests/quest-steps.md):
-
-### Event Quest Step
-```typescript
-{
-  kind: 'event',
-  hint: 'Discover the abandoned tea house',
-  event: {
-    location: 'Liang Tiao Village',
-    steps: teaHouseDiscoveryEvents,
-  },
-}
-```
-
-**Event steps** are the most powerful quest step type. They present full interactive narratives with:
-- **Dialogue and choices** that affect the story
-- **Flag management** to track player decisions
-- **World-building** that makes locations feel alive
-
-### Condition Quest Step
-```typescript
-{
-  kind: 'condition',
-  hint: 'Find clues about the owner',
-  completionCondition: 'foundTeaHouseClue == 1',
-}
-```
-
-**Condition steps** wait for specific [flag expressions](../../concepts/flags.md) to become true. They're perfect for:
-- **Gating progression** behind specific player actions
-- **Tracking discoveries** like finding clues
-- **Ensuring completion** of important story beats
-
-## Event System Integration
-
-Our quest events use the [Event System](../../events/index.md) extensively:
-
-### Progressive Choices
-```typescript
-{
-  text: 'Clean up the tea house',
-  showCondition: 'foundTeaHouseClue == 1',  // Only after finding clues
-  children: [...]
-}
-```
-
-The `showCondition` creates **progressive revelation** - players must find clues before they can clean the house.
-
-### Global Flag Management
-```typescript
-{
-  kind: 'flag',
-  flag: 'foundTeaHouseClue',
-  value: '1',
-  global: true,    // Persists across game saves
-}
-```
-
-**Always use `global: true`** for quest flags. Without it, flags disappear when the game restarts.
-
-### Atmospheric Writing
-Each event step includes descriptive text that:
-- **Sets the scene** - "faded sign depicting a tea cup"
-- **Creates mystery** - "letter written in elegant calligraphy"
-- **Shows progress** - "begins to look welcoming again"
-
-## Creating the Restoration Quest
-
-Let's add a second quest that continues the story:
-
-```typescript
-// Second quest: Restoring the tea house
-const findMasterChenEvents: EventStep[] = [
-  {
-    kind: 'text',
-    text: 'Based on the letter you found, you begin searching for Master Chen around Liang Tiao Village.',
-  },
-  {
-    kind: 'choice',
-    choices: [
-      {
-        text: 'Ask the villagers about Master Chen',
-        children: [
-          {
-            kind: 'text',
-            text: 'The villagers speak fondly of Master Chen. "He used to run the finest tea house in the village," one elder tells you. "He\'s been living quietly near the village outskirts since it closed."',
-          },
-          {
-            kind: 'flag',
-            flag: 'learnedAboutMasterChen',
-            value: '1',
-            global: true,
-          },
-        ],
-      },
-      {
-        text: 'Visit the village outskirts',
-        showCondition: 'learnedAboutMasterChen == 1',
-        children: [
-          {
-            kind: 'text',
-            text: 'You find Master Chen tending to a small tea garden behind a modest dwelling. He looks up as you approach.',
-          },
-          {
-            kind: 'speech',
-            character: 'Master Chen',
-            text: 'Ah, a young cultivator. I sense you have discovered my old tea house. It has been many years since I last brewed there.',
-          },
-          {
-            kind: 'choice',
-            choices: [
-              {
-                text: 'Ask him to reopen the tea house',
-                children: [
-                  {
-                    kind: 'speech',
-                    character: 'Master Chen',
-                    text: 'Reopen the tea house... it would require much work. The equipment needs restoration, and I would need fresh tea leaves to begin brewing again.',
-                  },
-                  {
-                    kind: 'speech',
-                    character: 'Master Chen',
-                    text: 'If you could bring me 10 Green Tea Leaves to start with, I would consider returning to my old establishment.',
-                  },
-                  {
-                    kind: 'flag',
-                    flag: 'masterChenRequest',
-                    value: '1',
-                    global: true,
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  },
-];
-
-const completeTeaHouseRestoration: EventStep[] = [
-  {
-    kind: 'removeItem',
-    item: { name: greenTeaLeaves.name },
-    amount: '10',
-  },
-  {
-    kind: 'speech',
-    character: 'Master Chen',
-    text: 'Excellent! These tea leaves are of fine quality. With these, I can begin brewing once more.',
-  },
-  {
-    kind: 'speech',
-    character: 'Master Chen',
-    text: 'I will return to the tea house and restore it to its former glory. Thank you for reminding an old man of his purpose.',
-  },
-  {
-    kind: 'flag',
-    flag: 'teaHouseUnlocked',
-    value: '1',
-    global: true,
-  },
-  {
-    kind: 'addItem',
-    item: { name: brewedGreenTea.name },
-    amount: '3',
-  },
-];
-
 export const restoreTeaHouseQuest: Quest = {
-  name: 'Master of Tea',
-  description: 'Help Master Chen restore his tea house to its former glory.',
+  name: 'The Forgotten Tea House',
+  description:
+    'Help Master Chen restore his abandoned tea house to its former glory.',
   category: 'side',
   steps: [
     {
-      kind: 'event',
-      hint: 'Find Master Chen',
-      event: {
-        location: 'Liang Tiao Village',
-        steps: findMasterChenEvents,
-      },
-    },
-    {
-      kind: 'condition',
-      hint: 'Learn about Master Chen\'s request',
-      completionCondition: 'masterChenRequest == 1',
+      kind: 'speakToCharacter',
+      hint: 'Find Master Chen in Liang Tiao Village',
+      character: 'Master Chen',
+      event: [
+        {
+          kind: 'speech',
+          character: 'Master Chen',
+          text: 'Greetings, young cultivator. I see wisdom in your eyes - perhaps you could help an old tea master?',
+        },
+        {
+          kind: 'speech',
+          character: 'Master Chen',
+          text: 'My tea house has been abandoned for years. If you could bring me 5 Green Tea Leaves, I could brew something special and reopen the establishment.',
+        },
+        {
+          kind: 'text',
+          text: 'Master Chen looks hopeful as he explains his situation.',
+        },
+      ],
     },
     {
       kind: 'collect',
-      hint: 'Gather 10 Green Tea Leaves',
+      hint: 'Gather 5 Green Tea Leaves for Master Chen',
       item: greenTeaLeaves.name,
-      amount: 10,
+      amount: 5,
     },
     {
       kind: 'speakToCharacter',
-      hint: 'Bring the tea leaves to Master Chen',
+      hint: 'Return the tea leaves to Master Chen',
       character: 'Master Chen',
-      event: completeTeaHouseRestoration,
+      event: [
+        {
+          kind: 'choice',
+          choices: [
+            {
+              text: `Give Master Chen the tea leaves (Requires 5 ${greenTeaLeaves.name})`,
+              condition: {
+                kind: 'item',
+                item: { name: greenTeaLeaves.name },
+                amount: 5,
+              },
+              children: [
+                {
+                  kind: 'removeItem',
+                  item: { name: greenTeaLeaves.name },
+                  amount: '5',
+                },
+                {
+                  kind: 'speech',
+                  character: 'Master Chen',
+                  text: 'Perfect! These leaves have excellent qi resonance. Watch as I restore the tea house!',
+                },
+                {
+                  kind: 'text',
+                  text: 'With ancient techniques, Master Chen channels qi through the tea leaves, causing the dilapidated building to shimmer and restore itself.',
+                },
+                {
+                  kind: 'flag',
+                  flag: 'teaHouseUnlocked',
+                  value: '1',
+                  global: true,
+                },
+                {
+                  kind: 'speech',
+                  character: 'Master Chen',
+                  text: 'My shop is now open! Take these brewed teas as thanks for your help.',
+                },
+                {
+                  kind: 'addItem',
+                  item: { name: brewedGreenTea.name },
+                  amount: '2',
+                },
+              ],
+            },
+            {
+              text: 'I need to gather more tea leaves first',
+              children: [
+                {
+                  kind: 'speech',
+                  character: 'Master Chen',
+                  text: 'Take your time. The tea house has waited this long - it can wait a little longer.',
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      completionCondition: 'teaHouseUnlocked == 1',
     },
   ],
   rewards: [
     {
       kind: 'item',
       item: { name: brewedGreenTea.name },
-      amount: 3,
+      amount: 2,
     },
     {
       kind: 'money',
-      amount: 500,
+      amount: 100,
     },
   ],
 };
 ```
 
-## Advanced Quest Step Types
+## Why This Design Works
 
-The restoration quest demonstrates additional [quest step types](../../quests/quest-steps.md):
+This quest structure follows best practices:
 
-### Collect Quest Step
-```typescript
-{
-  kind: 'collect',
-  hint: 'Gather 10 Green Tea Leaves',
-  item: greenTeaLeaves.name,
-  amount: 10,
-}
-```
+**Imported references** - We import items from `teaItems.ts` and use `greenTeaLeaves.name` instead of hard-coding strings like `'Green Tea Leaves'`. This prevents typos, makes refactoring easier, and ensures consistency across your mod.
 
-**Collect steps** track specific items in the player's inventory. They complete automatically when the player has enough items.
+**Clear progression**: Each step builds on the previous one
 
-### Speak to Character Quest Step
-```typescript
-{
-  kind: 'speakToCharacter',
-  hint: 'Bring the tea leaves to Master Chen',
-  character: 'Master Chen',
-  event: completeTeaHouseRestoration,
-}
-```
+- Step 1: Meet Master Chen and learn the problem
+- Step 2: Collect what he needs (creates gameplay)
+- Step 3: Deliver and see the result
 
-**Speak steps** require talking to specific NPCs. They can include custom events that trigger during the conversation.
+**Proper item checking**: Uses choice conditions to verify the player has the required items before allowing the completion.
 
-## Quest Rewards
+**Meaningful consequences**: The quest permanently unlocks Master Chen's shop through the `teaHouseUnlocked` flag.
 
-The [quest structure](../../quests/quest-structure.md) supports multiple reward types:
+**Player agency**: Players can choose when to complete the delivery, and there's a polite exit option if they're not ready.
 
-### Item Rewards
-```typescript
-{
-  kind: 'item',
-  item: { name: brewedGreenTea.name },
-  amount: 3,
-}
-```
+**Reasonable requirements**: Only 5 tea leaves makes the quest feel achievable without being tedious.
 
-### Money Rewards
-```typescript
-{
-  kind: 'money',
-  amount: 500,
-}
-```
-
-Other reward types include:
-- **`technique`** - Combat abilities
-- **`recipe`** - Crafting recipes
-- **`reputation`** - Faction standing
-- **`experience`** - Cultivation progress
-
-## Registering Quests
+## Registering the Quest
 
 ```typescript
-export const allTeaQuests: Quest[] = [discoverTeaHouseQuest, restoreTeaHouseQuest];
-
 export function initializeTeaQuests() {
-  console.log('📜 Adding tea house quests...');
+  console.log('📜 Adding tea house quest...');
 
-  allTeaQuests.forEach((quest) => {
-    window.modAPI.actions.addQuest(quest);
-  });
+  window.modAPI.actions.addQuest(restoreTeaHouseQuest);
 
-  console.log(`✅ Added ${allTeaQuests.length} tea quests`);
+  console.log('✅ Added The Forgotten Tea House quest');
 }
 ```
 
-Quests must be registered through the [ModAPI](../../concepts/modapi.md#world-content) before they can be distributed to players.
+## Connect to Your Mod
 
-## Updating Your Main Index
-
-Update `src/modContent/index.ts` to initialize quests:
+Update `src/modContent/index.ts`:
 
 ```typescript
 import { initializeTeaItems } from './items/teaItems';
@@ -448,149 +195,39 @@ import { initializeTeaQuests } from './quests/teaQuests';
 function initializeMysticalTeaGarden() {
   console.log('🍵 Initializing Mystical Tea Garden Mod...');
 
-  // Dependencies first
+  // Dependencies first - items, characters, locations
   initializeTeaItems();
   initializeTeaCharacters();
   initializeTeaBrewery();
 
-  // Quests reference all above systems
+  // Quests last - they reference everything else
   initializeTeaQuests();
 
   console.log('✅ Mystical Tea Garden Mod loaded successfully!');
 }
+
+initializeMysticalTeaGarden();
 ```
 
-## Quest Design Principles
+## What We've Created
 
-### Meaningful Progression
-Each step should feel significant:
-- **Discovery** reveals new information
-- **Investigation** requires player engagement
-- **Collection** creates resource goals
-- **Delivery** provides story resolution
+Our quest creates a complete gameplay loop:
 
-### Connected Storylines
-Our quests form a complete narrative arc:
-1. **Discovery** → Find the abandoned tea house
-2. **Investigation** → Learn about Master Chen
-3. **Collection** → Gather materials for restoration
-4. **Resolution** → Unlock the tea house functionality
+1. **Discovery**: Player meets Master Chen in the village
+2. **Challenge**: Player must gather tea leaves (interaction with our items)
+3. **Resolution**: Quest completion unlocks the shop permanently
+4. **Reward**: Player receives immediate items plus ongoing shop access
 
-### Resource Integration
-Quests should connect to your mod's economy:
-- **Reward items** players can use (tea leaves, brewed tea)
-- **Require resources** that create meaningful choices
-- **Unlock content** that provides ongoing value
+This demonstrates how quests bind all your mod systems together - items become quest objectives, characters provide the story context, and completion unlocks new features.
 
-### Player Agency
-Give players meaningful choices:
-```typescript
-{
-  text: 'Investigate the building',  // Player chooses to engage
-  text: 'Leave for now',            // Player can defer/skip
-}
-```
+## How Quest Progression Works
 
-Even when choices lead to the same outcome, they make players feel involved in the story.
+**Step-by-step advancement**: Each quest step must complete before the next becomes available. The first step introduces Master Chen, the second tracks tea leaf collection, and the third handles the delivery.
 
-## Common Quest Mistakes
+**Conditional choices**: The final step uses item conditions to ensure players actually have the required items before allowing completion.
 
-### Missing Global Flags
-```typescript
-// WRONG - flag disappears on game restart
-{
-  kind: 'flag',
-  flag: 'questProgress',
-  value: '1'
-}
-
-// RIGHT - flag persists across saves
-{
-  kind: 'flag',
-  flag: 'questProgress',
-  value: '1',
-  global: true
-}
-```
-
-### Unclear Quest Hints
-```typescript
-// WRONG - player doesn't know what to do
-hint: 'Continue the quest'
-
-// RIGHT - specific actionable instruction
-hint: 'Find Master Chen in Liang Tiao Village'
-```
-
-### Broken Character References
-```typescript
-// WRONG - character name doesn't match exactly
-character: 'master chen',      // lowercase
-character: 'Master Chen ',     // extra space
-
-// RIGHT - exact match with character definition
-character: 'Master Chen'
-```
-
-### Overly Complex Events
-```typescript
-// WRONG - too many nested choices
-{
-  kind: 'choice',
-  choices: [
-    {
-      text: 'Option 1',
-      children: [
-        {
-          kind: 'choice',  // Nested choice
-          choices: [
-            {
-              text: 'Sub-option A',
-              children: [
-                {
-                  kind: 'choice',  // Triple nested!
-                  // ... too complex
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    }
-  ]
-}
-
-// RIGHT - keep events focused and linear
-{
-  kind: 'choice',
-  choices: [
-    {
-      text: 'Investigate further',
-      children: [
-        { kind: 'text', text: 'You discover...' },
-        { kind: 'flag', flag: 'discovered', value: '1', global: true }
-      ]
-    }
-  ]
-}
-```
+**Completion conditions**: Only the final delivery step needs a `completionCondition` because players might visit Master Chen multiple times before they have enough tea leaves.
 
 ## Next Steps
 
-With quests created, we need a way to give them to players. AFNM uses triggered events for automatic quest distribution. Let's create [quest distribution system](06-quest-distribution.md) that:
-
-- Automatically starts the first quest when players visit Liang Tiao Village
-- Triggers the second quest when the first is completed
-- Feels natural and non-intrusive to the player experience
-
-The quest distribution system will complete our mod's automated progression flow.
-
-## Troubleshooting
-
-**Quest not completing**: Check that `completionCondition` flags are set correctly and use exact flag names.
-
-**Character interactions failing**: Verify `character` names in quest steps match character definitions exactly.
-
-**Event choices not appearing**: Check `showCondition` expressions and ensure referenced flags are set properly.
-
-**TypeScript errors**: Use `getDiagnostics` to identify specific interface requirement issues with quest steps or rewards.
+Now we need to [distribute this quest](06-quest-distribution.md) automatically to players, as quests aren't automatically added to the journal. We'll create triggered events that give the quest when players visit Liang Tiao Village.

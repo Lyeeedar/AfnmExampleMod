@@ -9,271 +9,81 @@ description: 'Setting up triggered events to automatically give quests to player
 
 # Step 6: Quest Distribution
 
-Having created quests is only half the battle - players need a way to receive them! AFNM uses triggered events to automatically distribute quests based on player actions and conditions. Let's create a quest distribution system that feels natural and engaging.
+Our quest exists, but players need a way to discover it naturally! We'll create triggered events that automatically give players the quest when they visit Liang Tiao Village:
 
-## Understanding Quest Distribution
-
-The [Quest System documentation](../../quests/index.md#event-system-integration) explains that quests integrate tightly with the event system. Specifically, the [AddQuest event step](../../events/steps/addquest.md) allows events to give quests to players.
-
-### Why Triggered Events?
-
-Manual quest distribution (talking to NPCs, reading notice boards) works for some content, but triggered events provide:
-
-- **Seamless integration** - Quests appear when contextually appropriate
-- **Discovery-driven** - Exploration naturally leads to new content
-- **Non-intrusive** - Players aren't forced into dialogue they don't want
-- **Contextual relevance** - Quests appear when players can actually complete them
-
-## Quest Distribution Architecture
-
-Our tea house story needs two distribution triggers:
-
-1. **First quest** - Triggered when player first visits Liang Tiao Village
-2. **Second quest** - Triggered when first quest is completed
-
-We'll use [triggered events](../../events/triggered-events.md) to handle this automatically.
-
-## Creating Quest Distribution Events
+## Quest Distribution Events
 
 Create `src/modContent/events/teaQuestEvents.ts`:
 
 ```typescript
 import { TriggeredEvent, GameEvent } from 'afnm-types';
+import { restoreTeaHouseQuest } from '../quests/teaQuests';
 
-// Event that gives the discovery quest to players
-const teaHouseQuestStartEvent: GameEvent = {
+// Event that gives our tea house quest to players
+const teaHouseDiscoveryEvent: GameEvent = {
   location: 'Liang Tiao Village',
   steps: [
     {
       kind: 'text',
-      text: 'As you explore Liang Tiao Village, something catches your attention in the distance.',
+      text: 'As you explore Liang Tiao Village, you notice an elderly man sitting by an abandoned building, looking wistful.',
     },
     {
       kind: 'quest',
-      quest: 'The Forgotten Tea House',
+      quest: restoreTeaHouseQuest.name,
     },
     {
       kind: 'flag',
-      flag: 'startedTeaHouseQuest',
+      flag: 'discoveredTeaQuest',
       value: '1',
       global: true,
     },
   ],
 };
 
-// Triggered event for the first quest
+// Triggered event that fires when players visit the village
 export const teaHouseQuestTrigger: TriggeredEvent = {
-  event: teaHouseQuestStartEvent,
-  name: 'teaHouseDiscoveryStart',
-  trigger: 'startedTeaHouseQuest == 0',
-  screens: ['location'],
-  locations: ['Liang Tiao Village'],
-  triggerChance: 1.0,
+  event: teaHouseDiscoveryEvent,
+  name: 'teaHouseDiscovery',
+  trigger: 'discoveredTeaQuest == 0 && realm >= 2', // Quest not discovered AND Meridian Opening realm (2) or higher
+  screens: ['location'], // Only on location screens (entering a location)
+  locations: ['Liang Tiao Village'], // Only in this specific location
+  triggerChance: 1.0, // 100% chance when conditions are met
 };
-
-// Event that gives the second quest after completing the first
-const teaHouseRestoreQuestEvent: GameEvent = {
-  location: 'Liang Tiao Village',
-  steps: [
-    {
-      kind: 'text',
-      text: 'With the tea house now discovered and cleaned, a new opportunity presents itself.',
-    },
-    {
-      kind: 'quest',
-      quest: 'Master of Tea',
-    },
-    {
-      kind: 'flag',
-      flag: 'startedRestoreQuest',
-      value: '1',
-      global: true,
-    },
-  ],
-};
-
-// Triggered event for the second quest
-export const teaHouseRestoreQuestTrigger: TriggeredEvent = {
-  event: teaHouseRestoreQuestEvent,
-  name: 'teaHouseRestoreStart',
-  trigger: 'cleanedTeaHouse == 1 && startedRestoreQuest == 0',
-  screens: ['location'],
-  locations: ['Liang Tiao Village'],
-  triggerChance: 1.0,
-};
-
-export const allTeaQuestTriggers: TriggeredEvent[] = [
-  teaHouseQuestTrigger,
-  teaHouseRestoreQuestTrigger,
-];
-
-export function initializeTeaQuestEvents() {
-  console.log('🎯 Adding tea quest triggered events...');
-
-  allTeaQuestTriggers.forEach((trigger) => {
-    window.modAPI.actions.addTriggeredEvent(trigger);
-  });
-
-  console.log(`✅ Added ${allTeaQuestTriggers.length} tea quest triggers`);
-}
 ```
 
-## Understanding Triggered Events
+## Why This Structure Works
 
-The [Triggered Events documentation](../../events/triggered-events.md) shows the sophisticated trigger system AFNM provides.
+**Imported quest reference** - We import `restoreTeaHouseQuest` and use `restoreTeaHouseQuest.name` instead of hard-coding the string. This prevents typos and makes refactoring easier.
 
-### TriggeredEvent Interface
-```typescript
-interface TriggeredEvent {
-  event: GameEvent;              // The event to execute
-  name: string;                  // Unique identifier
-  trigger: string;               // Condition expression
-  screens: GameScreen[];         // Which screens can trigger
-  locations?: string[];          // Optional location restriction
-  triggerChance?: number;        // Probability of triggering
-  resetMonths?: {                // Cooldown between triggers
-    min: number;
-    max: number;
-  };
-  usesCooldown?: boolean;        // Uses global encounter cooldown
-}
-```
+**Realm-gated discovery** - The quest only triggers for players in Meridian Opening realm (2) or higher. This makes sense because the herb garden (where players can grow tea leaves) unlocks in Meridian Opening, giving them a way to actually complete the quest.
 
-### Trigger Conditions
+**Natural discovery flow** - Players learn about Master Chen and his situation through exploration.
 
-Our first trigger uses a simple condition:
-```typescript
-trigger: 'startedTeaHouseQuest == 0'
-```
+**One-time trigger** - The `discoveredTeaQuest` flag ensures this event only fires once per player, preventing spam.
 
-This [flag expression](../../concepts/flags.md) ensures the quest is only given once - after the flag is set, the condition becomes false.
+**Location-specific** - Only triggers in Liang Tiao Village where Master Chen actually lives.
 
-Our second trigger uses a compound condition:
-```typescript
-trigger: 'cleanedTeaHouse == 1 && startedRestoreQuest == 0'
-```
+**Screen targeting** - Only fires on location screens (when entering a location), not during combat or other activities.
 
-This ensures the restoration quest only appears after:
-- The first quest is completed (`cleanedTeaHouse == 1`)
-- The second quest hasn't been started yet (`startedRestoreQuest == 0`)
+**Quest integration** - The `quest` step automatically finds the quest by name and adds it to the player's journal. By using `restoreTeaHouseQuest.name`, we ensure the reference stays correct even if we change the quest's name later.
 
-### Screen and Location Targeting
+**Flag management** - Setting `discoveredTeaQuest = 1` prevents the event from firing again and enables Master Chen to appear on the map.
 
-```typescript
-screens: ['location'],                // Only on location/exploration screen
-locations: ['Liang Tiao Village'],    // Only at this specific location
-```
-
-**Screen targeting** ensures events only trigger during appropriate gameplay:
-- `'location'` - Exploration and location interaction screen
-- `'market'` - Marketplace screen
-- `'inventory'` - Inventory management screen
-- `'home'` - Rest/home screen
-
-**Location targeting** restricts where events can fire. Without this, our tea house quest could trigger anywhere!
-
-### Trigger Probability
-
-```typescript
-triggerChance: 1.0  // 100% chance when conditions are met
-```
-
-We use certainty (1.0) because quest distribution should be reliable. Other use cases might use lower chances:
-- `0.1` - 10% chance for rare random encounters
-- `0.05` - 5% chance for very rare events
-- `0.3` - 30% chance for common but not guaranteed events
-
-## The AddQuest Event Step
-
-The core of quest distribution is the [AddQuest step](../../events/steps/addquest.md):
-
-```typescript
-{
-  kind: 'quest',
-  quest: 'The Forgotten Tea House',
-}
-```
-
-This step:
-1. **Finds the quest** by name in the registered quest list
-2. **Adds it to the player's quest log**
-3. **Starts tracking** the quest's first step
-4. **Shows notifications** to inform the player
-
-**Quest names must match exactly** - capitalization and punctuation matter!
-
-## Flag Management for Quest Distribution
-
-Each triggered event sets a flag to prevent re-triggering:
-
-```typescript
-{
-  kind: 'flag',
-  flag: 'startedTeaHouseQuest',
-  value: '1',
-  global: true,
-}
-```
-
-This creates a progression chain:
-1. **Player visits village** → `startedTeaHouseQuest` becomes 1
-2. **Player completes first quest** → `cleanedTeaHouse` becomes 1
-3. **Player visits village again** → Second quest triggers
-4. **Second quest starts** → `startedRestoreQuest` becomes 1
-
-## Event Design Principles
-
-### Contextual Introduction
-```typescript
-{
-  kind: 'text',
-  text: 'As you explore Liang Tiao Village, something catches your attention in the distance.',
-}
-```
-
-Don't just dump quests on players - provide narrative context that explains why this quest is appearing now.
-
-### Immediate Quest Delivery
-```typescript
-{
-  kind: 'quest',
-  quest: 'The Forgotten Tea House',
-}
-```
-
-Give the quest immediately after the introduction. Don't make players hunt for where to actually accept it.
-
-### Progress Tracking
-```typescript
-{
-  kind: 'flag',
-  flag: 'startedTeaHouseQuest',
-  value: '1',
-  global: true,
-}
-```
-
-Always set flags to track quest distribution. This prevents duplicate quests and enables complex trigger conditions.
-
-## Registering Triggered Events
+## Registering Quest Events
 
 ```typescript
 export function initializeTeaQuestEvents() {
-  console.log('🎯 Adding tea quest triggered events...');
+  console.log('🎯 Adding tea quest distribution...');
 
-  allTeaQuestTriggers.forEach((trigger) => {
-    window.modAPI.actions.addTriggeredEvent(trigger);
-  });
+  window.modAPI.actions.addTriggeredEvent(teaHouseQuestTrigger);
 
-  console.log(`✅ Added ${allTeaQuestTriggers.length} tea quest triggers`);
+  console.log('✅ Added tea house quest trigger');
 }
 ```
 
-Triggered events must be registered through the [ModAPI](../../concepts/modapi.md#world-content) to function.
+## Connect to Your Mod
 
-## Updating Your Main Index
-
-Update `src/modContent/index.ts` to initialize quest events:
+Update `src/modContent/index.ts`:
 
 ```typescript
 import { initializeTeaItems } from './items/teaItems';
@@ -285,200 +95,44 @@ import { initializeTeaQuestEvents } from './events/teaQuestEvents';
 function initializeMysticalTeaGarden() {
   console.log('🍵 Initializing Mystical Tea Garden Mod...');
 
-  // Foundation systems
+  // Foundation systems first
   initializeTeaItems();
   initializeTeaCharacters();
   initializeTeaBrewery();
 
-  // Quest content
-  initializeTeaQuests();        // Quests must exist before events can reference them
-  initializeTeaQuestEvents();   // Events distribute the quests
+  // Quest content - order matters!
+  initializeTeaQuests(); // Quests must exist first
+  initializeTeaQuestEvents(); // Then events can reference them
 
   console.log('✅ Mystical Tea Garden Mod loaded successfully!');
 }
+
+initializeMysticalTeaGarden();
 ```
 
-**Order matters** - quests must be registered before events can distribute them!
+## What We've Created
 
-## Advanced Triggered Event Patterns
+Our triggered event creates a natural discovery experience:
 
-### Timed Events
-```typescript
-{
-  event: seasonalEvent,
-  name: 'springFestival',
-  trigger: 'yearMonth >= 3 && yearMonth <= 5',  // Spring months
-  screens: ['location'],
-  triggerChance: 0.2,
-  resetMonths: { min: 12, max: 12 }  // Once per year
-}
-```
+1. **Player explores** Liang Tiao Village
+2. **Event fires** automatically, adding atmosphere text
+3. **Quest appears** in their journal with context
+4. **Flag prevents** the event from repeating
 
-### Progression Gates
-```typescript
-{
-  event: advancedQuestEvent,
-  name: 'masterChallenge',
-  trigger: 'realm >= 4 && completedBasicQuests >= 10',
-  screens: ['location'],
-  triggerChance: 1.0
-}
-```
+This feels much more natural than players having to manually check their quest journal for new content.
 
-### Random Encounters
-```typescript
-{
-  event: mysteriousStrangerEvent,
-  name: 'strangerEncounter',
-  trigger: 'explorationCount >= 50',
-  screens: ['location'],
-  locations: ['Forest Path', 'Mountain Trail'],
-  triggerChance: 0.15,
-  resetMonths: { min: 2, max: 6 }
-}
-```
+## How Triggered Events Work
 
-## Testing Quest Distribution
+**Condition checking** - The game constantly evaluates trigger conditions. When `discoveredTeaQuest == 0` is true and the player is in Liang Tiao Village, the event fires.
 
-1. **Check trigger conditions**: Use debug commands to verify flag states
-2. **Test location restriction**: Ensure events only fire at specified locations
-3. **Verify screen targeting**: Events should only trigger on appropriate screens
-4. **Confirm quest delivery**: Check that quests actually appear in the quest log
-5. **Test progression chains**: Ensure second quest only appears after first completion
+**Screen filtering** - `screens: ['location']` ensures this only happens during exploration, not combat or dialogue.
 
-## Common Distribution Mistakes
+**Location filtering** - `locations: ['Liang Tiao Village']` restricts the trigger to just this village.
 
-### Missing Location Restrictions
-```typescript
-// WRONG - quest triggers anywhere in the game
-{
-  event: teaQuestEvent,
-  trigger: 'condition == 1',
-  screens: ['location']
-  // No location specified!
-}
+**Quest integration** - The `quest` step automatically finds "The Forgotten Tea House" by name and adds it to the player's journal.
 
-// RIGHT - quest only triggers at relevant location
-{
-  event: teaQuestEvent,
-  trigger: 'condition == 1',
-  screens: ['location'],
-  locations: ['Liang Tiao Village']
-}
-```
-
-### Forgetting Progress Flags
-```typescript
-// WRONG - quest retriggers every time conditions are met
-{
-  kind: 'quest',
-  quest: 'My Quest'
-  // No flag to track quest was given!
-}
-
-// RIGHT - flag prevents retriggering
-[
-  {
-    kind: 'quest',
-    quest: 'My Quest'
-  },
-  {
-    kind: 'flag',
-    flag: 'myQuestStarted',
-    value: '1',
-    global: true
-  }
-]
-```
-
-### Quest Name Mismatches
-```typescript
-// WRONG - names don't match exactly
-quest: 'the forgotten tea house',  // lowercase
-// vs quest definition:
-name: 'The Forgotten Tea House',   // proper capitalization
-
-// RIGHT - exact name match
-quest: 'The Forgotten Tea House'
-```
-
-### Overly Complex Conditions
-```typescript
-// WRONG - complex condition that's hard to debug
-trigger: 'realm >= 3 && (questA == 1 || questB == 1) && (season == "spring" || season == "summer") && playerFame >= 100'
-
-// RIGHT - simple, clear conditions
-trigger: 'realm >= 3 && advancedQuestsUnlocked == 1'
-```
-
-## Alternative Distribution Methods
-
-While triggered events are ideal for our tea house story, other distribution methods include:
-
-### NPC Quest Givers
-Characters can offer quests directly through dialogue:
-```typescript
-// In character talkInteraction
-{
-  kind: 'choice',
-  choices: [
-    {
-      text: 'Do you have any tasks for me?',
-      children: [
-        {
-          kind: 'quest',
-          quest: 'Delivery Mission'
-        }
-      ]
-    }
-  ]
-}
-```
-
-### Notice Boards
-Request board buildings can distribute quests:
-```typescript
-{
-  kind: 'requestBoard',
-  requests: {
-    meridianOpening: [
-      {
-        quest: 'herb_collection',
-        condition: '1',
-        rarity: 'mundane'
-      }
-    ]
-  }
-}
-```
-
-### Calendar Events
-Scheduled events can give seasonal quests:
-```typescript
-// In calendar event definition
-{
-  kind: 'quest',
-  quest: 'Harvest Festival Preparation'
-}
-```
+**Flag management** - Setting `discoveredTeaQuest = 1` prevents the event from firing again.
 
 ## Next Steps
 
-With quest distribution complete, our mod is functionally finished! However, no mod is complete without proper testing and polish. Let's move on to [testing and polish](07-testing-polish.md) where we'll:
-
-- Test all mod components thoroughly
-- Handle edge cases and error conditions
-- Add finishing touches and quality-of-life improvements
-- Prepare the mod for distribution
-
-The final step will ensure our tea house mod provides a smooth, bug-free experience for players.
-
-## Troubleshooting
-
-**Triggered events not firing**: Check trigger conditions, screen targeting, and location restrictions. Verify flags are set correctly.
-
-**Quests appearing multiple times**: Ensure progress flags are set and trigger conditions account for them.
-
-**Events triggering at wrong times**: Check compound conditions and verify flag states at different points in quest progression.
-
-**Quest not found errors**: Verify quest names match exactly between distribution events and quest definitions.
+Your mod is now functionally complete! Time for [testing and polish](07-testing-polish.md) to ensure everything works smoothly and provides a professional player experience.

@@ -69,10 +69,9 @@ import { initializeTeaQuests } from './quests/teaQuests';
 function initializeMod() {
   console.log('🍵 Initializing Tea House Mod...');
 
-  // Order is critical - dependencies first!
-  initializeTeaItems(); // Items must exist before...
-  initializeTeaCharacters(); // Characters can reference them
-  initializeTeaQuests(); // Quests can reward them
+  initializeTeaItems();
+  initializeTeaCharacters();
+  initializeTeaQuests();
 
   console.log('✅ Tea House Mod loaded successfully!');
 }
