@@ -58,7 +58,8 @@ This creates a `.zip` file in the `builds/` folder with everything the game need
    - Copy your ZIP file into this `mods/` folder
    - **Do NOT unzip it** - the game loads ZIP files directly
 
-3. **Start the game** and check the console (press F12 in browser) for your mod's loading messages:
+3. **Start the game** and check the console for your mod's loading messages:
+
    ```
    🍵 Initializing Mystical Tea Garden Mod...
    🍃 Adding tea items...
@@ -70,6 +71,8 @@ This creates a `.zip` file in the `builds/` folder with everything the game need
    ...
    ✅ Mystical Tea Garden Mod loaded successfully!
    ```
+
+4. **Check the mod loader** and select the information button on the row for your mod. You should see all your assets and changes displayed.
 
 ## Testing Your Mod In-Game
 
