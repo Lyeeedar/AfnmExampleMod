@@ -19,6 +19,9 @@ Core item interfaces, shared fields, and rarity system
 ### [Recipe System](recipes)
 Crafting recipes, ingredients, and difficulty mechanics
 
+### [Advanced Integration](advanced-integration)
+Shop integration, auctions, and stone cutting systems
+
 ### [Item Types](item-types)
 Detailed documentation for each item category
 

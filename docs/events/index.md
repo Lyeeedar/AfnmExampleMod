@@ -18,6 +18,7 @@ The events system is the heart of interactive content in Ascend from Nine Mounta
 2. **[Event Steps](event-steps)** - Learn about the building blocks that make up events
 3. **[Event Step Types](steps/)** - Reference for specific step types as needed
 4. **[Triggered Events](triggered-events)** - Advanced automatic event triggering
+5. **[Calendar Events](calendar-events)** - Time-based seasonal and festival events
 
 **Estimated Time:** 45-60 minutes to complete the full sequence
 
@@ -27,6 +28,7 @@ The events system is the heart of interactive content in Ascend from Nine Mounta
 - **[Event Steps](event-steps)** - Individual actions that make up events
 - **[Event Step Types](steps/)** - Complete reference for all step types
 - **[Triggered Events](triggered-events)** - Automatic event triggering system
+- **[Calendar Events](calendar-events)** - Time-based seasonal and festival events
 
 ## What You Can Create
 

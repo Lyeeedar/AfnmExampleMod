@@ -49,6 +49,18 @@ Stance switches based on health, round count, buffs, or other combat state using
 
 Combine cyclic rotations, random selections, and conditional overrides to create complex behaviors.
 
+## Enemy Registration
+
+Enemies are not directly registered through the ModAPI. Instead, they are integrated into the game through events and locations:
+
+### Integration Methods
+
+- **Event Combat Steps**: Use `combat` event steps to trigger enemy encounters
+- **Location Enemies**: Add enemies to locations as exploration encounters or specific combat events
+- **Quest Integration**: Incorporate enemies into quest objectives and storylines
+
+See the [Events](../events/) documentation for combat step implementation and [Locations](../locations/) for enemy placement strategies.
+
 ## Getting Started
 
 To implement your enemy concept:
@@ -57,3 +69,4 @@ To implement your enemy concept:
 2. Use the [Design Guide](design-guide.md) to translate your concept into stance rotations
 3. Study [Behavior Patterns](behavior-patterns.md) for advanced conditional logic
 4. Check [Examples](examples.md) for complete implementations
+5. Integrate your enemy through [Events](../events/) or location encounters

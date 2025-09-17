@@ -113,6 +113,8 @@ enemies: [
 ]
 ```
 
+**Enemy Integration**: Enemies must be defined as `EnemyEntity` objects before being added to locations. See the [Enemy Entities](../enemies/) documentation for complete enemy design and implementation guidance, including stance systems, behavior patterns, and combat mechanics.
+
 ### Events
 
 ```typescript
