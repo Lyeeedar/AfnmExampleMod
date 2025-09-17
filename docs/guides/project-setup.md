@@ -259,9 +259,6 @@ npm install
 
 # Build mod package for testing in-game
 npm run build
-
-# Clean up generated files (if you need to start fresh)
-npm run clean
 ```
 
 **Important:** Unlike web development, you can't run mods directly with `npm run dev`. You must build your mod and install it in the game to test it.
