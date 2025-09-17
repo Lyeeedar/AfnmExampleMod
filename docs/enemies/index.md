@@ -17,37 +17,43 @@ Enemy entities in AFNM represent all hostile combatants that players encounter t
 ## Core Systems
 
 ### Entity Structure
+
 Every enemy follows a consistent structure defined by the `EnemyEntity` interface, which includes combat stats, stance rotations, and conditional behaviors.
 
 ### Stance System
+
 Enemies cycle through stances containing technique sequences, using rotation rules and conditional overrides to create dynamic combat patterns.
 
 ### Implementation Focus
+
 The documentation emphasizes practical implementation details, showing how to build setup rounds, phase transitions, and adaptive behaviors.
 
 ## Quick Navigation
 
-- [Enemy Structure](enemy-structure) - Detailed breakdown of the EnemyEntity interface
-- [Design Guide](design-guide) - Transform concepts into working enemy implementations
-- [Behavior Patterns](behavior-patterns) - Stance rotations and AI behavior
-- [Examples](examples) - Complete enemy implementation examples
+- [Enemy Structure](enemy-structure.md) - Detailed breakdown of the EnemyEntity interface
+- [Design Guide](design-guide.md) - Transform concepts into working enemy implementations
+- [Behavior Patterns](behavior-patterns.md) - Stance rotations and AI behavior
+- [Examples](examples.md) - Complete enemy implementation examples
 
 ## Key Implementation Concepts
 
 ### Rotation Overrides
+
 Use `rotationOverrides` with `repeatable: false` to create setup rounds and one-time behaviors.
 
 ### Conditional Logic
+
 Stance switches based on health, round count, buffs, or other combat state using mathematical expressions.
 
 ### Pattern Building
+
 Combine cyclic rotations, random selections, and conditional overrides to create complex behaviors.
 
 ## Getting Started
 
 To implement your enemy concept:
 
-1. Review the [Enemy Structure](enemy-structure) for the interface definition
-2. Use the [Design Guide](design-guide) to translate your concept into stance rotations
-3. Study [Behavior Patterns](behavior-patterns) for advanced conditional logic
-4. Check [Examples](examples) for complete implementations
+1. Review the [Enemy Structure](enemy-structure.md) for the interface definition
+2. Use the [Design Guide](design-guide.md) to translate your concept into stance rotations
+3. Study [Behavior Patterns](behavior-patterns.md) for advanced conditional logic
+4. Check [Examples](examples.md) for complete implementations
