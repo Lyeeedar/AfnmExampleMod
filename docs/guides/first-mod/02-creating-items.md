@@ -169,9 +169,11 @@ Now let's make our tea leaves growable! This gives players agency over their pro
 Create `src/modContent/crops/teaCrops.ts`:
 
 ```typescript
+import { greenTeaLeaves, jasmineTeaLeaves } from '../items/teaItems';
+
 // Tea leaf crops for the herb garden
 export const greenTeaLeafCrop = {
-  item: 'Green Tea Leaves', // Must match the item name exactly
+  item: greenTeaLeaves.name, // Must match the item name exactly
   yield: 2, // Produces 2 tea leaves per harvest
   growthDays: 10, // Takes 10 days to mature
   cost: {
@@ -185,7 +187,7 @@ export const greenTeaLeafCrop = {
 };
 
 export const jasmineTeaLeafCrop = {
-  item: 'Jasmine Tea Leaves',
+  item: jasmineTeaLeaves.name,
   yield: 1, // Lower yield but higher tier
   growthDays: 20, // Takes longer to grow
   cost: {
@@ -210,6 +212,18 @@ export function initializeTeaCrops() {
   console.log('✅ Added 2 tea leaf crops');
 }
 ```
+
+## Why Import Item References?
+
+Notice how we import `greenTeaLeaves` and `jasmineTeaLeaves` and use `.name` instead of hard-coding strings like `'Green Tea Leaves'`. This follows the same best practices as the rest of our mod:
+
+- **Prevents typos** - TypeScript will catch name mismatches between items and crops
+- **Enables refactoring** - Change an item name once and it updates everywhere
+- **Ensures consistency** - Same item referenced identically across all files
+
+This is especially important for crops since they must match item names exactly to work.
+
+````
 
 ## Why Tea Crops Work Well
 
@@ -248,7 +262,7 @@ export function initializeTeaItems() {
 
   console.log(`✅ Added ${allTeaItems.length} tea items`);
 }
-```
+````
 
 **Important**: Export your items so other files can import them! This lets you use `greenTeaLeaves.name` in quests and characters instead of hard-coding strings like `'Green Tea Leaves'`. This approach:
 

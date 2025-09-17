@@ -109,17 +109,40 @@ AFNM uses **strict TypeScript** for good reasons:
 
 ## Setting Up Your Environment
 
-1. **Install dependencies**:
+1. **Configure your mod information**:
+
+   Update `package.json` to reflect your tea house mod instead of the generic example:
+
+   ```json
+   {
+     "name": "mystical-tea-garden",
+     "version": "1.0.0",
+     "description": "A peaceful tea house mod featuring Master Chen and spiritual tea cultivation",
+     "author": {
+       "name": "Your Name Here"
+     }
+     // ... rest of dependencies stay the same
+   }
+   ```
+
+   **Why this matters**:
+
+   - **name** determines your mod's zip file name when built
+   - **version** controls mod updates and compatibility
+   - **description** helps players understand what your mod does
+   - **author** gives you credit for your work
+
+2. **Install dependencies**:
 
    ```bash
    npm install
    ```
 
-2. **Verify TypeScript works**:
+3. **Verify TypeScript works**:
 
    Open the project in VS Code and check the Problems panel for any TypeScript errors
 
-3. **Set up your editor** for TypeScript auto-completion and error highlighting
+4. **Set up your editor** for TypeScript auto-completion and error highlighting
 
 ## Next Steps
 
