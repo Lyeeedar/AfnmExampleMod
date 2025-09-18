@@ -129,7 +129,7 @@ const mysticalGem: MaterialItem = {
   // ... other properties
 };
 
-// Add to Nascent Soul stone cutting
+// Add to stone cutting
 window.modAPI.actions.addUncutStone('pillarCreation', mysticalGem);
 ```
 
