@@ -27,9 +27,8 @@ interceptBuffEffects?: {
 The best example of interception comes from the Blood school's Profane Exchange technique:
 
 ```typescript
-import { Buff } from 'afnm-cultivation/types/buff';
+import { Buff } from 'afnm-types';
 import icon from '../assets/buffs/profane-exchange.png';
-import { bloodCorruption } from '../buffs/blood-corruption';
 
 export const profaneExchangeBuff: Buff = {
   name: 'Profane Exchange',
@@ -44,7 +43,7 @@ export const profaneExchangeBuff: Buff = {
 
   interceptBuffEffects: [
     {
-      buff: bloodCorruption, // Intercept Blood Corruption
+      buff: window.modAPI.gameData.techniqueBuffs.blood.bloodCorruption, // Intercept Blood Corruption
       effects: [
         {
           kind: 'damageSelf',

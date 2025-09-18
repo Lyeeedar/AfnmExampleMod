@@ -13,7 +13,7 @@ Buffs are the core of AFNM's combat system. They represent temporary effects, en
 ## Complete Buff Interface
 
 ```typescript
-import { Buff, BuffEffect, Scaling } from 'afnm-cultivation/types/buff';
+import { Buff, BuffEffect, Scaling } from 'afnm-types';
 
 interface Buff {
   // Identity
@@ -123,7 +123,7 @@ Triggers at the end of each round, after all techniques have been used.
 ### Resource Buffer - Sunlight
 
 ```typescript
-import { Buff } from 'afnm-cultivation/types/buff';
+import { Buff } from 'afnm-types';
 import sunIcon from '../assets/icons/sunlight.png';
 
 export const sunlight: Buff = {
@@ -155,7 +155,7 @@ export const sunlight: Buff = {
 ### Self-Consuming Effect - Moonchill
 
 ```typescript
-import { Buff } from 'afnm-cultivation/types/buff';
+import { Buff } from 'afnm-types';
 import moonchillIcon from '../assets/icons/moonchill.png';
 
 export const moonchill: Buff = {
@@ -181,9 +181,8 @@ export const moonchill: Buff = {
 ### Conditional Buff - Lunar Attunement
 
 ```typescript
-import { Buff } from 'afnm-cultivation/types/buff';
+import { Buff } from 'afnm-types';
 import lunarAttunementIcon from '../assets/icons/lunar-attunement.png';
-import { flag } from 'afnm-cultivation/utils/flags';
 
 export const lunarAttunement: Buff = {
   name: 'Lunar Attunement',
@@ -192,7 +191,7 @@ export const lunarAttunement: Buff = {
   maxStacks: 10,
   condition: {
     kind: 'condition',
-    condition: `${flag(moonlight.name)} > 0`,
+    condition: `${window.modAPI.utils.flag(moonlight.name)} > 0`,
     tooltip: 'If you have <name>Moonlight</name> then',
   },
   stats: {
@@ -213,7 +212,7 @@ export const lunarAttunement: Buff = {
 ### Healing Over Time - Restoring Fragrance
 
 ```typescript
-import { Buff } from 'afnm-cultivation/types/buff';
+import { Buff } from 'afnm-types';
 import icon from '../assets/icons/restoring-fragrance.png';
 
 const restoringFragranceBuff: Buff = {

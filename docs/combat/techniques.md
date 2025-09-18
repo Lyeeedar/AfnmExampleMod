@@ -18,7 +18,7 @@ import {
   TechniqueEffect,
   TechniqueCost,
   TechniqueRequirement,
-} from 'afnm-cultivation/types/technique';
+} from 'afnm-types';
 
 interface Technique {
   // Identity
@@ -448,9 +448,8 @@ hits: {
 ### Simple Damage Technique - Advancing Fist
 
 ```typescript
-import { Technique } from 'afnm-cultivation/types/technique';
+import { Technique } from 'afnm-types';
 import icon from '../assets/techniques/advancing-fist.png';
-import { flow } from '../buffs/flow';
 
 export const advancingFist: Technique = {
   name: 'Advancing Fist',
@@ -468,7 +467,7 @@ export const advancingFist: Technique = {
     },
     {
       kind: 'buffSelf',
-      buff: flow,
+      buff: window.modAPI.gameData.techniqueBuffs.fist.flow,
       amount: { value: 1, stat: undefined, upgradeKey: 'stacks' },
     },
   ],
@@ -484,10 +483,8 @@ export const advancingFist: Technique = {
 ### Resource Management - Restoring Fragrance
 
 ```typescript
-import { Technique } from 'afnm-cultivation/types/technique';
+import { Technique } from 'afnm-types';
 import icon from '../assets/techniques/restoring-fragrance.png';
-import { fragrantBlossom } from '../buffs/fragrant-blossom';
-import { restoringFragranceBuff } from '../buffs/restoring-fragrance';
 
 export const restoringFragrance: Technique = {
   name: 'Restoring Fragrance',
@@ -496,7 +493,7 @@ export const restoringFragrance: Technique = {
   realm: 'coreFormation',
   costs: [
     {
-      buff: fragrantBlossom,
+      buff: window.modAPI.gameData.techniqueBuffs.blossom.fragrantBlossom,
       amount: 4,
       upgradeKey: 'cost',
     },
@@ -504,7 +501,9 @@ export const restoringFragrance: Technique = {
   effects: [
     {
       kind: 'buffSelf',
-      buff: restoringFragranceBuff,
+      buff: { 
+        // Buff implementation...
+      },
       amount: { value: 1, stat: undefined, upgradeKey: 'stacks' },
     },
   ],
@@ -521,10 +520,12 @@ export const restoringFragrance: Technique = {
 ### Conditional Toggle - Profane Exchange
 
 ```typescript
-import { Technique } from 'afnm-cultivation/types/technique';
-import { flag } from 'afnm-cultivation/utils/flags';
+import { Technique, Buff } from 'afnm-types';
 import icon from '../assets/techniques/profane-exchange.png';
-import { profaneExchangeBuff } from '../buffs/profane-exchange';
+
+const profaneExchangeBuff: Buff = {
+  // Buff implementation...
+}
 
 export const profaneExchange: Technique = {
   name: 'Profane Exchange',
@@ -537,7 +538,7 @@ export const profaneExchange: Technique = {
       buff: profaneExchangeBuff,
       condition: {
         kind: 'condition',
-        condition: `original_${flag(profaneExchangeBuff.name)} == 0`,
+        condition: `original_${window.modAPI.utils.flag(profaneExchangeBuff.name)} == 0`,
       },
       amount: { value: 1, stat: undefined },
     },
@@ -546,7 +547,7 @@ export const profaneExchange: Technique = {
       buff: profaneExchangeBuff,
       condition: {
         kind: 'condition',
-        condition: `original_${flag(profaneExchangeBuff.name)} == 1`,
+        condition: `original_${window.modAPI.utils.flag(profaneExchangeBuff.name)} == 1`,
       },
       amount: { value: 1, stat: undefined },
     },
@@ -563,10 +564,8 @@ export const profaneExchange: Technique = {
 ### Resource Conversion - Sunrise
 
 ```typescript
-import { Technique } from 'afnm-cultivation/types/technique';
+import { Technique } from 'afnm-types';
 import icon from '../assets/techniques/sunrise.png';
-import { solarAttunement, sunlight, moonlight } from '../buffs/celestial-buffs';
-import { celestialRotation } from '../triggers/celestial-rotation';
 
 export const sunrise: Technique = {
   name: 'Sunrise',
@@ -576,19 +575,19 @@ export const sunrise: Technique = {
   effects: [
     {
       kind: 'buffSelf',
-      buff: solarAttunement,
+      buff: window.modAPI.gameData.techniqueBuffs.celestial.solarAttunement,
       amount: { value: 1, stat: undefined, upgradeKey: 'attuneStacks' },
     },
     {
       kind: 'buffSelf',
-      buff: sunlight,
+      buff: window.modAPI.gameData.techniqueBuffs.celestial.sunlight,
       amount: { value: 1, stat: undefined, upgradeKey: 'stacks' },
     },
     {
       kind: 'convertSelf',
-      source: moonlight,
-      target: sunlight,
-      amount: { value: 1, stat: undefined, scaling: moonlight.name },
+      source: window.modAPI.gameData.techniqueBuffs.celestial.moonlight,
+      target: window.modAPI.gameData.techniqueBuffs.celestial.sunlight,
+      amount: { value: 1, stat: undefined, scaling: window.modAPI.gameData.techniqueBuffs.celestial.moonlight.name },
       triggerKey: celestialRotation,
     },
   ],

@@ -145,7 +145,7 @@ First, you'll need an image for your item.
 Open **`src/modContent/index.ts`** and replace the contents with:
 
 ```typescript
-import { CombatPillItem } from 'afnm-cultivation/types/item';
+import { CombatPillItem } from 'afnm-types';
 // Import your item's image
 import pillIcon from '../assets/vigor-pill.png';
 
@@ -305,7 +305,7 @@ initializeLocations();
 
 ```typescript
 // src/modContent/items.ts
-import { CombatPillItem } from 'afnm-cultivation/types/item';
+import { CombatPillItem } from 'afnm-types';
 import pillIcon from '../assets/items/vigor-pill.png';
 import strengthPillIcon from '../assets/items/strength-pill.png';
 

@@ -23,7 +23,7 @@ import {
   TriggeredEvent,
   GameEvent,
   GameScreen,
-} from 'afnm-cultivation/types/event';
+} from 'afnm-types';
 
 interface TriggeredEvent {
   event: GameEvent; // The actual event content to execute
@@ -101,7 +101,7 @@ locations: ['Sect Grounds', 'Ancient Library']; // Multiple specific locations
 Perfect for first-time location visits:
 
 ```typescript
-import { GameEvent, TriggeredEvent } from 'afnm-cultivation/types/event';
+import { GameEvent, TriggeredEvent } from 'afnm-types';
 
 const ancientLibraryIntro: GameEvent = {
   location: 'Ancient Library',
@@ -141,7 +141,7 @@ window.modAPI.actions.addTriggeredEvent(libraryIntroTrigger);
 Create chance-based encounters while exploring:
 
 ```typescript
-import { GameEvent, TriggeredEvent } from 'afnm-cultivation/types/event';
+import { GameEvent, TriggeredEvent } from 'afnm-types';
 
 const mysteriousStranger: GameEvent = {
   location: 'Mountain Path',

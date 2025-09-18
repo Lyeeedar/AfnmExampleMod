@@ -33,7 +33,7 @@ An **Event** is a sequence of **steps** that execute in order to create an inter
 The core event definition containing the actual interactive content:
 
 ```typescript
-import { GameEvent, EventStep } from 'afnm-cultivation/types/event';
+import { GameEvent, EventStep } from 'afnm-types';
 
 interface GameEvent {
   location: string; // Where this event takes place
@@ -55,7 +55,7 @@ interface GameEvent {
 Events execute their steps **sequentially** in array order:
 
 ```typescript
-import { GameEvent, EventStep } from 'afnm-cultivation/types/event';
+import { GameEvent, EventStep } from 'afnm-types';
 
 const myEvent: GameEvent = {
   location: 'Ancient Library',
@@ -119,7 +119,7 @@ Events can start other events as part of their step sequence
 ### Simple Dialogue Event
 
 ```typescript
-import { GameEvent } from 'afnm-cultivation/types/event';
+import { GameEvent } from 'afnm-types';
 
 const greetingEvent: GameEvent = {
   location: 'Village Square',
@@ -161,7 +161,7 @@ const greetingEvent: GameEvent = {
 ### Complex Storyline Event
 
 ```typescript
-import { GameEvent } from 'afnm-cultivation/types/event';
+import { GameEvent } from 'afnm-types';
 
 const mysteriousTome: GameEvent = {
   location: 'Crystal Shore',
@@ -232,7 +232,7 @@ const mysteriousTome: GameEvent = {
 Create events that adapt to player progression:
 
 ```typescript
-import { GameEvent } from 'afnm-cultivation/types/event';
+import { GameEvent } from 'afnm-types';
 
 const adaptiveGreeting: GameEvent = {
   location: 'Sect Grounds',
@@ -278,7 +278,7 @@ const adaptiveGreeting: GameEvent = {
 Use flags to create branching narratives:
 
 ```typescript
-import { GameEvent } from 'afnm-cultivation/types/event';
+import { GameEvent } from 'afnm-types';
 
 const storyProgression: GameEvent = {
   location: 'Mountain Path',
