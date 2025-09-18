@@ -127,10 +127,10 @@ Basic flag or realm checks:
 condition: 'questComplete == 1'
 
 // Realm-based
-condition: 'realm >= 3'  // Qi Condensation or higher
+condition: 'realm >= qiCondensation'  // Qi Condensation or higher
 
 // Multiple conditions
-condition: 'realm >= 2 && villageRep >= 100'
+condition: 'realm >= meridianOpening && villageRep >= 100'
 ```
 
 ### Dynamic Connections
@@ -228,7 +228,7 @@ unlocks: [
     exploration: 2,
     location: intermediateArea,
     distance: 5,
-    condition: 'realm >= 2',
+    condition: 'realm >= meridianOpening',
     event: [...]
   },
   // Late-game discovery
@@ -236,7 +236,7 @@ unlocks: [
     exploration: 3,
     location: advancedArea,
     distance: 10,
-    condition: 'realm >= 4',
+    condition: 'realm >= coreFormation',
     event: [...]
   }
 ]
@@ -278,7 +278,7 @@ Gate discoveries behind progression:
   exploration: 1,
   location: hiddenGrove,
   distance: 3,
-  condition: 'forestRep >= 500 && realm >= 3',
+  condition: 'forestRep >= 500 && realm >= qiCondensation',
   event: [
     {
       kind: 'text',

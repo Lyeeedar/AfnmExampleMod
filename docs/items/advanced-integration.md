@@ -209,7 +209,7 @@ window.modAPI.actions.addItemToShop(
 );
 
 // Add advanced version to auction
-window.modAPI.actions.addItemToAuction(advancedTalisman, 0.25, 'realm >= 3', 2);
+window.modAPI.actions.addItemToAuction(advancedTalisman, 0.25, '1', 2);
 ```
 
 ## Herb Garden Crop System

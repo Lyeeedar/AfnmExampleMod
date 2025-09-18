@@ -141,7 +141,7 @@ Create complex logic with nested conditional steps:
   kind: 'conditional',
   branches: [
     {
-      condition: 'realm >= 4',  // Core Formation or higher
+      condition: 'realm >= coreFormation',  // Core Formation or higher
       children: [
         {
           kind: 'conditional',

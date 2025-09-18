@@ -35,7 +35,7 @@ interface TalkCharacterInteraction extends BaseCharacterInteraction {
 
 ```typescript
 const talkInteraction: TalkCharacterInteraction = {
-  condition: 'realm >= 2',
+  condition: 'realm >= meridianOpening',
   notifyCondition: 'has_quest_item == 1',  // Show ! icon
   locations: ['Nine Mountain Sect'],
   event: [

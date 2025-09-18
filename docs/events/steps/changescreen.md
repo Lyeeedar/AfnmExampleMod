@@ -127,7 +127,7 @@ Guide players to cultivation screen for important spiritual development:
   },
   {
     kind: 'changeScreen',
-    condition: 'realm >= 3',
+    condition: 'realm >= qiCondensation',
     screen: 'cultivation',
   },
 ];

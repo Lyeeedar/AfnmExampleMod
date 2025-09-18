@@ -38,7 +38,7 @@ interface ConditionalStep {
   kind: 'conditional',
   branches: [
     {
-      condition: 'realm >= 3',
+      condition: 'realm >= qiCondensation',
       children: [
         { kind: 'text', text: 'Your cultivation is sufficient for this challenge.' }
       ]
@@ -60,7 +60,7 @@ interface ConditionalStep {
   kind: 'conditional',
   branches: [
     {
-      condition: 'realm >= 5',
+      condition: 'realm >= pillarCreation', // First valid branch executes, so put more specific ones earlier
       children: [
         { kind: 'speech', character: 'Elder', text: 'A true powerhouse! Welcome, honored one.' }
       ]
@@ -72,7 +72,7 @@ interface ConditionalStep {
       ]
     },
     {
-      condition: '1',
+      condition: '1', // Put general case last
       children: [
         { kind: 'speech', character: 'Elder', text: 'Still in the early stages. Keep training.' }
       ]

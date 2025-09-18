@@ -166,7 +166,7 @@ window.modAPI.actions.addItemToShop(
 window.modAPI.actions.addItemToAuction(
   myItem,           // Item to auction
   0.15,             // Appearance chance (15%)
-  'realm >= 2',     // Condition for availability
+  '1',              // Condition for availability. Normally always available (1), only use if intending to unlock with a quest flag
   3,                // Stack override (optional)
   1.5               // Count multiplier (optional)
 );

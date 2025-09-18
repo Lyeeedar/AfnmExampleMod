@@ -144,7 +144,7 @@ const relationshipProgression: CharacterRelationshipDefinition[] = [
       name: 'Deeper Bonds',
       tooltip: 'Your friendship deepens',
       requirement: {
-        condition: 'realm >= 2',
+        condition: 'realm >= meridianOpening',
         tooltip: 'Reach Meridian Opening realm',
       },
       event: [
@@ -210,7 +210,7 @@ const relationshipProgression: CharacterRelationshipDefinition[] = [
       name: 'Oath Ceremony',
       tooltip: 'Become sworn siblings',
       requirement: {
-        condition: 'realm >= 3 && defeated_boss == 1',
+        condition: 'realm >= qiCondensation && defeated_boss == 1',
         tooltip: 'Reach Qi Condensation and defeat a major enemy together',
       },
       event: [
@@ -294,7 +294,7 @@ const relationshipProgression: CharacterRelationshipDefinition[] = [
       name: 'Eternal Bond',
       tooltip: 'Become Dao Partners',
       requirement: {
-        condition: 'realm >= 4',
+        condition: 'realm >= coreFormation',
         tooltip: 'Reach Core Formation realm',
       },
       event: [
@@ -497,7 +497,7 @@ Special events that advance the relationship to the next tier.
 
 ```typescript
 requirement: {
-  condition: 'realm >= 3 && quest_complete == 1', // Block advancement until the player reaches Core Formation and completes a specific character sidequest
+  condition: 'realm >= qiCondensation && quest_complete == 1', // Block advancement until the player reaches Qi Condensation and completes a specific character sidequest
   tooltip: 'Reach Qi Condensation and complete the quest'
 }
 ```
@@ -517,7 +517,7 @@ progressionEvent: {
   name: 'Heart to Heart',
   tooltip: 'Have an important conversation',
   requirement: {
-    condition: 'realm >= 2',
+    condition: 'realm >= meridianOpening',
     tooltip: 'Reach Meridian Opening realm'
   },
   locationOverride: 'Starlit Peak',
@@ -589,13 +589,13 @@ requirement: undefined
 
 // Mid relationship - realm gate
 requirement: {
-  condition: 'realm >= 2',
+  condition: 'realm >= meridianOpening',
   tooltip: 'Reach Meridian Opening'
 }
 
 // Late relationship - story gate
 requirement: {
-  condition: 'realm >= 3 && main_quest_complete == 1',
+  condition: 'realm >= qiCondensation && main_quest_complete == 1',
   tooltip: 'Complete the main questline'
 }
 ```
@@ -669,7 +669,7 @@ const companionRelationships: CharacterRelationshipDefinition[] = [
       name: 'Shared Secrets',
       tooltip: 'Learn about their past',
       requirement: {
-        condition: 'realm >= 2',
+        condition: 'realm >= meridianOpening',
         tooltip: 'Reach Meridian Opening',
       },
       event: [
@@ -706,7 +706,7 @@ const companionRelationships: CharacterRelationshipDefinition[] = [
       name: 'Eternal Vow',
       tooltip: 'Make your bond permanent',
       requirement: {
-        condition: 'realm >= 4',
+        condition: 'realm >= coreFormation',
         tooltip: 'Both reach Core Formation',
       },
       locationOverride: 'Sacred Grove',

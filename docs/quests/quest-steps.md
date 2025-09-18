@@ -108,7 +108,7 @@ Event steps normally complete when their event finishes. The optional `completio
 
 ```typescript
 // Player progression
-'realm >= 2'; // Foundation Establishment or higher
+'realm >= meridianOpening'; // Meridian Opening or higher
 'qi > 5000'; // Sufficient qi amount
 
 // Item requirements
@@ -124,7 +124,7 @@ Event steps normally complete when their event finishes. The optional `completio
 'day > startDay + 7'; // Relative time checks
 
 // Complex logic
-'realm >= 2 && qi > 1000'; // Multiple requirements
+'realm >= meridianOpening && qi > 1000'; // Multiple requirements
 'money >= 500 || favour >= 1000'; // Alternative requirements
 ```
 
@@ -164,7 +164,7 @@ Condition steps are perfect for:
 {
   kind: 'condition',
   hint: 'Break through to the Body Forging realm',
-  completionCondition: 'realm >= 1'
+  completionCondition: 'realm >= bodyForging'
 }
 
 // Resource requirements
@@ -185,7 +185,7 @@ Condition steps are perfect for:
 {
   kind: 'condition',
   hint: 'Achieve Foundation Establishment and gain sect reputation',
-  completionCondition: 'realm >= 2 && Nine_Mountain_Sect >= 50'
+  completionCondition: 'realm >= meridianOpening && Nine_Mountain_Sect >= 50'
 }
 ```
 
@@ -505,7 +505,7 @@ steps: [
   {
     kind: 'condition',
     hint: 'Reach Body Forging',
-    completionCondition: 'realm >= 1',
+    completionCondition: 'realm >= bodyForging',
   },
   { kind: 'collect', hint: 'Gather herbs', item: 'Herb', amount: 5 },
   { kind: 'kill', hint: 'Defeat beasts', enemy: 'Beast', amount: 3 },

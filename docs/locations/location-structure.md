@@ -131,7 +131,7 @@ events: [
     event: [...],           // Event steps
     rarity: 'mundane',      // Spawn frequency
     triggerChance: 0.1,     // Override rarity (optional)
-    condition: 'realm >= 3' // When available
+    condition: 'realm >= qiCondensation' // When available
   }
 ]
 ```

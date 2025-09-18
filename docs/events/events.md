@@ -75,7 +75,7 @@ Steps can include conditions that control when they execute:
 ```typescript
 {
   kind: 'text',
-  condition: 'realm >= 3',  // Only execute if Core Formation or higher
+  condition: 'realm >= qiCondensation',  // Only execute if Qi Condensation or higher
   text: 'Your advanced cultivation allows you to sense the tome\'s power.'
 }
 ```
@@ -241,7 +241,7 @@ const adaptiveGreeting: GameEvent = {
       kind: 'conditional',
       branches: [
         {
-          condition: 'realm >= 5',
+          condition: 'realm >= pillarCreation',
           children: [
             {
               kind: 'text',
@@ -250,7 +250,7 @@ const adaptiveGreeting: GameEvent = {
           ],
         },
         {
-          condition: 'realm >= 2',
+          condition: 'realm >= meridianOpening',
           children: [
             {
               kind: 'text',

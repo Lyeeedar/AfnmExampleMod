@@ -18,7 +18,7 @@ Provides healing services to restore health and remove injuries:
 ```typescript
 {
   kind: 'healer',
-  condition?: 'realm >= 2',  // Optional availability
+  condition?: 'realm >= meridianOpening',  // Optional availability
   disabled?: 'injured == 0'  // Optional disable condition
 }
 ```
@@ -284,7 +284,7 @@ Books and lore:
     },
     {
       name: 'Cultivation Theory',
-      condition: 'realm >= 2',
+      condition: 'realm >= meridianOpening',
       books: [...]
     }
   ]
@@ -407,7 +407,7 @@ Control when buildings appear:
 ```typescript
 {
   kind: 'market',
-  condition: 'marketBuilt == 1 && realm >= 2',
+  condition: 'marketBuilt == 1 && realm >= meridianOpening',
   // ...other properties
 }
 ```

@@ -33,7 +33,7 @@ Basic dialogue interactions:
 
 ```typescript
 const talkInteraction: TalkCharacterInteraction = {
-  condition: 'realm >= 2',  // Only for Meridian Opening+
+  condition: 'realm >= meridianOpening',  // Only for Meridian Opening+
   locations: ['Sect Library'], // Optional: specific locations
   event: [
     {

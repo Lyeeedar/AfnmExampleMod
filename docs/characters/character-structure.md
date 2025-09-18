@@ -249,7 +249,7 @@ Example encounter:
 ```typescript
 {
   id: 'pi_lip_crafting_request',
-  condition: 'realm >= 2',
+  condition: 'realm >= meridianOpening',
   cooldown: { min: 10, max: 20 },
   event: [
     {

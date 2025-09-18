@@ -59,10 +59,10 @@ The `trigger` field uses [flag expressions](../concepts/flags) to determine when
 // Simple conditions
 trigger: '1'; // Always trigger when other conditions met
 trigger: 'tutorialComplete == 0'; // Only if tutorial hasn't been completed
-trigger: 'realm >= 3'; // Only for Core Formation realm or higher
+trigger: 'realm >= coreFormation'; // Only for Core Formation realm or higher
 
 // Complex conditions
-trigger: 'realm >= 3 && visitedLocation == 0'; // High realm, first visit
+trigger: 'realm >= qiCondensation && visitedLocation == 0'; // High realm, first visit
 trigger: 'power >= 100 && hasSpecialItem == 1'; // Strong with specific item
 trigger: 'yearMonth >= 6 && yearMonth <= 8'; // Summer months only
 ```
@@ -223,7 +223,7 @@ const realmBreakthroughCelebration: GameEvent = {
 const breakthroughTrigger: TriggeredEvent = {
   event: realmBreakthroughCelebration,
   name: 'coreFormationCelebration',
-  trigger: 'realm >= 3 && coreFormationCelebrated == 0', // Just reached Core Formation
+  trigger: 'realm >= coreFormation && coreFormationCelebrated == 0', // Just reached Core Formation
   screens: ['location', 'home'],
   locations: ['Sect Grounds'],
 };
@@ -337,7 +337,7 @@ const masterEncounter: TriggeredEvent = {
   event: masterTeachingEvent,
   name: 'hiddenMasterAppears',
   trigger: `
-    realm >= 4 && 
+    realm >= coreFormation && 
     power >= 200 && 
     (helpedVillagers >= 5 || defeatedBandits >= 3) &&
     visitedAllBasicLocations == 1 &&

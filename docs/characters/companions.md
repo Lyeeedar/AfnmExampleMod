@@ -563,7 +563,7 @@ const fullCompanion: Character = {
         name: 'A Moment of Truth',
         tooltip: 'Something important is happening',
         requirement: {
-          condition: 'realm >= 3',
+          condition: 'realm >= qiCondensation',
           tooltip: 'Reach Qi Condensation realm',
         },
         event: [
@@ -935,7 +935,7 @@ export const closeFriend: CharacterRelationshipDefinition = {
     name: 'Heart to Heart',
     tooltip: 'A meaningful conversation awaits',
     requirement: {
-      condition: 'realm >= 3',
+      condition: 'realm >= qiCondensation',
       tooltip: 'Reach Qi Condensation realm',
     },
     event: [
