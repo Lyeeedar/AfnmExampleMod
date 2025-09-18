@@ -10,18 +10,6 @@ description: 'Interactive content creation with events and event steps'
 
 The events system is the heart of interactive content in Ascend from Nine Mountains. Whether you're creating dialogue with NPCs, managing complex storylines, or building dynamic encounters, events provide the foundation for all interactive experiences.
 
-## Learning Path
-
-**New to events?** Follow this recommended progression:
-
-1. **[Events](events)** - Start here to understand the core event system and structure
-2. **[Event Steps](event-steps)** - Learn about the building blocks that make up events
-3. **[Event Step Types](steps/)** - Reference for specific step types as needed
-4. **[Triggered Events](triggered-events)** - Advanced automatic event triggering
-5. **[Calendar Events](calendar-events)** - Time-based seasonal and festival events
-
-**Estimated Time:** 45-60 minutes to complete the full sequence
-
 ## Core Components
 
 - **[Events](events)** - The main event system and structure
