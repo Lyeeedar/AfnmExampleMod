@@ -196,7 +196,7 @@ Multiplies the current stack count.
 ```typescript
 {
   kind: 'multiply',
-  amount: { value: 0.5 } // Double stacks (multiply by 2)
+  amount: { value: 2 } // Double stacks (multiply by 2)
 }
 ```
 
