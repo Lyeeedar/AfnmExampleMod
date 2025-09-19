@@ -191,6 +191,7 @@ The game automatically provides numerous flags representing the current game sta
 - Item names as flags (with proper conversion)
 - `storage_` + item flag - Storage quantities
 - `equipped_` + item flag - Equipment status
+- `recipe_` + item flag - Known recipes
 
 ### Character State
 
