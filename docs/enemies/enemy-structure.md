@@ -40,6 +40,8 @@ interface EnemyEntity {
 
 #### Difficulty Tiers
 
+How much damage the enemy will do over its lifetime. Damage per round is `damage / battle length`.
+
 | Tier                         | Description            | Use Case             |
 | ---------------------------- | ---------------------- | -------------------- |
 | `veryeasy`                   | Trivial opponents      | Tutorial, farming    |
@@ -54,6 +56,8 @@ interface EnemyEntity {
 
 #### Battle Length
 
+How long it should survive.
+
 | Length      | Rounds | Description          |
 | ----------- | ------ | -------------------- |
 | `halfround` | <1     | Instant kill enemies |
@@ -63,6 +67,10 @@ interface EnemyEntity {
 | `medium`    | 7-10   | Tactical battles     |
 | `long`      | 11-15  | Endurance tests      |
 | `verylong`+ | 16+    | Marathon battles     |
+
+#### Note on stats
+
+You cannot set stats directly. They are derived from the difficulty and battle length to have stats to give roughly that level of danger. You can then modifies these after the fact with spawn condition to add flat multipliers on top of the stats if neccessary.
 
 ## Combat Configuration
 
@@ -132,7 +140,7 @@ interface RandomStance {
 ```typescript
 {
   spawnCondition?: {
-    hpMult: number;          // HP multiplier when spawned
+    hpMult: number;          // HP multiplier when spawned, e.g. spawning at half health due to a story condition saying its been weakened
     buffs: Buff[];           // Pre-applied buffs
   };
 
