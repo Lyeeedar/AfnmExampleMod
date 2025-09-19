@@ -15,6 +15,7 @@ The combat system in AFNM revolves around buffs and their interactions. Understa
 - **[Buff System Overview](buffs)** - Core concepts and mechanics
 - **[Effect Types](effects)** - All available buff effect types with examples
 - **[Buff Interceptions](interceptions)** - How buffs can intercept and modify other buffs
+- **[Triggers](triggers)** - How buffs can activate based on combat events
 - **[Combat Images](images)** - Visual representation system for buffs
 - **[Tooltips](tooltips)** - Dynamic tooltip generation system
 - **[Technique System](techniques)** - Active combat abilities and mastery

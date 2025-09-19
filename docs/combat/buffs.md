@@ -115,7 +115,7 @@ Triggers at the end of each round, after all techniques have been used.
 ### Advanced Timing
 
 - **`interceptBuffEffects`** - Intercepts when specific buffs are applied
-- **`triggeredBuffEffects`** - Responds to custom trigger events
+- **`triggeredBuffEffects`** - Responds to custom trigger events. See [Triggers](triggers) for details
 - **`priority`** - Controls execution order (lower numbers execute first)
 
 ## Real Examples
