@@ -136,24 +136,22 @@ rotationOverrides: [
   {
     kind: 'single',
     stance: 'phase1',
-    condition: 'hp > 0.66 * maxhp'
-  }
-],
-// Phase 2: Increased difficulty
-stanceRotation: [
+    condition: 'hp > 0.66 * maxhp',
+    repeatable: true // Allow repeating this stance while the condition is true
+  },
+  // Phase 2: Increased difficulty
   {
     kind: 'random',
     stances: ['phase2_a', 'phase2_b'],
-    condition: 'hp <= 0.66 * maxhp && hp > 0.33 * maxhp'
-  }
-],
-// Phase 3: Desperation
-rotationOverrides: [
+    condition: 'hp <= 0.66 * maxhp && hp > 0.33 * maxhp',
+    repeatable: true
+  },
+  // Phase 3: Desperation
   {
     kind: 'single',
     stance: 'phase3_desperate',
     condition: 'hp <= 0.33 * maxhp',
-    repeatable: false
+    repeatable: true
   }
 ]
 ```
@@ -290,15 +288,6 @@ rotationOverrides: [
 
 ## Stance Design Best Practices
 
-### Stance Length Guidelines
-
-| Stance Type | Technique Count | Use Case                    |
-| ----------- | --------------- | --------------------------- |
-| Burst       | 2-3             | Quick high-impact sequences |
-| Standard    | 4-6             | Balanced offense/defense    |
-| Extended    | 7-10            | Complex patterns            |
-| Marathon    | 11+             | Boss-only epic sequences    |
-
 ### Technique Ordering
 
 1. **Opener**: Setup/buff techniques first
@@ -327,7 +316,8 @@ Strategic cultivator with multiple approaches:
   stances: [
     { name: 'probe', techniques: [lightAttack, dodge, lightAttack] },
     { name: 'pressure', techniques: [combo1, combo2, combo3] },
-    { name: 'finisher', techniques: [ultSetup, ultimate] }
+    { name: 'finisher', techniques: [lightAttack, ultSetup, ultimate] }
+    { name: 'defensive', techniques: [dodge, dodge, dodge] }
   ],
   stanceRotation: [
     { kind: 'single', stance: 'probe' },
@@ -353,7 +343,7 @@ Instinct-driven creature:
 {
   stances: [
     { name: 'hunt', techniques: [stalk, pounce, maul] },
-    { name: 'feast', techniques: [bite, bite, bite, regenerate] },
+    { name: 'feast', techniques: [bite, bite, regenerate] },
     { name: 'flee', techniques: [dodge, retreat, hide] }
   ],
   stanceRotation: [
