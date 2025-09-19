@@ -59,6 +59,14 @@ _Time: 20 minutes_
 
 Upload your finished mod to Steam Workshop so other players can enjoy your creation.
 
+## Put it all together
+
+### 5. **[Your First Mod](first-mod)**
+
+_Time: 1 hour_
+
+Put all the above concepts together into a real mod, covering a variety of item types and concepts
+
 ---
 
 ## Getting Help
