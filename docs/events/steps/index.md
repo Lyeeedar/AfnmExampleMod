@@ -83,6 +83,8 @@ Comprehensive documentation for every type of event step available in AFNM. Each
 - **[Add Recipe Step](addrecipe)** - Grant crafting recipes
 - **[Give Item Step](giveitem)** - Interactive item selection from inventory
 - **[Craft Skill Step](craftskill)** - Increase crafting skill points
+- **[Change Physical Stat Step](changePhysicalStat)** - Increase/decrease physical statistics
+- **[Change Social Stat Step](changeSocialStat)** - Increase/decrease social statistics
 
 ### Guild Systems
 
