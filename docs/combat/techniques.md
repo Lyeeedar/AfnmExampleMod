@@ -42,6 +42,7 @@ interface Technique {
 
   // Effects and mechanics
   effects: TechniqueEffect[]; // What happens when used
+  triggeredEffects: { trigger: string, effects: TechniqueEffect[] }[]; // Effects that can be triggered by the base effects
   enhancement?: number; // Bonus from element matching
   secondaryType?: TechniqueElement | 'origin'; // Additional element
 
@@ -441,6 +442,34 @@ hits: {
   scaling: 'bloodCorruption',
   max: { value: 5, stat: undefined }    // Maximum 5 hits
 }
+```
+
+## Triggered Effects
+
+Certain effects can be configured to only trigger if the main effects (those in the `effects` array) emit a specific trigger. This can hook off any trigger that can be produced (see the [Triggers](/triggers) docs for more details).
+
+Note, triggered effects are not supported by automatic tooltip generation so require a custom tooltp to be written. See [Tooltips](/tooltips) for details.
+
+### Extra effect when healing to full
+
+```typescript
+effects: [{
+  kind: "heal",
+  amount: {
+    value: 2,
+    stat: "power"
+  }
+}],
+triggeredEffects: [{
+  trigger: "fullHeal", // When this techniques heals the player to full, gain an additional barrier
+  effects: [{
+    kind: "barrier",
+    amount: {
+      value: 1,
+      stat: "power"
+    }
+  }]
+}]
 ```
 
 ## Complete Examples
