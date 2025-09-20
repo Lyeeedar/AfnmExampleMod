@@ -164,6 +164,7 @@ window.modAPI.utils.getExpectedDefense(realm: Realm, progress: RealmProgress)
 window.modAPI.utils.getExpectedPlayerPower(realm: Realm, progress: RealmProgress)
 window.modAPI.utils.getRealmQi(realm: Realm, realmProgress: RealmProgress)
 window.modAPI.utils.getNumericReward(base: number, realm: Realm, progress: RealmProgress)
+window.modAPI.utils.getCraftingEquipmentStats(realm: Realm, realmProgress: RealmProgress, factors: { pool: number; control: number; intensity: number }, type: 'cauldron' | 'flame')
 ```
 
 ### Equipment Calculations
@@ -179,6 +180,8 @@ window.modAPI.utils.getBreakthroughCharisma(realm: Realm, mult: number)
 ```typescript
 window.modAPI.utils.createQuestionAnswerList(key: string, questions: QuestionAnswer[], exit: QuestionAnswer, showExitOnAllComplete?: boolean)
 window.modAPI.utils.flag(flag: string) // Convert flag name to game flag format
+window.modAPI.utils.evalExp(exp: string, flags: Record<string, number>) // Evaluate an expression using the given flags, then floor it if the number is greater than 3
+window.modAPI.utils.evalExpNoFloor(exp: string, flags: Record<string, number>) // The above but without the floor
 ```
 
 ## Examples
