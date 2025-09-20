@@ -201,3 +201,5 @@ const myTreasure: TreasureItem = {
 
 window.modAPI.actions.addItem(myTreasure);
 ```
+
+For docs on the more advanced features of the Mod API, then see the **[Advanced Mods](../advanced-mods/)** page.
