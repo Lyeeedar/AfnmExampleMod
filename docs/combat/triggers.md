@@ -71,7 +71,7 @@ These triggers are based on specific actions taken during combat.
 - **Examples:**
   - `use.damage` - When using techniques that deal damage
   - `use.heal` - When using techniques that heal
-  - `use.buff` - When using techniques that apply buffs
+  - `use.buffSelf` - When using techniques that apply buffs
   - `use.buffTarget` - When using techniques that buff the target
 
 ---
