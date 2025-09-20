@@ -101,22 +101,36 @@ These triggers relate to spending and consuming resources during combat.
 These triggers relate to taking or dealing damage and healing.
 
 ### `takeDamage`
-- **When it triggers:** When the entity takes damage from any source
-- **Condition:** Triggered every time the entity receives damage (after defense calculations)
+- **Condition:** Triggered every time the entity receives unblocked damage from any source (after defense calculations)
 - **Usage:** Damage-based reactions, defensive responses, damage-triggered effects
-- **Examples:** Retaliation effects, damage shields, defensive buffs activation
+
+### `blockDamage`
+- **Condition:** Triggered every time the entity fully blocks damage from a hit (using barrier or damage resistance)
+- **Usage:** Reflection effects, counters, parry mechanics
+
+### `damageHp`
+- **Condition:** Triggered every time the entity deals damage to the opponents health (so not blocked by barrier or damage resistance)
+- **Usage:** Poison effects, leech mechanics
+
+### `damageBlocked`
+- **Condition:** Triggered every time the entity fails to break through barrier or damage resistance, and does 0 damage
+- **Usage:** Recoil effects, powerup mechanics
 
 ### `damageSelf`
-- **When it triggers:** When the entity damages itself
-- **Condition:** Triggered when self-damage occurs through techniques or effects
+- **Condition:** Triggered for each 1% of max HP dealt as self-damage
 - **Usage:** Self-harm penalties, masochistic bonuses, self-damage reactions
-- **Examples:** Blood magic costs, self-sacrifice effects, pain-based power
 
 ### `damageSelf-{damageType}`
-- **When it triggers:** When the entity damages itself with a specific damage type
 - **Condition:** Triggered for each 1% of max HP dealt as self-damage of the specified type
 - **Usage:** Type-specific self-damage reactions
-- **Examples:** `damageSelf-blood` for blood-type self-damage effects
+
+### `fullHeal`
+- **Condition:** Triggered when the entity heals itself from less than full health to full health
+- **Usage:** Overheal effects, Healthy buff activations
+
+### `fullBarrier`
+- **Condition:** Triggered when the entity refills its barrier from less than full to full
+- **Usage:** Overbarrier effects
 
 ---
 
