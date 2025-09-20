@@ -88,7 +88,7 @@ export const healingPillRecipeIV: RecipeItem = {
 
 ## Difficulty System
 
-Recipes use a structured difficulty progression:
+Recipe difficulty can not be manually set. It is instead derived from 3 fields that control its complexity. `realm`, `realmProgress`, and `difficulty`. In general, the rule of thumb is to set the realm equal to that of the item being made. Then set the realmProgress to be where in that realm is the item intended to be used (is it a progression item (`Early` or `Middle`) or an end-game target (`Late`)). Finally, set the difficulty based on how hard you wish it to be (and if uncertain, set it to `medium`).
 
 ```typescript
 type RecipeDifficulty = 'easy' | 'medium' | 'hard' | 'extreme';
@@ -123,30 +123,6 @@ type RecipeDifficulty = 'easy' | 'medium' | 'hard' | 'extreme';
 - Maximum skill requirements
 - Legendary materials
 - Punishing failure consequences
-
-## Realm Progression
-
-Recipes gate content by cultivation stage:
-
-```typescript
-type RealmProgress = 'Early' | 'Middle' | 'Late';
-```
-
-### Progression Gating
-
-- **Early**: Entry-level recipes for new cultivators
-- **Middle**: Intermediate recipes requiring some advancement
-- **Late**: Advanced recipes for experienced practitioners
-
-### Scaling Examples
-
-```typescript
-// Body Forging realm progression
-healingPillRecipeI: { realm: 'bodyForging', realmProgress: 'Early' }
-
-// Core Formation realm progression
-healingPillRecipeIV: { realm: 'coreFormation', realmProgress: 'Early' }
-```
 
 ## Harmony Types
 
@@ -266,6 +242,8 @@ Recipes span all major item categories:
 - **Pills**: Combat and crafting enhancement
 - **Concoctions**: Combat consumables
 - **Elixirs**: Qi restoration items
+- **Reagents**: Crafting consumables
+- **Consumables**: Formation parts and other combat usable items
 
 ### Material Recipes
 

@@ -66,7 +66,7 @@ Add items to realm-based auction houses with conditional availability:
 ```typescript
 window.modAPI.actions.addItemToAuction(
   item,                    // Item to auction
-  chance,                  // Spawn probability (0-1)
+  chance,                  // Spawn probability (0-1). Leave at 1 for default chance, less than 1 for extra rarity
   condition,               // Availability condition
   countOverride?,          // Custom quantity (optional)
   countMultiplier?         // Quantity scaling (optional)
@@ -87,7 +87,7 @@ const rarePill: PillItem = {
 // Add to high-realm auctions
 window.modAPI.actions.addItemToAuction(
   rarePill,
-  0.15, // 15% chance to appear
+  0.15, // 15% chance to be added to the pool. Default should be 1 (100%), anything under will make the item extra rare
   '1', // Always available
   2, // Always 2 pills
   1.0, // No quantity scaling

@@ -70,8 +70,8 @@ export interface FlareItem extends ItemBase {
   // No additional fields
 }
 ```
-**Purpose**: Combat consumables or signals
-**Usage**: Special effects during encounters
+**Purpose**: Used to explore the mine
+**Usage**: Spendable resource
 
 ### Recuperation Items
 ```typescript

@@ -23,7 +23,7 @@ type TechniqueItemKind = 'technique' | 'crystal' | 'shard' | 'enhance';
 
 ## Technique Types
 
-### Technique Manuals
+### Direct technique items (to sell techniques in shops)
 ```typescript
 interface TechniqueItem extends BaseTechniqueItem {
   subKind: 'technique';
@@ -37,7 +37,7 @@ interface TechniqueItem extends BaseTechniqueItem {
 interface TechniqueCrystalItem extends BaseTechniqueItem {
   subKind: 'crystal';
   techniques: string[];         // Primary techniques
-  fallbackTechniques: string[]; // Backup options
+  fallbackTechniques: string[]; // Techniques to drop when the primary techniques are all unlocked. Normally should contain all the techniques for the realms below this one
 }
 ```
 
@@ -81,8 +81,8 @@ export const fistCrystalII: TechniqueCrystalItem = {
   kind: 'technique',
   name: 'Technique Crystal II (Fist)',
   description: 'The crystal of an unformed Fist technique. Focus on it to unveil the technique locked within, or convert to Enhancement Dust.',
-  techniques: ['Power Fist', 'Iron Palm Strike'],
-  fallbackTechniques: ['Basic Punch', 'Focused Strike'],
+  techniques: ['Power Fist', 'Iron Palm Strike'], // This realms techniques
+  fallbackTechniques: ['Basic Punch', 'Focused Strike'], // The previous realms techniques
   icon: fistCrystalIcon,
   stacks: 1,
   rarity: 'mundane',

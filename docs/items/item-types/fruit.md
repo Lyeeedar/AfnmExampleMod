@@ -26,7 +26,7 @@ interface BaseSpiritFruitItem extends ItemBase {
 interface AffinityFruitItem extends BaseSpiritFruitItem {
   subKind: 'affinity';
   amounts: Partial<Omit<Record<TechniqueElement, number>, 'none'>>;
-  max: number;  // Usage limit
+  max: number;  // Maximum affinity it can increase to
 }
 ```
 
@@ -46,7 +46,7 @@ export const celestialFruit: AffinityFruitItem = {
   kind: 'fruit',
   subKind: 'affinity',
   name: 'Celestial Spirit Fruit',
-  max: 5,
+  max: 255, // Can increase affinity to a maximum of 255
   amounts: { celestial: 10 },
   // ... base properties
 };

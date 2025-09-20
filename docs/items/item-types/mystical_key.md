@@ -62,12 +62,7 @@ rewardRarities: ['resplendent', 'incandescent', 'transcendent'];
 
 ### Core Pedestal System
 
-When `hasCorePedestal: true`, the region contains a special central chamber with:
-
-- **Guaranteed Rare Reward**: Always drops high-quality items
-- **Unique Encounters**: Special bosses or challenges
-- **Faction Artifacts**: Faction-specific high-tier items
-- **Cultivation Resources**: Breakthrough materials or rare techniques
+When `hasCorePedestal: true`, the region contains a special central chamber that allows exchanging a Spirit Core for extra rewards.
 
 ## Faction System
 

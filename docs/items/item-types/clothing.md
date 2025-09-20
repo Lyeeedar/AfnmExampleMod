@@ -17,13 +17,19 @@ interface ClothingItem extends ItemBase {
   kind: 'clothing';
   charisma: number;
   qiAbsorption?: number;
+  masteryPoints?: number;
+  stats: Partial<CombatStatsMap>;
+  buffs?: { buff: Buff; buffStacks: Scaling }[];
 }
 ```
 
 ## Properties
 
+- **stats**: Stats given by the clothing. Should always contain defense, but optionally can contain much more
 - **charisma**: Social stat bonus
 - **qiAbsorption**: Optional qi regeneration boost
+- **masteryPoints**: Optional bonus points when mastering techniques / actions
+- **buffs**: Buffs to give at the start of each combat
 
 ## Examples
 

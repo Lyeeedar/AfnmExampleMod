@@ -17,6 +17,7 @@ interface ArtefactItem extends ItemBase {
   kind: 'artefact';
   combatStats?: Partial<CombatStatsMap>;
   charisma?: number;
+  techniques: ArtefactTechnique[];
 }
 ```
 
@@ -24,6 +25,7 @@ interface ArtefactItem extends ItemBase {
 
 - **combatStats**: Combat bonuses (power, speed, etc.)
 - **charisma**: Optional social stat bonus
+- **techniques**: Artefact techniques the artefact will use. These make up the artefacts stance, so ensure it is the correct length for the realm
 
 ## Examples
 

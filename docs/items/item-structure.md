@@ -276,11 +276,7 @@ Items automatically integrate with the economy:
 - `rarity` affects market pricing
 - `realm` gates availability and cost
 - `enchantment` adds significant value
-
-**Market Behavior**:
-- Higher realm items cost more
-- Legendary/mythic items have premium pricing
-- Regional shops may have different inventories
+- `Additional random element` applied to the final cost based on the item name to force unique pricing between items
 
 ### 4. Flag Integration
 
