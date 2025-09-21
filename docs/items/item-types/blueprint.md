@@ -95,7 +95,7 @@ export const barrierRoomBlueprint: BlueprintItem = {
       icon: energyIcon,
       canStack: true,
       stats: {
-        maxbarrier: { value: Math.floor(window.modAPI.utils.getScaledStat('bodyForging', 'Early', window.modAPI.utils.expectedBarrierPerDantian) * 1), stat: undefined },
+        maxbarrier: { value: window.modAPI.utils.getExpectedBarrier(), stat: undefined },
         barrierMitigation: { value: 4, stat: undefined },
       },
       onTechniqueEffects: [],
@@ -130,7 +130,7 @@ export const powerRoomBlueprint: BlueprintItem = {
       icon: practiseIcon,
       canStack: true,
       stats: {
-        power: { value: Math.floor(window.modAPI.utils.getScaledStat('bodyForging', 'Early', window.modAPI.utils.expectedPowerPerMuscle) * 0.1), stat: undefined },
+        power: { value: Math.floor(window.modAPI.utils.getExpectedPower() * 0.1), stat: undefined },
       },
       onTechniqueEffects: [],
       onRoundEffects: [],

@@ -40,7 +40,7 @@ export const sectDiscipleGarb: ClothingItem = {
   charisma: window.modAPI.utils.getClothingCharisma('bodyForging', 0.7),
   stats: {
     defense: window.modAPI.utils.getClothingDefense('bodyForging', 0.85),
-    maxbarrier: Math.floor(window.modAPI.utils.getScaledStat('bodyForging', 'Early', window.modAPI.utils.expectedHpPerFlesh) * 0.1),
+    maxbarrier: Math.floor(window.modAPI.utils.getExpectedHealth() * 0.1),
   },
   name: 'Nine Mountain Disciple Garb (I)',
   description: 'Clothing emblazoned with the markings of the Nine Mountain Sect.',
@@ -56,7 +56,7 @@ export const shadowPlate: ClothingItem = {
   charisma: window.modAPI.utils.getClothingCharisma('qiCondensation', 0.3),
   stats: {
     defense: window.modAPI.utils.getClothingDefense('qiCondensation', 1),
-    power: Math.floor(window.modAPI.utils.getScaledStat('qiCondensation', 'Early', window.modAPI.utils.expectedPowerPerMuscle) * 0.2),
+    power: Math.floor(window.modAPI.utils.getExpectedPower() * 0.2),
     critchance: 2.5,
     barrierMitigation: 3,
   },
@@ -111,7 +111,7 @@ export const eclipsePetalMantle: ClothingItem = {
   charisma: window.modAPI.utils.getClothingCharisma('coreFormation', 1.2),
   stats: {
     defense: window.modAPI.utils.getClothingDefense('coreFormation', 1.2),
-    maxbarrier: Math.floor(window.modAPI.utils.getScaledStat('coreFormation', 'Early', window.modAPI.utils.expectedHpPerFlesh) * 0.2),
+    maxbarrier: Math.floor(window.modAPI.utils.getExpectedBarrier() * 0.2),
     celestialBoost: 10,
     blossomBoost: 10,
   },
