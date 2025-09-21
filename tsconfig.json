@@ -10,6 +10,10 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "sourceMap": true,
+    "inlineSourceMap": false,
+    "preserveConstEnums": true,
+    "removeComments": false,
+    "jsx": "react-jsx",
   },
   "include": ["src/**/*", "src/custom.d.ts"],
   "exclude": ["node_modules"]

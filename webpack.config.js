@@ -3,12 +3,31 @@ const package = require('./package.json');
 const webpack = require('webpack');
 
 module.exports = {
+  mode: 'development',
+  devtool: 'source-map',
   entry: './src/mod.ts',
+  externals: {
+    'react': 'React',
+    'react-dom': 'ReactDOM',
+    '@mui/material': 'MaterialUI',
+  },
+  optimization: {
+    minimize: false,
+  },
   module: {
     rules: [
       {
         test: /\.tsx?$/,
-        use: 'ts-loader',
+        use: {
+          loader: 'ts-loader',
+          options: {
+            compilerOptions: {
+              sourceMap: true,
+              inlineSourceMap: false,
+              removeComments: false,
+            },
+          },
+        },
         exclude: /node_modules/,
       },
       {
