@@ -10,6 +10,7 @@ module.exports = {
     'react': 'React',
     'react-dom': 'ReactDOM',
     '@mui/material': 'MaterialUI',
+    "@mui/icons-material": "MaterialUIIcons",
   },
   optimization: {
     minimize: false,

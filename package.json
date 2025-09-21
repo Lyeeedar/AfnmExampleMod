@@ -11,7 +11,7 @@
     "postbuild": "node scripts/zip-dist.js"
   },
   "devDependencies": {
-    "afnm-types": "0.6.11-beta.1",
+    "afnm-types": "0.6.11-beta.4",
     "file-loader": "^6.2.0",
     "prettier": "^3.3.3",
     "ts-loader": "^9.4.2",
@@ -26,6 +26,7 @@
     "@emotion/styled": "^11.14.1",
     "react": "^19.1.1",
     "@reduxjs/toolkit": "^2.8.2",
-    "@mui/material": "^7.3.1"
+    "@mui/material": "^7.3.1",
+    "@mui/icons-material": "^7.3.1"
   }
 }
