@@ -277,7 +277,7 @@ window.modAPI.actions.addHarmonyType('elemental', {
               top={`-6.5%`}
               left={`-14%`}
               sx={{
-                backgroundImage: `url(\${safeUrlEncode(elementalImg)})`, 
+                backgroundImage: `url(${{ '{' }}${safeUrlEncode(elementalImg)}})`, 
                 backgroundSize: 'contain',
                 backgroundRepeat: 'no-repeat',
                 backgroundPosition: 'center',
