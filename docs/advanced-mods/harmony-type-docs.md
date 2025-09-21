@@ -94,7 +94,7 @@ renderComponent: (harmonyData: HarmonyData) => ReactNode
 - Use Box components with proper positioning
 - Access your custom data from `harmonyData.additionalData`
 - Return visual feedback showing current state
-- Can draw custom assets to be rendered, by drawing them on top of the base cauldron background (below)
+- Can draw custom assets to be rendered, by drawing them on a blank image using the base cauldron background (below) as a guide. Do not include the cauldron itself in your new asset, simply use it as a guide for the image size and positioning of your new asset.
 ![Cauldron Image](./cauldron.png)
 
 ## Complete Example
