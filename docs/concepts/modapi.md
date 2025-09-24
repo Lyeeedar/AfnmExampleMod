@@ -133,6 +133,8 @@ window.modAPI.actions.addMusic(name: string, path: string[])
 window.modAPI.actions.addSfx(name: string, path: string)
 ```
 
+Note: When adding audio files the compiler won't know they exist at first, so you will get errors when trying to use the new names you added. To get around that, you will need to cast it to the expected type `'my_music' as MusicName` manually. This is essentially just saying to the compiler 'trust me, this exists'.
+
 ## Utility Functions
 
 Helper functions through `window.modAPI.utils`:
