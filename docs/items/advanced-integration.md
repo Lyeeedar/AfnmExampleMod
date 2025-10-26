@@ -225,16 +225,8 @@ interface Crop {
   item: string; // Name of the item produced
   yield: number; // Quantity produced per harvest
   growthDays: number; // Days required to mature
-  cost?: {
-    // Soil condition consumed (optional)
-    condition: string; // Soil condition name
-    amount: number; // Amount consumed
-  };
-  change?: {
-    // Soil condition produced (optional)
-    condition: string; // Soil condition name
-    amount: number; // Amount produced
-  };
+  cost?: string; // Soil condition consumed (optional)
+  change?: string; // Soil condition produced (optional)
 }
 ```
 
@@ -262,24 +254,24 @@ The herb garden operates on a soil condition economy with the following material
 **Basic Cycle (Body Forging/Meridian Opening):**
 
 ```
-Vita → Aurum → Condensed Vita → Vita (expanded)
+Vita → Aurum → Condensed Vita → Vita
 ```
 
 - Spirit Grass produces Vita from nothing
 - Plants consume Vita to produce Aurum
 - Aurum converts to Condensed Vita
-- Condensed Vita expands back to more Vita
+- Condensed Vita expands back to Vita
 
 **Advanced Cycle (Qi Condensation/Core Formation):**
 
 ```
 Vita → Condensed Vita → Etherite → Aurum
-Aurum → Etherite → Arcana → Aurum (amplified)
+Aurum → Etherite → Arcana → Aurum
 ```
 
-- Higher crops create Condensed Vita from Vita (6:10 ratio)
+- Higher crops create Condensed Vita from Vita
 - Etherite comes from Condensed Vita or Aurum
-- Arcana is the premium tier, converting back to large Aurum amounts
+- Arcana is the premium tier, converting back to Aurum
 - Some crops cycle Etherite back to Aurum for sustainability
 
 **Advanced Cycle (Pillar Creation):**
@@ -288,8 +280,8 @@ Aurum → Etherite → Arcana → Aurum (amplified)
 Arcana → Growing → Blazing → Rotting → Frozen → Growing/Blazing
 ```
 
-- Arcana transitions to Growing (1:1 ratio)
-- Growing branches to Blazing (multiple crops)
+- Arcana transitions to Growing
+- Growing branches to Blazing
 - Blazing can cycle back to Growing or advance to Rotting
 - Rotting transforms to Frozen
 - Frozen completes cycle back to Blazing or Growing
@@ -310,79 +302,16 @@ Arcana → Growing → Blazing → Rotting → Frozen → Growing/Blazing
 
 ```typescript
 // Define your crop using string names for conditions
-const mysticHerbCrop = {
+const mysticHerbCrop: Crop = {
   item: 'Mystic Herb',
   yield: 3, // Produces 3 mystic herbs
   growthDays: 15, // Takes 15 days to grow
-  cost: {
-    condition: 'Vita', // Consumes Vita soil
-    amount: 5, // Consumes 5 Vita
-  },
-  change: {
-    condition: 'Aurum', // Produces Aurum soil
-    amount: 2, // Produces 2 Aurum
-  },
+  cost: 'Vita',
+  change: 'Aurum',
 };
 
 // Add the crop to the appropriate realm using ModAPI
 window.modAPI.actions.addCrop('qiCondensation', mysticHerbCrop);
-```
-
-### Crop Design Strategies
-
-#### Resource Transformation
-
-Create crops that convert common soil conditions into rarer ones:
-
-```typescript
-const alchemicalFlowerCrop = {
-  item: 'Alchemical Flower',
-  yield: 2,
-  growthDays: 25,
-  cost: {
-    condition: 'Vita',
-    amount: 8,
-  },
-  change: {
-    condition: 'Etherite',
-    amount: 1,
-  },
-};
-window.modAPI.actions.addCrop('coreFormation', alchemicalFlowerCrop);
-```
-
-#### Pure Production
-
-Some crops only produce soil conditions without consuming them:
-
-```typescript
-const soilEnricherCrop = {
-  item: 'Soil Enricher',
-  yield: 1,
-  growthDays: 10,
-  change: {
-    condition: 'Vita',
-    amount: 3,
-  },
-};
-window.modAPI.actions.addCrop('bodyForging', soilEnricherCrop);
-```
-
-#### Resource Consumption
-
-Advanced crops may consume rare conditions without producing any:
-
-```typescript
-const etherealBlossomCrop = {
-  item: 'Ethereal Blossom',
-  yield: 4,
-  growthDays: 30,
-  cost: {
-    condition: 'Etherite',
-    amount: 3,
-  },
-};
-window.modAPI.actions.addCrop('pillarCreation', etherealBlossomCrop);
 ```
 
 ### Integration Steps
@@ -395,7 +324,7 @@ window.modAPI.actions.addCrop('pillarCreation', etherealBlossomCrop);
 
 ```typescript
 // 1. First create your item
-const mysticHerb = {
+const mysticHerb: CraftingItem = {
   kind: 'material',
   name: 'Mystic Herb',
   description: 'A shimmering herb infused with spiritual energy.',
@@ -407,40 +336,12 @@ const mysticHerb = {
 window.modAPI.actions.addItem(mysticHerb);
 
 // 2. Then create and add the crop
-const mysticHerbCrop = {
+const mysticHerbCrop: Crop = {
   item: 'Mystic Herb',
   yield: 3,
   growthDays: 15,
-  cost: {
-    condition: 'Vita',
-    amount: 5,
-  },
-  change: {
-    condition: 'Aurum',
-    amount: 2,
-  },
+  cost: 'Vita',
+  change: 'Aurum',
 };
 window.modAPI.actions.addCrop('qiCondensation', mysticHerbCrop);
 ```
-
-### Soil Condition Balance
-
-Design crops following these established conversion patterns:
-
-**Vita Economy:**
-
-- Entry crops produce 1-3 Vita from nothing
-- Basic crops consume 1-4 Vita, produce 1-2 Aurum
-- Advanced crops consume 7-10 Vita, produce 5-6 Condensed Vita
-
-**Aurum Bridge:**
-
-- Consume 1-6 Aurum to produce 1-8 Condensed Vita
-- Consume 4-6 Aurum to produce 1-6 Etherite
-- High-tier crops convert Arcana back to 14+ Aurum
-
-**Premium Tiers:**
-
-- Etherite costs 2-6 Condensed Vita or 4-6 Aurum
-- Arcana requires 3-5 Etherite, yields 4+ of lower tiers
-- Maintain cycles so players don't get stuck without basic materials
