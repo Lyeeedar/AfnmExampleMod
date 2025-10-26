@@ -169,35 +169,25 @@ Now let's make our tea leaves growable! This gives players agency over their pro
 Create `src/modContent/crops/teaCrops.ts`:
 
 ```typescript
+import { Crop } from 'afnm-types';
 import { greenTeaLeaves, jasmineTeaLeaves } from '../items/teaItems';
 
 // Tea leaf crops for the herb garden
-export const greenTeaLeafCrop = {
+export const greenTeaLeafCrop: Crop = {
   item: greenTeaLeaves.name, // Must match the item name exactly
   yield: 2, // Produces 2 tea leaves per harvest
-  growthDays: 10, // Takes 10 days to mature
-  cost: {
-    condition: 'Vita', // Consumes basic Vita soil
-    amount: 3, // Uses 3 Vita per plant
-  },
-  change: {
-    condition: 'Aurum', // Produces Aurum soil
-    amount: 1, // Creates 1 Aurum after harvest
-  },
+  growthDays: 20, // Takes 20 days to mature
+  cost: 'Vita',
+  change: 'Aurum',
 };
 
-export const jasmineTeaLeafCrop = {
+
+export const jasmineTeaLeafCrop: Crop = {
   item: jasmineTeaLeaves.name,
   yield: 1, // Lower yield but higher tier
-  growthDays: 20, // Takes longer to grow
-  cost: {
-    condition: 'Condensed Vita', // Needs refined soil
-    amount: 4, // Higher soil cost
-  },
-  change: {
-    condition: 'Etherite', // Produces valuable Etherite
-    amount: 1,
-  },
+  growthDays: 30, // Takes longer to grow
+  cost: 'Condensed Vita',
+  change: 'Etherite',
 };
 
 export function initializeTeaCrops() {
