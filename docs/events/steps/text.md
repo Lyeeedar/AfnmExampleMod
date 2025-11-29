@@ -48,6 +48,6 @@ interface TextStep {
 ```typescript
 {
   kind: 'text',
-  text: 'Welcome to our sect, {forename}. You are regarded as a promising {young man|young woman} with great potential.'
+  text: 'Welcome to our sect, {forename}. You are regarded as a promising {young man/young woman} with great potential.'
 }
 ```

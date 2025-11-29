@@ -72,7 +72,7 @@ interface SpeechStep {
 {
   kind: 'speech',
   character: 'Sect Recruiter',
-  text:  `"Welcome to our ranks, {young man|young lady}. Training begins at dawn."`
+  text:  `"Welcome to our ranks, {young man/young lady}. Training begins at dawn."`
 }
 ```
 
