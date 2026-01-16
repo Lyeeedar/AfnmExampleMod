@@ -11,7 +11,7 @@
     "postbuild": "node scripts/zip-dist.js"
   },
   "devDependencies": {
-    "afnm-types": "0.6.31",
+    "afnm-types": "0.6.32",
     "file-loader": "^6.2.0",
     "prettier": "^3.7.4",
     "ts-loader": "^9.5.4",
