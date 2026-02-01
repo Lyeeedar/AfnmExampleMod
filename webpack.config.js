@@ -32,7 +32,7 @@ module.exports = {
         exclude: /node_modules/,
       },
       {
-        test: /\.(png|jpg|gif|svg)$/i,
+        test: /\.(png|jpg|gif|svg|webp)$/i,
         type: 'asset/resource',
         generator: {
           filename: 'assets/[name][ext]',
