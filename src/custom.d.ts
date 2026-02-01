@@ -28,11 +28,6 @@ declare module '*.svg' {
     export default value;
 }
 
-declare module '*.svg' {
-    const value: string;
-    export default value;
-}
-
 declare module '*.otf' {
     const value: string;
     export default value;
