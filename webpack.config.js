@@ -38,6 +38,13 @@ module.exports = {
           filename: 'assets/[name][ext]',
         },
       },
+      {
+        test: /\.(otf|ttf|woff|woff2|eot)$/i,
+        type: 'asset/resource',
+        generator: {
+          filename: 'assets/[name][ext]',
+        },
+      },
     ],
   },
   resolve: {
