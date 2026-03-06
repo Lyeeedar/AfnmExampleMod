@@ -17,6 +17,7 @@ Every crafting buff follows the `CraftingBuff` interface:
 ```typescript
 interface CraftingBuff {
   name: string; // Unique identifier
+  displayName?: Translatable; // Optional translated display name
   icon: string; // Visual representation
   canStack: boolean; // Whether buff can stack
 
@@ -50,6 +51,10 @@ interface CraftingBuff {
 
   // Upgrade flag
   cantUpgrade?: boolean; // If true, cannot be upgraded
+
+  // Advanced fields
+  bonusHiddenPotential?: Scaling; // Grants bonus hidden potential to the crafted item when this buff is active
+  realm?: Realm; // Minimum realm required for this buff to apply its effects
 }
 ```
 
@@ -59,12 +64,17 @@ Buffs modify these key statistics:
 
 - **Qi Intensity** (`intensity`) - Increases completion from fusion actions
 - **Qi Control** (`control`) - Increases perfection from refine actions
-- **Qi Pool** (`pool`) - Resource for using techniques
-- **Stability** (`stability`) - Prevents craft failure
+- **Max Qi Pool** (`maxpool`) - Maximum qi pool size
+- **Qi Pool** (`pool`) - Current qi pool (usually only read, not set via stats)
+- **Max Toxicity** (`maxtoxicity`) - Maximum toxicity capacity
+- **Toxicity Resistance** (`resistance`) - Reduces toxicity accumulation
 - **Crit Chance** (`critchance`) - Chance for enhanced effects
-- **Pool Cost Multiplier** (`poolCostPercentage`) - Reduces qi costs
-- **Stability Cost Multiplier** (`stabilityCostPercentage`) - Reduces stability loss
-- **Action Success Chance** (`successChanceBonus`) - Improves technique success
+- **Crit Multiplier** (`critmultiplier`) - Damage/effect multiplier on critical actions
+- **Pool Cost Multiplier** (`poolCostPercentage`) - Reduces qi costs (negative values reduce cost)
+- **Stability Cost Multiplier** (`stabilityCostPercentage`) - Reduces stability loss (negative values reduce cost)
+- **Action Success Chance** (`successChanceBonus`) - Improves technique success rate
+- **Pills Per Action** (`pillsPerRound`) - Number of pills usable per crafting action
+- **Item Effectiveness** (`itemEffectiveness`) - Effectiveness of consumables used during crafting
 
 ## Buff Categories
 
@@ -83,6 +93,7 @@ export const empowerIntensity: CraftingBuff = {
   },
   effects: [],
   stacks: 1,
+  displayLocation: 'completionRight',
 };
 ```
 
@@ -105,29 +116,31 @@ export const skillfulManipulation: CraftingBuff = {
     },
   ],
   stacks: 3,
+  displayLocation: 'avatar',
 };
 ```
 
 ### Conditional Buffs
 
-Activate under specific circumstances:
+Activate effects only when specific techniques are used:
 
 ```typescript
 export const fusionEnlightenment: CraftingBuff = {
   name: 'Fusion Enlightenment',
   icon: fusionIcon,
-  onFusionEffects: [
+  canStack: false,
+  stats: undefined,
+  effects: [],
+  onFusion: [
     {
-      kind: 'intensity',
-      multiplier: 1.5,
+      kind: 'completion',
+      amount: { value: 8, stat: 'intensity' },
     },
   ],
-  condition: {
-    kind: 'techniqueType',
-    type: 'fusion',
-  },
   stacks: 1,
+  displayLocation: 'completionRight',
 };
+```
 ```
 
 ### Resource Generation Buffs
@@ -139,6 +152,7 @@ export const gentleReenergisation: CraftingBuff = {
   name: 'Gentle Re-energisation',
   icon: energyIcon,
   canStack: true,
+  stats: undefined,
   effects: [
     {
       kind: 'pool',
@@ -150,6 +164,7 @@ export const gentleReenergisation: CraftingBuff = {
     },
   ],
   stacks: 5,
+  displayLocation: 'avatar',
 };
 ```
 
