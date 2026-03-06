@@ -261,7 +261,7 @@ Grants crafting buffs:
 {
   kind: 'createBuff',
   buff: empowerIntensityBuff,
-  amount: { value: 3, stat: undefined }
+  stacks: { value: 3, stat: undefined }
 }
 ```
 
@@ -273,7 +273,7 @@ Removes buff stacks:
 {
   kind: 'consumeBuff',
   buff: targetBuff,
-  amount: { value: 2, stat: undefined }
+  stacks: { value: 2, stat: undefined }
 }
 ```
 
@@ -303,32 +303,47 @@ Techniques improve through mastery tiers:
 
 ### Upgrade Types
 
+The `upgradeMasteries` field maps upgrade keys to a `CraftingTechniqueMasteryRarityMap`, defining how the technique improves at each mastery tier. Use the helper functions from the mastery system:
+
 #### Effect Upgrades
 
-Increase completion/perfection amounts:
+Increase completion/perfection/pool/stability amounts:
 
 ```typescript
 upgradeMasteries: {
-  completion: createCompletionUpgradeMap('completion', 'empowered', 5);
+  completion: createCompletionUpgradeMap('completion', 'empowered'),
+  perfection: createPerfectionUpgradeMap('perfection', 'empowered'),
+  pool: createPoolUpgradeMap('pool', 'empowered'),
+  stability: createStabilityUpgradeMap('stability', 'empowered'),
 }
 ```
+
+Each function takes `(upgradeKey: string, startRarity: Rarity)`. The `upgradeKey` must match the `upgradeKey` on the `Scaling` object of the effect you want upgraded.
+
+#### Buff Stack Upgrades
+
+Increase the number of buff stacks granted:
+
+```typescript
+upgradeMasteries: {
+  stacks: createStacksUpgradeMap('stacks', 'resplendent', 'Empower Intensity', 2),
+}
+```
+
+`createStacksUpgradeMap(key, startRarity, buffName, maxChange)` — `maxChange` is the maximum stack change at Transcendent tier.
 
 #### Cost Reductions
 
-Lower resource consumption:
+Lower resource consumption (pool cost, stability cost):
 
 ```typescript
 upgradeMasteries: {
-  poolCost: createCostUpgradeMap('cost', 'empowered', -5);
+  poolCost: createCostUpgradeMap('poolCost', 'empowered', 'Qi Pool', -5),
 }
 ```
+
+`createCostUpgradeMap(key, startRarity, costName, maxChange)` — `costName` appears in the mastery tooltip. Use negative `maxChange` to reduce costs.
 
 #### Success Improvements
 
-Higher success rates:
-
-```typescript
-upgradeMasteries: {
-  success: createSuccessUpgradeMap('success', 'empowered', 10);
-}
-```
+Success chance is **automatically added** by the game as a mastery bonus for any technique with `successChance < 1`. You do not need to define it in `upgradeMasteries`.
