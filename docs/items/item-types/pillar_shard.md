@@ -15,10 +15,17 @@ Crystalline fragments for soul pillar construction in Pillar Creation realm.
 ```typescript
 export interface PillarShardItem extends ItemBase {
   kind: 'pillar_shard';
-  tooltip: string;              // Functional description
+  tooltip: Translatable;        // Functional description
   maxInstances?: number;        // Maximum allowed in pillar
+  stability?: number;           // Modifies pillar stability when placed (negative = unstable)
 
   variants?: PillarShardVariant[];  // Customizable options
+
+  // Portal mechanic: entrance collects beams, exit emits them elsewhere
+  // The variant index determines the portal channel (entrance index N connects to exit index N)
+  portal?: {
+    type: 'entrance' | 'exit';
+  };
 
   // Network connectivity
   inputs?: {
@@ -48,8 +55,44 @@ export interface PillarShardVariant {
 
 - **tooltip**: Describes shard functionality
 - **maxInstances**: Prevents overuse in pillar construction
+- **stability**: Adjusts pillar stability when this shard is placed (negative values decrease stability)
 - **variants**: Multiple configurations for same shard base
+- **portal**: Marks the shard as a portal entrance or exit — entrances absorb qither from below and route it to all matching-colour exit shards on the pillar
 - **inputs/output**: Network connectivity for energy flow
+
+## Portal Mechanic
+
+Portal shards route qither between non-adjacent positions on the pillar. Each entrance–exit pair is colour-coded: an entrance at variant index N connects to the exit at the same variant index. Multiple entrances of the same colour pool their power before splitting it equally across all matching exits.
+
+```typescript
+// Portal entrance — absorbs from bottom, routes to matching exits
+export const portalEntrance: PillarShardItem = {
+  kind: 'pillar_shard',
+  portal: { type: 'entrance' },
+  tooltip: 'Absorbs qither from below and sends it to matching Portal Exit shards.',
+  inputs: { bottom: 1 },
+  name: 'Portal Entrance',
+  variants: [
+    { title: 'Vermillion', icon: vermillionIcon },
+    { title: 'Azure',      icon: azureIcon },
+  ],
+  // ...other required fields
+};
+
+// Portal exit — emits the received qither upwards
+export const portalExit: PillarShardItem = {
+  kind: 'pillar_shard',
+  portal: { type: 'exit' },
+  tooltip: 'Emits qither received from matching Portal Entrance shards.',
+  output: { mode: 'flat', top: 0, left: 0, right: 0, bottom: 0 }, // power set at runtime
+  name: 'Portal Exit',
+  variants: [
+    { title: 'Vermillion', icon: vermillionExitIcon },
+    { title: 'Azure',      icon: azureExitIcon },
+  ],
+  // ...other required fields
+};
+```
 
 ## Examples
 

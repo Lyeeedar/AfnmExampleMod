@@ -9,7 +9,7 @@ description: 'Detailed documentation for each item category'
 
 # Item Types
 
-Detailed documentation for each of the 24 item categories in AFNM, covering interfaces, mechanics, design patterns, and integration examples.
+Detailed documentation for each of the 35 item categories in AFNM, covering interfaces, mechanics, design patterns, and integration examples.
 
 ## Equipment Types
 
@@ -60,6 +60,9 @@ Qi droplet generation methods
 
 ### [Pillar Shard Items](pillar_shard)
 Advanced cultivation components
+
+### [Pillar Pattern Items](pillar_pattern)
+Preset shard layouts for soul pillar construction
 
 ## Crafting Types
 
