@@ -42,7 +42,7 @@ interface Technique {
 
   // Effects and mechanics
   effects: TechniqueEffect[]; // What happens when used
-  triggeredEffects: { trigger: string, effects: TechniqueEffect[] }[]; // Effects that can be triggered by the base effects
+  triggeredEffects?: { trigger: string, effects: TechniqueEffect[] }[]; // Effects that can be triggered by the base effects
   enhancement?: number; // Bonus from element matching
   secondaryType?: TechniqueElement | 'origin'; // Additional element
 
@@ -374,6 +374,22 @@ Fire custom events for other systems:
   triggerTooltip?: 'Explanation of the trigger' // Will appear in its own sub-tooltip to the side of the main one
 }
 ```
+
+#### `repair`
+
+Restores health to barrier-type buffs that have taken damage:
+
+```typescript
+{
+  kind: 'repair',
+  amount: { value: 0.5, stat: 'power' },
+  group: 'shield',       // Matches buffs by name, buffType, or flag (same matching as modifyBuffGroup)
+  rule: 'lowestHealth'   // 'all' | 'lowestHealth' | 'highestHealth'
+}
+```
+
+- **group**: Selects which buffs to repair — matched against the buff's `name`, `buffType`, or any flag set on it.
+- **rule**: `'all'` repairs every matching buff; `'lowestHealth'` targets the most damaged one; `'highestHealth'` targets the least damaged.
 
 ## Conditional Effects
 
