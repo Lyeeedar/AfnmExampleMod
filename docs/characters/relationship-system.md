@@ -56,7 +56,7 @@ interface CharacterRelationshipDefinition {
   requiredApproval: number; // Minimum approval needed to unlock progression event to next tier
   relationshipCategory: CharacterRelationship;
   name: string; // Tier name (e.g., "Best Friend")
-  tooltip: string; // Description shown in UI
+  tooltip: Translatable; // Description shown in UI
 
   followCharacter?: FollowCharacterDefinition; // Party mechanics
   dualCultivation?: DualCultivationDefinition; // Intimate interactions
@@ -64,13 +64,13 @@ interface CharacterRelationshipDefinition {
   progressionEvent: {
     // Event to reach next tier
     name: string; // Event title
-    tooltip: string; // Event description
+    tooltip: Translatable; // Event description
     event: EventStep[]; // Event content
     locationOverride?: string; // Specific location required
     requirement?: {
       // Additional requirements
       condition: string;
-      tooltip: string;
+      tooltip: Translatable;
     };
   };
 }

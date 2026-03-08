@@ -48,7 +48,7 @@ interface CharacterRelationshipDefinition {
   requiredApproval: number; // Points needed
   relationshipCategory: 'Hostile' | 'Neutral' | 'Friendly' | 'Intimate';
   name: string; // Tier name (e.g., "Close Friends")
-  tooltip: string; // Description
+  tooltip: Translatable; // Description shown in UI
 
   followCharacter?: FollowCharacterDefinition; // Party mechanics
   dualCultivation?: DualCultivationDefinition; // Intimate only
@@ -56,12 +56,12 @@ interface CharacterRelationshipDefinition {
   progressionEvent: {
     // Event to advance relationship
     name: string;
-    tooltip: string;
+    tooltip: Translatable;
     event: EventStep[];
     locationOverride?: string; // Specific location
     requirement?: {
       condition: string;
-      tooltip: string;
+      tooltip: Translatable;
     };
   };
 }
