@@ -14,9 +14,10 @@ The `Character` interface defines the core structure for all NPCs in the game, f
 ```typescript
 interface Character {
   name: string; // Unique identifier
-  displayName?: string; // Optional display name
+  displayName?: Translatable; // Optional display name (localisation key or plain string)
   allegiance: string | undefined; // Faction affiliation
-  bio: string; // Character description
+  bio?: string; // Character description (optional)
+  manualDescription?: string; // Alternate description used in certain UI contexts
 
   condition: string; // When character appears
 
@@ -174,7 +175,7 @@ interface RandomStance {
 
 ## Location System
 
-Characters move through the world using three location types:
+Characters move through the world using four location types:
 
 ### Static Location
 
@@ -229,6 +230,26 @@ Character moves randomly between locations:
   ]
 }
 ```
+
+### Star Location
+
+Character positions themselves based on a ranking relative to others. Useful for making a character appear at wherever the player is strongest or weakest:
+
+```typescript
+{
+  kind: 'star',
+  condition: '1',
+  mode: 'highest' | 'more' | 'less' | 'lowest',
+  fallbackLocation: 'Nine Mountain Sect',
+  percentage: 0.7  // Required for 'more' and 'less' modes
+}
+```
+
+- `highest` — the location where the player has the highest relevant stat
+- `lowest` — the location where the player has the lowest relevant stat
+- `more` — locations where the player is above `percentage` of the range
+- `less` — locations where the player is below `percentage` of the range
+- `fallbackLocation` — used when no matching location is found
 
 ## Character Encounters
 

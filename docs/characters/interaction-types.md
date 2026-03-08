@@ -108,8 +108,17 @@ interface ShopCharacterInteraction extends BaseCharacterInteraction {
   costMultiplier: number;              // Price modifier
   introSteps: EventStep[];             // Shop opening dialogue
   exitSteps: EventStep[];              // Shop closing dialogue
+  tokenCurrency?: {                    // Optional token-based shop section
+    currencyItem: Item;                // The token item used as currency
+    tokenStock: Array<{
+      item: Item;
+      tokenCost: number;               // How many tokens this item costs
+    }>;
+  };
 }
 ```
+
+`tokenCurrency` adds a separate token-priced section to the shop alongside the regular gold stock. Players spend the specified `currencyItem` instead of gold for those entries.
 
 ### Example: Realm-Based Shop
 

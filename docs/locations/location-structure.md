@@ -131,10 +131,20 @@ events: [
     event: [...],           // Event steps
     rarity: 'mundane',      // Spawn frequency
     triggerChance: 0.1,     // Override rarity (optional)
-    condition: 'realm >= qiCondensation' // When available
+    condition: 'realm >= qiCondensation', // When available
+    cooldown: {             // Optional per-event cooldown
+      key: 'my_event_key', // Unique flag key for this event
+      min: 5,              // Minimum days before can retrigger
+      max: 15              // Maximum days before can retrigger
+    },
+    pity: true             // Optional: include in global pity pool
   }
 ]
 ```
+
+**`cooldown`**: Prevents an event from firing again for a random number of days in `[min, max]`. The `key` must be unique across your mod's events — it is stored as a flag to track the cooldown.
+
+**`pity`**: Marks the event as part of the global pity pool. All pity events share a counter (`globalSpecialEventPity`) that increments each exploration where at least one pity event was eligible but none fired. Any pity event firing resets the counter to zero. The event's effective rarity weight is multiplied by `min(1 + counter × 0.1, 5)` — reaching 5× after roughly 40 consecutive failed attempts. Each player also receives a fixed per-event multiplier (drawn from a shuffled odds list seeded by their name), so some events are naturally easier or harder to find for a given player. Setting `pity: true` on rare one-time discovery events ensures no player is permanently locked out of them.
 
 #### Exploration Events
 Special events that trigger during exploration:
