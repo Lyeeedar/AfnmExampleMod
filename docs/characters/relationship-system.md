@@ -630,6 +630,94 @@ The game automatically handles visual indicators:
 - Heart icons at intimate levels
 - Approval bar showing progress to next tier
 
+## Branching Relationship Paths
+
+Companions can have multiple named relationship progressions — for example, a friendship path and a rivalry path. The player is directed onto a branch by a `selectRelationshipPath` event step. Once a path is selected, all future `progressRelationship` steps follow that branch's tier list.
+
+### Defining Paths
+
+Add a `relationshipPaths` field to the character definition alongside (or instead of) the default `relationship` array:
+
+```typescript
+const myCompanion: Character = {
+  name: 'Mei Xing',
+  relationship: defaultRelationshipTiers, // Used if no path is selected
+  relationshipPaths: {
+    friend: friendRelationshipTiers,
+    rival: rivalRelationshipTiers,
+  },
+  // ...other fields
+};
+```
+
+Each value in `relationshipPaths` is a `CharacterRelationshipDefinition[]` identical in structure to the default `relationship` array.
+
+### Selecting a Path
+
+Use the `selectRelationshipPath` event step to lock the character onto a named branch:
+
+```typescript
+{
+  kind: 'selectRelationshipPath',
+  character: 'Mei Xing',
+  path: 'rival',
+}
+```
+
+Selecting a path resets the character's relationship index and approval to 0. The player then earns their way up through the new path from the first tier. Once a path is selected it persists — there is no way to revert to the default `relationship` array.
+
+### Example: Two-Path Companion
+
+```typescript
+const friendPath: CharacterRelationshipDefinition[] = [
+  {
+    requiredApproval: 5,
+    relationshipCategory: 'Friendly',
+    name: 'Ally',
+    tooltip: 'A reliable friend and ally.',
+    progressionEvent: {
+      name: 'Trust Formed',
+      tooltip: 'Your friendship deepens',
+      event: [
+        { kind: 'speech', character: 'Mei Xing', text: 'I am glad we chose this path.' },
+        { kind: 'progressRelationship', character: 'Mei Xing' },
+      ],
+    },
+  },
+  // ...further tiers
+];
+
+const rivalPath: CharacterRelationshipDefinition[] = [
+  {
+    requiredApproval: 5,
+    relationshipCategory: 'Friendly',
+    name: 'Acknowledged Rival',
+    tooltip: 'She respects your strength.',
+    progressionEvent: {
+      name: 'First Test',
+      tooltip: 'Prove yourself in sparring',
+      event: [
+        { kind: 'speech', character: 'Mei Xing', text: 'You are stronger than I expected.' },
+        { kind: 'progressRelationship', character: 'Mei Xing' },
+      ],
+    },
+  },
+  // ...further tiers
+];
+
+const meiXing: Character = {
+  name: 'Mei Xing',
+  relationship: defaultPath, // fallback if the branching event never fires
+  relationshipPaths: {
+    friend: friendPath,
+    rival: rivalPath,
+  },
+  // ...other fields
+};
+```
+
+See also: [Select Relationship Path Step](../events/steps/selectrelationshippath) for the event step reference.
+
 ## Complete Relationship Example
 
 ```typescript

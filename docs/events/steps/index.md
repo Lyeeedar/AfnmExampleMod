@@ -37,6 +37,7 @@ Comprehensive documentation for every type of event step available in AFNM. Each
 
 - **[Approval Step](approval)** - Modify character approval ratings
 - **[Progress Relationship Step](progressrelationship)** - Advance relationship tiers
+- **[Select Relationship Path Step](selectrelationshippath)** - Branch relationship progression onto a named path
 - **[Team Up Step](teamup)** - Create temporary combat partnerships
 - **[Clear Team Up Step](clearteamup)** - Remove all team-up partners
 - **[Add Follower Step](addfollower)** - Add persistent follower companions
