@@ -83,7 +83,7 @@ These hooks trigger after specific game activities complete during an event, all
 Triggers after combat ends, allowing for custom victory/defeat consequences.
 
 **Parameters:**
-- `eventStep: CombatStep | FightCharacterStep` - The event stap that triggered the combat
+- `eventStep: CombatStep | FightCharacterStep` - The event step that triggered the combat
 - `victory: boolean` - Whether the player won
 - `playerCombatState: CombatEntity` - The player's combat state at end
 - `gameFlags: Record<string, number>` - Current game flags/state
@@ -136,7 +136,7 @@ mod.onCompleteCombat((eventStep, victory, playerCombatState, gameFlags) => {
 Triggers after tournament participation with placement results.
 
 **Parameters:**
-- `eventStep: TournamentStep` - The event stap that triggered the combat
+- `eventStep: TournamentStep` - The event step that triggered the combat
 - `tournamentState: 'victory' | 'second' | 'defeat'` - Tournament placement
 - `gameFlags: Record<string, number>` - Current game flags/state
 
@@ -182,7 +182,7 @@ mod.onCompleteTournament((eventStep, tournamentState, gameFlags) => {
 Triggers after dual cultivation attempts.
 
 **Parameters:**
-- `eventStep: DualCultivationStep` - The event stap that triggered the combat
+- `eventStep: DualCultivationStep` - The event step that triggered the combat
 - `success: boolean` - Whether the dual cultivation succeeded
 - `gameFlags: Record<string, number>` - Current game flags/state
 
@@ -227,7 +227,7 @@ mod.onCompleteDualCultivation((eventStep, success, gameFlags) => {
 Triggers after crafting attempts, successful or failed.
 
 **Parameters:**
-- `eventStep: CraftingStep` - The event stap that triggered the combat
+- `eventStep: CraftingStep` - The event step that triggered the combat
 - `item: CraftingResult | undefined` - The crafted item (undefined if failed)
 - `gameFlags: Record<string, number>` - Current game flags/state
 
@@ -275,7 +275,7 @@ mod.onCompleteCrafting((eventStep, item, gameFlags) => {
 Triggers after participating in auctions.
 
 **Parameters:**
-- `eventStep: AuctionStep` - The event stap that triggered the combat
+- `eventStep: AuctionStep` - The event step that triggered the combat
 - `itemsBought: AuctionItem[]` - Items successfully purchased
 - `gameFlags: Record<string, number>` - Current game flags/state
 
@@ -322,7 +322,7 @@ mod.onCompleteAuction((eventStep, itemsBought, gameFlags) => {
 Triggers after stone cutting activities.
 
 **Parameters:**
-- `eventStep: StoneCuttingStep` - The event stap that triggered the combat
+- `eventStep: StoneCuttingStep` - The event step that triggered the combat
 - `gameFlags: Record<string, number>` - Current game flags/state
 
 **Returns:** `EventStep[]` - Additional event steps to execute

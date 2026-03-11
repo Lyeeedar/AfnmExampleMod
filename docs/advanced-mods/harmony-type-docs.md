@@ -125,7 +125,7 @@ window.modAPI.actions.addHarmonyType('elemental', {
     // Process technique effects
     if (technique.type === 'fusion') {
       harmonyData.additionalData.fire = Math.min(10, harmonyData.additionalData.fire + 3);
-      state.craftingLog.push(`Fire element increased to ${harmonyData.elemenadditionalDatatal.fire}`);
+      state.craftingLog.push(`Fire element increased to ${harmonyData.additionalData.fire}`);
     } else if (technique.type === 'refine') {
       harmonyData.additionalData.water = Math.min(10, harmonyData.additionalData.water + 3);
       state.craftingLog.push(`Water element increased to ${harmonyData.additionalData.water}`);
