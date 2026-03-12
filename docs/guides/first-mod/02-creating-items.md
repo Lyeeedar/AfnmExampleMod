@@ -98,6 +98,7 @@ export const brewedGreenTea: CombatItem = {
           window.modAPI.utils.getExpectedHealth('meridianOpening', 'Late') *
             0.8,
         ),
+        stat: undefined,
       }, // 80% heal in the meridian opening realm
     },
   ],
@@ -156,6 +157,7 @@ export const brewedJasmineTea: CombatItem = {
         value: Math.floor(
           window.modAPI.utils.getExpectedHealth('qiCondensation', 'Late') * 0.8,
         ),
+        stat: undefined,
       }, // 80% heal in the qi condensation realm
     },
   ],
