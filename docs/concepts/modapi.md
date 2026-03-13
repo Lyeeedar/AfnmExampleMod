@@ -95,6 +95,8 @@ window.modAPI.actions.addCraftingTechnique(technique: CraftingTechnique)
 window.modAPI.actions.addDestiny(destiny: Destiny)
 ```
 
+**Note on `addTechnique`:** When `technique.realm` is set, the game automatically creates and registers a corresponding technique item (used in the debug inventory and item systems). If `technique.realm` is undefined, no item is created.
+
 ### World Content
 
 ```typescript
@@ -103,6 +105,37 @@ window.modAPI.actions.linkLocations(existing: string, link: ConditionalLink | Ex
 window.modAPI.actions.addQuest(quest: Quest)
 window.modAPI.actions.addCalendarEvent(event: CalendarEvent)
 window.modAPI.actions.addTriggeredEvent(event: TriggeredEvent)
+```
+
+#### `addQuestToRequestBoard`
+
+Add a quest to a location's request board so players can accept it as a commission:
+
+```typescript
+window.modAPI.actions.addQuestToRequestBoard(
+  quest: Quest,
+  realm: Realm,
+  rarity: Rarity,
+  condition: string,
+  location: string,
+)
+```
+
+- **`quest`** — The quest definition. If the quest is not already registered, it is automatically added to the quest registry.
+- **`realm`** — The realm tier this quest appears under on the request board (e.g. `'qiCondensation'`).
+- **`rarity`** — Controls the display tier of the request. Valid values: `'mundane'`, `'qitouched'`, `'empowered'`, `'resplendent'`, `'incandescent'`, `'transcendent'`.
+- **`condition`** — Flag expression that must be true for the quest to appear (e.g. `'1'` for always available, `'myMod_unlocked == 1'` for conditional).
+- **`location`** — The location key. The location must have a `requestBoard` building — an error is thrown if the location does not exist or has no request board.
+
+```typescript
+// Example: add a gathering quest to the Liang Tiao Village request board
+window.modAPI.actions.addQuestToRequestBoard(
+  myGatheringQuest,
+  'qiCondensation',
+  'qitouched',
+  '1',
+  'Liang Tiao Village',
+);
 ```
 
 ### Specialized Content
