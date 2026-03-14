@@ -30,7 +30,7 @@ interface ItemBase {
 
 ## Item Categories
 
-AFNM supports 24 distinct item categories:
+AFNM supports 34 distinct item categories:
 
 ### Equipment Types
 
@@ -60,6 +60,7 @@ AFNM supports 24 distinct item categories:
 ```typescript
 'technique'; // Combat abilities
 'action'; // Crafting abilities
+'manual'; // Full combat style manuals with stances
 ```
 
 ### Progression Types
@@ -68,6 +69,8 @@ AFNM supports 24 distinct item categories:
 'breakthrough'; // Realm advancement
 'condensation_art'; // Qi droplet generation
 'pillar_shard'; // Advanced cultivation
+'pillar_pattern'; // Pillar shard arrangement patterns
+'life_essence'; // Life cultivation essences
 ```
 
 ### Crafting Types
@@ -77,6 +80,12 @@ AFNM supports 24 distinct item categories:
 'material'; // Base components
 'enchantment'; // Equipment upgrades
 'upgrade'; // Enhancement materials
+```
+
+### Farm & Utility Types
+
+```typescript
+'device'; // Automated farm devices
 ```
 
 ### Special Types

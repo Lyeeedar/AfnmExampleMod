@@ -8,7 +8,7 @@ description: 'Documentation for the AFNM item system'
 
 # Item System
 
-Items are the foundation of character progression, crafting, and equipment in Ascend from Nine Mountains. The item system supports over 20 different item types ranging from equipment and consumables to crafting materials and mystical keys.
+Items are the foundation of character progression, crafting, and equipment in Ascend from Nine Mountains. The item system supports over 30 different item types ranging from equipment and consumables to crafting materials and mystical keys.
 
 ## Documentation
 
@@ -51,8 +51,15 @@ Detailed documentation for each item category
 
 - **`technique`** - Combat manuals and crystals
 - **`action`** - Crafting technique items
+- **`manual`** - Full combat style manuals containing stances and techniques
 - **`breakthrough`** - Realm advancement materials
 - **`condensation_art`** - Qi droplet generation methods
+- **`pillar_shard`** - Advanced cultivation components
+- **`pillar_pattern`** - Pillar shard arrangement patterns
+
+**Life Cultivation**
+
+- **`life_essence`** - Cultivation essences that grant buffs and techniques as they level up
 
 **Crafting & Resources**
 
@@ -62,12 +69,15 @@ Detailed documentation for each item category
 - **`enchantment`** - Equipment upgrade items
 - **`upgrade`** - Item enhancement materials
 
+**Farm & Utility**
+
+- **`device`** - Automated farm devices (harvesters, growth boosters, etc.)
+
 **Special Purpose**
 
 - **`mystical_key`** - Access to mystical regions
 - **`transport_seal`** - Location travel items
 - **`formation`** - Environmental enhancement items
-- **`pillar_shard`** - Advanced cultivation components
 - **`trophy`** - Achievement rewards
 - **`token`** - Currency and exchange items
 - **`treasure`** - Valuable collectibles
