@@ -17,6 +17,7 @@ Every crafting technique is defined by the `CraftingTechnique` interface:
 ```typescript
 interface CraftingTechnique {
   name: string; // Display name
+  displayName?: Translatable; // Optional translated display name
   icon: string; // Visual representation
   type: CraftingTechniqueType; // fusion, refine, stabilize, or support
   realm: Realm; // Minimum cultivation level
@@ -25,11 +26,12 @@ interface CraftingTechnique {
   // Resource costs
   poolCost: number; // Qi pool cost
   stabilityCost: number; // Stability cost
+  noMaxStabilityLoss?: boolean; // If true, max stability is not reduced when used
   toxicityCost?: number; // Optional toxicity gain
   buffCost?: { buff: CraftingBuff; amount: number };
 
   // Requirements and restrictions
-  successChance: number; // Base success rate (0-100)
+  successChance: number; // Base success rate (0.0–1.0; 1.0 = always succeeds)
   cooldown: number; // Turns before reuse
   conditionRequirement?: CraftingCondition;
   buffRequirement?: { buff: CraftingBuff; amount: number };
@@ -38,9 +40,15 @@ interface CraftingTechnique {
   effects: CraftingTechniqueEffect[];
 
   // Mastery system
+  masteryKindPools?: CraftingTechniqueEffectKind[]; // Override which effect kinds are used for mastery selection
   upgradeMasteries?: { [key: string]: CraftingTechniqueMasteryRarityMap };
+
+  // Runtime state — always initialise to 0 / undefined in data definitions
+  currentCooldown: number; // Must be set to 0 in every technique definition
 }
 ```
+
+> **Important:** `currentCooldown` is a required field. Always set it to `0` in your technique definition. The engine updates it at runtime.
 
 ## Technique Types
 
@@ -101,7 +109,7 @@ stabilityCost: 5; // Stability lost on use
 - **Current Stability**: The active stability pool that decreases with technique use
 - **Max Stability**: The upper limit for current stability
 - When current stability reaches 0, the craft fails
-- When using a technique, max stability usually decrease by 1
+- When using a technique, max stability usually decreases by 1
 - The `noMaxStabilityLoss` flag prevents max stability reduction (only current decreases)
 
 **Modifiers:**
@@ -143,7 +151,7 @@ Each technique has a success rate:
 successChance: 0.8; // 80% base success rate (0.0 to 1.0)
 ```
 
-- Value ranges from 0 (always fails) to 1 (always succeeds)
+- Value ranges from 0.0 (always fails) to 1.0 (always succeeds)
 - Modified by **Action Success Chance** stat bonus
 - Failed techniques still consume resources
 - Some risky techniques have rates as low as 0.4 (40%)
@@ -191,7 +199,7 @@ buffRequirement: {
 
 ## Effect Types
 
-Techniques produce various effects on the crafting process:
+Techniques produce various effects on the crafting process. Effects can also carry an optional `condition` field (a `CraftingTechniqueCondition`) to make the effect conditional.
 
 ### Completion Effect
 
@@ -200,8 +208,7 @@ Advances craft progress:
 ```typescript
 {
   kind: 'completion',
-  amount: { value: 15, stat: 'intensity' },
-  condition?: techniqueCondition
+  amount: { value: 15, stat: 'intensity', upgradeKey: 'completion' },
 }
 ```
 
@@ -212,7 +219,7 @@ Improves item quality:
 ```typescript
 {
   kind: 'perfection',
-  amount: { value: 10, stat: 'control' }
+  amount: { value: 10, stat: 'control', upgradeKey: 'perfection' },
 }
 ```
 
@@ -249,7 +256,7 @@ Restores qi pool:
 ```typescript
 {
   kind: 'pool',
-  amount: { value: 10, stat: undefined }
+  amount: { value: 10, stat: undefined, upgradeKey: 'pool' },
 }
 ```
 
@@ -288,18 +295,43 @@ Reduces accumulated toxicity:
 }
 ```
 
+## The `upgradeKey` on Scaling
+
+To make an effect upgradeable through the mastery system, set `upgradeKey` on the effect's `Scaling` amount. The key must match the corresponding entry in `upgradeMasteries`:
+
+```typescript
+const myTechnique: CraftingTechnique = {
+  name: 'Focused Fusion',
+  // ...
+  effects: [
+    {
+      kind: 'completion',
+      amount: { value: 2.0, stat: 'intensity', upgradeKey: 'completion' }, // links to upgradeMasteries['completion']
+    },
+  ],
+  currentCooldown: 0,
+  upgradeMasteries: {
+    completion: createCompletionUpgradeMap('completion', 'empowered'), // first arg must match upgradeKey
+  },
+};
+```
+
 ## Mastery System
 
 Techniques improve through mastery tiers:
 
 ### Mastery Tiers
 
-1. **Mundane** - Base technique
-2. **Qi-touched** - Minor improvements
-3. **Empowered** - Significant upgrades
-4. **Resplendent** - Major enhancements
-5. **Incandescent** - Powerful modifications
-6. **Transcendent** - Ultimate mastery
+| Tier value      | Display name    | Roman numeral |
+| --------------- | --------------- | ------------- |
+| `mundane`       | Mundane         | I             |
+| `qitouched`     | Qi Touched      | II            |
+| `empowered`     | Empowered       | III           |
+| `resplendent`   | Resplendent     | IV            |
+| `incandescent`  | Incandescent    | V             |
+| `transcendent`  | Transcendent    | VI            |
+
+Use the **tier value** (left column) when specifying `startRarity` arguments in helper functions.
 
 ### Upgrade Types
 
@@ -307,7 +339,7 @@ The `upgradeMasteries` field maps upgrade keys to a `CraftingTechniqueMasteryRar
 
 #### Effect Upgrades
 
-Increase completion/perfection/pool/stability amounts:
+Increase completion/perfection/pool/stability amounts multiplicatively:
 
 ```typescript
 upgradeMasteries: {
@@ -319,6 +351,8 @@ upgradeMasteries: {
 ```
 
 Each function takes `(upgradeKey: string, startRarity: Rarity)`. The `upgradeKey` must match the `upgradeKey` on the `Scaling` object of the effect you want upgraded.
+
+There is also `createPowerUpgradeMap(key, rarity, tooltip)` for custom effect scaling — it applies the same multiplicative upgrade percentages but accepts a custom tooltip string.
 
 #### Buff Stack Upgrades
 
@@ -344,6 +378,28 @@ upgradeMasteries: {
 
 `createCostUpgradeMap(key, startRarity, costName, maxChange)` — `costName` appears in the mastery tooltip. Use negative `maxChange` to reduce costs.
 
+#### Max Amount Increases
+
+Increase the maximum amount of a stepped value:
+
+```typescript
+upgradeMasteries: {
+  maxStacks: createMaxIncreaseUpgradeMap('maxStacks', 'resplendent', 3),
+}
+```
+
+`createMaxIncreaseUpgradeMap(key, startRarity, maxChange)` — useful for techniques that cap at a certain amount.
+
 #### Success Improvements
 
 Success chance is **automatically added** by the game as a mastery bonus for any technique with `successChance < 1`. You do not need to define it in `upgradeMasteries`.
+
+### `masteryKindPools`
+
+By default, the game determines which mastery upgrades are available based on a technique's effect kinds (completion, perfection, pool, stability, etc.). Setting `masteryKindPools` overrides this list:
+
+```typescript
+masteryKindPools: ['completion', 'pool'], // Only offer completion and pool mastery upgrades
+```
+
+This is useful when a technique has multiple effect kinds but you only want mastery selection to draw from a subset.
