@@ -226,6 +226,76 @@ Converts stacks from one buff to another.
 }
 ```
 
+### `convertSelf`
+
+Converts stacks of one buff into stacks of another buff, one-for-one. Unlike `merge`, this transfers all available stacks at the point of execution rather than merging by a ratio.
+
+```typescript
+{
+  kind: 'convertSelf',
+  source: sourceBuff,  // Buff to take stacks from
+  target: targetBuff,  // Buff to add stacks to
+  amount: { value: 1, stat: undefined } // Stacks to convert per application
+}
+```
+
+**Example — inscription upgrade chain (used in `onRoundEffects`):**
+
+```typescript
+{
+  kind: 'convertSelf',
+  source: baseInscription,
+  target: forbiddenInscription,
+  amount: { value: 1, stat: undefined },
+}
+```
+
+**Use case**: Escalating resource mechanics where lower-tier buffs automatically promote to higher-tier versions at the end of each round.
+
+### `setState`
+
+Sets or increments a named state variable that persists for the duration of combat. State variables can be read in conditions using their key name.
+
+```typescript
+{
+  kind: 'setState',
+  key: 'variableName',      // Arbitrary string key
+  value: { value: 1, stat: undefined },
+  mode?: 'set' | 'add'      // 'set' overwrites, 'add' increments (default: 'set')
+}
+```
+
+**Example — counting triggers this technique:**
+
+```typescript
+// In triggeredBuffEffects — increment counter each time a trigger fires
+{
+  kind: 'setState',
+  key: 'triggersThisTechnique',
+  value: { value: 1, stat: undefined },
+  mode: 'add',
+}
+
+// Reset counter after processing
+{
+  kind: 'setState',
+  key: 'triggersThisTechnique',
+  value: { value: 0, stat: undefined },
+  mode: 'set',
+}
+```
+
+Reading the variable in a condition:
+
+```typescript
+condition: {
+  kind: 'condition',
+  condition: 'triggersThisTechnique > 0',
+}
+```
+
+**Use case**: Tracking counts or flags within a single combat session that drive conditional effects, such as "if this buff triggered more than twice this technique, deal bonus damage."
+
 ### `trigger`
 
 Triggers custom events for other systems.
@@ -261,6 +331,20 @@ Modifies all buffs of a specific group.
   amount: { value: 1, stat: undefined }
 }
 ```
+
+### `consumeInventoryItem`
+
+Consumes an item from the player's inventory. The effect silently does nothing if the item is not present.
+
+```typescript
+{
+  kind: 'consumeInventoryItem',
+  itemName: 'Qi Replenishing Pill', // Exact display name of the item
+  amount: { value: 1, stat: undefined }
+}
+```
+
+**Use case**: Equipment or mount effects that deplete consumable items as part of their activation (e.g. a mount that burns a special pill each round to provide its bonus).
 
 ## Scaling System
 
