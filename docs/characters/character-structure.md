@@ -28,6 +28,27 @@ interface Character {
   portrait: string; // Portrait image path
   image: string; // Full character image
   imageScale?: number; // Image scaling factor
+
+  // Optional stance-specific pose images (used during combat display)
+  supportImage?: { image: string; scale: number };
+  defensiveImage?: { image: string; scale: number };
+  utilityImage?: { image: string; scale: number };
+  aggressiveImage?: { image: string; scale: number };
+  offensiveImage?: { image: string; scale: number };
+  hitImage?: { image: string; scale: number };
+
+  // Optional conditional image override (replaces portrait, image, and pose images when condition is true)
+  imageOverride?: {
+    image: string;
+    portrait: string;
+    supportImage?: { image: string; scale: number };
+    defensiveImage?: { image: string; scale: number };
+    utilityImage?: { image: string; scale: number };
+    aggressiveImage?: { image: string; scale: number };
+    offensiveImage?: { image: string; scale: number };
+    hitImage?: { image: string; scale: number };
+    condition: string; // When this override is active
+  }[];
 }
 ```
 

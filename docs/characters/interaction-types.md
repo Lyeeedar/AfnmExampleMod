@@ -235,9 +235,14 @@ interface GiftCharacterInteraction extends BaseCharacterInteraction {
   introSteps: EventStep[];   // Gift offering dialogue
   item: string;              // Primary gift item
   amount: number;            // Required amount
-  alternates?: ItemDesc[];   // Alternative acceptable gifts
   acceptSteps: EventStep[];  // Gift accepted
   declineSteps: EventStep[]; // Gift rejected
+
+  // Optional higher-quality versions of the same gift category
+  improvedItem?: string;                   // Better quality variant (gives extra approval)
+  improvedAcceptSteps?: EventStep[];       // Steps when improved item is given
+  veryImprovedItem?: string;               // Best quality variant (gives most approval)
+  veryImprovedAcceptSteps?: EventStep[];   // Steps when very improved item is given
 }
 ```
 
@@ -260,9 +265,19 @@ const giftInteraction: GiftCharacterInteraction = {
   ],
   item: 'Flawless Jade Pendant',
   amount: 1,
-  alternates: [
-    { name: 'Pure Jade', stacks: 10 },
-    { name: 'Spirit Crystal Necklace', stacks: 1 }
+  // Optional: higher-quality variants award more approval
+  improvedItem: 'Exquisite Jade Pendant',
+  improvedAcceptSteps: [
+    {
+      kind: 'approval',
+      character: 'Mei Ling',
+      amount: '8'
+    },
+    {
+      kind: 'speech',
+      character: 'Mei Ling',
+      text: 'This quality is extraordinary! You really went all out.'
+    }
   ],
   acceptSteps: [
     {
@@ -574,9 +589,10 @@ Fully customizable interaction blocks for unique mechanics.
 interface CustomCharacterInteractionBlock {
   condition: string;         // When block appears
   name: string;             // UI label
-  tooltip: string;          // Hover description
-  icon: IconComponent;      // MUI icon
-  interactions: CustomCharacterInteraction[];
+  tooltip: Translatable;    // Hover description
+  icon: SvgIconComponent;   // MUI icon
+  interaction: CustomCharacterInteraction;  // Single interaction (NOT an array)
+  cooldown?: number;        // Optional cooldown in days between uses
 }
 
 interface CustomCharacterInteraction extends BaseCharacterInteraction {
@@ -594,7 +610,8 @@ const customInteraction: CustomCharacterInteractionBlock = {
   name: 'Learn Technique',
   tooltip: 'Learn a special technique from this master',
   icon: SchoolIcon,
-  interactions: [{
+  cooldown: 30,  // Can only use once per month
+  interaction: {
     condition: 'learned_technique == 0',
     disableCondition: 'realm < 3',
     disableTooltip: 'Requires Qi Condensation realm',
@@ -634,7 +651,7 @@ const customInteraction: CustomCharacterInteractionBlock = {
         ]
       }
     ]
-  }]
+  }
 };
 ```
 

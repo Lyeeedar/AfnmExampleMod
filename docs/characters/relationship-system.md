@@ -439,19 +439,29 @@ interface DualCultivationDefinition {
 Success in dual cultivation depends on matching traits:
 
 ```typescript
-// Available intimate traits from the game
-const traits = [
-  'lovesRough', // Prefers rough intimacy
-  'lovesTender', // Prefers tender intimacy
-  'lovesPassionate', // Passionate lover
-  'aggressiveLover', // Dislikes tender approaches
-  'hardToPlease', // High standards
-  'hairTrigger', // Quick but recovers fast
-  'energetic', // High energy
-  'lowStamina', // Tires quickly
-  'painTolerant', // Handles roughness well
-  'sensitive', // Low pain threshold
-];
+// Import trait objects from the game's intimateTraits module
+import {
+  lovesRough,      // Prefers rough intimacy
+  lovesTender,     // Prefers tender intimacy
+  lovesPassionate, // Passionate lover
+  aggressiveLover, // Dislikes tender approaches (tender/passionate penalty)
+  hardToPlease,    // High satisfaction threshold
+  hairTrigger,     // Lower satisfaction threshold — quick to finish
+  energetic,       // Extra starting energy
+  lowStamina,      // Reduced starting energy
+  painTolerant,    // Higher pain threshold
+  sensitive,       // Lower pain threshold
+} from 'afnm-types/data/dualCultivation/intimateTraits';
+```
+
+Traits are `IntimateTrait` objects, not string literals. Import them from the game package and pass them directly in the `traits` array:
+
+```typescript
+dualCultivation: {
+  condition: '1',
+  traits: [lovesTender, lovesPassionate],
+  // ...
+}
 ```
 
 ### Dual Cultivation Rewards
