@@ -183,10 +183,19 @@ const giftInteraction: GiftCharacterInteraction = {
   ],
   item: 'Pure Jade Pendant',
   amount: 1,
-  alternates: [
-    // Alternative acceptable gifts
-    { name: 'Refined Jade', stacks: 5 },
-    { name: 'Spirit Crystal', stacks: 3 },
+  // Optional higher-quality variants award more approval
+  improvedItem: 'Exquisite Jade Pendant',
+  improvedAcceptSteps: [
+    {
+      kind: 'approval',
+      character: 'Li Wei',
+      amount: '5',
+    },
+    {
+      kind: 'speech',
+      character: 'Li Wei',
+      text: 'This quality is exceptional — you really outdid yourself!',
+    },
   ],
   acceptSteps: [
     {
@@ -385,7 +394,7 @@ Available at intimate relationship levels:
 ```typescript
 const dualCultivation: DualCultivationDefinition = {
   condition: 'relationship >= 5',
-  traits: ['passionate', 'gentle'], // Required traits for success
+  traits: [lovesPassionate, lovesTender], // Import from 'afnm-types/data/dualCultivation/intimateTraits'
   intro: [
     {
       kind: 'speech',
@@ -588,7 +597,7 @@ const fullCompanion: Character = {
 
       dualCultivation: {
         condition: '1',
-        traits: ['gentle', 'passionate'],
+        traits: [lovesTender, lovesPassionate],
         intro: [
           /*...*/
         ],
@@ -628,7 +637,7 @@ const fullCompanion: Character = {
 
       dualCultivation: {
         condition: '1',
-        traits: ['gentle', 'passionate', 'synchronized'],
+        traits: [lovesTender, lovesPassionate, energetic],
         intro: [
           /*...*/
         ],
@@ -791,13 +800,39 @@ export const createGiftInteraction = (
   aidBoost: number,
   craftingBonus?: number,
   craftingFlag?: string,
-  alternates?: ItemDesc[],
+  improvedItem?: string,
+  veryImprovedItem?: string,
 ): GiftCharacterInteraction => ({
   condition: '1',
   key: `${item}_${amount}`,
   item,
   amount,
-  alternates,
+  improvedItem,
+  improvedAcceptSteps: improvedItem ? [
+    {
+      kind: 'approval',
+      character: companionName,
+      amount: '2',
+    },
+    {
+      kind: 'speech',
+      character: companionName,
+      text: 'This is even better than I hoped! Thank you so much.',
+    },
+  ] : undefined,
+  veryImprovedItem,
+  veryImprovedAcceptSteps: veryImprovedItem ? [
+    {
+      kind: 'approval',
+      character: companionName,
+      amount: '3',
+    },
+    {
+      kind: 'speech',
+      character: companionName,
+      text: 'This is exceptional! I am truly in your debt.',
+    },
+  ] : undefined,
   introSteps: [
     {
       kind: 'speech',
