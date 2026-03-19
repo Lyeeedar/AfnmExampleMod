@@ -16,7 +16,7 @@ The quest system provides structured storylines, character development, and prog
 Quest interfaces, categories, rewards, and failure conditions
 
 ### [Quest Steps](quest-steps.md)
-All 8 quest step types with usage patterns and examples
+All 9 quest step types with usage patterns and examples
 
 
 ### [Quest Examples](examples.md)
@@ -41,6 +41,7 @@ Complete, annotated quest implementations
 - **`speakToCharacter`** - Have conversations with NPCs
 - **`flagValue`** - Wait for flag to reach target value
 - **`wait`** - Time-based delays for story pacing
+- **`raid`** - Complete fallen star raids
 
 ### Event System Integration
 

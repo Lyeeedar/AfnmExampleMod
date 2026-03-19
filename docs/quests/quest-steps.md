@@ -21,7 +21,8 @@ type QuestStep =
   | FlagValueQuestStep
   | SpeakToCharacterQuestStep
   | KillQuestStep
-  | WaitQuestStep;
+  | WaitQuestStep
+  | RaidQuestStep;
 ```
 
 All quest steps share a common base structure:
@@ -29,6 +30,28 @@ All quest steps share a common base structure:
 ```typescript
 interface QuestStepBase {
   hint: string; // Displayed to player in quest log
+}
+```
+
+### Dynamic Hint Variables
+
+Hints are plain strings that support dynamic substitution. Any game flag can be referenced using `{flagName}` and it will be replaced with the flag's current value. Certain step types also support step-specific substitutions:
+
+| Step type    | Variable      | Replaced with                              |
+|--------------|---------------|--------------------------------------------|
+| `collect`    | `{held}`      | Current count of held items                |
+| `kill`       | `{killed}`    | Number of enemies killed so far            |
+| `flagValue`  | `{value}`     | Current flag value                         |
+| `flagValue`  | `{target}`    | Target value required to complete the step |
+| `raid`       | `{completed}` | Number of fallen star raids completed      |
+
+**Example using dynamic substitution:**
+```typescript
+{
+  kind: 'kill',
+  hint: 'Defeat 10 Spirit Beasts in the Crossroads ({killed}/10)',
+  enemy: 'SpiritBeast',
+  amount: 10
 }
 ```
 
@@ -202,6 +225,7 @@ interface CollectQuestStep {
   item: string; // Primary item name
   alternates?: string[]; // Alternative items that count
   amount: number; // Quantity required
+  completionCondition?: string; // Optional bypass: if true, step completes regardless of item count
 }
 ```
 
@@ -220,7 +244,7 @@ Collection steps create gathering objectives:
 // Simple collection
 {
   kind: 'collect',
-  hint: 'Gather 5 Spirit Herbs',
+  hint: 'Gather 5 Spirit Herbs (held: {held})',
   item: 'SpiritHerb',
   amount: 5
 }
@@ -234,6 +258,10 @@ Collection steps create gathering objectives:
   amount: 3
 }
 ```
+
+The `{held}` placeholder in hints is replaced with the current count of held items (including alternates).
+
+The optional `completionCondition` is a bypass: if the expression evaluates to true, the step is considered complete without checking item counts. This is useful when items may have been consumed as part of quest progression.
 
 ## Kill Quest Step
 
@@ -262,11 +290,13 @@ Kill steps provide combat objectives:
 ```typescript
 {
   kind: 'kill',
-  hint: 'Defeat 10 Spirit Beasts in the crossroads',
+  hint: 'Defeat 10 Spirit Beasts in the crossroads ({killed}/10)',
   enemy: 'SpiritBeast',
   amount: 10
 }
 ```
+
+The `{killed}` placeholder in hints is replaced with the current kill count for this step.
 
 ## Mission Hall Quest Step
 
@@ -312,6 +342,36 @@ Mission hall steps integrate with the sect mission system:
 }
 ```
 
+## Raid Quest Step
+
+Requires completing a number of fallen star raids:
+
+```typescript
+interface RaidQuestStep {
+  kind: 'raid';
+  hint: string;
+  amount: number; // Number of fallen star raids to complete
+}
+```
+
+### Usage
+
+Raid steps require the player to clear fallen star locations a specified number of times. When a quest containing a `raid` step is added to the player's quest log, the game automatically unlocks the Fallen Star screen (`fallenStarsUnlocked` flag is set to `1`).
+
+Each fallen star raid the player completes increments a global raid counter for all active quests simultaneously, so a single raid run counts toward every active `raid` step at once.
+
+### Example
+
+```typescript
+{
+  kind: 'raid',
+  amount: 5,
+  hint: 'Clear 5 fallen star sites for our collectors ({completed} completed)'
+}
+```
+
+The `{completed}` placeholder in hints is replaced with the current number of fallen star raids completed.
+
 ## Flag Value Quest Step
 
 Waits for a specific flag to reach a target value:
@@ -339,11 +399,13 @@ Flag value steps track specific progression markers:
 ```typescript
 {
   kind: 'flagValue',
-  hint: 'Reach trusted status with the village',
+  hint: 'Reach trusted status with the village ({value}/{target})',
   flag: 'villageReputation',
   value: 75
 }
 ```
+
+The `{value}` placeholder is replaced with the flag's current value; `{target}` is replaced with the required value.
 
 ## Speak To Character Quest Step
 
@@ -445,7 +507,7 @@ Quest hints should be:
 **Good hints:**
 
 - "Meet Lu Gian at the crossroads to begin your mission"
-- "Defeat 10 Spirit Beasts to prove your combat skills"
+- "Defeat 10 Spirit Beasts to prove your combat skills ({killed}/10)"
 - "Gather 5 Spirit Herbs from the Moonlit Valley"
 
 **Poor hints:**

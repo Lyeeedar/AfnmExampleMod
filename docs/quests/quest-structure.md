@@ -16,8 +16,9 @@ The core quest definition that contains all quest metadata and progression:
 
 ```typescript
 interface Quest {
-  name: string; // Display name shown to players
-  description: string; // Quest summary in quest log
+  name: string; // Internal identifier used in code references
+  displayName?: Translatable; // Optional player-facing name (falls back to name)
+  description: Translatable; // Quest summary in quest log
   category: QuestCategory; // Determines where quest appears
   guild?: string; // Required for guild category quests
   steps: QuestStep[]; // Sequential objectives
@@ -29,14 +30,19 @@ interface Quest {
 
 ### Name and Description
 
-**Name**: Short, memorable title that appears in quest lists and notifications.
+**Name**: The internal identifier for the quest. Used in code references, flags, and the quest registry. Must be unique.
+
+**Display Name**: Optional player-facing title. When set, this is shown in the quest log and notifications instead of `name`. Supports the `Translatable` type, so it can be a plain string or a translation key object.
 
 **Description**: Brief summary that explains the quest's purpose and context. Should intrigue players without spoiling story beats.
 
 ```typescript
-name: 'The Wandering Herb',
+name: 'theWanderingHerb',          // Internal ID (used in code)
+displayName: 'The Wandering Herb', // Shown to players (optional)
 description: 'Hua Tong has tasked you with finding and returning a sentient herb that escaped his gardens.'
 ```
+
+If `displayName` is omitted, the player sees `name` directly.
 
 ### Category System
 
@@ -218,11 +224,6 @@ Structure quests to match player progression, introducing new mechanics and chal
 
 Create memorable characters and situations that players care about. The best quests have stakes beyond just mechanical rewards.
 
-## Getting Started with Quest Creation
+## Getting Started with Quests
 
-1. **Choose Your Category** - Determine the quest's purpose and audience
-2. **Plan Your Narrative** - Outline the story, characters, and key moments
-3. **Design Your Steps** - Break the experience into manageable objectives
-4. **Write Your Events** - Create engaging dialogue and interactive moments
-5. **Test Progression** - Ensure completion conditions work correctly
-6. **Balance Rewards** - Match incentives to quest difficulty and story importance
+See [Quest Examples](examples.md) for complete annotated implementations, and [Quest Steps](quest-steps.md) for detailed documentation on each step type.
