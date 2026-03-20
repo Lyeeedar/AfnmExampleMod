@@ -305,30 +305,32 @@ export const ancientGuardian: EnemyEntity = {
     }
   ],
 
-  stanceRotation: [],
-
-  rotationOverrides: [
-    // Phase 1 (100% - 51% HP)
+  // rotationOverrides only accepts SingleStance. Use stanceRotation for random picks.
+  stanceRotation: [
+    // Phase 1: cycle between defensive and offensive
     {
       kind: 'random',
       stances: ['phase1_defensive', 'phase1_offensive'],
       condition: 'hp > 0.5 * maxhp',
       repeatable: true
     },
-    // Transition at 50% HP
-    {
-      kind: 'single',
-      stance: 'awakening',
-      condition: 'hp <= 0.5 * maxhp && Awakened_Guardian == 0',
-      repeatable: false
-    },
-    // Phase 2 (50% - 0% HP)
+    // Phase 2: cycle between rampage and fortress after awakening
     {
       kind: 'random',
       stances: ['phase2_rampage', 'phase2_fortress'],
       condition: 'Awakened_Guardian > 0',
       repeatable: true
     }
+  ],
+
+  rotationOverrides: [
+    // One-time awakening transition at 50% HP
+    {
+      kind: 'single',
+      stance: 'awakening',
+      condition: 'hp <= 0.5 * maxhp && Awakened_Guardian == 0',
+      repeatable: false
+    },
   ],
 
   drops: [

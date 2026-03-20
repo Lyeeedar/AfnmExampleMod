@@ -15,7 +15,8 @@ The `EnemyEntity` interface defines the complete structure for all enemies in AF
 
 ```typescript
 interface EnemyEntity {
-  name: string; // Display name for the enemy
+  name: string; // Internal identifier (used in conditions)
+  displayName?: Translatable; // Optional player-facing name (overrides name in UI)
   image: string; // Path to enemy sprite/image
   imageScale: number; // Visual scaling factor (typically 0.5-3)
   imageOffset?: {
@@ -26,6 +27,23 @@ interface EnemyEntity {
   disableBreathing?: boolean; // Disable idle animation
 }
 ```
+
+### Stance Images
+
+You can provide alternate images that display during specific technique types. Each accepts an optional `scale` and `imageOffset`:
+
+```typescript
+{
+  supportImage?: { image: string; scale?: number; imageOffset?: { x: number; y: number } };
+  defensiveImage?: { image: string; scale?: number; imageOffset?: { x: number; y: number } };
+  utilityImage?: { image: string; scale?: number; imageOffset?: { x: number; y: number } };
+  aggressiveImage?: { image: string; scale?: number; imageOffset?: { x: number; y: number } };
+  offensiveImage?: { image: string; scale?: number; imageOffset?: { x: number; y: number } };
+  hitImage?: { image: string; scale?: number; imageOffset?: { x: number; y: number } };
+}
+```
+
+These swap in automatically when the enemy uses a technique of the matching type. Omit any you do not need.
 
 ### Realm & Progression
 
@@ -70,7 +88,7 @@ How long it should survive.
 
 #### Note on stats
 
-You cannot set stats directly. They are derived from the difficulty and battle length to have stats to give roughly that level of danger. You can then modifies these after the fact with spawn condition to add flat multipliers on top of the stats if neccessary.
+You cannot set stats directly. They are derived from the difficulty and battle length to give roughly that level of danger. You can then modify these after the fact with `spawnCondition` to add flat multipliers on top if necessary.
 
 ## Combat Configuration
 
@@ -80,9 +98,9 @@ Stances define technique sequences that enemies cycle through:
 
 ```typescript
 {
-  stances: Stance[];         // Array of available stances
-  stanceRotation: StanceRule[]; // Rules for stance switching
-  rotationOverrides: SingleStance[]; // Conditional stance overrides
+  stances: Stance[];            // Array of available stances
+  stanceRotation: StanceRule[]; // Rules for stance switching (single or random)
+  rotationOverrides: SingleStance[]; // Conditional overrides — only SingleStance allowed here
 }
 ```
 
@@ -97,6 +115,8 @@ interface Stance {
 
 #### Stance Rotation Rules
 
+`stanceRotation` accepts both `SingleStance` and `RandomStance`. `rotationOverrides` only accepts `SingleStance`.
+
 ```typescript
 type StanceRule = SingleStance | RandomStance;
 
@@ -104,7 +124,7 @@ interface SingleStance {
   kind: 'single';
   stance: string; // Stance name to use
   condition?: string; // Mathematical condition
-  repeatable?: boolean; // Can be used multiple times
+  repeatable?: boolean; // Can be triggered multiple times
   alternatives?: StanceRule[]; // Fallback options
 }
 
@@ -121,14 +141,15 @@ interface RandomStance {
 
 ```typescript
 {
+  clothing?: ItemDesc;       // Worn clothing/armor
   talismans?: ItemDesc[];    // Equipped talismans
   artefacts?: ItemDesc[];    // Equipped artefacts
   affinities?: Partial<Record<TechniqueElement, number>>; // Elemental affinities
 
-  pillsPerRound?: number;    // Pills consumption limit
+  pillsPerRound?: number;    // Pills consumption limit per round
   pills?: {                  // Conditional pill usage
     condition: string;       // When to use (e.g., "hp < 0.5 * maxhp")
-    pill: CombatPillItem | ConcoctionItem;
+    pill: CombatPillItem | ConcoctionItem | CombatItem;
   }[];
 }
 ```
@@ -140,7 +161,7 @@ interface RandomStance {
 ```typescript
 {
   spawnCondition?: {
-    hpMult: number;          // HP multiplier when spawned, e.g. spawning at half health due to a story condition saying its been weakened
+    hpMult: number;          // HP multiplier when spawned (e.g. 0.5 to spawn at half health)
     buffs: Buff[];           // Pre-applied buffs
   };
 
@@ -153,8 +174,8 @@ interface RandomStance {
 ```typescript
 {
   statMultipliers?: {
-    hp?: number;             // Health multiplier
-    power?: number;          // Damage multiplier
+    hp?: number;    // Health multiplier
+    power?: number; // Damage multiplier
   };
 }
 ```
@@ -163,9 +184,36 @@ interface RandomStance {
 
 ```typescript
 {
-  isCharacter?: boolean;     // True for NPC combatants. This rescales their hp to be in the correct range for a player, and gives defense to compensate
+  isCharacter?: boolean; // True for NPC combatants. Rescales HP to player range and adds defense to compensate
 }
 ```
+
+## Multi-Phase & Party Configuration
+
+### Phases
+
+Enemies can move through distinct combat phases:
+
+```typescript
+{
+  phases?: EnemyEntity[]; // Additional phases; only processed on the root enemy
+}
+```
+
+When a phase ends, the game swaps in the next `EnemyEntity` from the `phases` array. Use `rotationOverrides` with HP conditions inside each phase to drive stance flow.
+
+### Party Members
+
+Enemies can fight alongside allies:
+
+```typescript
+{
+  party?: PartyMemberConfig[];      // Allies that fight on the enemy's side
+  preservePartyMembers?: boolean;   // Keep party members alive through phase transitions
+}
+```
+
+`PartyMemberConfig` is an alias for `EnemyEntity`.
 
 ## Rewards Configuration
 
@@ -174,14 +222,14 @@ interface RandomStance {
 ```typescript
 {
   drops: {
-    item: Item;              // Item to drop
-    amount: number;          // Quantity
-    chance: number;          // Drop rate (0-1)
-    condition?: string;      // Optional condition
+    item: Item;         // Item to drop
+    amount: number;     // Quantity
+    chance: number;     // Drop rate (0-1)
+    condition?: string; // Optional condition
   }[];
 
-  shardMult?: number;        // Pillar shard multiplier
-  qiMult?: number;           // Qi reward multiplier
+  shardMult?: number; // Pillar shard multiplier
+  qiMult?: number;    // Qi reward multiplier
 }
 ```
 
@@ -190,7 +238,7 @@ interface RandomStance {
 ```typescript
 {
   hideFromCompendium?: boolean; // Hide from bestiary
-  qiDroplets?: number;       // Qi droplet rewards
+  qiDroplets?: number;         // Qi droplet rewards
 }
 ```
 
@@ -206,12 +254,57 @@ For complex enemies, you can provide a complete `CombatEntity` configuration:
 }
 ```
 
-This allows for precise control over initial combat state, including:
+This allows precise control over initial combat state, including custom stat distributions, pre-applied buffs, and rendering configuration.
 
-- Custom stat distributions
-- Pre-applied buffs
-- Special rendering configurations
-- Initial stance positioning
+## Enemy Variant Utilities
+
+The ModAPI provides helpers on `ModAPI.utils` to generate stronger variants of any enemy:
+
+### alpha
+
+```typescript
+const alphaBandit = ModAPI.utils.alpha(bandit);
+```
+
+- Name gains ` Alpha` suffix
+- `imageScale` x1.2
+- `statMultipliers.hp` and `statMultipliers.power` both +0.3
+- `shardMult` x1.5
+- Non-core drop quantities doubled (Spirit Cores and trophies unchanged)
+- All `phases` entries recursively alpha-ified
+
+### alphaPlus
+
+```typescript
+const eliteBandit = ModAPI.utils.alphaPlus(bandit);
+```
+
+- Name gains ` Alpha+` suffix
+- `imageScale` x1.35
+- `statMultipliers.hp` and `statMultipliers.power` both +0.6
+- `shardMult` x2
+- Non-core drop quantities tripled
+- All `phases` entries recursively alpha-ified
+
+### realmbreaker
+
+Returns an array of enhanced enemies for realmbreaker hunt missions:
+
+```typescript
+const horde = ModAPI.utils.realmbreaker(demon); // returns EnemyEntity[]
+```
+
+Realmbreaker enemies have escalating power buff stacks and per-round barrier generation.
+
+### corrupted
+
+```typescript
+const corruptedBeast = ModAPI.utils.corrupted(beast);
+```
+
+- Name set to `'Corrupted Noble'`
+- `statMultipliers.hp` and `statMultipliers.power` both +0.35
+- All `phases` entries recursively corrupted
 
 ## Example Implementation
 

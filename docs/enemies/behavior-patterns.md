@@ -131,18 +131,20 @@ stanceRotation: [
 Distinct combat phases:
 
 ```typescript
-// Phase 1: Teaching mechanics
+// rotationOverrides only accepts SingleStance (kind: 'single').
+// Use stanceRotation for random selections; rotationOverrides for conditional phase triggers.
 rotationOverrides: [
+  // Phase 1: Teaching mechanics
   {
     kind: 'single',
     stance: 'phase1',
     condition: 'hp > 0.66 * maxhp',
     repeatable: true // Allow repeating this stance while the condition is true
   },
-  // Phase 2: Increased difficulty
+  // Phase 2: Increased difficulty (pick one stance, then alternate via stanceRotation)
   {
-    kind: 'random',
-    stances: ['phase2_a', 'phase2_b'],
+    kind: 'single',
+    stance: 'phase2_a',
     condition: 'hp <= 0.66 * maxhp && hp > 0.33 * maxhp',
     repeatable: true
   },

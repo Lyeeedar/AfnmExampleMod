@@ -36,7 +36,7 @@ interface FightCharacterStep {
 
 - **`character`** - Character to fight
 
-- **`isSpar`** (optional) - Whether this is a sparring match
+- **`isSpar`** (optional) - Whether this is a sparring match. When `true`, the player's HP, qi droplets, and pills are fully restored after combat — the fight has no lasting resource cost. Use this for training fights and friendly duels.
 
 - **`spawnCondition`** (optional) - HP multiplier and buffs for opponent
 
