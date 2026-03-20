@@ -39,7 +39,7 @@ interface CombatStep {
 
 - **`numEnemies`** (optional) - Number of enemies to spawn. If set, will select this number randomly from the enemies pool
 
-- **`isSpar`** (optional) - Whether this is a sparring match
+- **`isSpar`** (optional) - Whether this is a sparring match. When `true`, the player's HP, qi droplets, and pills are fully restored after combat — the fight has no lasting resource cost. Use this for training fights and friendly duels.
 
 - **`bgm`** (optional) - Background music for combat
 
