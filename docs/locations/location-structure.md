@@ -82,6 +82,14 @@ realm: 'qiCondensation',
 realmProgress: 'Middle',
 ```
 
+### Dev Content Flag
+
+```typescript
+devContent?: boolean;  // If true, only visible in development builds
+```
+
+When set to `true`, this location only appears when running the game in development mode (`npm run dev`). Use this to gate unfinished locations from shipping in release builds.
+
 ### Buildings
 
 ```typescript
@@ -121,6 +129,7 @@ enemies: [
 events?: LocationEvent[];           // Random events
 explorationEvent?: LocationEvent[];  // First-time exploration events
 mapEvents?: LocationMapEvent[];      // Timed map events
+gatheringEvent?: LocationGatheringEvent;  // Resource-gathering events
 ```
 
 #### Location Events
@@ -173,6 +182,36 @@ mapEvents: [
   }
 ]
 ```
+
+#### Gathering Events
+
+An event sequence that can fire when the player gathers resources (herbs or ore) at this location:
+
+```typescript
+interface LocationGatheringEvent {
+  steps: EventStep[];
+  triggerChance?: number;          // Probability of triggering per gather (0–1)
+  resetMonths?: { min: number; max: number }; // Cooldown before can retrigger
+  minCharacters?: number;          // Minimum NPC count at location required
+}
+```
+
+Example:
+```typescript
+gatheringEvent: {
+  triggerChance: 0.15,
+  resetMonths: { min: 3, max: 6 },
+  steps: [
+    {
+      kind: 'text',
+      text: 'You notice something unusual in the soil as you gather...'
+    },
+    // ...more steps
+  ]
+}
+```
+
+The `minCharacters` field requires a minimum number of characters to be present at the location before the event can fire.
 
 ### Missions
 

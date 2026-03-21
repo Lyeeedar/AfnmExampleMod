@@ -134,6 +134,104 @@ interface ChoiceStepChoice {
 }
 ```
 
+### Health Requirement Choice
+```typescript
+{
+  kind: 'choice',
+  choices: [
+    {
+      text: 'Push through the pain (requires 50%+ health)',
+      condition: {
+        kind: 'hp',
+        amount: 50,
+        mode: 'more'
+      },
+      children: [
+        { kind: 'text', text: 'You grit your teeth and press on.' }
+      ]
+    },
+    {
+      text: 'Retreat and recover',
+      children: [
+        { kind: 'text', text: 'Caution wins today.' }
+      ]
+    }
+  ]
+}
+```
+
 ## Condition Types
 
-Available condition types: `realm`, `physicalStatistic`, `socialStatistic`, `item`, `money`, `favour`, `qi`, `buff`, `affinity`, `reputation`, `multiple`.
+Available condition types: `realm`, `physicalStatistic`, `socialStatistic`, `item`, `money`, `favour`, `qi`, `buff`, `affinity`, `reputation`, `hp`, `multiple`.
+
+### `realm`
+```typescript
+{ kind: 'realm'; realm: Realm; mode?: 'more' | 'exact' | 'less' | 'lessOrEqual' }
+```
+Requires the player to be at a certain cultivation realm. Default `mode` is `'more'` (realm or higher).
+
+### `physicalStatistic`
+```typescript
+{ kind: 'physicalStatistic'; stat: PhysicalStatistic; amount: number }
+```
+Requires a minimum value for a physical stat (e.g. `'muscles'`, `'agility'`).
+
+### `socialStatistic`
+```typescript
+{ kind: 'socialStatistic'; stat: SocialStatistic; amount: number }
+```
+Requires a minimum value for a social stat (e.g. `'charm'`, `'knowledge'`).
+
+### `item`
+```typescript
+{ kind: 'item'; item: ItemDesc; amount: number }
+```
+Requires the player to have at least `amount` of the specified item.
+
+### `money`
+```typescript
+{ kind: 'money'; amount: number }
+```
+Requires the player to have at least `amount` spirit stones.
+
+### `favour`
+```typescript
+{ kind: 'favour'; amount: number }
+```
+Requires the player to have at least `amount` favour.
+
+### `qi`
+```typescript
+{ kind: 'qi'; amount: number }
+```
+Requires the player to have at least `amount` qi.
+
+### `buff`
+```typescript
+{ kind: 'buff'; buff: string }
+```
+Requires the player to have a specific active buff by name.
+
+### `affinity`
+```typescript
+{ kind: 'affinity'; affinity: string; amount: number }
+```
+Requires a minimum value for a school affinity.
+
+### `reputation`
+```typescript
+{ kind: 'reputation'; name: string; tier: ReputationTier }
+```
+Requires the player to have at least the specified reputation tier with a named faction.
+
+### `hp`
+```typescript
+{ kind: 'hp'; amount: number; mode: 'more' | 'equal' | 'less' }
+```
+Requires the player's current HP to be above, equal to, or below a threshold (as a percentage of max HP).
+
+### `multiple`
+```typescript
+{ kind: 'multiple'; conditions: EventChoiceCondition[] }
+```
+Requires all listed conditions to be met simultaneously.

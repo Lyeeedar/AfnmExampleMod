@@ -103,6 +103,26 @@ Research and experimentation facility:
 }
 ```
 
+### Reforge Workshop
+
+Equipment reforging services:
+
+```typescript
+{
+  kind: 'reforge'
+}
+```
+
+### Furnace of Ten Thousand Flames
+
+Special flame-based cultivation or refining facility:
+
+```typescript
+{
+  kind: 'tenThousandFlames'
+}
+```
+
 ## Commerce Buildings
 
 ### Market
@@ -381,6 +401,24 @@ Position options for custom buildings:
 - `'belowtop'`, `'belowtopleft'`, `'belowtopright'`
 - `'middleleft'`, `'middle'`, `'middleright'`
 - `'bottom'`, `'bottomleft'`, `'bottomright'`
+
+### Mod Building
+
+A building that opens a custom mod-defined screen. Use this when you need a building that routes to a screen registered by your mod, rather than running a local event sequence.
+
+```typescript
+{
+  kind: 'modBuilding',
+  name: 'My Custom Hall',
+  displayName?: { key: 'my_mod.hall_name' },  // Optional translatable display name
+  icon: myHallIcon,
+  screen: 'mymod_custom_screen',  // Screen identifier registered by your mod
+  position: 'middleright',
+  condition?: 'hallUnlocked == 1'
+}
+```
+
+The `screen` field must match a screen identifier your mod has registered with the game. Use the `custom` building type instead if you want to run event steps directly without a separate screen.
 
 ## Building Properties
 
