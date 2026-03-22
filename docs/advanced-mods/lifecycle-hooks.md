@@ -86,13 +86,15 @@ Triggers after combat ends, allowing for custom victory/defeat consequences.
 - `eventStep: CombatStep | FightCharacterStep` - The event step that triggered the combat
 - `victory: boolean` - Whether the player won
 - `playerCombatState: CombatEntity` - The player's combat state at end
+- `foughtEnemies: EnemyEntity[]` - The enemies that were fought in this combat
+- `droppedItems: Item[]` - Items dropped by enemies at the end of combat
 - `gameFlags: Record<string, number>` - Current game flags/state
 
 **Returns:** `EventStep[]` - Additional event steps to execute
 
 **Example:**
 ```typescript
-mod.onCompleteCombat((eventStep, victory, playerCombatState, gameFlags) => {
+mod.onCompleteCombat((eventStep, victory, playerCombatState, foughtEnemies, droppedItems, gameFlags) => {
   const events: EventStep[] = [];
 
   // Add permadeath
