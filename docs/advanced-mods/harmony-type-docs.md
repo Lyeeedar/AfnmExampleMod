@@ -7,10 +7,10 @@ nav_order: 2
 
 # Harmony Type
 
-Harmony is one of the core features of the crafting system. In the base game, there are 4 variants of this defined, but new ones can be added by mods to even further flesh out this system. This can be done through the `window.modAPI.action.addHarmonyType` function.
+Harmony is one of the core features of the crafting system. In the base game, there are 4 variants of this defined, but new ones can be added by mods to even further flesh out this system. This can be done through the `window.modAPI.actions.addHarmonyType` function.
 
 ```typescript
-window.modAPI.action.addHarmonyType(harmonyType: RecipeHarmonyType, config: HarmonyTypeConfig)
+window.modAPI.actions.addHarmonyType(harmonyType: RecipeHarmonyType, config: HarmonyTypeConfig)
 ```
 
 - **harmonyType**: A unique string identifier for your harmony type (e.g., `'elemental'`, `'temporal'`, `'chaos'`). Note, as you are adding new and unknown harmony types you need to tell the compiler this is the case, by 'casting' the string to the RecipeHarmonyType `'elemental' as RecipeHarmonyType`
