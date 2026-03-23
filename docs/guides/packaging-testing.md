@@ -106,7 +106,7 @@ Your build process is controlled by several files. Usually you won't need to cha
 **"Out of memory" or very slow builds**
 
 - Your image files might be too large
-- Solution: Resize images to recommended sizes (64x64 for items)
+- Solution: Resize images to the recommended sizes (256x256 for items, 1536x1536 for characters) and ensure files are under 100KB each
 
 ## Installing Your Mod for Testing
 
@@ -271,7 +271,7 @@ Image not found: ../assets/missing-image.png
 
 **"Game is slow/laggy with mod"**
 
-- Check image file sizes (should be small, <100KB each)
+- Check image file sizes (should be under 100KB each)
 - Avoid creating too many items/NPCs at once
 - Use `npm run build` not `npm run dev` for testing
 
