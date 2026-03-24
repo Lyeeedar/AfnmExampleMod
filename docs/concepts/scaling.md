@@ -20,21 +20,27 @@ Every damage number, healing amount, buff strength, and stat modifier flows thro
 
 ```typescript
 interface Scaling {
-  value: number; // Base multiplier
-  stat?: string; // Stat to multiply by
-  scaling?: string; // Special scaling mode
-  eqn?: string; // Custom equation
-  max?: Scaling; // Cap the final value
-  upgradeKey?: string; // Links to mastery upgrades
+  value: number;          // Base multiplier
+  stat?: string;          // Stat to multiply by
+  scaling?: string;       // Special scaling mode (e.g. 'stacks', or a buff name)
+  eqn?: string;           // Expression MULTIPLIED onto the result
+  additiveEqn?: string;   // Expression ADDED to the result (after eqn multiplication)
+  customScaling?: {       // Additional multiplier, e.g. '+30% per stack of a buff'
+    multiplier: number;
+    scaling: string;      // Same as scaling above (e.g. buff name)
+    upgradeKey?: string;
+  };
+  max?: Scaling;          // Cap the final value
+  upgradeKey?: string;    // Links to mastery upgrades
 }
 ```
 
 ### Evaluation Formula
 
-The system follows a predictable pattern: **Base × Stat × Scaling × Equation**
+The system follows a predictable pattern: **Base × Stat × Scaling × Equation + Additive**
 
 ```
-Final Value = value × [stat] × [scaling] × [eqn result]
+Final Value = (value × [stat] × [scaling] × [eqn result]) + [additiveEqn result]
 ```
 
 Each component is optional, allowing for simple flat values or complex multi-variable calculations.
