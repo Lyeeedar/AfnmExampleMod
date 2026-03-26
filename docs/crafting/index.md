@@ -47,6 +47,10 @@ Four core technique types that drive all crafting:
 
 ## Key Systems
 
+### [Recipes](recipes.md)
+
+How to define and register craftable items with the mod API
+
 ### [Buffs](buffs.md)
 
 Temporary states and conditions affecting the crafting process

@@ -67,6 +67,7 @@ Buffs modify these key statistics:
 - **Max Qi Pool** (`maxpool`) - Maximum qi pool size
 - **Qi Pool** (`pool`) - Current qi pool (usually only read, not set via stats)
 - **Max Toxicity** (`maxtoxicity`) - Maximum toxicity capacity
+- **Toxicity** (`toxicity`) - Current toxicity level (read-only; useful as a scaling stat in expressions)
 - **Toxicity Resistance** (`resistance`) - Reduces toxicity accumulation
 - **Crit Chance** (`critchance`) - Chance for enhanced effects
 - **Crit Multiplier** (`critmultiplier`) - Damage/effect multiplier on critical actions
@@ -242,11 +243,50 @@ Modifies toxicity levels:
 
 ### Negate Effect
 
-Cancels other effects:
+Cancels other buff effects for this trigger. Used to prevent a buff from acting under certain conditions:
 
 ```typescript
-{ kind: 'negate', condition: { kind: 'chance', percentage: 50 } }
+{ kind: 'negate' }
 ```
+
+## Conditional Effects
+
+Every buff effect type supports an optional `condition` field that makes the effect conditional. Conditions use the same `CraftingTechniqueCondition` type as technique effects:
+
+```typescript
+// Only restore stability when current stability is below 30%
+{
+  kind: 'stability',
+  amount: { value: 5, stat: undefined },
+  condition: { kind: 'stability', percentage: 30, mode: 'less' },
+}
+
+// Grant completion with a 40% chance
+{
+  kind: 'completion',
+  amount: { value: 8, stat: 'intensity' },
+  condition: { kind: 'chance', percentage: 40 },
+}
+
+// Negate this buff's effects unless a specific buff is active
+{
+  kind: 'negate',
+  condition: { kind: 'buff', buff: concentrationBuff, count: 1, mode: 'less' },
+}
+```
+
+Available condition kinds:
+
+| Kind          | Fields                                                    | Description                                      |
+| ------------- | --------------------------------------------------------- | ------------------------------------------------ |
+| `chance`      | `percentage: number`                                      | Random chance (0–100)                           |
+| `buff`        | `buff: CraftingBuff \| 'self'`, `count: number`, `mode: 'more' \| 'less' \| 'equal'` | Based on stack count of a buff |
+| `stability`   | `percentage: number`, `mode: 'more' \| 'less'`           | Based on current stability as % of max           |
+| `perfection`  | `percentage: number`, `mode: 'more' \| 'less'`           | Based on perfection progress %                   |
+| `completion`  | `percentage: number`, `mode: 'more' \| 'less'`           | Based on completion progress %                   |
+| `pool`        | `percentage: number`, `mode: 'more' \| 'less'`           | Based on current qi pool as % of max             |
+| `toxicity`    | `percentage: number`, `mode: 'more' \| 'less'`           | Based on current toxicity as % of max            |
+| `condition`   | `condition: string`                                       | Based on recipe condition state (e.g. `'positive'`) |
 
 ## Buff Triggers
 

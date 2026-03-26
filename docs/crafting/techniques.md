@@ -27,6 +27,7 @@ interface CraftingTechnique {
   poolCost: number; // Qi pool cost
   stabilityCost: number; // Stability cost
   noMaxStabilityLoss?: boolean; // If true, max stability is not reduced when used
+  maxStabilityLossTooltip?: string; // Custom tooltip text explaining the stability behaviour
   toxicityCost?: number; // Optional toxicity gain
   buffCost?: { buff: CraftingBuff; amount: number };
 
@@ -38,6 +39,9 @@ interface CraftingTechnique {
 
   // Effects
   effects: CraftingTechniqueEffect[];
+
+  // Display
+  showCreatesBuff?: boolean; // If true, the UI shows a buff indicator on the technique card
 
   // Mastery system
   masteryKindPools?: CraftingTechniqueEffectKind[]; // Override which effect kinds are used for mastery selection
