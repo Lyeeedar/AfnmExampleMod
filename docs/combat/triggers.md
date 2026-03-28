@@ -74,6 +74,11 @@ These triggers are based on specific actions taken during combat.
   - `use.buffSelf` - When using techniques that apply buffs
   - `use.buffTarget` - When using techniques that buff the target
 
+### `use.artefact`
+- **When it triggers:** When an artefact activates during a technique
+- **Condition:** Triggered once per technique execution that causes an artefact to fire
+- **Usage:** Artefact synergy effects, bonuses that scale with artefact usage
+
 ---
 
 ## Resource Management Triggers
@@ -131,6 +136,22 @@ These triggers relate to taking or dealing damage and healing.
 ### `fullBarrier`
 - **Condition:** Triggered when the entity refills its barrier from less than full to full
 - **Usage:** Overbarrier effects
+
+### `overHeal`
+- **Condition:** Triggered when the entity heals while already at full health
+- **Usage:** Overheal bonuses, effects that activate on excess healing
+
+### `critDamage`
+- **Condition:** Triggered when the entity deals a critical hit that damages the opponent's HP (not blocked)
+- **Usage:** Crit-damage amplifiers, bonus effects on critical strikes
+
+### `critHeal`
+- **Condition:** Triggered when a healing effect critically heals the entity
+- **Usage:** Enhanced healing-crit bonuses, healing-crit reactions
+
+### `critBarrier`
+- **Condition:** Triggered when a barrier application critically increases the entity's barrier
+- **Usage:** Barrier-crit bonuses, shield amplification effects
 
 ---
 
