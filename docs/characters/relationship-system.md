@@ -73,6 +73,16 @@ interface CharacterRelationshipDefinition {
       tooltip: Translatable;
     };
   };
+
+  /**
+   * Alternative progression event used when the player's sexuality setting does not match
+   * the character's gender. Should lead naturally to a platonic or sworn path without any
+   * romantic overtures. Uses the same name, tooltip, and requirement as progressionEvent.
+   */
+  platonicProgressionEvent?: {
+    event: EventStep[];
+    locationOverride?: string;
+  };
 }
 ```
 
@@ -380,11 +390,13 @@ Companions can join the player's party (normally unlocked Friendly relationship 
 
 ```typescript
 interface FollowCharacterDefinition {
-  formParty: EventStep[]; // Party formation dialogue
-  duration: number; // Days in party (-1 for unlimited)
-  buff: Buff; // Combat bonuses while in party
-  cooldown: number; // Days before can party again
+  formParty: EventStep[];     // Party formation dialogue
+  duration: number;           // Days in party (-1 for unlimited)
+  buff: Omit<Buff, 'name' | 'icon'>;          // Combat bonuses while in party
+  craftingBuff?: Omit<CraftingBuff, 'name' | 'icon'>; // Optional crafting bonuses while in party
+  cooldown: number;           // Days before can party again
   dissolveParty: EventStep[]; // Party dissolution dialogue
+  supportsJoiningParty?: boolean; // If true, the companion can join the player's party via the party UI (max 3)
 }
 ```
 
@@ -419,6 +431,27 @@ buff: {
   }]
 }
 ```
+
+### Crafting Buffs in Party
+
+`craftingBuff` applies a crafting buff to the player while the companion is in the party. It uses the same structure as a regular `CraftingBuff` minus `name` and `icon`:
+
+```typescript
+craftingBuff: {
+  canStack: false,
+  stats: {
+    successChanceBonus: { value: 0.06, stat: undefined },
+    itemEffectiveness: { value: 6, stat: undefined },
+  },
+  effects: [],
+  stacks: 1,
+  displayLocation: 'none',
+},
+```
+
+### Joining Party
+
+`supportsJoiningParty: true` allows the companion to be added to the player's party through the party management UI, up to a maximum of three companions. Without this flag the companion can still form a party via their interaction dialogue, but they will not appear in the party management panel.
 
 ## Dual Cultivation
 
