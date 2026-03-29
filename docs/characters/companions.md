@@ -384,8 +384,19 @@ const followDefinition: FollowCharacterDefinition = {
       text: 'I need to handle some personal matters.',
     },
   ],
+  supportsJoiningParty: true, // Can join an existing party as an additional member
 };
 ```
+
+### Multi-Companion Parties
+
+The game supports up to **3 party members** at once (the primary companion plus up to 2 additional companions). Setting `supportsJoiningParty: true` on a relationship tier's `followCharacter` definition enables that companion to join an existing party as an additional member when the player already has a primary companion travelling with them.
+
+- Only companions at **Intimate-tier** relationships use `supportsJoiningParty`. Friendly-tier companions form the primary party slot only.
+- All party members apply their combat and crafting buffs simultaneously.
+- Each party member has its own cooldown and remaining-months counter.
+
+If `supportsJoiningParty` is omitted or `false`, the companion can only become the **primary** companion (occupying the main follow slot). A player can have at most one primary companion and up to two additional companions for a total party size of three.
 
 ## Dual Cultivation
 
