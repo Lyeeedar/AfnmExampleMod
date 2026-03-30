@@ -19,6 +19,7 @@ interface CompanionCharacterDefinition extends BaseCharacterDefinition {
   breakthroughInteraction?: TalkCharacterInteraction;
   talkInteraction?: TalkCharacterInteraction[];
   shopInteraction?: ShopCharacterInteraction[];
+  tradeInteraction?: TradeCharacterInteraction[];
   sparInteraction?: SparCharacterInteraction[];
   giftInteraction?: GiftCharacterInteraction[];
   craftingInteraction?: CraftingCharacterInteraction[];

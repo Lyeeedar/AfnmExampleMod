@@ -163,6 +163,61 @@ const shopInteraction: ShopCharacterInteraction = {
 };
 ```
 
+## Trade Interaction
+
+A barter-style interaction where the NPC offers a set of items in exchange for a specific list of items from the player. Unlike the shop, there is no gold cost — the player must provide the requested items to receive the available ones.
+
+```typescript
+interface TradeCharacterInteraction extends BaseCharacterInteraction {
+  introSteps: EventStep[];                              // Opening dialogue
+  requestItems: { item: ItemDesc; amount: number }[];  // Items the NPC wants from the player
+  availableItems: { item: ItemDesc; amount: number }[]; // Items the player receives in return
+  acceptSteps: EventStep[];                             // Steps run when trade is accepted
+  declineSteps: EventStep[];                            // Steps run when trade is declined
+  cooldown: number;                                     // Days before the trade can be offered again
+}
+```
+
+The player is shown all `requestItems` and `availableItems` and can choose to accept or decline. If they accept, `requestItems` are removed from their inventory and `availableItems` are added. The interaction becomes unavailable until `cooldown` days have passed.
+
+### Example: Material Exchange
+
+```typescript
+const tradeInteraction: TradeCharacterInteraction = {
+  condition: 'relationship >= 2',
+  cooldown: 30,
+  introSteps: [
+    {
+      kind: 'speech',
+      character: 'Trader Chen',
+      text: "I need rare herbs. I'll give you something useful in return.",
+    },
+  ],
+  requestItems: [
+    { item: { name: 'Celestial Fruit' }, amount: 4 },
+    { item: { name: 'Cloud Blossom' }, amount: 3 },
+  ],
+  availableItems: [
+    { item: { name: 'Refined Spirit Core' }, amount: 1 },
+    { item: { name: 'Ancient Pill' }, amount: 2 },
+  ],
+  acceptSteps: [
+    {
+      kind: 'speech',
+      character: 'Trader Chen',
+      text: 'A pleasure doing business.',
+    },
+  ],
+  declineSteps: [
+    {
+      kind: 'speech',
+      character: 'Trader Chen',
+      text: 'Come back when you have the materials.',
+    },
+  ],
+};
+```
+
 ## Spar Interaction
 
 Friendly combat for training and reputation.

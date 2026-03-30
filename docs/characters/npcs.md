@@ -22,6 +22,7 @@ interface NeutralCharacterDefinition extends BaseCharacterDefinition {
   breakthroughInteraction?: TalkCharacterInteraction;
   talkInteraction?: TalkCharacterInteraction[];
   shopInteraction?: ShopCharacterInteraction[];
+  tradeInteraction?: TradeCharacterInteraction[];
   sparInteraction?: SparCharacterInteraction[];
   craftingInteraction?: CraftingCharacterInteraction[];
 }

@@ -21,8 +21,12 @@ interface Character {
 
   condition: string; // When character appears
 
+  /** Gender used for sexuality filtering on romantic relationship progression events. */
+  gender?: 'male' | 'female' | 'neutral';
+
   definitions: CharacterDefinition[]; // Realm-based definitions
   relationship?: CharacterRelationshipDefinition[]; // Companion only
+  relationshipPaths?: Record<string, CharacterRelationshipDefinition[]>; // Named alternate relationship branches
   followInteraction?: FollowCharacterDefinition; // Party mechanics
 
   portrait: string; // Portrait image path
