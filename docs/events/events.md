@@ -192,7 +192,7 @@ const mysteriousTome: GameEvent = {
           condition: 'control >= 50',
           children: [
             { kind: 'text', text: 'Your careful approach pays off...' },
-            { kind: 'addItem', item: 'Ancient Wisdom Scroll', amount: 1 },
+            { kind: 'addItem', item: { name: 'Ancient Wisdom Scroll' }, amount: '1' },
             { kind: 'flag', flag: 'foundSecretTome', value: '1', global: true },
           ],
         },
@@ -293,7 +293,7 @@ const storyProgression: GameEvent = {
               kind: 'text',
               text: 'The grateful villagers have left supplies for you.',
             },
-            { kind: 'addItem', item: 'Village Blessing Charm', amount: 1 },
+            { kind: 'addItem', item: { name: 'Village Blessing Charm' }, amount: '1' },
           ],
         },
         {
