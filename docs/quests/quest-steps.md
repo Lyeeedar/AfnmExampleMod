@@ -29,13 +29,13 @@ All quest steps share a common base structure:
 
 ```typescript
 interface QuestStepBase {
-  hint: string; // Displayed to player in quest log
+  hint: Translatable; // Displayed to player in quest log
 }
 ```
 
 ### Dynamic Hint Variables
 
-Hints are plain strings that support dynamic substitution. Any game flag can be referenced using `{flagName}` and it will be replaced with the flag's current value. Certain step types also support step-specific substitutions:
+Hints accept plain strings (the common case) or translation key objects (`Translatable` type). Plain string hints support dynamic substitution. Any game flag can be referenced using `{flagName}` and it will be replaced with the flag's current value. Certain step types also support step-specific substitutions:
 
 | Step type    | Variable      | Replaced with                              |
 |--------------|---------------|--------------------------------------------|
@@ -62,7 +62,7 @@ Triggers a full interactive event with dialogue, choices, and story progression:
 ```typescript
 interface EventQuestStep {
   kind: 'event';
-  hint: string;
+  hint: Translatable;
   event: GameEvent; // Full event definition
   completionCondition?: string; // Optional additional completion requirement
 }
@@ -165,7 +165,7 @@ Waits for a specific game state condition to be met:
 ```typescript
 interface ConditionQuestStep {
   kind: 'condition';
-  hint: string;
+  hint: Translatable;
   completionCondition: string; // Expression that must evaluate to true
 }
 ```
@@ -221,7 +221,7 @@ Requires gathering specific items:
 ```typescript
 interface CollectQuestStep {
   kind: 'collect';
-  hint: string;
+  hint: Translatable;
   item: string; // Primary item name
   alternates?: string[]; // Alternative items that count
   amount: number; // Quantity required
@@ -270,7 +270,7 @@ Requires defeating specific enemies:
 ```typescript
 interface KillQuestStep {
   kind: 'kill';
-  hint: string;
+  hint: Translatable;
   enemy: string; // Enemy type identifier
   amount: number; // Number to defeat
 }
@@ -305,7 +305,7 @@ Requires completing sect missions:
 ```typescript
 interface MissionHallQuestStep {
   kind: 'missionHall';
-  hint: string;
+  hint: Translatable;
   consume?: {
     item: string; // Item to consume
     amount: number; // Quantity to consume
@@ -349,7 +349,7 @@ Requires completing a number of fallen star raids:
 ```typescript
 interface RaidQuestStep {
   kind: 'raid';
-  hint: string;
+  hint: Translatable;
   amount: number; // Number of fallen star raids to complete
 }
 ```
@@ -379,7 +379,7 @@ Waits for a specific flag to reach a target value:
 ```typescript
 interface FlagValueQuestStep {
   kind: 'flagValue';
-  hint: string;
+  hint: Translatable;
   flag: string; // Flag identifier
   value: number; // Target value
 }
@@ -414,7 +414,7 @@ Requires conversation with a specific NPC:
 ```typescript
 interface SpeakToCharacterQuestStep {
   kind: 'speakToCharacter';
-  hint: string;
+  hint: Translatable;
   character: string; // Character identifier
   event: EventStep[]; // Conversation content
   completionCondition?: string; // Optional additional requirement (uses same format as other steps)
@@ -469,7 +469,7 @@ Creates time-based delays for story pacing:
 ```typescript
 interface WaitQuestStep {
   kind: 'wait';
-  hint: string;
+  hint: Translatable;
   months: number; // In-game months to wait
 }
 ```
