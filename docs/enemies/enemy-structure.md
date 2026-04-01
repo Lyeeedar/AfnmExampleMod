@@ -351,15 +351,23 @@ const exampleEnemy: EnemyEntity = {
 
 Conditions use mathematical expressions with available variables:
 
-- `hp`, `maxhp` - Current and maximum health
-- `round` - Current combat round
-- `power`, `defense` - Combat stats
-- `buffStacks('BuffName')` - Check buff stack count
-- `hasBuff('BuffName')` - Check if buff exists
-- `enemyhp`, `enemymaxhp` - Target's health values
+**Self variables:**
+- `hp`, `maxhp` — Current and maximum health
+- `power`, `defense` — Combat stats
+- `barrier`, `maxbarrier` — Barrier values
+- `toxicity`, `maxtoxicity` — Toxicity values
+- `BuffName` — Total stack count of a named buff (e.g., `Rage` for Rage stacks; evaluates to `0` if the buff is absent)
+
+**Target variables** (the opponent — player from the enemy's perspective):
+- `target.hp`, `target.maxhp` — Target's current and maximum health
+- `target.power`, `target.defense` — Target's combat stats
+- `target.<stat>` — Any combat statistic on the target
 
 Examples:
 
-- `"hp < 0.5 * maxhp"` - Below 50% health
-- `"round > 3"` - After round 3
-- `"buffStacks('Rage') >= 3"` - 3+ Rage stacks
+- `"hp < 0.5 * maxhp"` — Below 50% health
+- `"Rage >= 3"` — 3+ Rage stacks
+- `"Weakened > 0"` — Has the Weakened debuff
+- `"target.hp < 0.3 * target.maxhp"` — Target below 30% health
+- `"target.power > power * 1.2"` — Target has significantly more power
+- `"barrier > 0 || Shielded > 0"` — Has barrier or Shielded buff
