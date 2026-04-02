@@ -213,11 +213,13 @@ stances: [
 ],
 rotationOverrides: [
   {
+    kind: 'single',
     stance: 'summon_phase',
     condition: '1',
     repeatable: false
   },
   {
+    kind: 'single',
     stance: 'buff_phase',
     condition: '1',
     repeatable: false
@@ -483,13 +485,14 @@ export const stackingEnemy: EnemyEntity = {
   ],
   rotationOverrides: [
     {
+      kind: 'single',
       stance: 'powered_assault',
       condition: 'BuffName >= 3',  // Switch when enough stacks
       repeatable: true
     }
   ],
   stanceRotation: [
-    { stance: 'build_up' }  // Default to building
+    { kind: 'single', stance: 'build_up' }  // Default to building
   ]
 };
 ```
@@ -507,10 +510,10 @@ export const tournamentFighter: EnemyEntity = {
     { name: 'main', techniques: [combo1, combo2, combo3, ultimate] }
   ],
   rotationOverrides: [
-    { stance: 'setup', condition: '1' }  // One-time setup
+    { kind: 'single', stance: 'setup', condition: '1' }  // One-time setup
   ],
   stanceRotation: [
-    { stance: 'main' }
+    { kind: 'single', stance: 'main' }
   ],
 
   artefacts: [weaponArtefact],

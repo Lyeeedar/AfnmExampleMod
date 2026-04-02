@@ -175,17 +175,17 @@ Variables accessible in condition strings:
 - `toxicity` - Current toxicity
 - `maxtoxicity` - Maximum toxicity
 
+**Buff Variables:**
+
+- `BuffName` - Stack count of named buff (e.g., `Rage` for rage stacks; `0` if absent)
+- Use buff names directly in expressions
+
 **Target Variables:**
 
 - `target.hp` - Player's current health
 - `target.maxhp` - Player's maximum health
 - `target.power` - Player's power
-- Other target stats available as `target.statname`
-
-**Buff Variables:**
-
-- `BuffName` - Stack count of named buff (e.g., `Rage` for rage stacks)
-- Use buff names directly in expressions
+- `target.<stat>` - Any combat statistic on the target
 
 ### Condition Examples
 
@@ -218,11 +218,13 @@ Respond to player's current state:
 // React to player's health
 rotationOverrides: [
   {
+    kind: 'single',
     stance: 'aggressive',
     condition: 'target.hp < 0.3 * target.maxhp', // Player is wounded
     repeatable: true,
   },
   {
+    kind: 'single',
     stance: 'defensive',
     condition: 'target.hp > 0.8 * target.maxhp', // Player is healthy
     repeatable: true,
@@ -255,11 +257,13 @@ React to comparative power levels:
 ```typescript
 rotationOverrides: [
   {
+    kind: 'single',
     stance: 'cautious',
     condition: 'target.power > power * 1.2', // Player much stronger
     repeatable: true,
   },
   {
+    kind: 'single',
     stance: 'bullying',
     condition: 'power > target.power * 1.5', // Enemy much stronger
     repeatable: true,
@@ -281,6 +285,7 @@ Enemies that build and spend resources:
 // Spend energy when enough is built
 rotationOverrides: [
   {
+    kind: 'single',
     stance: 'unleash_power',
     condition: 'Energy >= 5', // Use buff name directly
     repeatable: false  // Only spend once per build cycle
@@ -329,6 +334,7 @@ Strategic cultivator with multiple approaches:
   ],
   rotationOverrides: [
     {
+      kind: 'single',
       stance: 'defensive',
       condition: 'hp < 0.3 * maxhp',
       repeatable: false
