@@ -131,6 +131,7 @@ events: [
     event: [...],           // Event steps
     rarity: 'mundane',      // Spawn frequency
     triggerChance: 0.1,     // Override rarity (optional)
+    noCooldown: true,       // Skip the between-event cooldown (optional)
     condition: 'realm >= qiCondensation', // When available
     cooldown: {             // Optional per-event cooldown
       key: 'my_event_key', // Unique flag key for this event
@@ -141,6 +142,10 @@ events: [
   }
 ]
 ```
+
+**`triggerChance`**: Overrides the rarity-based probability for this event.
+
+**`noCooldown`**: When `true`, this event bypasses the standard between-event cooldown, allowing it to fire on consecutive explorations.
 
 **`cooldown`**: Prevents an event from firing again for a random number of days in `[min, max]`. The `key` must be unique across your mod's events — it is stored as a flag to track the cooldown.
 
@@ -173,6 +178,31 @@ mapEvents: [
   }
 ]
 ```
+
+### Gathering Event
+
+```typescript
+gatheringEvent?: LocationGatheringEvent;
+```
+
+A special event that fires when the player visits a location that currently has multiple named characters present. Use it to create social or atmospheric scenes — moments that emerge naturally from character congregation rather than from exploration or time.
+
+```typescript
+gatheringEvent: {
+  steps: [
+    {
+      kind: 'text',
+      text: 'The tavern is unusually crowded tonight...'
+    },
+    // ...more event steps
+  ],
+  triggerChance?: 0.3,              // Probability of firing (0–1, optional)
+  resetMonths?: { min: 2, max: 6 }, // Cooldown before it can fire again (optional)
+  minCharacters?: 3                 // Minimum characters present to trigger (default: 3)
+}
+```
+
+The gathering event respects both the global encounter cooldown and a per-location gathering cooldown. It will not fire if fewer than `minCharacters` named characters are currently at this location (the default threshold is 3).
 
 ### Missions
 
@@ -254,7 +284,18 @@ export const liangTiaoVillage: GameLocation = {
       quest: 'clothingBlankDelivery',
       condition: '1'
     }
-  ]
+  ],
+
+  gatheringEvent: {
+    steps: [
+      {
+        kind: 'text',
+        text: 'The village is busier than usual. Stalls have sprung up along the main road...'
+      }
+    ],
+    resetMonths: { min: 3, max: 8 },
+    minCharacters: 3
+  }
 };
 ```
 

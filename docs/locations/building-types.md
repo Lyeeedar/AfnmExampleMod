@@ -103,6 +103,26 @@ Research and experimentation facility:
 }
 ```
 
+### Reforge Workshop
+
+Item reforging and enhancement:
+
+```typescript
+{
+  kind: 'reforge'
+}
+```
+
+### Furnace of Ten Thousand Flames
+
+Advanced alchemy furnace for high-tier crafting:
+
+```typescript
+{
+  kind: 'tenThousandFlames'
+}
+```
+
 ## Commerce Buildings
 
 ### Market
@@ -146,6 +166,19 @@ Special shop using favour currency:
   itemPool: { ... },      // Same as market
   costMultiplier: 2.0,
   refreshMonths: 1
+}
+```
+
+### Enchantment Shop
+
+Shop for purchasing item enchantments:
+
+```typescript
+{
+  kind: 'enchantmentShop',
+  costMultiplier: 1.5,   // Base price multiplier
+  refreshMonths: 1,       // Inventory refresh period
+  stockCount: 6           // Number of enchantments available at a time
 }
 ```
 
@@ -382,6 +415,47 @@ Position options for custom buildings:
 - `'middleleft'`, `'middle'`, `'middleright'`
 - `'bottom'`, `'bottomleft'`, `'bottomright'`
 
+## Mod-Specific Buildings
+
+### Mod Building
+
+A custom building that navigates to a registered mod screen. Use `modBuilding` alongside `api.addScreen()` to integrate fully custom UI into a location.
+
+```typescript
+{
+  kind: 'modBuilding',
+  name: 'Mysterious Device',          // Internal name (used as icon seed)
+  displayName?: 'Mysterious Device',  // Optional display name (supports translation)
+  icon: myCustomIcon,                 // Building icon image
+  screen: 'myModScreen',              // Key of screen registered via api.addScreen()
+  position: 'middleleft',             // Position on the location screen
+  condition?: 'deviceUnlocked == 1',  // Optional: when to show the building
+  disabled?: 'deviceBusy == 1'        // Optional: when to disable the button
+}
+```
+
+The `screen` field must match the `key` used when registering the screen with `api.addScreen()`. See [Adding Screens](../advanced-mods/adding-screens) for how to create and register mod screens.
+
+```typescript
+// Register the screen
+api.addScreen({
+  key: 'myModScreen',
+  component: MyModScreenComponent,
+});
+
+// Add the building to a location
+window.modAPI.actions.addBuildings('Liang Tiao Village', [
+  {
+    kind: 'modBuilding',
+    name: 'Ancient Device',
+    icon: deviceIcon,
+    screen: 'myModScreen',
+    position: 'top',
+    condition: '1',
+  }
+]);
+```
+
 ## Building Properties
 
 ### Common Properties
@@ -486,6 +560,16 @@ export const myLocation: GameLocation = {
           books: [...]
         }
       ]
+    },
+
+    // Mod screen building
+    {
+      kind: 'modBuilding',
+      name: 'Alchemist Workshop',
+      icon: workshopIcon,
+      screen: 'myAlchemistScreen',
+      position: 'middleright',
+      condition: 'workshopBuilt == 1',
     }
   ]
 };

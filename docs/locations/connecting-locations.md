@@ -208,6 +208,25 @@ window.modAPI.actions.linkLocations('Crossroads', {
 });
 ```
 
+## Isolated Location Clusters
+
+If your mod adds locations that are not reachable from the main world map — for instance, a secret dungeon accessed only via a transport seal or an event step — register them as **root locations** so the discovery system can find them.
+
+```typescript
+// Add the location first
+window.modAPI.actions.addLocation(myHiddenDungeon);
+
+// Register as a root — always active
+window.modAPI.actions.registerRootLocation('Hidden Dungeon', '1');
+
+// Or register conditionally (only discoverable after a flag is set)
+window.modAPI.actions.registerRootLocation('Hidden Dungeon', 'foundAncientMap == 1');
+```
+
+Root locations that are not linked to other roots on the world map can only be reached via transport seals or event steps (using the `unlockLocation` step). This is intentional — it supports secret areas or alternative-start locations that should not appear on the main map until conditions are met.
+
+The main game world itself uses a single always-active root (Nine Mountain Sect). Mod roots with conditions are a clean way to introduce self-contained regions that unlock as players progress.
+
 ## Best Practices
 
 ### Exploration Progression
