@@ -37,7 +37,7 @@ Intercepts the creation of enemy combat entities, allowing modifications to enem
 ```typescript
 window.modAPI.hooks.onCreateEnemyCombatEntity((enemy, combatEntity, gameFlags) => {
   // Make the entire game harder
-  combatEntity.stats.attack *= 1.2;
+  combatEntity.stats.power *= 1.2;
   combatEntity.stats.defense *= 1.2;
 
   // Modify defense for specific enemy types
@@ -491,10 +491,10 @@ if (snap) {
 
 ### `injectUI`
 
-Inject React content into a named slot inside an existing game dialog or screen. Returns a key that can be used to unregister the injection later.
+Inject React content into a named slot inside an existing game dialog or screen. Returns `void`.
 
 **Slot names:**
-- For dialogs: the **English** (untranslated) title string (e.g. `'Victory'`, `'Crafting'`)
+- For dialogs: the dialog's DOM **id** (e.g. `'combat-victory'`). Open the game in dev mode and inspect the element to find the id for the dialog you want to target.
 - For screens: the `ScreenType` value (e.g. `'combat'`, `'location'`)
 
 **Parameters passed to your generator:**
@@ -506,9 +506,9 @@ Inject React content into a named slot inside an existing game dialog or screen.
   - `mode`: `'overlay'` (default, floats over target) or `'inline'` (inserts as a sibling after target)
 
 ```typescript
-const key = window.modAPI.injectUI('Victory', (api, element, inject) => {
+window.modAPI.injectUI('combat-victory', (api, element, inject) => {
   return inject(
-    '.close-button-row',
+    '[aria-live="assertive"]',
     <button style={{ pointerEvents: 'auto' }} onClick={() => console.log('bonus!')}>
       Claim Bonus
     </button>,
