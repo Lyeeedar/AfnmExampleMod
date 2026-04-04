@@ -44,9 +44,10 @@ npm run build
 
 ```
 > your-mod@1.0.0 build
-> vite build
+> webpack --mode production
 
-✓ built in 2.34s
+asset mod.js 12.3 KiB [emitted] (name: main)
+webpack 5.x.x compiled successfully in 2345 ms
 
 Build completed! Check the builds/ folder.
 ```
@@ -89,7 +90,7 @@ Your build process is controlled by several files. Usually you won't need to cha
 
 **`tsconfig.json`** - TypeScript compiler settings (rarely needs changes)
 
-**`vite.config.mts`** - Build tool configuration (advanced users only)
+**`webpack.config.js`** - Build tool configuration (advanced users only)
 
 ### Common Build Issues
 
