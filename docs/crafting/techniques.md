@@ -25,6 +25,7 @@ interface CraftingTechnique {
 
   // Resource costs
   poolCost: number; // Qi pool cost
+  noQiCost?: boolean; // If true, Qi cost is always 0 regardless of active modifiers
   stabilityCost: number; // Stability cost
   noMaxStabilityLoss?: boolean; // If true, max stability is not reduced when used
   maxStabilityLossTooltip?: string; // Custom tooltip text explaining the stability behaviour
@@ -99,6 +100,7 @@ poolCost: 20; // Base cost in qi
 - Modified by **Qi Pool Cost Multiplier** stat
 - Can be reduced through mastery upgrades
 - Running out prevents technique use
+- Set `noQiCost: true` to force the technique to always cost 0 Qi, bypassing all cost modifiers
 
 ### Stability Cost
 

@@ -116,7 +116,7 @@ Triggers at the end of each round, after all techniques have been used.
 
 - **`interceptBuffEffects`** - Intercepts when specific buffs are applied
 - **`triggeredBuffEffects`** - Responds to custom trigger events. See [Triggers](triggers) for details
-- **`priority`** - Controls execution order (lower numbers execute first)
+- **`priority`** - Controls execution order (lower numbers execute first). Buffs whose `onTechniqueEffects` contain a `{ kind: 'damage', damageType: 'disruption' }` effect receive an automatic priority offset of −100, so they always execute before other buffs at the same `priority` value.
 
 ## Real Examples
 

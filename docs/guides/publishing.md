@@ -59,14 +59,14 @@ AFNM provides a dedicated uploader tool that handles Steam Workshop integration:
 **Download Location:**
 
 1. Navigate to your forked repository (or the original example mod repo)
-2. Look for `/uploader/Mod Uploader 1.0.0 Portable.exe`
-3. Download this tool to your computer
+2. Look for `uploader/Mod.Uploader-1.4.4-win-setup.exe`
+3. Download and run the installer to set up the uploader tool
 
 ### Publishing Process - Step by Step
 
 #### 1. Launch the Uploader
 
-- Run `Mod Uploader 1.0.0 Portable.exe`
+- Run the installed Mod Uploader application
 - The tool should automatically detect your Steam installation
 - If prompted, log into Steam
 
