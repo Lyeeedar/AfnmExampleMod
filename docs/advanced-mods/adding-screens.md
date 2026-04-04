@@ -407,7 +407,7 @@ Show different content based on the player's progress:
 
 ```typescript
 export const GuildScreen: ModScreenFC = ({ screenAPI }) => {
-  const { useSelector, actions, components } = screenAPI;
+  const { useSelector, useGameFlags, actions, components } = screenAPI;
   const { GameDialog, GameButton } = components;
 
   const player = useSelector((state) => state.player.player);
@@ -425,7 +425,13 @@ export const GuildScreen: ModScreenFC = ({ screenAPI }) => {
           {playerRealm >= 3 ? (
             <GameButton onClick={() => {
               actions.setFlag('joined_guild', 1);
-              actions.startEvent({ name: 'guild_initiation' });
+              actions.startEvent({
+                location: 'Cultivator Guild',
+                steps: [
+                  { kind: 'text', text: 'The elder stamps your application and hands it back.' },
+                  { kind: 'speech', character: 'Guild Elder', text: 'Welcome to the Cultivator Guild.' },
+                ],
+              });
             }}>
               Join Guild
             </GameButton>
