@@ -18,19 +18,11 @@ interface FormationItemBase extends ItemBase {
   subkind: FormationKind;
 }
 
-type FormationKind = 'herbField' | 'qiDensity';
-type FormationItem = HerbFieldFormationItem | QiDensityFormationItem;
+type FormationKind = 'qiDensity';
+type FormationItem = QiDensityFormationItem;
 ```
 
 ## Formation Types
-
-### Herb Field Formations
-```typescript
-interface HerbFieldFormationItem extends FormationItemBase {
-  subkind: 'herbField';
-  speed: number;  // Growth speed multiplier
-}
-```
 
 ### Qi Density Formations
 ```typescript
@@ -45,20 +37,6 @@ interface QiDensityFormationItem extends FormationItemBase {
 ## Examples
 
 ```typescript
-// Herb field growth formation
-export const growthFormationII: HerbFieldFormationItem = {
-  kind: 'formation',
-  subkind: 'herbField',
-  speed: 0, // 10 second reduction per realm tier
-  name: 'Growth Formation (II)',
-  description: 'A formation that enhances the growth speed of qi-herbs within its confines. It works by attuning to the soil within its reaches, pushing qi into it in great enough amounts that the herbs growing within can flourish.',
-  icon: growthIcon,
-  stacks: 1,
-  rarity: 'empowered',
-  realm: 'meridianOpening',
-  valueTier: 2,
-};
-
 // Basic qi density formation
 export const cyclingDensityFormation: QiDensityFormationItem = {
   kind: 'formation',

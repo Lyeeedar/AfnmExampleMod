@@ -18,6 +18,7 @@ interface ArtefactItem extends ItemBase {
   combatStats?: Partial<CombatStatsMap>;
   charisma?: number;
   techniques: ArtefactTechnique[];
+  buffs?: { buff: Buff; buffStacks: Scaling }[];
 }
 ```
 
@@ -26,6 +27,7 @@ interface ArtefactItem extends ItemBase {
 - **combatStats**: Combat bonuses (power, speed, etc.)
 - **charisma**: Optional social stat bonus
 - **techniques**: Artefact techniques the artefact will use. These make up the artefacts stance, so ensure it is the correct length for the realm
+- **buffs**: Optional buffs applied at the start of each combat
 
 ## Examples
 
@@ -168,5 +170,7 @@ interface ArtefactEnchantment extends Enchantment {
   itemKind: 'artefact';
   combatStats?: Partial<CombatStatsMap>;
   charisma?: number;
+  buffs?: { buff: Buff; buffStacks: Scaling }[];
+  restoredDroplets?: number;
 }
 ```
