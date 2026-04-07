@@ -18,7 +18,7 @@ interface BasePillItem extends ItemBase {
   pillKind: PillKind;
 }
 
-type PillKind = 'combat' | 'crafting' | 'advancement' | 'consumable';
+type PillKind = 'combat' | 'crafting' | 'advancement' | 'consumable' | 'appearance_change';
 ```
 
 ## Pill Types
@@ -39,6 +39,7 @@ interface CraftingPillItem extends BasePillItem {
   pillKind: 'crafting';
   toxicity: number;                    // Toxicity cost
   effects: CraftingTechniqueEffect[];  // Crafting effects
+  tooltip?: string;
 }
 ```
 
@@ -77,6 +78,16 @@ interface Scaling {
 Valid `CombatStatistic` values include: `maxhp`, `power`, `defense`, `critchance`, `critmultiplier`, `dr`, `resistance`, `lifesteal`, `damageBoost`, `healingBoost`, `barrierBoost`, and the element affinity/boost/resistance stats.
 
 Valid `CraftingStatistic` values include: `maxpool`, `pool`, `itemEffectiveness`, `control`, `intensity`, `critchance`, `critmultiplier`, `resistance`, and others.
+
+### Appearance Change Pills
+```typescript
+interface AppearanceChangePillItem extends BasePillItem {
+  pillKind: 'appearance_change';
+  toxicity?: undefined;
+}
+```
+
+Appearance change pills let the player alter their character's appearance. They have no toxicity and no extra fields beyond the base item properties.
 
 ## Examples
 

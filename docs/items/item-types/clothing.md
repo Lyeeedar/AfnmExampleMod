@@ -153,12 +153,16 @@ export const eclipsePetalMantle: ClothingItem = {
 
 ## Enchantments
 
-Clothing can be enchanted to add combat stats:
+Clothing can be enchanted to add combat stats and other bonuses:
 
 ```typescript
 interface ClothingEnchantment extends Enchantment {
   itemKind: 'clothing';
   combatStats?: Partial<CombatStatsMap>;
   charisma?: number;
+  masteryPoints?: number;
+  qiAbsorption?: number;
+  restoredDroplets?: number;
+  buffs?: { buff: Buff; buffStacks: Scaling }[];
 }
 ```
