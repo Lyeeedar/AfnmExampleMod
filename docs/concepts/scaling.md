@@ -21,8 +21,8 @@ Every damage number, healing amount, buff strength, and stat modifier flows thro
 ```typescript
 interface Scaling {
   value: number;          // Base multiplier
-  stat?: string;          // Stat to multiply by
-  scaling?: string;       // Special scaling mode (e.g. 'stacks', or a buff name)
+  stat?: string;          // Stat to multiply by (see valid stat names below)
+  scaling?: string;       // Special scaling mode (e.g. 'stacks', 'consumed', or a buff name)
   eqn?: string;           // Expression MULTIPLIED onto the result
   additiveEqn?: string;   // Expression ADDED to the result (after eqn multiplication)
   customScaling?: {       // Additional multiplier, e.g. '+30% per stack of a buff'
@@ -32,8 +32,23 @@ interface Scaling {
   };
   max?: Scaling;          // Cap the final value
   upgradeKey?: string;    // Links to mastery upgrades
+  divideByStanceLength?: boolean; // Divide the result by the number of techniques in the stance
+  buff?: Buff;            // Buff reference used internally for some effects
+  increment?: number;     // For hit-based scaling: each subsequent hit costs this much more of the scaling buff
 }
 ```
+
+### Valid `stat` Values
+
+The `stat` field accepts any **combat statistic**, **crafting statistic**, **physical statistic**, **social statistic**, or **technique element**. The most commonly used values are:
+
+**Combat:** `'power'`, `'defense'`, `'barrier'`, `'artefactpower'`, `'maxhp'`, `'hp'`, `'toxicity'`, `'maxtoxicity'`, `'critchance'`, `'critmultiplier'`, `'lifesteal'`, `'vulnerability'`, `'qiDroplets'`
+
+**Crafting:** `'control'`, `'intensity'`, `'maxpool'`, `'pool'`, `'resistance'`, `'itemEffectiveness'`
+
+**Physical:** `'muscles'`, `'dantian'`, `'meridians'`, `'flesh'`, `'digestion'`, `'eyes'`
+
+**Elements:** `'fire'`, `'ice'`, `'wind'`, `'lightning'`, `'earth'`, `'water'` (and other `TechniqueElement` values)
 
 ### Evaluation Formula
 
@@ -269,6 +284,31 @@ stats: {
 }
 ```
 
+### Pattern 8: Stance Length Division
+
+**When to use**: Effects spread evenly across all techniques in a stance, such as a total damage budget that should not grow as the stance gets longer.
+
+```typescript
+{
+  value: 3,
+  stat: 'power',
+  divideByStanceLength: true  // Total output stays constant regardless of stance size
+}
+```
+
+### Pattern 9: Hit-Based Increment
+
+**When to use**: Multi-hit techniques where each subsequent hit consumes progressively more of a buff stack.
+
+```typescript
+{
+  value: 0.5,
+  stat: 'power',
+  scaling: flow.name,
+  increment: 5  // First hit costs current stacks; second costs stacks+5; third costs stacks+10; etc.
+}
+```
+
 ## Standard scaling
 
 To keep numbers consistent, there are a few standard patterns for scaling you want to follow:
@@ -286,7 +326,7 @@ Anything that creates a direct effect (damage, healing, barrier) on techniques s
 
 ### For stacks of buffs
 
-Anything that produces stacks of buffs should not scale off any stat, but can scale off other field to increase those stacks
+Anything that produces stacks of buffs should not scale off any stat, but can scale off other fields to increase those stacks:
 
 ```typescript
 {
@@ -310,7 +350,7 @@ Consumables should normally have a flat scaling to ensure that lower realm items
 
 ### For artefacts / formation parts
 
-Externally controlled / powered items like artefacts and formation parts should scale off artefact power, not power
+Externally controlled / powered items like artefacts and formation parts should scale off artefact power, not power:
 
 ```typescript
 {
@@ -452,6 +492,12 @@ Link scaling to mastery progression:
    - Complex conditional logic
    - Percentage-based effects
    - Multi-variable calculations
+
+5. **`divideByStanceLength`**:
+   - Total-budget effects that should not compound as stances grow longer
+
+6. **`increment`**:
+   - Multi-hit techniques where later hits should cost more than earlier ones
 
 ### Balance Considerations
 
