@@ -1,0 +1,63 @@
+{
+  "_patterns": {
+    "conditions": {
+      "[condition] <num>{0}</num> chance to": "",
+      "[condition] If completion is above <num>{0}</num> then:": "",
+      "[condition] If completion is below <num>{0}</num> then:": "",
+      "[condition] If health is above <num>{0}</num> then:": "",
+      "[condition] If health is below <num>{0}</num> then:": "",
+      "[condition] If health is exactly <num>{0}</num> then:": "",
+      "[condition] If perfection is above <num>{0}</num> then:": "",
+      "[condition] If perfection is below <num>{0}</num> then:": "",
+      "[condition] If pool is above <num>{0}</num> then:": "",
+      "[condition] If pool is below <num>{0}</num> then:": "",
+      "[condition] If stability is above <num>{0}</num> then:": "",
+      "[condition] If stability is below <num>{0}</num> then:": "",
+      "[condition] if stacks is <num>{0}</num> then:": "",
+      "[condition] if stacks is at least <num>{0}</num> then:": "",
+      "[condition] if stacks is less than <num>{0}</num> then:": "",
+      "[condition] If toxicity is above <num>{0}</num> then:": "",
+      "[condition] If toxicity is below <num>{0}</num> then:": "",
+      "[word] above": "",
+      "[word] at least": "",
+      "[word] below": "",
+      "[word] exactly": "",
+      "[word] less than": ""
+    },
+    "hardcoded": {
+      "[template] {[{i}].condition}deal {[{i}].amount} {damageType}{[{i}].amount.scaling}": "",
+      "[template] {[{i}].condition}gain {[{i}].amount} barrier{[{i}].amount.scaling}": "",
+      "[template] {[{i}].condition}gain {[{i}].amount} of {[{i}].buff}{[{i}].amount.scaling}": "",
+      "[template] {[{i}].condition}gain {[{i}].buff}": "",
+      "[template] {[{i}].condition}gain {percent} barrier{[{i}].amount.scaling}": "",
+      "[template] {[{i}].condition}gain {percent} health as barrier{[{i}].amount.scaling}": "",
+      "[template] {[{i}].condition}heal for {[{i}].amount}{[{i}].amount.scaling}": "",
+      "[template] {[{i}].condition}heal for {percent} health{[{i}].amount.scaling}": "",
+      "[template] {[{i}].condition}inflict {[{i}].amount} of {[{i}].buff}{[{i}].amount.scaling}": "",
+      "[template] {[{i}].condition}lose {[{i}].amount} health{[{i}].amount.scaling}{damageType}": "",
+      "[template] {[{i}].condition}lose <num>{percent}%</num> health{[{i}].amount.scaling}{damageType}": "",
+      "[template] {[{i}].condition}remove {[{i}].amount} of {[{i}].buff}{[{i}].amount.scaling}": "",
+      "[template] {[{i}].condition}remove all stacks of {[{i}].buff}": "",
+      "[word] stack": "",
+      "[word] stacks": ""
+    },
+    "requirements": {
+      "[requirement] Cost: {amount} of {buff}": "",
+      "[requirement] Requires: At least {amount} of {buff}": "",
+      "[requirement] Requires: Exactly {amount} of {buff}": "",
+      "[requirement] Requires: No {buff}": "",
+      "[requirement] Requires: No more than {amount} of {buff}": ""
+    }
+  },
+  "items": {
+    "src/modContent:item:The Best Treasure": {
+      "[description] Wooo mod content.": "",
+      "[name] The Best Treasure": ""
+    }
+  },
+  "techniques": {
+    "src/modContent:technique:Test technique": {
+      "[name] Test technique": ""
+    }
+  }
+}
