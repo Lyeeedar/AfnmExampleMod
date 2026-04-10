@@ -27,6 +27,10 @@ interface Character {
   definitions: CharacterDefinition[]; // Realm-based definitions
   relationship?: CharacterRelationshipDefinition[]; // Companion only
   relationshipPaths?: Record<string, CharacterRelationshipDefinition[]>; // Named alternate relationship branches
+
+  /** If set, this character can appear as an auction bidder when their condition is met. */
+  auctionAppearance?: CharacterAuctionAppearance;
+
   followInteraction?: FollowCharacterDefinition; // Party mechanics
 
   portrait: string; // Portrait image path
@@ -54,6 +58,67 @@ interface Character {
     condition: string; // When this override is active
   }[];
 }
+```
+
+## Auction Appearance
+
+If `auctionAppearance` is set, the character can appear as a bidder at the auction house when `condition` on the character is met. The game selects dialogue based on the character's relationship flags — dialogue sets are evaluated in order and the first whose `condition` passes is used.
+
+```typescript
+interface CharacterAuctionAppearance {
+  funds: { min: number; max: number }; // Gold range the character brings to the auction
+  minSpend: number;                    // Minimum amount they will bid
+  maxSpend: number;                    // Maximum amount they will spend total
+  /** Ordered dialogue sets — first whose condition passes is used. */
+  dialogue: CharacterAuctionDialogue[];
+}
+
+interface CharacterAuctionDialogue {
+  /** Flag expression evaluated against game flags. Use '1' for an unconditional fallback. */
+  condition: string;
+  opener: {
+    none: string[];    // Lines used when making no bid (just watching)
+    low: string[];     // Lines used when bidding a small amount
+    medium: string[];  // Lines used when bidding a medium amount
+    high: string[];    // Lines used when bidding aggressively
+  };
+  bowOut: string[];    // Lines used when dropping out of bidding
+  bid: string[];       // Lines used when placing a bid
+}
+```
+
+### Example: Auction Appearance
+
+```typescript
+const merchantAuction: CharacterAuctionAppearance = {
+  funds: { min: 500, max: 2000 },
+  minSpend: 100,
+  maxSpend: 1500,
+  dialogue: [
+    {
+      condition: 'relationship >= 2', // Friendly
+      opener: {
+        none: ["Interesting items today..."],
+        low: ["I could use that."],
+        medium: ["This is worth something."],
+        high: ["I want this one badly."]
+      },
+      bowOut: ["Too rich for my blood."],
+      bid: ["I raise the bid.", "Going up."]
+    },
+    {
+      condition: '1', // Fallback
+      opener: {
+        none: ["Hmm."],
+        low: ["Worth a small bid."],
+        medium: ["Fair price."],
+        high: ["I will have that."]
+      },
+      bowOut: ["I withdraw."],
+      bid: ["Bid raised.", "Higher."]
+    }
+  ]
+};
 ```
 
 ## Character Definitions
@@ -285,7 +350,7 @@ interface CharacterEncounter {
   id: string; // Unique encounter ID
   condition: string; // When encounter can trigger
   event: EventStep[]; // Event content
-  cooldown: { min: number; max: number }; // Days between triggers
+  cooldown?: { min: number; max: number }; // Days between triggers (omit for no cooldown)
   locations?: string[]; // Specific locations only
 }
 ```
