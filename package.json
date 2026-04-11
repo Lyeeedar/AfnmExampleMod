@@ -7,26 +7,28 @@
   },
   "main": "dist/mod.js",
   "scripts": {
+    "extract-translations": "afnm-extract-translations",
+    "prebuild": "afnm-extract-translations",
     "build": "webpack --mode production",
-    "postbuild": "node scripts/zip-dist.js"
+    "postbuild": "node scripts/copy-translations.js && node scripts/zip-dist.js"
   },
   "devDependencies": {
     "afnm-types": "0.6.49",
     "file-loader": "^6.2.0",
     "prettier": "^3.7.4",
     "ts-loader": "^9.5.4",
+    "tslib": "^2.8.1",
     "typescript": "^6.0.2",
     "webpack": "^5.103.0",
     "webpack-cli": "^6.0.1",
-    "zip-a-folder": "^4.0.4",
-    "tslib": "^2.8.1"
+    "zip-a-folder": "^4.0.4"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
-    "react": "^19.2.4",
-    "@reduxjs/toolkit": "^2.11.1",
+    "@mui/icons-material": "^7.3.9",
     "@mui/material": "^7.3.9",
-    "@mui/icons-material": "^7.3.9"
+    "@reduxjs/toolkit": "^2.11.1",
+    "react": "^19.2.4"
   }
 }
