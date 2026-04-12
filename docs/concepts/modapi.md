@@ -233,6 +233,34 @@ const flags = window.modAPI.actions.getGlobalFlags();
 const highScore = flags['myMod_highScore'] ?? 0;
 ```
 
+### Mod Settings UI
+
+```typescript
+window.modAPI.actions.registerOptionsUI(component: ModOptionsFC)
+```
+
+Register a React settings component for your mod in the game's mod-loading dialog. This is the preferred home for cross-save configuration such as toggles, sliders, and mode selectors.
+
+Global flags are numeric, so store booleans as `0` / `1` and normalize any legacy values yourself.
+
+```typescript
+const MyModOptions: ModOptionsFC = ({ api }) => {
+  const flags = api.actions.getGlobalFlags();
+  const enabled = (flags['myMod.enabled'] ?? 1) === 1;
+  const GameButton = api.components.GameButton ?? 'button';
+
+  return (
+    <GameButton
+      onClick={() => api.actions.setGlobalFlag('myMod.enabled', enabled ? 0 : 1)}
+    >
+      {enabled ? 'Disable Mod' : 'Enable Mod'}
+    </GameButton>
+  );
+};
+
+window.modAPI.actions.registerOptionsUI(MyModOptions);
+```
+
 ### Audio
 
 ```typescript

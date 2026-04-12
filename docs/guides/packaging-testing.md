@@ -154,6 +154,25 @@ Ascend from Nine Mountains/
     └── mystic-tea-cultivation-1.0.0.zip    # ← Your mod
 ```
 
+## Verifying The Installed Runtime Before Launching
+
+When you're checking ModAPI surface area, hook names, or whether documentation matches the shipped executable, inspect the installed game bundle before doing a full UI launch.
+
+**Why this helps:**
+
+- Faster than launching the full game just to confirm a symbol exists
+- Useful when patch notes, docs, and runtime behavior disagree
+- Lets you confirm launcher behavior and hook names without Steam relaunch loops
+
+**Basic extraction flow:**
+
+```bash
+npx @electron/asar extract "/path/to/Ascend From Nine Mountains/resources/app.asar" ./tmp/afnm-runtime
+rg -n "getGameStateSnapshot|injectUI|onGenerateExploreEvents" ./tmp/afnm-runtime/dist-electron
+```
+
+Look for the exact hook or API names you care about in the extracted `dist-electron` bundle. For advanced mods, this is often the best first parity check.
+
 ## Testing Your Mod In-Game
 
 ### Step 1: Launch the Game
@@ -167,6 +186,18 @@ Ascend from Nine Mountains/
 - No error popups on startup
 - Mod name appears in loading messages
 - Game starts normally
+
+### Direct Binary Testing Without Steam Relaunch Loops
+
+If you need to launch the executable directly instead of going through Steam, current `0.6.50` runtimes support a `disable_steam` sentinel file beside the game executable.
+
+**Safe workflow:**
+
+1. Create an empty file named `disable_steam` beside the executable
+2. Launch the game directly
+3. Delete `disable_steam` when you finish testing
+
+**Important:** If you leave `disable_steam` behind, Workshop mods will stop loading until you remove it.
 
 ### Step 2: Test Your Content
 

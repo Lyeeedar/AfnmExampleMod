@@ -480,6 +480,8 @@ const unsub = window.modAPI.subscribe(() => {
 unsub();
 ```
 
+For read-only overlays, advisors, and inspectors, `subscribe()` plus `getGameStateSnapshot()` should be your first integration path. Prefer this pair over direct `window.gameStore` access, React Fiber probing, or DOM polling unless the current runtime is missing the specific state you need.
+
 ### `getGameStateSnapshot`
 
 Returns a read-only snapshot of the complete game state, or `null` if no save is loaded.
