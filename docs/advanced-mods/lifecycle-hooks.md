@@ -340,6 +340,9 @@ Modifies the pool of exploration events before one is selected. Fired after base
 
 **Returns:** `LocationEvent[]` - Modified event pool
 
+**Important Warning on Weighted Events:**
+In the 0.6.50 runtime, `onGenerateExploreEvents` fires *before* the game expands weighted explore candidates into repeated `{ index, event }` entries. Repeat-penalty bookkeeping (`currentLocationLastEvent` / `currentLocationLastEventCount`) is keyed by that expanded weighted event index. If your mod needs to precisely modify drop rates or probabilities without breaking repeat-penalty semantics, you may still need to carefully scope your modifications or narrowly patch the final weighted candidate array in combination with this hook.
+
 **Example:**
 ```typescript
 window.modAPI.hooks.onGenerateExploreEvents((locationId, events, gameFlags) => {

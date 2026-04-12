@@ -16,7 +16,7 @@ Every crafting technique is defined by the `CraftingTechnique` interface:
 
 ```typescript
 interface CraftingTechnique {
-  name: string; // Display name
+  name: string; // Stable, non-localized identifier (matches KnownCraftingTechnique.technique and modAPI.gameData.craftingTechniques)
   displayName?: Translatable; // Optional translated display name
   icon: string; // Visual representation
   type: CraftingTechniqueType; // fusion, refine, stabilize, or support
