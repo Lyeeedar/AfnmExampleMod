@@ -167,11 +167,26 @@ When you're checking ModAPI surface area, hook names, or whether documentation m
 **Basic extraction flow:**
 
 ```bash
-npx @electron/asar extract "/path/to/Ascend From Nine Mountains/resources/app.asar" ./tmp/afnm-runtime
+npx -y @electron/asar extract "/path/to/Ascend From Nine Mountains/resources/app.asar" ./tmp/afnm-runtime
 rg -n "getGameStateSnapshot|injectUI|onGenerateExploreEvents" ./tmp/afnm-runtime/dist-electron
 ```
 
 Look for the exact hook or API names you care about in the extracted `dist-electron` bundle. For advanced mods, this is often the best first parity check.
+
+**Useful verification queries:**
+
+```bash
+# Check which hooks exist in the shipped runtime
+rg -n "onCalculateDamage|onBeforeCombat|onReduxAction|onAdvanceDay" ./tmp/afnm-runtime/dist-electron
+
+# Check for specific API methods
+rg -n "registerOptionsUI|subscribe|getGameStateSnapshot" ./tmp/afnm-runtime/dist-electron
+
+# Check launcher behavior
+rg -n "disable_steam|Restarting app through Steam" ./tmp/afnm-runtime/dist-electron/main
+```
+
+**Principle:** When documentation, type definitions, and the actual runtime disagree, trust the installed runtime. The extracted bundle is the source of truth for what the game actually supports.
 
 ## Testing Your Mod In-Game
 
@@ -194,10 +209,19 @@ If you need to launch the executable directly instead of going through Steam, cu
 **Safe workflow:**
 
 1. Create an empty file named `disable_steam` beside the executable
-2. Launch the game directly
-3. Delete `disable_steam` when you finish testing
+2. Launch using `launch-native.sh` (Linux), or the executable directly
+3. For browser DevTools access, launch with `--remote-debugging-port=9222` and open `chrome://inspect` in Chrome
+4. Delete `disable_steam` when you finish testing
 
-**Important:** If you leave `disable_steam` behind, Workshop mods will stop loading until you remove it.
+**Critical warning:** If you leave `disable_steam` behind, Workshop mods will stop loading until you remove it. Always clean up after testing.
+
+```bash
+# Linux example
+touch "/path/to/Ascend From Nine Mountains/disable_steam"
+"/path/to/Ascend From Nine Mountains/launch-native.sh"
+# When done:
+rm "/path/to/Ascend From Nine Mountains/disable_steam"
+```
 
 ### Step 2: Test Your Content
 

@@ -18,6 +18,24 @@ In this guide, you'll learn to use the ModAPI (Mod Application Programming Inter
 - Understood how the game organizes content
 - Learned the basic patterns for adding content
 
+## Types of Mods
+
+Before diving into code, it helps to know what kind of mod you are building. This determines which parts of the ModAPI you will use most.
+
+### Content Addition Mods
+
+The most common type. You add new items, characters, locations, events, or quests to the game world. This guide focuses primarily on this pattern.
+
+### Gameplay Modifier Mods
+
+These change probabilities, rewards, event pools, or settings-driven behavior. They rely on lifecycle hooks and global flags rather than content registration. See [Lifecycle Hooks](../advanced-mods/lifecycle-hooks) for the available hooks.
+
+### Read-Only Advisor / Overlay Mods
+
+These observe game state and present information to the player without mutating gameplay. They use `getGameStateSnapshot()`, `subscribe()`, and `injectUI()`. See [Best Practices](../advanced-mods/best-practices) for architecture guidance.
+
+---
+
 ## How Modding Works in AFNM
 
 ### The Big Picture

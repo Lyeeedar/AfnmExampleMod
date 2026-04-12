@@ -233,6 +233,12 @@ const flags = window.modAPI.actions.getGlobalFlags();
 const highScore = flags['myMod_highScore'] ?? 0;
 ```
 
+**Flag conventions:**
+- Use dot-notation with your mod name as prefix to avoid collisions: `'myMod.enabled'`, `'myMod.difficulty'`
+- Store booleans as `0` / `1` and normalize any legacy values on startup
+- Initialize expected flags to defaults on mod load rather than assuming they exist
+- When renaming flags between versions, migrate old values to the new keys so existing users retain their settings
+
 ### Mod Settings UI
 
 ```typescript
@@ -242,6 +248,8 @@ window.modAPI.actions.registerOptionsUI(component: ModOptionsFC)
 Register a React settings component for your mod in the game's mod-loading dialog. This is the preferred home for cross-save configuration such as toggles, sliders, and mode selectors.
 
 Global flags are numeric, so store booleans as `0` / `1` and normalize any legacy values yourself.
+
+**JSX example** (if your build pipeline supports JSX):
 
 ```typescript
 const MyModOptions: ModOptionsFC = ({ api }) => {
@@ -259,6 +267,30 @@ const MyModOptions: ModOptionsFC = ({ api }) => {
 };
 
 window.modAPI.actions.registerOptionsUI(MyModOptions);
+```
+
+**createElement alternative** (works regardless of build setup):
+
+If JSX is not available in your options panel context, use `window.React.createElement` directly. Both approaches produce the same result:
+
+```typescript
+const MyModOptions: ModOptionsFC = ({ api }) => {
+  const ReactRuntime = window.React;
+  if (!ReactRuntime?.createElement) return null;
+
+  const createElement = ReactRuntime.createElement.bind(ReactRuntime);
+  const flags = api.actions.getGlobalFlags();
+  const enabled = (flags['myMod.enabled'] ?? 1) === 1;
+  const GameButton = api.components.GameButton ?? 'button';
+
+  return createElement(
+    GameButton,
+    { onClick: () => api.actions.setGlobalFlag('myMod.enabled', enabled ? 0 : 1) },
+    enabled ? 'Disable Mod' : 'Enable Mod',
+  );
+};
+
+window.modAPI?.actions?.registerOptionsUI?.(MyModOptions);
 ```
 
 ### Audio
