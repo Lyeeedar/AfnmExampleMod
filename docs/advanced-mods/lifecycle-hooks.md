@@ -340,6 +340,9 @@ Modifies the pool of exploration events before one is selected. Fired after base
 
 **Returns:** `LocationEvent[]` - Modified event pool
 
+**Important Warning on Weighted Events:**
+In the 0.6.50 runtime, `onGenerateExploreEvents` fires *before* the game expands weighted explore candidates into repeated `{ index, event }` entries. Repeat-penalty bookkeeping (`currentLocationLastEvent` / `currentLocationLastEventCount`) is keyed by that expanded weighted event index. If your mod needs to precisely modify drop rates or probabilities without breaking repeat-penalty semantics, you may still need to carefully scope your modifications or narrowly patch the final weighted candidate array in combination with this hook.
+
 **Example:**
 ```typescript
 window.modAPI.hooks.onGenerateExploreEvents((locationId, events, gameFlags) => {
@@ -435,7 +438,9 @@ window.modAPI.hooks.onAdvanceMonth((month, year, gameFlags) => {
 
 Fires after every Redux state update. Receives the action type, the state before, and the state after. Return a modified copy of `stateAfter` to override what is stored, or return `stateAfter` unchanged.
 
-**This hook runs inside the reducer.** Keep the implementation fast and avoid side-effects. Thrown exceptions are caught and logged.
+**This hook runs inside the reducer.** Keep the implementation fast, deterministic, and free of side-effects. Do not make network requests, trigger UI work, or run heavy computation here. Thrown exceptions are caught and logged.
+
+If `subscribe()` can solve your problem, prefer that instead — it runs outside the reducer and is safer for most use cases.
 
 **Parameters:**
 - `actionType: string` - The Redux action type string
@@ -475,6 +480,34 @@ const unsub = window.modAPI.subscribe(() => {
 
 // Stop listening later
 unsub();
+```
+
+For read-only overlays, advisors, and inspectors, `subscribe()` plus `getGameStateSnapshot()` should be your first integration path. Prefer this pair over direct `window.gameStore` access, React Fiber probing, or DOM polling unless the current runtime is missing the specific state you need.
+
+**Reactive patterns with `subscribe()`:**
+
+```typescript
+// Rate-limited reactive updates
+let lastUpdate = 0;
+window.modAPI.subscribe(() => {
+  const now = Date.now();
+  if (now - lastUpdate < 250) return; // Throttle to 4 Hz
+  lastUpdate = now;
+
+  const snap = window.modAPI.getGameStateSnapshot();
+  if (snap) refreshMyPanel(snap);
+});
+
+// Selective re-render — only update when a specific slice changes
+let lastLocation: string | null = null;
+window.modAPI.subscribe(() => {
+  const snap = window.modAPI.getGameStateSnapshot();
+  const current = snap?.location?.current ?? null;
+  if (current !== lastLocation) {
+    lastLocation = current;
+    onLocationChanged(current);
+  }
+});
 ```
 
 ### `getGameStateSnapshot`

@@ -505,3 +505,56 @@ actions.setModData("myMod", "myField", 4)
 ```
 
 This supports arbitrarily objects, so you can store whole data structures in your mods particular data area. You can even inspect and build off data from other mods, if you desire.
+
+## Persistent Overlays
+
+Sometimes you need UI that survives all screen transitions — location changes, combat, events, crafting, and dialogs. In that case, mount a persistent overlay to `document.body` instead of using `addScreen()` or `injectUI()`.
+
+### When to Use a Persistent Overlay
+
+- The UI must be accessible from every screen (e.g., a chat panel, status monitor, or advisor)
+- Slot-by-slot `injectUI()` injection would become a maintenance burden
+- The user needs ongoing access from anywhere in the game
+
+### When NOT to Use a Persistent Overlay
+
+- The action belongs to a single dialog or screen — use `injectUI()` instead
+- The action belongs to a single full-page context — use `addScreen()` instead
+- A lightweight button or readout is enough — prefer `injectUI()`
+
+### Example: Mounting a Persistent Overlay
+
+```typescript
+function mountOverlay() {
+  if (document.getElementById('my-mod-overlay')) return;
+
+  const container = document.createElement('div');
+  container.id = 'my-mod-overlay';
+  container.style.cssText = 'position:fixed;top:8px;right:8px;z-index:9999;pointer-events:auto;';
+  document.body.appendChild(container);
+
+  const ReactDOM = (window as any).ReactDOM;
+  const root = ReactDOM?.createRoot?.(container);
+  if (root) {
+    root.render(<MyOverlayApp />);
+  }
+}
+```
+
+### Combining Approaches
+
+You can combine a persistent overlay with `injectUI()` entry points. For example, mount a chat overlay to `document.body` and inject a shortcut button into the combat-victory dialog:
+
+```typescript
+// Persistent overlay — always visible
+mountOverlay();
+
+// Injected entry point — appears only in combat victory dialog
+window.modAPI.injectUI('combat-victory', (api, element, inject) => {
+  return inject(
+    '[aria-live="assertive"]',
+    <button onClick={() => openChat()}>Ask Advisor</button>,
+    'inline',
+  );
+});
+```

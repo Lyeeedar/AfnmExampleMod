@@ -79,9 +79,16 @@ Now that your tools are installed, let's get the starter template for your mod.
 
 ### Step 1: Choose Your Approach
 
-You have two options to start your project:
+You have three options to start your project:
 
-**Option A: Fork on GitHub (Recommended)** _Best if you want to use GitHub for backup and collaboration_
+**Option A: Use the Agent Mod Template (Recommended for AI-assisted development)**
+_Best if you use AI coding agents (Cursor, Claude Code, Copilot, Windsurf, Cline, etc.) or want a modern bun-based scaffold with runtime validation and Workshop packaging built in._
+
+1. **Visit the template:** [AFNM Agent Mod Template](https://github.com/lemon07r/AfnmAgentModTemplate)
+2. **Clone or fork it** and follow the Quick Start in its README
+3. Comes with built-in agent context files, a ModAPI quick reference, runtime oracle scripts, and a supplementary guide distilled from shipping real mods
+
+**Option B: Fork on GitHub** _Best if you want to use GitHub for backup and collaboration_
 
 1. **Create a GitHub account** (if you don't have one) at [github.com](https://github.com)
 2. **Visit the template:** [AFNM Example Mod repository](https://github.com/Lyeeedar/AfnmExampleMod)

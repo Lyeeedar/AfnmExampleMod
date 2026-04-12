@@ -18,6 +18,21 @@ In this guide, you'll learn to use the ModAPI (Mod Application Programming Inter
 - Understood how the game organizes content
 - Learned the basic patterns for adding content
 
+## Types of Mods
+
+Before diving into code, it helps to know what kind of mod you are building. This determines which parts of the ModAPI you will use most. For detailed guidance on each, see [Best Practices](../advanced-mods/best-practices).
+
+- **Content addition** — items, characters, locations, quests, events, recipes. The most common type and the focus of this guide.
+- **Narrative / story** — quest chains, branching events, calendar events, companion interactions. A specialization of content addition.
+- **Quality-of-life / UI tool** — custom screens, stat viewers, inventory helpers. Uses `addScreen()` and `injectUI()`.
+- **Gameplay modifier** — changes probabilities, rewards, stat math, or difficulty. Uses lifecycle hooks and global flags.
+- **Overhaul / rebalance** — wholesale stat, formula, or balance changes via mutation hooks.
+- **Cosmetic / personalization** — player sprites, alternative starts, backgrounds, music.
+- **Read-only advisor / overlay** — observes game state and presents information without mutating gameplay.
+- **Search / simulation / optimizer** — predicts outcomes or automates decision-making with pure simulation logic.
+
+---
+
 ## How Modding Works in AFNM
 
 ### The Big Picture
