@@ -13,25 +13,49 @@ Patterns, defensive coding techniques, and architectural guidance learned from s
 
 ## Mod Archetypes
 
-Not every mod adds items and locations. Before writing code, identify which archetype your mod falls into — this determines your default stack.
+Not every mod adds items and locations. Before writing code, identify which archetype your mod falls into — this determines which parts of the ModAPI you lean on and how to structure the project.
 
 ### Content Addition
 
-Mods that add items, characters, locations, events, or quests to the game world. This is the most common type and is well-covered by the rest of these docs.
+The most common mod type. You add new items, characters, locations, quests, events, recipes, enemies, or crafting techniques to the game world. The rest of these docs focus primarily on this pattern.
 
-**Default stack:** `actions.addItem()`, `actions.addLocation()`, event definitions, shop/auction integration.
+**Default stack:** `actions.addItem()`, `actions.addLocation()`, `actions.addQuest()`, event definitions, shop/auction integration, asset imports.
+
+### Narrative / Story
+
+Quest chains, branching event sequences, calendar events, triggered events, and companion interactions. A specialization of content addition focused on event flow.
+
+**Default stack:** `actions.addQuest()`, `actions.addCalendarEvent()`, `actions.addTriggeredEvent()`, event step arrays, `utils.createQuestionAnswerList()` for branching dialogue, flags for tracking progress.
+
+### Quality-of-Life / UI Tool
+
+Custom screens, stat viewers, inventory helpers, map tools, crafting assistants, or any mod that adds a new interface without changing gameplay.
+
+**Default stack:** `addScreen()` for full-page interfaces, `injectUI()` for small affordances in existing dialogs, `useSelector()` and `useGameFlags()` for state, `actions.setModData()` for persistent mod state. Persistent overlay mounted to `document.body` if the UI must survive screen transitions.
 
 ### Gameplay Modifier
 
-Mods that change probabilities, rewards, event pools, stat math, or settings-driven behavior without adding new content.
+Changes probabilities, rewards, event pools, stat math, difficulty, or any settings-driven behavior without adding new content.
 
-**Default stack:** lifecycle hooks, numeric global flags for settings, minimal or no custom UI.
+**Default stack:** mutation hooks (`onCalculateDamage`, `onBeforeCombat`, `onDeriveRecipeDifficulty`, `onEventDropItem`, `onGenerateExploreEvents`), numeric global flags for settings, `registerOptionsUI()` for a settings panel.
+
+### Overhaul / Rebalance
+
+Wholesale changes to game balance — enemy stats, crafting difficulty, damage formulas, reward scaling.
+
+**Default stack:** `onCreateEnemyCombatEntity` for enemy stats, `onCalculateDamage` for damage formulas, `onDeriveRecipeDifficulty` for crafting, `onBeforeCombat` for encounters. Use `onReduxAction` only as a last resort.
+
+### Cosmetic / Personalization
+
+Player sprites, alternative starts, new backgrounds, custom rooms, new music or sound effects.
+
+**Default stack:** `actions.addPlayerSprite()`, `actions.addAlternativeStart()`, `actions.addBirthBackground()`, `actions.addRoom()`, `actions.addMusic()`, `actions.addSfx()`, `utils.generateSkipTutorialFlags()`.
 
 ### Read-Only Advisor / Overlay
 
 Mods that explain, visualize, or recommend without mutating gameplay. These mods observe game state and present information to the player.
 
-**Default stack:** `getGameStateSnapshot()`, `subscribe()`, `injectUI()` for local entry points. Persistent body-mounted overlay only if the UI must survive screen and dialog transitions.
+**Default stack:** `getGameStateSnapshot()`, `subscribe()`, `injectUI()` for local entry points. Persistent body-mounted overlay only if the UI must survive screen and dialog transitions. No mutation hooks.
 
 ### Search / Simulation / Optimizer
 
