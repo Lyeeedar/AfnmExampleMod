@@ -70,7 +70,7 @@ const springFestival: CalendarEvent = {
                 text: "Your verses about spring's beauty earn admiration from fellow cultivators.",
               },
               {
-                kind: 'additem',
+                kind: 'addItem',
                 item: 'festivalToken',
                 amount: 1,
               },

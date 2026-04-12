@@ -59,6 +59,59 @@ Translations registered via `addTranslation()` take priority over auto-loaded fi
 
 When you re-run extraction, any existing language files in `translations/` are automatically migrated to the new template structure, preserving previously completed translations.
 
+## Using Translations in Code
+
+The mod API exposes three translation utilities in `api.utils` for use in your mod's runtime code.
+
+### `api.utils.t` — Translate a string
+
+Translates a string or `TranslatableString` object to the currently active language. Use this inside event callbacks, hooks, or React components — anywhere the translation can be resolved at call time.
+
+```typescript
+// Simple string
+const label = api.utils.t('Continue');
+
+// With variable substitution
+const msg = api.utils.t('You have {count} spirit stones', { count: player.money });
+
+// With a disambiguation context
+const text = api.utils.t('Strike', {}, 'combat.technique');
+```
+
+**Do not call `t()` at module load time** — the active language may not be set yet. Use `tr()` instead for data definitions that are evaluated before the UI renders.
+
+### `api.utils.tPlural` — Plural-aware translation
+
+Returns the singular or plural form depending on `count`. The plural form should include a `{count}` placeholder.
+
+```typescript
+const label = api.utils.tPlural(days, '1 day remaining', '{count} days remaining');
+// count=1 → "1 day remaining"
+// count=3 → "3 days remaining"
+
+// With additional variables
+const msg = api.utils.tPlural(items, '{count} item found in {location}', '{count} items found in {location}', { location: placeName });
+```
+
+### `api.utils.tr` — Deferred translation (for data definitions)
+
+Creates a `TranslatableString` object that is resolved at render time, not at module load time. Use this when building data objects (items, techniques, event descriptions) so translations work correctly regardless of load order.
+
+```typescript
+const myItem: ItemDesc = {
+  name: 'Spirit Core',
+  description: api.utils.tr('A dense crystallisation of pure qi.'),
+};
+
+// With variable substitution resolved at render time
+const myBuff: Buff = {
+  name: api.utils.tr('Enhanced Meridians'),
+  description: api.utils.tr('Increases qi capacity by {amount}%', { amount: 25 }),
+};
+```
+
+The key difference: `t()` resolves immediately (use in callbacks and components); `tr()` defers resolution until the string is displayed (use in static data definitions).
+
 ## Utilities
 
 To make it easier to manage the task of translation, a helper application has been built. You can find it here: [Community Translation App](https://drive.google.com/file/d/1j-IekRMLPPUYECiAHAMpZDnw1irqbxu0/view?usp=drive_link).
