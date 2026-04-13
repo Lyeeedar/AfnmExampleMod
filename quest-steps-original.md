@@ -143,8 +143,8 @@ Event steps normally complete when their event finishes. The optional `completio
 'questProgress >= 5'; // Numeric thresholds
 
 // Time conditions
-'month >= 12'; // True once 12 game months have elapsed since game start (running total)
-'month >= questStartMonth + 6'; // Relative: set questStartMonth = month via a flag step when quest begins
+'month >= 12'; // Time-based delays
+'day > startDay + 7'; // Relative time checks
 
 // Complex logic
 'realm >= meridianOpening && qi > 1000'; // Multiple requirements
