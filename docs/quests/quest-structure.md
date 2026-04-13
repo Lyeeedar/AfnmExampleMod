@@ -122,15 +122,17 @@ cost: 500; // Player pays 500 sect favour to start quest
 Optional string expression that causes quests to be removed from the quest list early:
 
 ```typescript
-failureCondition: 'hp <= 0 && location == "DangerousLocation"';
+failureCondition: 'realm > 3 || someQuestFlag == 1';
 ```
 
 **Common patterns:**
 
-- **Death in specific locations**: `hp <= 0 && location == "ForbiddenRealm"`
-- **Time limits**: `month > questStartMonth + 12`
-- **Reputation thresholds**: `reputation.sect < -50`
-- **Resource depletion**: `money <= 0 && items.food == 0`
+- **Mutually exclusive quests**: `otherQuestCompletedFlag == 1` — remove the quest when a competing questline resolves first
+- **Realm gates**: `realm > 3` — fail a low-realm quest if the player over-levels past the intended range
+- **Reputation thresholds**: `Nine_Mountain_Sect < -50` — use the faction flag name directly (faction name with spaces replaced by underscores)
+- **Time limits**: `month > questStartMonth + 12` — where `questStartMonth` is a flag you set via a `flag` step when the quest begins
+
+All condition variables are numeric. Reputation values are stored as flat flags using the faction name with spaces replaced by underscores (e.g. `Nine_Mountain_Sect`). Item quantities use the item's flag name (e.g. `Spirit_Herb`). String comparisons are not supported.
 
 Note quests are also removed when all the steps in the quest are completed. This is simply a way to remove the quest early.
 
