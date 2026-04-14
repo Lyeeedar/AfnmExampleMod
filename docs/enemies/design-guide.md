@@ -76,7 +76,7 @@ const pressureAdaptation: Buff = {
   stats: {
     defense: {
       value: 0.5,          // +50% defense per stack
-      stat: 'power',
+      stat: 'defense',
       scaling: 'stacks'
     }
   },

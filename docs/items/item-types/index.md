@@ -83,4 +83,7 @@ Environmental enhancement items
 ### [Blueprint Items](blueprint)
 House construction plans
 
+### [Local Map Items](local_map)
+Sequential combat runs with optional difficulty modifiers and scaled rewards
+
 Each item type has its own unique mechanics, stat systems, and integration patterns that support different aspects of the cultivation experience.
