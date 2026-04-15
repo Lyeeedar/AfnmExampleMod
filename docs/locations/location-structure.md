@@ -231,6 +231,14 @@ reputationName?: string;  // Reputation faction name
 
 If defined, the location tracks player reputation for shops and other features.
 
+### Development Content
+
+```typescript
+devContent?: boolean;  // Only available in development builds
+```
+
+When `true`, this location only appears in development builds (`npm run dev`). Use this while building or testing a location before making it available to players.
+
 ### Exploration Override
 
 ```typescript

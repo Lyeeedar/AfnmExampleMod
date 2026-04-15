@@ -722,3 +722,31 @@ masteryKindPools: ['damage', 'heal', 'buffSelf'];
 ```
 
 Determines which effect types can receive random mastery bonuses, allowing for build customization beyond fixed upgrades.
+
+### Overwrite Effects Mastery
+
+The `overwriteEffects` kind replaces a technique's entire effects list when unlocked. Use it for transcendent-tier upgrades that fundamentally change how a technique works rather than just scaling its numbers.
+
+```typescript
+interceptOnly: {
+  rarity: 'transcendent',
+  mundane: undefined,
+  qitouched: undefined,
+  empowered: undefined,
+  resplendent: undefined,
+  incandescent: undefined,
+  transcendent: {
+    kind: 'overwriteEffects',
+    tooltip: 'The puppet no longer provides barrier, but increases its damage interception.',
+    newEffects: [
+      {
+        kind: 'buffSelf',
+        buff: alteredBuff,
+        amount: { value: 1, stat: undefined },
+      },
+    ],
+  },
+},
+```
+
+The `tooltip` field is required and must describe what the new behaviour does. The `newEffects` array completely replaces the technique's original `effects` — any effects not included in `newEffects` no longer apply when this mastery is active.
