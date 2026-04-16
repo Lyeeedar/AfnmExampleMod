@@ -69,6 +69,14 @@ Put all the above concepts together into a real mod, covering a variety of item 
 
 ---
 
+## Tools & Workflow
+
+### **[ComfyUI Setup & Workflows](comfyui-setup)**
+
+Install ComfyUI Desktop and use the provided workflows to generate character portraits, item icons, and location backgrounds.
+
+---
+
 ## Getting Help
 
 **Stuck on something?** Each guide includes troubleshooting sections for common issues. You can also check our [Core Concepts](../concepts/) section for deeper explanations of game systems.
