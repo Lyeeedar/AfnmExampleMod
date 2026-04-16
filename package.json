@@ -1,9 +1,9 @@
 {
-  "name": "my-afnm-mod",
-  "version": "0.0.1",
-  "description": "A mod for AFNM",
+  "name": "data-extractor",
+  "version": "1.0.0",
+  "description": "A mod that downloads techniques and crafting actions",
   "author": {
-    "name": "<your name>"
+    "name": "Lyeeedar"
   },
   "main": "dist/mod.js",
   "scripts": {

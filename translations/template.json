@@ -48,16 +48,5 @@
       "[requirement] Requires: No {buff}": "",
       "[requirement] Requires: No more than {amount} of {buff}": ""
     }
-  },
-  "items": {
-    "src/modContent:item:The Best Treasure": {
-      "[description] Wooo mod content.": "",
-      "[name] The Best Treasure": ""
-    }
-  },
-  "techniques": {
-    "src/modContent:technique:Test technique": {
-      "[name] Test technique": ""
-    }
   }
 }
