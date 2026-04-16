@@ -168,7 +168,7 @@ export const SimpleWelcomeScreen: ModScreenFC = ({ screenAPI }) => {
         title="Welcome Screen"
         onClose={() => actions.setScreen('location')}
       >
-        <Typography>Hello, {player.name}!</Typography>
+        <Typography>Hello, {player.forename} {player.surname}!</Typography>
         <Typography>You are at cultivation level {player.realm}.</Typography>
 
         <GameButton onClick={handleGreeting}>
@@ -205,15 +205,9 @@ export default function (api: ModAPI) {
 
 ### Navigating to Your Screen
 
-Once registered, you can navigate to your screen from events, other screens, or buttons:
+Once registered, you can navigate to your screen from other screens or button click handlers:
 
 ```typescript
-// From an event step
-{
-  type: 'navigate',
-  screen: 'welcomeScreen'
-}
-
 // From another screen
 actions.setScreen('welcomeScreen');
 
@@ -222,6 +216,8 @@ actions.setScreen('welcomeScreen');
   Open Welcome Screen
 </GameButton>
 ```
+
+> **Note:** Custom mod screens cannot be navigated to from event steps. The built-in `changeScreen` event step only supports the game's own screen types. To navigate to a mod screen mid-event, use a completion hook (e.g. `onCompleteCombat`) that calls `window.modAPI.actions.setScreen()`.
 
 ## Understanding the screenAPI in Detail
 
@@ -414,7 +410,8 @@ export const GuildScreen: ModScreenFC = ({ screenAPI }) => {
   const { flags } = useGameFlags();
 
   const isGuildMember = flags['joined_guild'] || 0;
-  const playerRealm = player.realm;
+  // Use social stats (numbers) for numeric comparisons, not player.realm (which is a string)
+  const meetsPrestigeRequirement = (player.socialStats.prestige ?? 0) >= 3;
 
   return (
     <GameDialog title="Cultivator Guild" onClose={() => actions.setScreen('location')}>
@@ -422,7 +419,7 @@ export const GuildScreen: ModScreenFC = ({ screenAPI }) => {
         // Not a member - show join option
         <Box>
           <Typography>Join the Cultivator Guild?</Typography>
-          {playerRealm >= 3 ? (
+          {meetsPrestigeRequirement ? (
             <GameButton onClick={() => {
               actions.setFlag('joined_guild', 1);
               actions.startEvent({
@@ -437,7 +434,7 @@ export const GuildScreen: ModScreenFC = ({ screenAPI }) => {
             </GameButton>
           ) : (
             <Typography color="error">
-              Minimum realm 3 required
+              Minimum prestige 3 required
             </Typography>
           )}
         </Box>
