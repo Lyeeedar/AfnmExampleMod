@@ -41,7 +41,7 @@ ComfyUI Desktop is the easiest way to run ComfyUI without touching the command l
 
 ## Step 2: Install Required Models
 
-The base model I use is a finetune of `Illustrious` called `ChosenMix`. You can find it here [download](https://civitai.com/models/1064295/chosen-mixxl?modelVersionId=2634062).
+The base model I use is a finetune of `Illustrious` called `ChosenMix`. You can find it here [download](https://civitai.com/models/1064295?modelVersionId=2840523).
 
 Download it and put it into the `{ComfyUI}/models/checkpoints` folder.
 
@@ -55,7 +55,7 @@ Then download the AFNM Lora's and put them into the `{ComfyUI}/models/loras/afnm
 - [Afnm Technique](https://civitai.com/models/2527262/afnm-technique-il)
 - [Afnm Item](https://civitai.com/models/2527275/afnm-item-il)
 
-And finally, the controlnet model [noobaiXLControlnet_epsLineartAnime](https://civitai.com/models/929685/noobai-xl-controlnet) into `{ComfyUI}/models/controlnet`.
+And finally, the controlnet model [noobaiXLControlnet_epsLineartAnime](https://civitai.com/models/929685/noobai-xl-controlnet?modelVersionId=1049196) into `{ComfyUI}/models/controlnet`.
 
 ---
 
