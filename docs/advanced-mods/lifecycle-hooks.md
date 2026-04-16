@@ -475,7 +475,7 @@ Subscribe to any Redux state change. The callback is called after every dispatch
 ```typescript
 const unsub = window.modAPI.subscribe(() => {
   const snap = window.modAPI.getGameStateSnapshot();
-  if (snap) updateMyOverlay(snap.player.player.stats.hp);
+  if (snap) updateMyOverlay(snap.player.player.hp);
 });
 
 // Stop listening later
