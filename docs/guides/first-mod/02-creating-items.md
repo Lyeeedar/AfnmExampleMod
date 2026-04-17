@@ -123,7 +123,7 @@ export const spiritualClarityBuff: Buff = {
   stats: {
     power: {
       value: 25,
-      stat: 'power',
+      stat: undefined,  // flat +25 power per stack; 'stat' scales off another stat, leave undefined for flat values
       scaling: 'stacks',
     },
     itemEffectiveness: {

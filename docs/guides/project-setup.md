@@ -99,7 +99,7 @@ _Best if you use AI coding agents (Cursor, Claude Code, Copilot, Windsurf, Cline
    git clone https://github.com/YOUR-USERNAME/AfnmExampleMod.git my-mod-project
    ```
 
-**Option B: Direct Download (Simpler)** _Good for getting started quickly_
+**Option C: Direct Download (Simpler)** _Good for getting started quickly_
 
 1. **Download the template:** Go to the [AFNM Example Mod repository](https://github.com/Lyeeedar/AfnmExampleMod)
 2. **Click "Code" → "Download ZIP"**
