@@ -416,7 +416,7 @@ stats: {
 {
   value: 2,
   stat: 'power',
-  scaling: '1 - (hp / maxhp)',   // max power at 0 hp
+  eqn: '1 - (hp / maxhp)',   // max power at 0 hp
 }
 ```
 
