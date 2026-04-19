@@ -185,6 +185,7 @@ The game automatically provides numerous flags representing the current game sta
 ### Time and Calendar
 
 - `year`, `yearMonth`, `day` - Current game time
+- `month` - Total game months elapsed (increments by 1 each month; use for time-difference calculations)
 
 ### Inventory and Equipment
 
