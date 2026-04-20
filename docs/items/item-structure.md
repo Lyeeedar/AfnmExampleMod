@@ -30,7 +30,7 @@ interface ItemBase {
 
 ## Item Categories
 
-AFNM supports 34 distinct item categories:
+AFNM supports 35 distinct item categories:
 
 ### Equipment Types
 
@@ -99,6 +99,7 @@ AFNM supports 34 distinct item categories:
 'treasure'; // Collectibles
 'blueprint'; // Construction
 'flare'; // Utility items
+'local_map'; // Local map combat encounters
 ```
 
 ## Economic System
