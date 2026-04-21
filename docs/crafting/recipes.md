@@ -102,7 +102,7 @@ export const ironheartPillRecipe: RecipeItem = {
   description: 'A tattered slip of parchment dense with alchemical notation.',
   icon: recipeIcon,
   rarity: 'mundane',
-  realm: 'qi',
+  realm: 'qiCondensation',
   stacks: 1,
   baseItem: ironheartPill,
   perfectItem: ironheartPillPlus,

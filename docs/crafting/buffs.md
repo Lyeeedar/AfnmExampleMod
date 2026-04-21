@@ -24,14 +24,16 @@ interface CraftingBuff {
   // Stack management
   stacks: number; // Current stack count
   maxStacks?: number; // Maximum stack limit
+  stacksAreMonths?: boolean; // If true, stacks represent in-game months (used for time-limited buffs)
 
   // Visual properties
   effectHint?: string; // Brief hint text
   tooltip?: string; // Custom description
   statsTooltip?: string; // Stats-specific tooltip
   displayLocation: CraftingBuffDisplayLocation; // Where buff appears in UI
-  // Locations: 'none' | 'avatar' | 'stabilityLeft' | 'stabilityRight' |
+  // Locations: 'none' | 'avatar' | 'companion' | 'stabilityLeft' | 'stabilityRight' |
   // 'perfectionLeft' | 'perfectionRight' | 'completionLeft' | 'completionRight'
+  companionImage?: string; // Full-body character image; only used when displayLocation === 'companion'
 
   // Stat modifications
   stats: Partial<{ [key in CraftingStatistic]: Scaling }> | undefined;
@@ -141,7 +143,6 @@ export const fusionEnlightenment: CraftingBuff = {
   stacks: 1,
   displayLocation: 'completionRight',
 };
-```
 ```
 
 ### Resource Generation Buffs
