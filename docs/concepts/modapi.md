@@ -90,10 +90,20 @@ window.modAPI.actions.addItemToShop(item, stacks, location, realm, valueModifier
 window.modAPI.actions.addItemToGuild(item, stacks, guild, rank, valueModifier?, reputation?)
 window.modAPI.actions.addItemToAuction(item, chance, condition, countOverride?, countMultiplier?)
 window.modAPI.actions.addItemToFallenStar(item, realm)
+window.modAPI.actions.addToSectShop(item, stacks, realm, valueModifier?, reputation?)
 ```
 
 - **`addItemToGuild`** — Add an item to a guild's rank shop. `guild` is the guild name, `rank` is the minimum rank required to purchase.
 - **`addItemToFallenStar`** — Add an item to the drop table for fallen stars of a given realm.
+- **`addToSectShop`** — Add an item to the Nine Mountain Sect's Favour Exchange shop at the specified realm tier. Optionally apply a price multiplier and gate the item behind a reputation tier. Items without a reputation tier go into `itemPool[realm]`; items with a tier go into `reputationPool[realm]`.
+
+```typescript
+// Add item to sect shop at qiCondensation tier
+window.modAPI.actions.addToSectShop(myItem, 3, 'qiCondensation');
+
+// With price multiplier and reputation gate
+window.modAPI.actions.addToSectShop(myRareItem, 1, 'coreFormation', 2.0, 'Honored');
+```
 
 ### Characters and Backgrounds
 

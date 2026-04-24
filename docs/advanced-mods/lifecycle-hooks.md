@@ -436,7 +436,7 @@ window.modAPI.hooks.onAdvanceMonth((month, year, gameFlags) => {
 
 ### `onReduxAction`
 
-Fires after every Redux state update. Receives the action type, the state before, and the state after. Return a modified copy of `stateAfter` to override what is stored, or return `stateAfter` unchanged.
+Fires after every Redux state update. Receives the action type, the state before, the state after, and a read-only snapshot of the action payload. Return a modified copy of `stateAfter` to override what is stored, or return `stateAfter` unchanged.
 
 **This hook runs inside the reducer.** Keep the implementation fast, deterministic, and free of side-effects. Do not make network requests, trigger UI work, or run heavy computation here. Thrown exceptions are caught and logged.
 
@@ -446,12 +446,13 @@ If `subscribe()` can solve your problem, prefer that instead — it runs outside
 - `actionType: string` - The Redux action type string
 - `stateBefore: RootState` - Game state before the action
 - `stateAfter: RootState` - Game state after the action
+- `payload: Readonly<unknown>` - Read-only snapshot of the (post-interceptor) action payload
 
 **Returns:** `RootState` - The state to store (return `stateAfter` unchanged if not modifying)
 
 **Example:**
 ```typescript
-window.modAPI.hooks.onReduxAction((actionType, stateBefore, stateAfter) => {
+window.modAPI.hooks.onReduxAction((actionType, stateBefore, stateAfter, payload) => {
   if (actionType === 'inventory/addItem') {
     if (stateAfter.gameData.flags?.hard_mode) {
       // Double every item added in hard mode
@@ -459,6 +460,31 @@ window.modAPI.hooks.onReduxAction((actionType, stateBefore, stateAfter) => {
     }
   }
   return stateAfter;
+});
+```
+
+### `onReduxActionPayload`
+
+Fires before the reducer runs. Interceptors receive the action type and payload; return a modified payload to replace it, or `null` to drop the action entirely. Interceptors are chained — each receives the output of the previous.
+
+**This hook runs inside the reducer.** Keep the implementation fast, deterministic, and free of side-effects. Do not make network requests, trigger UI work, or run heavy computation here. Thrown exceptions are caught and logged.
+
+**Parameters:**
+- `actionType: string` - The Redux action type string
+- `payload: unknown` - The action payload
+
+**Returns:** `unknown` - The payload to pass to the reducer (return a modified payload, or `null` to drop the action)
+
+**Example:**
+```typescript
+window.modAPI.hooks.onReduxActionPayload((actionType, payload) => {
+  if (actionType === 'inventory/removeItem') {
+    const p = payload as { name: string; stacks: number };
+    if (modAPI.gameData.items[p.name]?.kind === 'blueprint') {
+      return { ...p, stacks: 0 }; // prevent removal of blueprint items
+    }
+  }
+  return payload;
 });
 ```
 
