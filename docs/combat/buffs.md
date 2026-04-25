@@ -50,6 +50,10 @@ interface Buff {
 
   // Timing modifiers
   afterTechnique?: boolean; // onTechniqueEffects trigger after instead of before
+  /** When true, onTechniqueEffects trigger immediately after stacks are gained/lost in createBuff,
+   *  rather than waiting for pre/post-technique phase. Useful for effects like merging
+   *  fragments into shards that should happen instantly when conditions are met. */
+  afterStackGain?: boolean;
 
   // System properties
   cantUpgrade?: boolean; // Prevent mastery upgrades
@@ -111,6 +115,12 @@ Triggers before each technique use (default) or after if `afterTechnique: true`.
 ### `onRoundEffects`
 
 Triggers at the end of each round, after all techniques have been used.
+
+### `afterStackGain`
+
+When `true`, `onTechniqueEffects` trigger immediately after the buff's stack count is modified in `createBuff`, rather than waiting for the pre/post-technique phase. This is useful for effects that need to happen instantly when a stack threshold is crossed — for example, merging fragments into shards the moment the 3-stack threshold is reached.
+
+**Example use case:** `metalFragment` uses `afterStackGain: true` so that when a technique creates 3 fragments, they merge into a shard immediately rather than waiting for the technique to complete.
 
 ### Advanced Timing
 
@@ -237,6 +247,35 @@ const restoringFragranceBuff: Buff = {
   stacks: 1,
 };
 ```
+
+### Instant Stack Merge - Metal Fragment
+
+```typescript
+import { Buff } from 'afnm-types';
+import fragmentIcon from '../assets/icons/metal-fragment.png';
+import shardIcon from '../assets/icons/metal-shard.png';
+
+const metalFragment: Buff = {
+  name: 'Metal Fragment',
+  icon: fragmentIcon,
+  canStack: true,
+  stats: undefined,
+  tooltip: 'Every <num>3</num> stacks are merged into <num>1</num> {buff}.',
+  afterStackGain: true,
+  onTechniqueEffects: [
+    {
+      kind: 'merge',
+      sourceBuff: metalFragment,
+      sourceStacks: { value: 3, stat: undefined },
+      targetBuff: metalShard,
+      targetStacks: { value: 1, stat: undefined },
+    },
+  ],
+  stacks: 1,
+};
+```
+
+**How it works:** When a technique adds stacks to `metalFragment` and the count reaches 3, the `afterStackGain: true` flag causes `onTechniqueEffects` to fire immediately, converting 3 fragments into 1 shard right away — before the next technique in the stance is used.
 
 ## Stack Management
 
