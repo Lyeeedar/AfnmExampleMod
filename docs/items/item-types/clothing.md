@@ -91,7 +91,6 @@ export const fistMastersRegalia: ClothingItem = {
         { kind: 'buffSelf', buff: flow, amount: { value: 3, stat: undefined } },
         { kind: 'buffSelf', buff: rippleForce, amount: { value: 1, stat: undefined } }
       ],
-      onTechniqueEffects: [],
       onRoundEffects: [],
       stacks: 1,
     },
@@ -122,8 +121,7 @@ export const eclipsePetalMantle: ClothingItem = {
       canStack: false,
       stats: undefined,
       tooltip: 'After each technique if there is Sunlight then gain 1 stack of Razor Blossom, if there is Moonlight then gain 1 stack of Iron Blossom.',
-      afterTechnique: true,
-      onTechniqueEffects: [
+      afterTechniqueEffects: [
         {
           kind: 'buffSelf',
           condition: { kind: 'condition', condition: `${sunlight.name} > 0` },

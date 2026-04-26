@@ -371,7 +371,6 @@ export function initializeItems() {
               stat: undefined,
             },
           },
-          onTechniqueEffects: [],
           onRoundEffects: [
             {
               kind: 'add',

@@ -29,8 +29,9 @@ When no custom `tooltip` is provided, the system automatically generates one bas
 
 The system creates readable descriptions for each timing:
 
-- **"Before each technique..."** - `onTechniqueEffects`
-- **"After each technique..."** - `onTechniqueEffects` with `afterTechnique: true`
+- **"Before each technique..."** - `beforeTechniqueEffects`
+- **"After each technique..."** - `afterTechniqueEffects`
+- **"When gaining stacks..."** - `onStackGainEffects`
 - **"At the start of each round..."** - `onRoundStartEffects`
 - **"At the end of each round..."** - `onRoundEffects`
 - **"At the start of combat..."** - `onCombatStartEffects`

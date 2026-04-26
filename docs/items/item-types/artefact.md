@@ -61,7 +61,6 @@ const forestAura: Buff = {
   stats: {
     maxtoxicity: { value: 12, stat: undefined, scaling: 'stacks' },
   },
-  onTechniqueEffects: [],
   onRoundEffects: [],
   stacks: 1,
 };

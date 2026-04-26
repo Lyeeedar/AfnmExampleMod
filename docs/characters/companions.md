@@ -368,7 +368,7 @@ const followDefinition: FollowCharacterDefinition = {
       defense: { value: 2.0, stat: 'power' },
       barrierMitigation: { value: 5, stat: undefined },
     },
-    onTechniqueEffects: [
+    beforeTechniqueEffects: [
       {
         kind: 'damage',
         amount: { value: 0.15, stat: 'power' },

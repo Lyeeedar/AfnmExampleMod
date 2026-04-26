@@ -38,7 +38,6 @@ export const profaneExchangeBuff: Buff = {
   tooltip:
     'You no longer gain {buff}. Instead, lose <num>3%</num> health as <name>True Damage</name> per stack you would have gained.',
 
-  onTechniqueEffects: [],
   onRoundEffects: [],
 
   interceptBuffEffects: [

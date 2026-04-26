@@ -26,11 +26,23 @@ Buffs can trigger effects off the back of a variety of other parts of the combat
 
 These triggers are related to when buffs are processed during combat rounds.
 
-### `onTechniqueEffects`
+### `beforeTechniqueEffects`
 - **When it triggers:** Before any technique is executed by the buff owner
 - **Condition:** Automatically triggered when the entity with this buff uses any technique
 - **Usage:** Used for pre-technique modifications, costs, requirements, and effects
 - **Examples:** Enhancing damage, modifying technique properties, applying costs
+
+### `afterTechniqueEffects`
+- **When it triggers:** After any technique is executed by the buff owner
+- **Condition:** Automatically triggered when the entity with this buff uses any technique
+- **Usage:** Effects that react to or follow up on technique execution
+- **Examples:** Post-technique healing, delayed damage, follow-up buffs
+
+### `onStackGainEffects`
+- **When it triggers:** When this buff gains stacks
+- **Condition:** Automatically triggered whenever the stack count increases
+- **Usage:** Effects that scale with or react to stacking
+- **Examples:** Building secondary buffs, tracking stack milestones
 
 ### `onRoundEffects` 
 - **When it triggers:** At the end of each combat round
@@ -197,7 +209,7 @@ These are specific custom triggers used by various systems in the game.
 ## Implementation Notes
 
 ### Trigger Processing Order
-1. **Pre-Technique:** `onTechniqueEffects` are processed before technique execution
+1. **Pre-Technique:** `beforeTechniqueEffects` are processed before technique execution
 2. **Technique Execution:** Main technique effects with embedded triggers
 3. **Post-Technique:** Various action-based triggers (`use.*`, `spend.*`)
 4. **Damage/Healing:** `takeDamage`, `damageSelf` triggers during damage processing

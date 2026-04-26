@@ -656,7 +656,7 @@ const mirrorImage: Buff = {
   canStack: true,
   maxStacks: 3,
   // Each stack is a copy that attacks
-  onTechniqueEffects: [
+  beforeTechniqueEffects: [
     {
       kind: 'damage',
       amount: {

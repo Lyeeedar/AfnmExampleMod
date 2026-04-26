@@ -136,7 +136,6 @@ const relationshipProgression: CharacterRelationshipDefinition[] = [
         stats: {
           defense: { value: 1.5, stat: 'power' },
         },
-        onTechniqueEffects: [],
         onRoundEffects: [],
         stacks: 1,
       },
@@ -206,7 +205,7 @@ const relationshipProgression: CharacterRelationshipDefinition[] = [
           defense: { value: 3, stat: 'power' },
           barrierMitigation: { value: 8, stat: undefined },
         },
-        onTechniqueEffects: [
+        beforeTechniqueEffects: [
           {
             kind: 'damage',
             amount: { value: 0.1, stat: 'power' },
@@ -257,7 +256,7 @@ const relationshipProgression: CharacterRelationshipDefinition[] = [
           barrierMitigation: { value: 10, stat: undefined },
           power: { value: 0.5, stat: 'power' },
         },
-        onTechniqueEffects: [
+        beforeTechniqueEffects: [
           {
             kind: 'damage',
             amount: { value: 0.15, stat: 'power' },
@@ -330,7 +329,7 @@ const relationshipProgression: CharacterRelationshipDefinition[] = [
           power: { value: 1, stat: 'power' },
           healthMax: { value: 0.5, stat: 'healthMax' },
         },
-        onTechniqueEffects: [
+        beforeTechniqueEffects: [
           {
             kind: 'damage',
             amount: { value: 0.2, stat: 'power' },

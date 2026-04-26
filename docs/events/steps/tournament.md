@@ -119,7 +119,6 @@ interface TournamentStep {
       stats: {
         weaponDisabled: { value: 1, stat: undefined }
       },
-      onTechniqueEffects: [],
       onRoundEffects: [],
       stacks: 1
     }

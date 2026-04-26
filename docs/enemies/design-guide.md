@@ -46,7 +46,7 @@ const soulmass: Buff = {
   name: 'Soulmass',
   icon: soulmassIcon,
   canStack: true,
-  onTechniqueEffects: [
+  beforeTechniqueEffects: [
     {
       kind: 'damage',
       amount: { value: 0.75, stat: 'power' }  // Extra damage per technique
@@ -356,7 +356,7 @@ stances: [
 const tentacle: Buff = {
   name: 'Tentacle',
   canStack: true,
-  onTechniqueEffects: [
+  beforeTechniqueEffects: [
     {
       kind: 'damage',
       amount: { value: 0.2, stat: 'power', scaling: 'stacks' }
@@ -415,7 +415,7 @@ stanceRotation: [
 ```typescript
 // Builds up consumable resource (soulmass) then spends it
 const soulmass: Buff = {
-  onTechniqueEffects: [
+  beforeTechniqueEffects: [
     { kind: 'damage', amount: { value: 0.75, stat: 'power' } },
     { kind: 'add', amount: { value: -1, stat: undefined } }  // Self-consuming
   ]

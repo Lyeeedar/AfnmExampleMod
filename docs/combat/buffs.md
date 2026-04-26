@@ -40,16 +40,15 @@ interface Buff {
   // Effect timing
   onCombatStartEffects?: BuffEffect[]; // Once when combat begins
   onRoundStartEffects?: BuffEffect[]; // Start of each round
-  onTechniqueEffects?: BuffEffect[]; // Before/after each technique
+  beforeTechniqueEffects?: BuffEffect[]; // Before each technique
+  afterTechniqueEffects?: BuffEffect[]; // After each technique
+  onStackGainEffects?: BuffEffect[]; // When gaining stacks
   onRoundEffects?: BuffEffect[]; // End of each round
 
   // Advanced mechanics
   interceptBuffEffects?: InterceptEffect[]; // Intercept other buff applications
   triggeredBuffEffects?: TriggeredEffect[]; // Respond to custom triggers
   condition?: BuffCondition; // When buff effects are active
-
-  // Timing modifiers
-  afterTechnique?: boolean; // onTechniqueEffects trigger after instead of before
 
   // System properties
   cantUpgrade?: boolean; // Prevent mastery upgrades
@@ -104,9 +103,17 @@ Triggers once when combat begins. Used for setup effects.
 
 Triggers at the start of each round, before any techniques are used.
 
-### `onTechniqueEffects`
+### `beforeTechniqueEffects`
 
-Triggers before each technique use (default) or after if `afterTechnique: true`.
+Triggers before each technique use.
+
+### `afterTechniqueEffects`
+
+Triggers after each technique use.
+
+### `onStackGainEffects`
+
+Triggers when this buff gains stacks.
 
 ### `onRoundEffects`
 
@@ -116,7 +123,7 @@ Triggers at the end of each round, after all techniques have been used.
 
 - **`interceptBuffEffects`** - Intercepts when specific buffs are applied
 - **`triggeredBuffEffects`** - Responds to custom trigger events. See [Triggers](triggers) for details
-- **`priority`** - Controls execution order (lower numbers execute first). Buffs whose `onTechniqueEffects` contain a `{ kind: 'damage', damageType: 'disruption' }` effect receive an automatic priority offset of −100, so they always execute before other buffs at the same `priority` value.
+- **`priority`** - Controls execution order (lower numbers execute first). Buffs whose `beforeTechniqueEffects` contain a `{ kind: 'damage', damageType: 'disruption' }` effect receive an automatic priority offset of −100, so they always execute before other buffs at the same `priority` value.
 
 ## Real Examples
 
@@ -139,7 +146,6 @@ export const sunlight: Buff = {
       max: { value: 1, stat: 'power' },
     },
   },
-  onTechniqueEffects: [],
   onRoundEffects: [],
   stacks: 1,
   combatImage: {
@@ -166,7 +172,7 @@ export const moonchill: Buff = {
   stats: {
     power: { value: -0.3, stat: 'power' },
   },
-  onTechniqueEffects: [
+  beforeTechniqueEffects: [
     {
       kind: 'add',
       amount: { value: -1, stat: undefined },
@@ -202,7 +208,6 @@ export const lunarAttunement: Buff = {
       max: { value: 50, stat: undefined },
     },
   },
-  onTechniqueEffects: [],
   onRoundEffects: [],
   stacks: 1,
   cantUpgrade: true,
@@ -221,8 +226,7 @@ const restoringFragranceBuff: Buff = {
   canStack: true,
   stats: undefined,
   type: 'blossom',
-  afterTechnique: true,
-  onTechniqueEffects: [
+  afterTechniqueEffects: [
     {
       kind: 'heal',
       amount: { value: 0.25, stat: 'power', upgradeKey: 'power' },

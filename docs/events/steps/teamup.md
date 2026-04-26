@@ -53,7 +53,7 @@ interface TeamUpStep {
     stats: {
       maxbarrier: { value: 0.1, stat: 'maxbarrier' }
     },
-    onTechniqueEffects: [
+    beforeTechniqueEffects: [
       {
         kind: 'heal',
         amount: { value: 0.15, stat: 'power' }

@@ -60,7 +60,6 @@ export const calmMindBuff: Buff = {
       scaling: 'stacks',
     },
   },
-  onTechniqueEffects: [],
   onRoundEffects: [],
   stacks: 1,
 };
@@ -132,7 +131,6 @@ export const spiritualClarityBuff: Buff = {
       scaling: 'stacks',
     },
   },
-  onTechniqueEffects: [],
   onRoundEffects: [],
   stacks: 1,
 };

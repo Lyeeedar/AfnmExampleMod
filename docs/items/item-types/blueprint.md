@@ -98,7 +98,6 @@ export const barrierRoomBlueprint: BlueprintItem = {
         maxbarrier: { value: window.modAPI.utils.getExpectedBarrier(), stat: undefined },
         barrierMitigation: { value: 4, stat: undefined },
       },
-      onTechniqueEffects: [],
       onRoundEffects: [],
       stacks: 2,
       stacksAreDays: true,
@@ -132,7 +131,6 @@ export const powerRoomBlueprint: BlueprintItem = {
       stats: {
         power: { value: Math.floor(window.modAPI.utils.getExpectedPower() * 0.1), stat: undefined },
       },
-      onTechniqueEffects: [],
       onRoundEffects: [],
       stacks: 2,
       stacksAreDays: true,

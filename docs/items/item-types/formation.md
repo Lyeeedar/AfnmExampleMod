@@ -66,7 +66,6 @@ export const empoweringDensityFormation: QiDensityFormationItem = {
     stats: {
       power: { value: Math.ceil(window.modAPI.utils.getExpectedPower() * 0.1), stat: undefined },
     },
-    onTechniqueEffects: [],
     onRoundEffects: [],
     stacks: 3,
     stacksAreDays: true,
@@ -91,7 +90,6 @@ export const corruptDensityFormation: QiDensityFormationItem = {
     icon: corruptIcon,
     canStack: true,
     stats: {},
-    onTechniqueEffects: [],
     onRoundEffects: [],
     onCombatStartEffects: [{
       kind: 'buffSelf',
