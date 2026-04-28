@@ -70,6 +70,7 @@ ComfyUI manager should prompt you to download any node packs you are missing, bu
 - WAS Node Suite (Revised)
 - ComfyUI-RMBG
 - Keep Largest Blob
+- comfyui-afnm-rmbg
 - comfyui_controlnet_aux
 
 ---
@@ -87,3 +88,11 @@ Now download the workflows zip [afnm-workflows](https://civitai.com/models/25351
 - `poseGeneration`: Used to take a base image for character and monsters and render pose variations. This workflow requires a lot more models (the wan 2.2 range, but ComfyUI should prompt you to download them). It is also slow.
 
 All workflows output the image in the final required resolution, with backgrounds removed and slight dropshadow added. Ready to be used by the game.
+
+---
+
+## Step 5 (Optional): Install the VSCode plugin
+
+To make it easy to generate images I have also built a VSCode plugin that automates using ComfyUI to generate images. You can get it here: [Afnm ArtGen](https://marketplace.visualstudio.com/items?itemName=Lyeeedar.art-gen-vscode).
+
+Once installed, it will try to connect to ComfyUI. If successful, in the ide when it detects an icon, image, or other known game asset field it will show a little 'generate image' button over it. Clicking that will open the sidepanel allowing you to quickly prompt that asset type. You can then select any of the generated images and click 'use' to insert them into the asset, import the asset, and assign it to the relevant field.
