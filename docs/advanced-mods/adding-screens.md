@@ -555,3 +555,4 @@ window.modAPI.injectUI('combat-victory', (api, element, inject) => {
   );
 });
 ```
+
