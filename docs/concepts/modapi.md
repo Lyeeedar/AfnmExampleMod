@@ -364,6 +364,31 @@ window.modAPI.actions.registerKeybinding({
 
 Registered keybindings appear in the Controls settings UI under a "Mods" section. Call `registerKeybinding` during mod initialization. Keybindings are permanent for the session once registered.
 
+**Reading keybind values at runtime** — Use `getRegisteredKeybindValue` to check what key is currently bound to an action:
+
+```typescript
+window.modAPI.utils.getRegisteredKeybindValue(action: string): string | undefined
+```
+
+Returns the current bound key string (e.g. 'F12') or `undefined` if the action is not registered. Useful for displaying key hints in custom UI or handling key events outside React components.
+
+```typescript
+window.modAPI.actions.registerKeybinding({
+  action: 'myMod.specialAction',
+  category: 'general',
+  displayName: 'Special Action',
+  description: 'Performs a special action',
+  defaultKey: 'F',
+  allowRebind: true,
+});
+
+// Later, in a screen or injectUI callback:
+const key = window.modAPI.utils.getRegisteredKeybindValue('myMod.specialAction');
+if (key) {
+  console.log(`Special action is bound to ${key}`);
+}
+```
+
 ### Mod Settings UI
 
 ```typescript
@@ -980,3 +1005,4 @@ window.modAPI.actions.addItem(myTreasure);
 ```
 
 For docs on the more advanced features of the Mod API, then see the **[Advanced Mods](../advanced-mods/)** page.
+
