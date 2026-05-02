@@ -2,3 +2,5 @@ builds/
 dist/
 node_modules/
 /docs/_site
+.code-graph/
+/.memsearch
