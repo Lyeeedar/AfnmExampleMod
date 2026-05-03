@@ -74,7 +74,7 @@ window.modAPI.hooks.onCalculateDamage((attacker, defender, damage, damageType, g
 
 ### `onBeforeCombat`
 
-Fires before combat is initialized. Allows modifying the enemy list and the player's starting combat entity. Return modified copies — mutations to the originals are not used.
+Fires before combat is initialized. Allows modifying the enemy list and the player's starting combat entity. Return modified copies; mutations to the originals are not used.
 
 **Parameters:**
 - `enemies: EnemyEntity[]` - The enemies about to be fought
@@ -198,7 +198,7 @@ window.modAPI.hooks.onCompleteTournament((eventStep, tournamentState, gameFlags)
 Triggers after dual cultivation attempts.
 
 **Parameters:**
-- `eventStep: DualCultivationStep` - The event step that triggered dual cultivation
+- `eventStep: DualCultivationStep` - The event step that triggered the dual cultivation
 - `success: boolean` - Whether the dual cultivation succeeded
 - `gameFlags: Record<string, number>` - Current game flags/state
 
@@ -341,7 +341,7 @@ Modifies the pool of exploration events before one is selected. Fired after base
 **Returns:** `LocationEvent[]` - Modified event pool
 
 **Important Warning on Weighted Events:**
-In the 0.6.50 runtime, `onGenerateExploreEvents` fires *before* the game expands weighted explore candidates into repeated `{ index, event }` entries. Repeat-penalty bookkeeping (`currentLocationLastEvent` / `currentLocationLastEventCount`) is keyed by that expanded weighted event index. If your mod needs to precisely modify drop rates or probabilities without breaking repeat-penalty semantics, you may still need to carefully scope your modifications or narrowly patch the final weighted candidate array in combination with this hook.
+In the 0.6.50 runtime, `onGenerateExploreEvents` fires before the game expands weighted explore candidates into repeated `{ index, event }` entries. Repeat-penalty bookkeeping (`currentLocationLastEvent` / `currentLocationLastEventCount`) is keyed by that expanded weighted event index. If your mod needs to precisely modify drop rates or probabilities without breaking repeat-penalty semantics, you may still need to carefully scope your modifications or narrowly patch the final weighted candidate array in combination with this hook.
 
 **Example:**
 ```typescript
@@ -359,7 +359,7 @@ window.modAPI.hooks.onGenerateExploreEvents((locationId, events, gameFlags) => {
 
 ### `onLocationEnter`
 
-Fires when the player moves to a new location. This is an observation hook — it does not return a value.
+Fires when the player moves to a new location. This is an observation hook; it does not return a value.
 
 **Parameters:**
 - `locationId: string` - The identifier of the location entered
@@ -380,7 +380,7 @@ window.modAPI.hooks.onLocationEnter((locationId, gameFlags) => {
 
 ### `onLootDrop`
 
-Fires when combat loot is distributed to the player after a fight. This is an observation hook — it does not return a value. Use `onCompleteCombat` if you need to modify or add drops.
+Fires when combat loot is distributed to the player after a fight. This is an observation hook; it does not return a value. Use `onCompleteCombat` if you need to modify or add drops.
 
 **Parameters:**
 - `items: Item[]` - The items distributed to the player
@@ -417,7 +417,7 @@ window.modAPI.hooks.onAdvanceDay((days, gameFlags) => {
 Fires once for each month rollover that occurs during a day advance. If the player skips multiple months at once, this fires once per month rolled over.
 
 **Parameters:**
-- `month: number` - The new month (1–12)
+- `month: number` - The new month (1 to 12)
 - `year: number` - The current year
 - `gameFlags: Record<string, number>` - Current game flags/state
 
@@ -432,6 +432,46 @@ window.modAPI.hooks.onAdvanceMonth((month, year, gameFlags) => {
 
 ---
 
+## New Game Hooks
+
+### `onNewGame`
+
+Fires when the player starts a new game (including after the optional tutorial). Called after all character creation choices are finalized but before the game state is committed. This is the last point where any aspect of the new game can be modified.
+
+**Parameters:**
+- `intent: NewGameIntent` - The full new game state:
+  - `items: ItemDesc[]` - items granted at game start
+  - `techniques: string[]` - technique IDs granted at game start
+  - `recipes: string[]` - recipe IDs granted at game start
+  - `destinies: string[]` - destiny IDs granted at game start
+  - `quests: string[]` - quest IDs granted at game start
+  - `money: number` - starting silver
+  - `favour: number` - starting favour
+  - `flags: Record<string, number>` - initial game flags (background flags are set via dispatch after this hook fires)
+  - `player: PlayerEntity` - the player entity after backgrounds are applied
+  - `craftingActions: string[]` - crafting action IDs granted at game start
+
+**Returns:** `NewGameIntent` - modified intent (all fields are optional; return only what you changed)
+
+**Example:**
+```typescript
+window.modAPI.hooks.onNewGame((intent) => {
+  // Grant a bonus item and extra starting silver
+  return {
+    ...intent,
+    items: [...intent.items, { name: 'Bonus Jade' }],
+    money: intent.money + 500,
+  };
+});
+```
+
+**Usage notes:**
+- Flags at this point are empty, because background flag dispatch runs after the hook returns. For flag-aware modifications, use `onReduxAction` or `onReduxActionPayload`.
+- The `player` field is the entity after backgrounds are applied but before `alternativeStart` modifications. Mods can adjust stats, techniques, buffs, etc. on this entity.
+- All hooks run in registration order. If multiple mods use this hook, chain the modifications by returning an intent that carries the previous hooks' changes.
+
+---
+
 ## Redux Hooks
 
 ### `onReduxAction`
@@ -440,7 +480,7 @@ Fires after every Redux state update. Receives the action type, the state before
 
 **This hook runs inside the reducer.** Keep the implementation fast, deterministic, and free of side-effects. Do not make network requests, trigger UI work, or run heavy computation here. Thrown exceptions are caught and logged.
 
-If `subscribe()` can solve your problem, prefer that instead — it runs outside the reducer and is safer for most use cases.
+If `subscribe()` can solve your problem, prefer that instead; it runs outside the reducer and is safer for most use cases.
 
 **Parameters:**
 - `actionType: string` - The Redux action type string
@@ -465,7 +505,7 @@ window.modAPI.hooks.onReduxAction((actionType, stateBefore, stateAfter, payload)
 
 ### `onReduxActionPayload`
 
-Fires before the reducer runs. Interceptors receive the action type and payload; return a modified payload to replace it, or `null` to drop the action entirely. Interceptors are chained — each receives the output of the previous.
+Fires before the reducer runs. Interceptors receive the action type and payload; return a modified payload to replace it, or `null` to drop the action entirely. Interceptors are chained; each receives the output of the previous.
 
 **This hook runs inside the reducer.** Keep the implementation fast, deterministic, and free of side-effects. Do not make network requests, trigger UI work, or run heavy computation here. Thrown exceptions are caught and logged.
 
