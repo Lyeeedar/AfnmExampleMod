@@ -350,6 +350,7 @@ window.modAPI.actions.registerKeybinding(definition: KeybindingDefinition)
 - **`definition.description`** — Tooltip description
 - **`definition.defaultKey`** — Default key binding (e.g. `'F'`, `'Shift+KeyG'`)
 - **`definition.allowRebind`** — Whether players can rebind this key
+- **`definition.modName`** — (optional) Mod name shown as a section heading in the Controls tab. Automatically set when using `registerKeybinding` via the ModAPI. Defaults to the mod's display name.
 
 ```typescript
 window.modAPI.actions.registerKeybinding({
@@ -362,7 +363,7 @@ window.modAPI.actions.registerKeybinding({
 });
 ```
 
-Registered keybindings appear in the Controls settings UI under a "Mods" section. Call `registerKeybinding` during mod initialization. Keybindings are permanent for the session once registered.
+Registered keybindings appear in the Controls settings UI grouped by mod name. Call `registerKeybinding` during mod initialization. Keybindings are permanent for the session once registered.
 
 **Reading keybind values at runtime** — Use `getRegisteredKeybindValue` to check what key is currently bound to an action:
 
