@@ -262,12 +262,13 @@ window.modAPI.injectUI(slotName: string, generator: (api: ModReduxAPI, element: 
 **The `inject` helper:**
 
 ```typescript
-inject(selector: string, content: ReactNode, mode?: 'overlay' | 'inline')
+inject(selector: string, content: ReactNode, mode?: 'overlay' | 'inline', position?: InjectPosition)
 ```
 
 - **`selector`** — CSS selector to target inside `element`
 - **`content`** — React node to render
 - **`mode`** — `'overlay'` (default, floats over target) or `'inline'` (inserts as a sibling after target)
+- **`position`** — Where to insert content relative to the target. Only valid for `inline` mode. `after` (default) inserts as the next sibling; `before` inserts as the previous sibling. For `overlay` mode, position is ignored — content is always placed inside the target element.
 
 ```typescript
 window.modAPI.injectUI('combat-victory', (api, element, inject) => {
@@ -276,7 +277,8 @@ window.modAPI.injectUI('combat-victory', (api, element, inject) => {
     <button style={{ pointerEvents: 'auto' }} onClick={() => console.log('bonus!')}>
       Claim Bonus
     </button>,
-    'inline'
+    'inline',
+    'after'
   );
 });
 ```
@@ -368,10 +370,24 @@ Registered keybindings appear in the Controls settings UI grouped by mod name. C
 **Reading keybind values at runtime** — Use `getRegisteredKeybindValue` to check what key is currently bound to an action:
 
 ```typescript
-window.modAPI.utils.getRegisteredKeybindValue(action: string): string | undefined
+window.modAPI.utils.getRegisteredKeybindValue(action: string): RegisteredKeybind | undefined
+
+
+`RegisteredKeybind` has the following shape:
+
+```typescript
+interface RegisteredKeybind {
+  displayText: string;  // Human-readable key display (e.g. 'F', 'Ctrl+S')
+  code: string;         // KeyboardEvent.code value (e.g. 'KeyF', 'KeyS')
+  ctrlKey: boolean;
+  altKey: boolean;
+  shiftKey: boolean;
+}
 ```
 
-Returns the current bound key string (e.g. 'F12') or `undefined` if the action is not registered. Useful for displaying key hints in custom UI or handling key events outside React components.
+```
+
+Returns a `RegisteredKeybind` object with the current bound key details, or `undefined` if the action is not registered. Useful for displaying key hints in custom UI or comparing against `KeyboardEvent.code`.
 
 ```typescript
 window.modAPI.actions.registerKeybinding({
@@ -384,9 +400,10 @@ window.modAPI.actions.registerKeybinding({
 });
 
 // Later, in a screen or injectUI callback:
-const key = window.modAPI.utils.getRegisteredKeybindValue('myMod.specialAction');
-if (key) {
-  console.log(`Special action is bound to ${key}`);
+const binding = window.modAPI.utils.getRegisteredKeybindValue('myMod.specialAction');
+if (binding) {
+  console.log(`Special action is bound to ${binding.displayText} (${binding.code})`);
+  // Use binding.code to compare against KeyboardEvent.code
 }
 ```
 
