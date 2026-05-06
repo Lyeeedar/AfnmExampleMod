@@ -28,7 +28,7 @@ interface Buff {
   // Visual properties
   colour?: string; // Optional background color for buff icon
   effectHint?: string; // Brief description when tooltip isn't sufficient
-  tooltip?: string; // Custom tooltip (auto-generated if omitted)
+  tooltip?: string; // Custom tooltip with dynamic placeholders (see below)
   combatImage?: CombatImage; // Visual effects during combat
 
   // Combat properties
@@ -123,7 +123,21 @@ Triggers at the end of each round, after all techniques have been used.
 
 - **`interceptBuffEffects`** - Intercepts when specific buffs are applied
 - **`triggeredBuffEffects`** - Responds to custom trigger events. See [Triggers](triggers) for details
-- **`priority`** - Controls execution order (lower numbers execute first). Buffs whose `beforeTechniqueEffects` contain a `{ kind: 'damage', damageType: 'disruption' }` effect receive an automatic priority offset of −100, so they always execute before other buffs at the same `priority` value.
+- **`priority`** - Controls execution order (lower numbers execute first). Buffs whose `beforeTechniqueEffects` contain a `{ kind: 'damage', damageType: 'disruption' }` effect receive an automatic priority offset of -100, so they always execute before other buffs at the same `priority` value.
+
+## Custom Tooltips
+
+The `tooltip` field on a buff supports dynamic placeholders that resolve at render time:
+
+- `<name>BuffName</name>` - Inserts the display name of another buff, styled as a buff link
+- `{heal.amount}` - Inserts the calculated amount from a `heal` effect in `triggeredBuffEffects`
+- `{barrier.amount}` - Inserts the calculated amount from a `barrier` effect in `triggeredBuffEffects`
+
+This allows buffs to display context-sensitive values that depend on other stats or effects:
+
+```typescript
+tooltip: 'When this is converted into <name>Moonlight</name>, gain {heal.amount} health.',
+```
 
 ## Real Examples
 
@@ -137,16 +151,27 @@ export const sunlight: Buff = {
   name: 'Sunlight',
   icon: sunIcon,
   canStack: true,
-  effectHint: 'Used to empower Celestial techniques',
+  type: 'celestial',
   stats: {
     power: {
-      value: 0.05,
+      value: 0.06,
       stat: 'power',
       scaling: 'stacks',
-      max: { value: 1, stat: 'power' },
+      max: { value: 3.6, stat: 'power' },
     },
   },
-  onRoundEffects: [],
+  tooltip: 'When this is converted into <name>Moonlight</name>, gain {heal.amount} health.',
+  triggeredBuffEffects: [
+    {
+      trigger: 'celestialRotation',
+      effects: [
+        {
+          kind: 'heal',
+          amount: { value: 0.3, stat: 'power' },
+        },
+      ],
+    },
+  ],
   stacks: 1,
   combatImage: {
     image: sunIcon,
@@ -184,6 +209,56 @@ export const moonchill: Buff = {
 };
 ```
 
+### Dual-Resource Buffer - Moonlight
+
+Moonlight demonstrates buffs that grant multiple stat types and use triggered effects for conversion interactions:
+
+```typescript
+import { Buff } from 'afnm-types';
+import moonIcon from '../assets/icons/moonlight.png';
+
+export const moonlight: Buff = {
+  name: 'Moonlight',
+  icon: moonIcon,
+  type: 'celestial',
+  canStack: true,
+  stats: {
+    protection: {
+      value: 3,
+      stat: undefined,
+      scaling: 'stacks',
+      max: { value: 180, stat: undefined },
+    },
+    barrierMitigation: {
+      value: 1,
+      stat: undefined,
+      scaling: 'stacks',
+      max: { value: 60, stat: undefined },
+    },
+  },
+  tooltip: 'When this is converted into <name>Sunlight</name>, gain {barrier.amount} barrier.',
+  triggeredBuffEffects: [
+    {
+      trigger: 'celestialRotation',
+      effects: [
+        {
+          kind: 'barrier',
+          amount: { value: 0.3, stat: 'power' },
+        },
+      ],
+    },
+  ],
+  stacks: 1,
+  combatImage: {
+    image: moonIcon,
+    position: 'floating',
+    entrance: 'rotate',
+    stacksScale: 0.15,
+  },
+  cantUpgrade: true,
+};
+```
+
 ### Conditional Buff - Lunar Attunement
 
 ```typescript
@@ -194,7 +269,6 @@ export const lunarAttunement: Buff = {
   name: 'Lunar Attunement',
   icon: lunarAttunementIcon,
   canStack: true,
-  maxStacks: 10,
   condition: {
     kind: 'condition',
     condition: `${window.modAPI.utils.flag(moonlight.name)} > 0`,
