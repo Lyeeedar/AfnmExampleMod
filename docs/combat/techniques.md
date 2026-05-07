@@ -715,13 +715,42 @@ Properties with `upgradeKey` can be modified by mastery:
 - **Stack generation**: Generate more resources
 - **Requirements**: Modify usage conditions
 
-### Mastery Pools
+### Stepped Upgrades
+
+The standard upgrade map functions (createPowerUpgradeMap, createDamageUpgradeMap, etc.) apply the full bonus at every rarity tier. createUpgradeMapStepped instead distributes the bonus incrementally across rarity tiers, giving a smoother progression curve:
 
 ```typescript
-masteryKindPools: ['damage', 'heal', 'buffSelf'];
+import { createUpgradeMapStepped } from 'afnm-types';
+
+upgradeMasteries: {
+  drBuff: createUpgradeMapStepped(
+    'drBuff',           // upgradeKey -- matches upgradeKey on the buff/stat being upgraded
+    'empowered',        // rarity tier for the upgrade
+    'Increase damage reduction by <num>{change}%</num>',
+    30,                 // total bonus at transcendent tier
+  ),
+  powerBuff: createUpgradeMapStepped(
+    'power',
+    'empowered',
+    'Increase power bonus by <num>{change}%</num>',
+    0.3,                // total bonus (30%)
+    false,             // shouldMultiply -- false for flat additive values
+    (value) => Math.floor(value * 100),  // renderTransform -- converts 0.3 to "30" for display
+  ),
+}
 ```
 
-Determines which effect types can receive random mastery bonuses, allowing for build customization beyond fixed upgrades.
+With maxChange=30 and shouldMultiply=false, the bonus is split across rarity tiers:
+- Mundane: 6
+- QiTouched: 12
+- Empowered: 18
+- Resplendent: 24
+- Incandescent: 30
+- Transcendent: 36
+
+The shouldMultiply parameter changes how the value is applied. When false (additive), the upgrade adds the raw value. When true, the upgrade multiplies the base value. Use false for flat bonuses (e.g., "+30 DR"), use true for multipliers (e.g., "+30% power").
+
+The renderTransform function converts the internal numeric value to a display string. For percentage values like 0.3, use (value) => Math.floor(value * 100) to render as "30" rather than "0.3".
 
 ### Overwrite Effects Mastery
 
