@@ -9,13 +9,16 @@ nav_order: 1
 
 This document describes the available mod hooks that allow mods to intercept and modify game behavior at specific points.
 
-All hooks are registered via `window.modAPI.hooks`:
+All hooks are registered via `window.modAPI.hooks`. Every hook returns a function — call it to remove the interceptor:
 
 ```typescript
-window.modAPI.hooks.onCreateEnemyCombatEntity((enemy, combatEntity, gameFlags) => {
+const unsubscribe = window.modAPI.hooks.onCreateEnemyCombatEntity((enemy, combatEntity, gameFlags) => {
   // ...
   return combatEntity;
 });
+
+// Later: stop intercepting
+unsubscribe();
 ```
 
 ---
@@ -127,6 +130,31 @@ window.modAPI.hooks.onDeriveRecipeDifficulty((recipe, recipeStats, gameFlags) =>
   }
 
   return recipeStats;
+});
+```
+
+### `onModifyRecipeIngredients`
+
+Modifies the ingredients or amounts used in a recipe before crafting calculations run. This fires before `onDeriveRecipeDifficulty`.
+
+**Parameters:**
+- `recipe: RecipeItem` - The recipe being crafted
+- `gameFlags: Record<string, number>` - Current game flags/state
+
+**Returns:** Modified `RecipeItem`
+
+**Example:**
+```typescript
+window.modAPI.hooks.onModifyRecipeIngredients((recipe, gameFlags) => {
+  if (gameFlags.efficient_crafting) {
+    const modified = { ...recipe };
+    modified.ingredients = recipe.ingredients.map(ing => ({
+      ...ing,
+      count: Math.max(1, Math.floor(ing.count * 0.5)),
+    }));
+    return modified;
+  }
+  return recipe;
 });
 ```
 
@@ -359,7 +387,7 @@ window.modAPI.hooks.onGenerateExploreEvents((locationId, events, gameFlags) => {
 
 ### `onLocationEnter`
 
-Fires when the player moves to a new location. This is an observation hook; it does not return a value.
+Fires when the player moves to a new location.
 
 **Parameters:**
 - `locationId: string` - The identifier of the location entered
@@ -380,7 +408,7 @@ window.modAPI.hooks.onLocationEnter((locationId, gameFlags) => {
 
 ### `onLootDrop`
 
-Fires when combat loot is distributed to the player after a fight. This is an observation hook; it does not return a value. Use `onCompleteCombat` if you need to modify or add drops.
+Fires when combat loot is distributed to the player after a fight. Use `onCompleteCombat` if you need to modify or add drops.
 
 **Parameters:**
 - `items: Item[]` - The items distributed to the player
@@ -470,13 +498,30 @@ window.modAPI.hooks.onNewGame((intent) => {
 - The `player` field is the entity after backgrounds are applied but before `alternativeStart` modifications. Mods can adjust stats, techniques, buffs, etc. on this entity.
 - All hooks run in registration order. If multiple mods use this hook, chain the modifications by returning an intent that carries the previous hooks' changes.
 
+### `onGameLoad`
+
+Fires when a saved game is loaded, allowing mods to mutate the initial state. The interceptor receives the loaded `RootState` and returns a modified copy. Use this to adjust game state based on loaded save data.
+
+**Parameters:**
+- `state: RootState` - The complete game state that was loaded
+
+**Returns:** `RootState` - Modified state
+
+**Example:**
+```typescript
+window.modAPI.hooks.onGameLoad((state) => ({
+  ...state,
+  player: { ...state.player, flags: { ...state.player.flags, my_mod_flag: 1 } },
+}));
+```
+
 ---
 
 ## Redux Hooks
 
 ### `onReduxAction`
 
-Fires after every Redux state update. Receives the action type, the state before, the state after, and a read-only snapshot of the action payload. Return a modified copy of `stateAfter` to override what is stored, or return `stateAfter` unchanged.
+Fires after every Redux action is dispatched. Receives the action type, the state before the action was applied, the state after, and a read-only copy of the action payload. Return a modified copy of `stateAfter` to override what is stored, or return `stateAfter` unchanged.
 
 **This hook runs inside the reducer.** Keep the implementation fast, deterministic, and free of side-effects. Do not make network requests, trigger UI work, or run heavy computation here. Thrown exceptions are caught and logged.
 
@@ -505,19 +550,20 @@ window.modAPI.hooks.onReduxAction((actionType, stateBefore, stateAfter, payload)
 
 ### `onReduxActionPayload`
 
-Fires before the reducer runs. Interceptors receive the action type and payload; return a modified payload to replace it, or `null` to drop the action entirely. Interceptors are chained; each receives the output of the previous.
+Fires before the reducer runs. Interceptors receive the action type and payload, and return a modified payload to replace it, or `null` to drop the action entirely. Interceptors are chained; each receives the output of the previous.
 
 **This hook runs inside the reducer.** Keep the implementation fast, deterministic, and free of side-effects. Do not make network requests, trigger UI work, or run heavy computation here. Thrown exceptions are caught and logged.
 
 **Parameters:**
 - `actionType: string` - The Redux action type string
 - `payload: unknown` - The action payload
+- `stateBefore: RootState` - Game state before the action
 
 **Returns:** `unknown` - The payload to pass to the reducer (return a modified payload, or `null` to drop the action)
 
 **Example:**
 ```typescript
-window.modAPI.hooks.onReduxActionPayload((actionType, payload) => {
+window.modAPI.hooks.onReduxActionPayload((actionType, payload, stateBefore) => {
   if (actionType === 'inventory/removeItem') {
     const p = payload as { name: string; stacks: number };
     if (modAPI.gameData.items[p.name]?.kind === 'blueprint') {
@@ -525,6 +571,90 @@ window.modAPI.hooks.onReduxActionPayload((actionType, payload) => {
     }
   }
   return payload;
+});
+```
+
+---
+
+## Equipment Hooks
+
+### `onDeriveEquipmentUpgradeRequirement`
+
+Called before the equipment upgrade dialog is shown. Allows mutating upgrade cost items and result item quality tier and hidden potential, but not the base item.
+
+**Parameters:**
+- `baseItem: Item` - The item being upgraded
+- `costItems: Item[]` - Items consumed as upgrade cost
+- `resultItem: { resultItemName: string; resultQualityTier: number; resultHiddenPotential?: number; resultEnchantment?: EnchantmentDesc }` - Preview of the result item
+- `gameFlags: Record<string, number>` - Current game flags/state
+
+**Returns:** `{ costItems?: Item[]; resultItem?: Partial<{ resultItemName: string; resultQualityTier: number; resultHiddenPotential: number; resultEnchantment: EnchantmentDesc }> } | undefined`
+
+**Example:**
+```typescript
+window.modAPI.hooks.onDeriveEquipmentUpgradeRequirement((baseItem, costItems, resultItem, gameFlags) => {
+  return {
+    costItems,
+    resultItem: { ...resultItem, resultQualityTier: resultItem.resultQualityTier + 2 },
+  };
+});
+```
+
+### `onCompleteEquipmentUpgrade`
+
+Called when an equipment upgrade completes. Read-only: cannot modify the result item. Use `onDeriveEquipmentUpgradeRequirement` to change the result before the upgrade.
+
+**Parameters:**
+- `baseItem: Item` - The item that was upgraded
+- `costItems: Item[]` - Items that were consumed
+- `resultItem: Item` - The resulting upgraded item
+- `gameFlags: Record<string, number>` - Current game flags/state
+
+**Example:**
+```typescript
+window.modAPI.hooks.onCompleteEquipmentUpgrade((baseItem, costItems, resultItem, gameFlags) => {
+  console.log('Upgraded:', resultItem.name, 'from', baseItem.name);
+});
+```
+
+### `onDeriveEquipmentReforgeRequirement`
+
+Called before the equipment reforge dialog is shown. Allows mutating reforge cost items and result item quality tier and hidden potential, but not the base item.
+
+**Parameters:**
+- `baseItem: Item` - The item being reforged
+- `costItems: Item[]` - Items consumed as reforge cost
+- `resultItem: { resultItemName: string; resultQualityTier: number; resultHiddenPotential?: number; resultEnchantment?: EnchantmentDesc }` - Preview of the result item
+- `gameFlags: Record<string, number>` - Current game flags/state
+
+**Returns:** `{ costItems?: Item[]; resultItem?: Partial<{ resultItemName: string; resultQualityTier: number; resultHiddenPotential: number; resultEnchantment: EnchantmentDesc }> } | undefined`
+
+**Example:**
+```typescript
+window.modAPI.hooks.onDeriveEquipmentReforgeRequirement((baseItem, costItems, resultItem, gameFlags) => {
+  return { costItems, resultItem: { ...resultItem, resultQualityTier: 10 } };
+});
+```
+
+### `onCompleteEquipmentReforge`
+
+Called after the reforge completes, before the result dialog is shown. Allows modifying the cost items and result item.
+
+**Parameters:**
+- `baseItem: Item` - The item that was reforged
+- `costItems: Item[]` - Items that were consumed
+- `resultItem: Item` - The resulting reforged item
+- `gameFlags: Record<string, number>` - Current game flags/state
+
+**Returns:** `{ costItems?: Item[]; resultItem?: Item } | undefined`
+
+**Example:**
+```typescript
+window.modAPI.hooks.onCompleteEquipmentReforge((baseItem, costItems, resultItem, gameFlags) => {
+  return {
+    costItems,
+    resultItem: { ...resultItem, damage: (resultItem.damage ?? 0) + 5 },
+  };
 });
 ```
 
@@ -590,7 +720,7 @@ if (snap) {
 
 ### `injectUI`
 
-Inject React content into a named slot inside an existing game dialog or screen. Returns `void`.
+Inject React content into a named slot inside an existing game dialog or screen.
 
 **Slot names:**
 - For dialogs: the dialog's DOM **id** (e.g. `'combat-victory'`). Open the game in dev mode and inspect the element to find the id for the dialog you want to target.
