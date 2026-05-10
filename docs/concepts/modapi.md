@@ -592,6 +592,100 @@ window.modAPI.hooks.onCalculateDamage((attacker, defender, damage, damageType, f
 });
 ```
 
+### Combat Step Hooks
+
+These hooks fire around individual steps of the combat round queue (player technique, enemy technique, artefact, party member, buffs, end-of-round). They fire from `CombatScreen.tsx` and allow mods to inspect and modify the combat state mid-round, or cancel a step entirely.
+
+#### `onCombatBeforeStep`
+
+Fires before each step in the round queue. Return a modified `CurrentCombatState` to change combat state, a cancel object `{ cancel: true, logMessage: string }` to skip the step and log a message, or `null` to continue as normal.
+
+```typescript
+window.modAPI.hooks.onCombatBeforeStep((step, ctx) => {
+  if (step.kind === 'player' && ctx.roundNum >= 5) {
+    return { cancel: true, logMessage: 'You refuse to continue after 5 rounds.' };
+  }
+  return null;
+});
+```
+
+- **`step`** -- The `RoundStep` being executed (`{ kind: 'player' }`, `{ kind: 'enemy' }`, `{ kind: 'playerArtefact', index: 0 }`, `{ kind: 'buffs' }`, `{ kind: 'end' }`, etc.)
+- **`ctx`** -- The current `CurrentCombatState` snapshot at the point before the step executes
+
+#### `onCombatAfterStep`
+
+Fires after each step in the round queue completes. Return a modified `CurrentCombatState` to change what gets stored, or `null` to keep the default.
+
+```typescript
+window.modAPI.hooks.onCombatAfterStep((step, ctx) => {
+  if (step.kind === 'enemy' && ctx.playerState && ctx.playerState.stats.hp <= 0) {
+    // Custom death handling
+    return { ...ctx, combatState: 'defeat' };
+  }
+  return null;
+});
+```
+
+#### `onCombatRoundStart`
+
+Fires at the start of each combat round, after the round queue is built but before any steps execute. Useful for round-based setup effects.
+
+```typescript
+window.modAPI.hooks.onCombatRoundStart((ctx) => {
+  console.log('Round', ctx.roundNum, 'starting');
+  return null; // or return a modified ctx to apply changes
+});
+```
+
+#### `onCombatRoundEnd`
+
+Fires at the end of each combat round (when the `{ kind: 'end' }` step completes). Useful for end-of-round effects, cleanup, or applying accumulated state changes.
+
+```typescript
+window.modAPI.hooks.onCombatRoundEnd((ctx) => {
+  // Clean up temporary buffs at end of round 3
+  if (ctx.roundNum === 3) {
+    const cleaned = { ...ctx };
+    return cleaned;
+  }
+  return null;
+});
+```
+
+#### `onConsumeItem`
+
+Fires when the player consumes a pill, concoction, or combat consumable during combat.
+
+```typescript
+window.modAPI.hooks.onConsumeItem((item, target, flags) => {
+  console.log('Consumed:', item.name, 'target hp:', target.stats.hp);
+});
+```
+
+- **`item`** -- The `Item` being consumed
+- **`target`** -- The `CombatEntity` receiving the item
+- **`flags`** -- Current game flags
+
+### Combat State Access
+
+During active combat, `modAPI.combat` provides direct access to the current combat state and allows mods to pause and resume the combat screen to inject custom UI or trigger events.
+
+```typescript
+if (modAPI.combat) {
+  const state = modAPI.combat.getCombatState();
+  modAPI.combat.setCombatState({ ...state, playerState: { ...state.playerState, stats: { ...state.playerState.stats, hp: 500 } } });
+  console.log('In combat:', modAPI.combat.isInCombat());
+  console.log('Log:', modAPI.combat.getCombatLog());
+}
+```
+
+- **`modAPI.combat.getCombatState()`** -- Returns the current `CurrentCombatState`, or `undefined` if not in combat
+- **`modAPI.combat.setCombatState(state)`** -- Overwrites the current combat state (use to modify HP, buffs, round number, etc.)
+- **`modAPI.combat.getCombatLog()`** -- Returns the array of `CombatLogEntry` entries so far
+- **`modAPI.combat.isInCombat()`** -- Returns `true` if a combat is in progress
+
+To pause combat and show a custom screen, mods can call `window.modAPI.actions.setCombatPaused(true)` from a hook or UI injection. The `CombatScreen` returns `null` while paused, allowing a parent component to render custom UI instead. Call `window.modAPI.actions.setCombatPaused(false)` to resume.
+
 ### Completion Hooks
 
 These fire after specific activities complete and can inject additional event steps:
