@@ -57,6 +57,17 @@ interface CraftingBuff {
   // Advanced fields
   bonusHiddenPotential?: Scaling; // Grants bonus hidden potential to the crafted item when this buff is active
   realm?: Realm; // Minimum realm required for this buff to apply its effects
+
+  // Animation triggers
+  animations?: (
+    | 'bump'
+    | 'buff'
+    | 'completion'
+    | 'perfection'
+    | 'stabilityup'
+    | 'stabilitydown'
+    | 'pool'
+  )[]; // Visual effects played when this buff's effects trigger
 }
 ```
 

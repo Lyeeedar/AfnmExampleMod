@@ -123,7 +123,8 @@ const qiCondensationMidDef: CompanionCharacterDefinition = {
         difficulty: 'mediumhard',
         battleLength: 'long',
         stances: [
-          /* techniques appropriate for realm */
+          /* Example stance with actual technique IDs — replace with your own */
+          { name: 'Advancing Fist', techniques: ['advancingFist', 'craneStance', 'rippleFist'] },
         ],
         talismans: [{ name: 'Protection Talisman III' }],
         artefacts: [{ name: 'Companion Sword' }],
@@ -469,7 +470,8 @@ const fullCompanion: Character = {
             difficulty: 'easy',
             battleLength: 'medium',
             stances: [
-              /* basic techniques */
+              /* Example stance for early realm — replace with your own */
+              { name: 'Basic Fist Stance', techniques: ['meteorKick', 'palmBlast', 'visualiseSuccess'] },
             ],
             drops: [],
             affinities: { blossom: 40 },
