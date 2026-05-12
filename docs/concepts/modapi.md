@@ -1014,6 +1014,33 @@ const preview = window.modAPI.utils.previewCraftingTechnique(technique, crafting
 console.log('Completion after:', preview.progressState?.completion);
 ```
 
+### Player Entity Utilities
+
+```typescript
+window.modAPI.utils.createPlayerCombatEntity(player: PlayerEntity, breakthrough: BreakthroughState, gameFlags?: Record<string, number>): CombatEntity
+window.modAPI.utils.createPlayerCraftingEntity(player: PlayerEntity, breakthrough: BreakthroughState, characters?: CharactersState, options?: { noCompanionBuff?: boolean }, gameFlags?: Record<string, number>): CraftingEntity
+```
+
+Create full player entities for tooltips, calculations, and custom mechanics. Both functions apply breakthrough stats, scaling, destinies, and mod hooks.
+
+- **`createPlayerCombatEntity`** — Create a combat entity for damage calculations, tooltips, or custom combat mechanics. Returns a `CombatEntity` with all stats computed from the player's current breakthrough state.
+
+- **`createPlayerCraftingEntity`** — Create a crafting entity for crafting tooltips, preview calculations, or custom crafting mechanics. Takes optional `characters` state for companion bonuses, and `options.noCompanionBuff` to skip those bonuses.
+
+```typescript
+// Create a combat entity for tooltip display
+const player = window.modAPI.getGameStateSnapshot()?.player.player;
+const breakthrough = window.modAPI.getGameStateSnapshot()?.player.breakthrough;
+if (player && breakthrough) {
+  const combatEntity = window.modAPI.utils.createPlayerCombatEntity(player, breakthrough, flags);
+  // Use for damage calculations, technique effect previews, etc.
+}
+
+// Create a crafting entity for crafting previews
+const craftingEntity = window.modAPI.utils.createPlayerCraftingEntity(player, breakthrough, characters);
+```
+
+
 ## Components
 
 The `ModReduxAPI.components` object provides pre-styled UI components for use in mod screens, injected UI, and options panels:
