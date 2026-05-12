@@ -1,13 +1,1 @@
-{
-  "items": {
-    "src/modContent:item:The Best Treasure": {
-      "[description] Wooo mod content.": "",
-      "[name] The Best Treasure": ""
-    }
-  },
-  "techniques": {
-    "src/modContent:technique:Test technique": {
-      "[name] Test technique": ""
-    }
-  }
-}
+{}

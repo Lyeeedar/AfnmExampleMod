@@ -1,9 +1,9 @@
 {
-  "name": "my-afnm-mod",
-  "version": "0.0.1",
-  "description": "A mod for AFNM",
+  "name": "one-hp-mod",
+  "version": "1.0.0",
+  "description": "A mod that sets your max health permanently to 1",
   "author": {
-    "name": "<your name>"
+    "name": "Lyeeedar"
   },
   "main": "dist/mod.js",
   "scripts": {
