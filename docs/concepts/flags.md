@@ -178,7 +178,7 @@ The game automatically provides numerous flags representing the current game sta
 ### Player Stats
 
 - `power`, `defense`, `barrier`, `control`, `intensity` - Combat and crafting stats
-- `qi`, `maxqi`, `qiDroplets` - Qi management
+- `qi`, `maxqi`, `qiDroplets`, `missingQiDroplets` - Qi management
 - `realm`, `realmProgress` - Cultivation level
 - `money`, `spiritstones`, `favour` - Resources
 
