@@ -4,7 +4,7 @@ import { GAME_VERSION } from "afnm-types"
 declare const MOD_METADATA: {
   name: string;
   version: string;
-  author: string;
+  author: { name: string };
   description: string;
   gameVersion: string;
 };
