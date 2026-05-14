@@ -11,10 +11,7 @@ declare const MOD_METADATA: {
 
 export default {
   getMetadata: () => ({
-    name: MOD_METADATA.name,
-    version: MOD_METADATA.version,
-    author: MOD_METADATA.author,
-    description: MOD_METADATA.description,
+    ...MOD_METADATA,
     gameVersion: GAME_VERSION
   }),
 };
