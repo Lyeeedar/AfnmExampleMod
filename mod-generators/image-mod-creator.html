@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AFNM Simple Image Mod Creator</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+  :root { color-scheme: dark; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #1e1e22; color: #e8e8ea;
+    max-width: 760px; margin: 0 auto; padding: 24px;
+  }
+  h1 { margin-top: 0; font-size: 1.4rem; }
+  h2 { font-size: 1rem; margin: 24px 0 8px; color: #c9b37a; }
+  fieldset { border: 1px solid #3a3a40; border-radius: 6px; padding: 12px 16px; margin: 0 0 16px; }
+  legend { padding: 0 6px; color: #c9b37a; }
+  label { display: block; font-size: 0.85rem; margin: 8px 0 2px; color: #b0b0b8; }
+  input[type=text], input[type=number], select, textarea {
+    width: 100%; box-sizing: border-box;
+    background: #2a2a30; color: #e8e8ea;
+    border: 1px solid #444; border-radius: 4px;
+    padding: 6px 8px; font-size: 0.9rem; font-family: inherit;
+  }
+  textarea { min-height: 60px; resize: vertical; }
+  .sprite-card {
+    border: 1px solid #3a3a40; border-radius: 6px;
+    padding: 12px 16px; margin-bottom: 12px; background: #232328;
+  }
+  .sprite-card .card-head {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 8px;
+  }
+  .sprite-card .card-title { color: #c9b37a; font-weight: 600; }
+  .sprite-row {
+    display: grid; grid-template-columns: 110px 1fr 56px; gap: 10px;
+    align-items: center; padding: 6px 0; border-bottom: 1px solid #2a2a30;
+  }
+  .sprite-row:last-child { border-bottom: none; }
+  .sprite-row .name { color: #b0b0b8; font-size: 0.9rem; }
+  .sprite-row .name small { display: block; color: #6a6a72; font-size: 0.7rem; }
+  .sprite-row .thumb {
+    width: 48px; height: 48px; border-radius: 4px;
+    background: #2a2a30 center/contain no-repeat; border: 1px solid #444;
+  }
+  button {
+    background: #c9b37a; color: #1e1e22; border: 0; padding: 10px 18px;
+    font-size: 0.95rem; font-weight: 600; border-radius: 4px; cursor: pointer;
+  }
+  button:hover { background: #d8c28a; }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  button.secondary {
+    background: #3a3a40; color: #e8e8ea;
+  }
+  button.secondary:hover { background: #48484f; }
+  button.danger {
+    background: transparent; color: #e88; border: 1px solid #6a3a3a;
+    padding: 4px 10px; font-size: 0.8rem; font-weight: 500;
+  }
+  button.danger:hover { background: #3a2222; }
+  .actions { margin-top: 20px; display: flex; gap: 12px; align-items: center; }
+  .status { font-size: 0.85rem; color: #b0b0b8; }
+  .status.err { color: #e88; }
+  .status.ok { color: #8ec98e; }
+  .hint { font-size: 0.8rem; color: #8a8a92; margin: 4px 0 0; }
+</style>
+</head>
+<body>
+
+<h1>AFNM Simple Image Mod Creator</h1>
+<p class="hint">Fill in your mod details, add one or more player sprites, then click <b>Build Mod</b> to download a ready-to-use <code>.zip</code>. Drop the zip into the game's <code>mods/</code> folder.</p>
+
+<fieldset>
+  <legend>Mod Metadata</legend>
+  <label>Name <small>(folder/zip name, lowercase-with-dashes)</small></label>
+  <input id="m-name" type="text" value="my-image-mod">
+  <label>Version</label>
+  <input id="m-version" type="text" value="1.0.0">
+  <label>Author</label>
+  <input id="m-author" type="text" value="Your Name">
+  <label>Description</label>
+  <textarea id="m-desc">New player images</textarea>
+</fieldset>
+
+<fieldset>
+  <legend>Player Sprites</legend>
+  <div id="sprite-list"></div>
+  <button id="add-sprite" type="button" class="secondary" style="margin-top: 8px;">+ Add Sprite</button>
+</fieldset>
+
+<div class="actions">
+  <button id="build">Build Mod</button>
+  <span id="status" class="status"></span>
+</div>
+
+<script>
+const SPRITE_SLOTS = [
+  { key: 'base',       label: 'Base',       hint: 'default pose (required)' },
+  { key: 'aggressive', label: 'Aggressive', hint: 'attacking' },
+  { key: 'defensive',  label: 'Defensive',  hint: 'blocking' },
+  { key: 'hit',        label: 'Hit',        hint: 'taking damage' },
+  { key: 'offensive',  label: 'Offensive',  hint: 'offensive technique' },
+  { key: 'support',    label: 'Support',    hint: 'support technique' },
+  { key: 'utility',    label: 'Utility',    hint: 'utility technique' },
+];
+
+let nextSpriteUid = 1;
+// sprites: array of { uid, id, name, gender, images: { base: dataUrl, ... } }
+const sprites = [];
+
+const listEl = document.getElementById('sprite-list');
+
+function addSprite(preset) {
+  const data = {
+    uid: nextSpriteUid++,
+    id: preset?.id ?? '',
+    name: preset?.name ?? '',
+    gender: preset?.gender ?? 'male',
+    images: {},
+  };
+  sprites.push(data);
+  renderSprite(data);
+}
+
+function removeSprite(uid) {
+  const i = sprites.findIndex(s => s.uid === uid);
+  if (i < 0) return;
+  sprites.splice(i, 1);
+  document.querySelector(`[data-sprite-uid="${uid}"]`)?.remove();
+}
+
+function renderSprite(data) {
+  const card = document.createElement('div');
+  card.className = 'sprite-card';
+  card.dataset.spriteUid = data.uid;
+  card.innerHTML = `
+    <div class="card-head">
+      <div class="card-title">Sprite #${data.uid}</div>
+      <button type="button" class="danger" data-remove>Remove</button>
+    </div>
+    <label>Sprite ID <small>(unique, lowercase-with-dashes)</small></label>
+    <input type="text" data-field="id" value="${escapeAttr(data.id)}">
+    <label>Display Name</label>
+    <input type="text" data-field="name" value="${escapeAttr(data.name)}">
+    <label>Gender</label>
+    <select data-field="gender">
+      <option value="male"${data.gender==='male'?' selected':''}>male</option>
+      <option value="female"${data.gender==='female'?' selected':''}>female</option>
+      <option value="both"${data.gender==='both'?' selected':''}>both</option>
+    </select>
+    <h2>Sprite Images</h2>
+    <p class="hint">Only <b>base</b> is required. Leave others empty to fall back to defaults.</p>
+    <div data-images></div>
+  `;
+
+  const imagesEl = card.querySelector('[data-images]');
+  for (const slot of SPRITE_SLOTS) {
+    const row = document.createElement('div');
+    row.className = 'sprite-row';
+    row.innerHTML = `
+      <div class="name">${slot.label}<small>${slot.hint}</small></div>
+      <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" data-image="${slot.key}">
+      <div class="thumb" data-thumb="${slot.key}"></div>
+    `;
+    imagesEl.appendChild(row);
+  }
+
+  card.addEventListener('input', (e) => {
+    const f = e.target.dataset.field;
+    if (f) data[f] = e.target.value;
+  });
+  card.addEventListener('change', async (e) => {
+    const key = e.target.dataset.image;
+    if (!key) return;
+    const file = e.target.files[0];
+    if (!file) {
+      delete data.images[key];
+      setThumb(card, key, '');
+      return;
+    }
+    const dataUrl = await fileToDataURL(file);
+    data.images[key] = dataUrl;
+    setThumb(card, key, dataUrl);
+  });
+  card.querySelector('[data-remove]').addEventListener('click', () => removeSprite(data.uid));
+
+  listEl.appendChild(card);
+}
+
+function setThumb(card, key, url) {
+  const t = card.querySelector(`[data-thumb="${key}"]`);
+  if (t) t.style.backgroundImage = url ? `url(${url})` : '';
+}
+
+function escapeAttr(s) {
+  return String(s ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+}
+
+function fileToDataURL(file) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(r.result);
+    r.onerror = reject;
+    r.readAsDataURL(file);
+  });
+}
+
+function setStatus(msg, cls = '') {
+  const el = document.getElementById('status');
+  el.textContent = msg;
+  el.className = 'status ' + cls;
+}
+
+function buildModJs(meta, spriteObjects) {
+  const metadata = {
+    name: meta.name,
+    version: meta.version,
+    author: { name: meta.author },
+    description: meta.description,
+  };
+  return `(function (root, factory) {
+  if (typeof define === 'function' && define.amd) define([], factory);
+  else if (typeof module === 'object' && module.exports) module.exports = factory();
+  else root.AFNMMod = factory();
+}(typeof self !== 'undefined' ? self : this, function () {
+  var MOD_METADATA = ${JSON.stringify(metadata, null, 2)};
+  var SPRITES = ${JSON.stringify(spriteObjects, null, 2)};
+  if (typeof window !== 'undefined' && window.modAPI && window.modAPI.actions) {
+    for (var i = 0; i < SPRITES.length; i++) {
+      window.modAPI.actions.addPlayerSprite(SPRITES[i]);
+    }
+  }
+  return {
+    getMetadata: function () {
+      var gv = (typeof window !== 'undefined' && window.afnmTypes && window.afnmTypes.GAME_VERSION) || undefined;
+      return Object.assign({}, MOD_METADATA, gv ? { gameVersion: gv } : {});
+    }
+  };
+}));
+`;
+}
+
+document.getElementById('add-sprite').addEventListener('click', () => addSprite());
+
+document.getElementById('build').addEventListener('click', async () => {
+  try {
+    const meta = {
+      name: document.getElementById('m-name').value.trim(),
+      version: document.getElementById('m-version').value.trim(),
+      author: document.getElementById('m-author').value.trim(),
+      description: document.getElementById('m-desc').value.trim(),
+    };
+    if (!meta.name) return setStatus('Mod name is required.', 'err');
+    if (sprites.length === 0) return setStatus('Add at least one sprite.', 'err');
+
+    const spriteObjects = [];
+    const seenIds = new Set();
+    for (const s of sprites) {
+      const id = s.id.trim();
+      const name = s.name.trim();
+      if (!id) return setStatus(`Sprite #${s.uid}: ID is required.`, 'err');
+      if (seenIds.has(id)) return setStatus(`Sprite #${s.uid}: duplicate ID "${id}".`, 'err');
+      seenIds.add(id);
+      if (!name) return setStatus(`Sprite #${s.uid}: Display Name is required.`, 'err');
+      if (!s.images.base) return setStatus(`Sprite #${s.uid}: a "base" image is required.`, 'err');
+      const images = {};
+      for (const slot of SPRITE_SLOTS) images[slot.key] = s.images[slot.key] || '';
+      spriteObjects.push({ id, name, gender: s.gender, sprites: images });
+    }
+
+    setStatus('Building...');
+    const modJs = buildModJs(meta, spriteObjects);
+    const zip = new JSZip();
+    zip.file('mod.js', modJs);
+    zip.file('package.json', JSON.stringify({
+      name: meta.name,
+      version: meta.version,
+      description: meta.description,
+      author: { name: meta.author },
+      main: 'mod.js',
+    }, null, 2));
+
+    const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${meta.name}-${meta.version}.zip`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    setStatus(`Built ${a.download} (${spriteObjects.length} sprite${spriteObjects.length>1?'s':''})`, 'ok');
+  } catch (err) {
+    console.error(err);
+    setStatus('Build failed: ' + err.message, 'err');
+  }
+});
+
+addSprite({ id: 'my-image-mod', name: 'Custom Cultivator', gender: 'male' });
+</script>
+</body>
+</html>
