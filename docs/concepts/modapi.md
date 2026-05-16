@@ -78,8 +78,8 @@ Access existing game content through `window.modAPI.gameData`:
 - **`harmonyConfigs`** - `Record<RecipeHarmonyType, HarmonyTypeConfig>` - Harmony type configurations
 - **`itemTypeToHarmonyType`** - `Record<ItemKind, RecipeHarmonyType>` - Maps item kinds to harmony types
 - **`tutorials`** - Tutorial system data:
-  - `newGameTutorials: Tutorial[]` — Base game tutorials played during a new game
-  - `tutorialTriggers: TriggeredEvent[]` — Triggered events forming the opening sequence
+  - `newGameTutorials: Tutorial[]`  --  Base game tutorials played during a new game
+  - `tutorialTriggers: TriggeredEvent[]`  --  Triggered events forming the opening sequence
 
 ## Content Registration
 
@@ -96,9 +96,9 @@ window.modAPI.actions.addItemToFallenStar(item, realm)
 window.modAPI.actions.addToSectShop(item, stacks, realm, valueModifier?, reputation?)
 ```
 
-- **`addItemToGuild`** — Add an item to a guild's rank shop. `guild` is the guild name, `rank` is the minimum rank required to purchase.
-- **`addItemToFallenStar`** — Add an item to the drop table for fallen stars of a given realm.
-- **`addToSectShop`** — Add an item to the Nine Mountain Sect's Favour Exchange shop at the specified realm tier. Optionally apply a price multiplier and gate the item behind a reputation tier. Items without a reputation tier go into `itemPool[realm]`; items with a tier go into `reputationPool[realm]`.
+- **`addItemToGuild`**  --  Add an item to a guild's rank shop. `guild` is the guild name, `rank` is the minimum rank required to purchase.
+- **`addItemToFallenStar`**  --  Add an item to the drop table for fallen stars of a given realm.
+- **`addToSectShop`**  --  Add an item to the Nine Mountain Sect's Favour Exchange shop at the specified realm tier. Optionally apply a price multiplier and gate the item behind a reputation tier. Items without a reputation tier go into `itemPool[realm]`; items with a tier go into `reputationPool[realm]`.
 
 ```typescript
 // Add item to sect shop at qiCondensation tier
@@ -182,11 +182,11 @@ window.modAPI.actions.addQuestToRequestBoard(
 )
 ```
 
-- **`quest`** — The quest definition. If the quest is not already registered, it is automatically added to the quest registry.
-- **`realm`** — The realm tier this quest appears under on the request board (e.g. `'qiCondensation'`).
-- **`rarity`** — Controls the display tier of the request. Valid values: `'mundane'`, `'qitouched'`, `'empowered'`, `'resplendent'`, `'incandescent'`, `'transcendent'`.
-- **`condition`** — Flag expression that must be true for the quest to appear (e.g. `'1'` for always available, `'myMod_unlocked == 1'` for conditional).
-- **`location`** — The location key. The location must have a `requestBoard` building, an error is thrown if the location does not exist or has no request board.
+- **`quest`**  --  The quest definition. If the quest is not already registered, it is automatically added to the quest registry.
+- **`realm`**  --  The realm tier this quest appears under on the request board (e.g. `'qiCondensation'`).
+- **`rarity`**  --  Controls the display tier of the request. Valid values: `'mundane'`, `'qitouched'`, `'empowered'`, `'resplendent'`, `'incandescent'`, `'transcendent'`.
+- **`condition`**  --  Flag expression that must be true for the quest to appear (e.g. `'1'` for always available, `'myMod_unlocked == 1'` for conditional).
+- **`location`**  --  The location key. The location must have a `requestBoard` building, an error is thrown if the location does not exist or has no request board.
 
 ```typescript
 // Example: add a gathering quest to the Liang Tiao Village request board
@@ -199,632 +199,38 @@ window.modAPI.actions.addQuestToRequestBoard(
 );
 ```
 
-### Custom Screens
-
-Register a full-page screen that players can navigate to:
+### Enemies and Combat
 
 ```typescript
-window.modAPI.actions.addScreen({
-  key: string;          // Screen identifier for navigation
-  component: ModScreenFC; // Your React functional component
-  music?: string;        // Optional music track name
-  ambience?: string;    // Optional ambient sound
-  priority?: number;    // Optional priority for screen resolution
-})
+window.modAPI.actions.addEnemy(enemy: EnemyEntity)
+window.modAPI.actions.addEnemyToLocation(location: string, enemy: LocationEnemy)
+window.modAPI.actions.addPuppet(puppet: PuppetType)
 ```
 
-- **`key`** — Use `setScreen('yourKey')` to navigate to this screen from other screens or button click handlers.
-- **`component`** — A `ModScreenFC` receiving `screenAPI: ModReduxAPI` as props. The screen API gives you hooks (`useSelector`, `useGameFlags`, `usePlaySfx`, `useKeybinding`), actions (`setScreen`, `setFlag`, `changeMoney`, `addItem`, `advanceDays`, etc.), and pre-styled components (`GameDialog`, `GameButton`, `GameIconButton`, `BackgroundImage`, `PlayerComponent`).
-- Custom screens cannot be navigated to from event steps. The built-in `changeScreen` event step only supports the game's own screen types. To navigate to a mod screen mid-event, use a completion hook (e.g. `onCompleteCombat`) that calls `window.modAPI.actions.setScreen()`.
-
-**Example screen:**
+### Calendar and Events
 
 ```typescript
-const MyScreen: ModScreenFC = ({ screenAPI }) => {
-  const { useSelector, actions, components } = screenAPI;
-  const { GameDialog, GameButton, BackgroundImage, PlayerComponent } = components;
-  const player = useSelector((state) => state.player.player);
-
-  return (
-    <Box position="relative" flexGrow={1} display="flex" flexDirection="column">
-      <BackgroundImage image="town.png" />
-      <GameDialog title="My Screen" onClose={() => actions.setScreen('location')}>
-        <Typography>Hello, {player.forename}!</Typography>
-        <GameButton onClick={() => actions.changeMoney(100)}>Get Stones</GameButton>
-      </GameDialog>
-      <Box position="absolute" width="100%" height="100%" display="flex" flexDirection="column">
-        <Box flexGrow={1} />
-        <Box display="flex">
-          <PlayerComponent />
-        </Box>
-      </Box>
-    </Box>
-  );
-};
-
-window.modAPI.actions.addScreen({ key: 'myScreen', component: MyScreen });
+window.modAPI.actions.addCalendarEvent(event: CalendarEvent)
+window.modAPI.actions.addTriggeredEvent(event: TriggeredEvent)
+window.modAPI.actions.addGuildRank(guild: string, rank: GuildRank)
 ```
 
-For full documentation on building screens, see [Adding Screens](../advanced-mods/adding-screens).
-
-### UI Injection
-
-Inject React content into named slots inside existing game dialogs or screens:
+### Utilities and Helpers
 
 ```typescript
-window.modAPI.injectUI(slotName: string, generator: (api: ModReduxAPI, element: HTMLElement, inject: InjectHelper) => void)
+window.modAPI.actions.addTranslation(key: string, value: string)
+window.modAPI.actions.addTranslationObject(obj: Record<string, string>)
 ```
 
-**Slot names:**
-- For dialogs: the dialog's DOM **id** (e.g. `'combat-victory'`). Open the game in dev mode and inspect the element to find the id for the dialog you want to target.
-- For full screens: the `ScreenType` value (e.g. `'combat'`, `'location'`, `'crafting'`, `'jadeCutting'`). You can also target specific sub-slots within screens (e.g. `'combat-topBarPlayerInfo'`, `'crafting-craftingScreen'`, `'stoneCutting-jadeCuttingScreen'`).
-
-**The `inject` helper:**
+### Mod API
 
 ```typescript
-inject(selector: string, content: ReactNode, mode?: 'overlay' | 'inline', position?: InjectPosition)
-```
-
-- **`selector`** — CSS selector to target inside `element`
-- **`content`** — React node to render
-- **`mode`** — `'overlay'` (default, floats over target) or `'inline'` (inserts as a sibling after target)
-- **`position`** — Where to insert content relative to the target. Only valid for `inline` mode. `after` (default) inserts as the next sibling; `before` inserts as the previous sibling. For `overlay` mode, position is ignored — content is always placed inside the target element.
-
-```typescript
-window.modAPI.injectUI('combat-victory', (api, element, inject) => {
-  return inject(
-    '[aria-live="assertive"]',
-    <button style={{ pointerEvents: 'auto' }} onClick={() => console.log('bonus!')}>
-      Claim Bonus
-    </button>,
-    'inline',
-    'after'
-  );
-});
-```
-
-For a full list of available slots on each screen, see the screen-specific slot names added to combat, crafting, and jade cutting screens. Use dev tools to inspect elements for the complete set of available injection points.
-
-### Specialized Content
-
-```typescript
-window.modAPI.actions.addCrop(realm: Realm, crop: Crop)
-window.modAPI.actions.addMineChamber(realm: Realm, progress: RealmProgress, chamber: MineChamber)
-window.modAPI.actions.addGuild(guild: Guild)
-window.modAPI.actions.addDualCultivationTechnique(technique: IntimateTechnique)
-window.modAPI.actions.addEnchantment(enchantment: Enchantment)
-window.modAPI.actions.addFallenStar(fallenStar: FallenStar)
-window.modAPI.actions.addRoom(room: Room)
-window.modAPI.actions.addMysticalRegionBlessing(blessing: Blessing)
-window.modAPI.actions.addPuppetType(puppet: PuppetType)
-window.modAPI.actions.addAlternativeStart(start: AlternativeStart)
-window.modAPI.actions.addPlayerSprite(sprite: PlayerSprite)
-```
-
-- **`addMysticalRegionBlessing`** — Register a new blessing for mystical regions.
-- **`addPuppetType`** — Register a new puppet type for the training ground.
-- **`addAlternativeStart`** — Register an alternative game start. Players select from available starts when creating a new game. The `AlternativeStart` defines the opening event, starting location, starting items, and starting money.
-- **`addPlayerSprite`** — Register a custom player sprite that appears in character creation alongside the defaults for the specified gender.
-
-### Crafting System
-
-```typescript
-window.modAPI.actions.addRecipeToLibrary(item: RecipeItem)
-window.modAPI.actions.addRecipeToResearch(baseItem: Item, recipe: RecipeItem)
-window.modAPI.actions.addResearchableRecipe(baseItem: string, recipe: RecipeItem)
-window.modAPI.actions.addUncutStone(realm: Realm, uncutStone: Item)
-window.modAPI.actions.addHarmonyType(harmonyType: RecipeHarmonyType, config: HarmonyTypeConfig)
-window.modAPI.actions.overrideItemTypeToHarmonyType(mapping: Partial<Record<ItemKind, RecipeHarmonyType>>)
-```
-
-### Global Flags
-
-```typescript
-window.modAPI.actions.setGlobalFlag(flag: string, value: number)
-window.modAPI.actions.getGlobalFlags(): Record<string, number>
-```
-
-Global flags persist across all save files and are automatically injected into game flags. Use them for mod data that is not tied to a specific save (for example, high scores or global unlock states).
-
-```typescript
-window.modAPI.actions.setGlobalFlag('myMod_highScore', 42);
-const flags = window.modAPI.actions.getGlobalFlags();
-const highScore = flags['myMod_highScore'] ?? 0;
-```
-
-**Flag conventions:**
-- Use dot-notation with your mod name as prefix to avoid collisions: `'myMod.enabled'`, `'myMod.difficulty'`
-- Store booleans as `0` / `1` and normalize any legacy values on startup
-- Initialize expected flags to defaults on mod load rather than assuming they exist
-- When renaming flags between versions, migrate old values to the new keys so existing users retain their settings
-
-### Keybinding Registration
-
-Register custom keyboard shortcuts that players can rebind in the game settings Controls tab:
-
-```typescript
-window.modAPI.actions.registerKeybinding(definition: KeybindingDefinition)
-```
-
-- **`definition.action`** — Unique action name (e.g. `'myMod.specialAction'`)
-- **`definition.category`** — Display category for grouping in the controls UI (e.g. `'general'`, `'combat'`)
-- **`definition.displayName`** — Human-readable name shown in the controls UI
-- **`definition.description`** — Tooltip description
-- **`definition.defaultKey`** — Default key binding (e.g. `'F'`, `'Shift+KeyG'`)
-- **`definition.allowRebind`** — Whether players can rebind this key
-- **`definition.modName`** — (optional) Mod name shown as a section heading in the Controls tab. Automatically set when using `registerKeybinding` via the ModAPI. Defaults to the mod's display name.
-
-```typescript
-window.modAPI.actions.registerKeybinding({
-  action: 'myMod.specialAction',
-  category: 'general',
-  displayName: 'Special Action',
-  description: 'Performs a special action',
-  defaultKey: 'F',
-  allowRebind: true,
-});
-```
-
-Registered keybindings appear in the Controls settings UI grouped by mod name. Call `registerKeybinding` during mod initialization. Keybindings are permanent for the session once registered.
-
-**Reading keybind values at runtime** — Use `getRegisteredKeybindValue` to check what key is currently bound to an action:
-
-```typescript
-window.modAPI.utils.getRegisteredKeybindValue(action: string): RegisteredKeybind | undefined
-
-
-`RegisteredKeybind` has the following shape:
-
-```typescript
-interface RegisteredKeybind {
-  displayText: string;  // Human-readable key display (e.g. 'F', 'Ctrl+S')
-  code: string;         // KeyboardEvent.code value (e.g. 'KeyF', 'KeyS')
-  ctrlKey: boolean;
-  altKey: boolean;
-  shiftKey: boolean;
-}
-```
-
-```
-
-Returns a `RegisteredKeybind` object with the current bound key details, or `undefined` if the action is not registered. Useful for displaying key hints in custom UI or comparing against `KeyboardEvent.code`.
-
-```typescript
-window.modAPI.actions.registerKeybinding({
-  action: 'myMod.specialAction',
-  category: 'general',
-  displayName: 'Special Action',
-  description: 'Performs a special action',
-  defaultKey: 'F',
-  allowRebind: true,
-});
-
-// Later, in a screen or injectUI callback:
-const binding = window.modAPI.utils.getRegisteredKeybindValue('myMod.specialAction');
-if (binding) {
-  console.log(`Special action is bound to ${binding.displayText} (${binding.code})`);
-  // Use binding.code to compare against KeyboardEvent.code
-}
-```
-
-### Mod Settings UI
-
-```typescript
-window.modAPI.actions.registerOptionsUI(component: ModOptionsFC)
-```
-
-Register a React settings component for your mod in the game's mod-loading dialog. This is the preferred home for cross-save configuration such as toggles, sliders, and mode selectors.
-
-Global flags are numeric, so store booleans as `0` / `1` and normalize any legacy values yourself.
-
-**JSX example** (if your build pipeline supports JSX):
-
-```typescript
-const MyModOptions: ModOptionsFC = ({ api }) => {
-  const flags = api.actions.getGlobalFlags();
-  const enabled = (flags['myMod.enabled'] ?? 1) === 1;
-  const GameButton = api.components.GameButton ?? 'button';
-
-  return (
-    <GameButton
-      onClick={() => api.actions.setGlobalFlag('myMod.enabled', enabled ? 0 : 1)}
-    >
-      {enabled ? 'Disable Mod' : 'Enable Mod'}
-    </GameButton>
-  );
-};
-
-window.modAPI.actions.registerOptionsUI(MyModOptions);
-```
-
-**createElement alternative** (works regardless of build setup):
-
-If JSX is not available in your options panel context, use `window.React.createElement` directly. Both approaches produce the same result:
-
-```typescript
-const MyModOptions: ModOptionsFC = ({ api }) => {
-  const ReactRuntime = window.React;
-  if (!ReactRuntime?.createElement) return null;
-
-  const createElement = ReactRuntime.createElement.bind(ReactRuntime);
-  const flags = api.actions.getGlobalFlags();
-  const enabled = (flags['myMod.enabled'] ?? 1) === 1;
-  const GameButton = api.components.GameButton ?? 'button';
-
-  return createElement(
-    GameButton,
-    { onClick: () => api.actions.setGlobalFlag('myMod.enabled', enabled ? 0 : 1) },
-    enabled ? 'Disable Mod' : 'Enable Mod',
-  );
-};
-
-window.modAPI?.actions?.registerOptionsUI?.(MyModOptions);
-```
-
-### Audio
-
-```typescript
-window.modAPI.actions.addMusic(name: string, path: string[])
-window.modAPI.actions.addSfx(name: string, path: string)
-```
-
-Note: When adding audio files the compiler will not know they exist at first, so you will get errors when trying to use the new names you added. To get around that, you will need to cast it to the expected type `'my_music' as MusicName` manually. This is essentially just saying to the compiler, 'trust me, this exists'.
-
-## Mod Hooks
-
-Intercept and modify game behavior at specific points through `window.modAPI.hooks`:
-
-### Player Combat Hooks
-
-#### `onCreatePlayerCombatEntity`
-
-Modify the player's combat entity after it is created but before combat begins.
-
-```typescript
-window.modAPI.hooks.onCreatePlayerCombatEntity((player, combatEntity, breakthrough, flags) => {
-  if (flags.enhanced_powers) {
-    combatEntity.stats.power *= 1.2;
-  }
-  return combatEntity;
-});
-```
-
-- **`player`** — The `PlayerEntity` from the Redux store
-- **`combatEntity`** — The newly created `CombatEntity` for the player
-- **`breakthrough`** — The current `BreakthroughState` (realm and progress)
-- **`flags`** — Current game flags
-
-#### `onCreatePlayerCraftingEntity`
-
-Modify the player's crafting entity after it is created.
-
-```typescript
-window.modAPI.hooks.onCreatePlayerCraftingEntity((player, craftingEntity, breakthrough, characters, flags) => {
-  if (flags.master_craftsman) {
-    craftingEntity.stats.control *= 1.2;
-  }
-  return craftingEntity;
-});
-```
-
-- **`player`** — The `PlayerEntity`
-- **`craftingEntity`** — The newly created `CraftingEntity` for the player
-- **`breakthrough`** — The current `BreakthroughState`
-- **`characters`** — The `CharactersState` from Redux (may be undefined)
-- **`flags`** — Current game flags
-
-### Crafting Hooks
-
-#### `onBeforeCraft`
-
-Modify the recipe or recipe stats before crafting begins. Also allows modifying the player crafting entity.
-
-```typescript
-window.modAPI.hooks.onBeforeCraft((player, recipe, recipeStats, flags) => {
-  if (flags.sharp_tools && recipeStats.difficulty > 100) {
-    return { recipeStats: { ...recipeStats, difficulty: recipeStats.difficulty * 0.9 } };
-  }
-  return undefined;
-});
-```
-
-- **`player`** — The current `CraftingEntity`
-- **`recipe`** — The `RecipeItem` being crafted
-- **`recipeStats`** — The calculated `CraftingRecipeStats` (completion, perfection, stability thresholds)
-- **`flags`** — Current game flags
-
-Return `{ recipe?: RecipeItem; recipeStats?: CraftingRecipeStats; player?: CraftingEntity }` to modify any of these, or `undefined` to leave them unchanged.
-
-#### `onDeriveRecipeDifficulty`
-
-Modify the difficulty and stats of crafting recipes during the crafting process.
-
-```typescript
-window.modAPI.hooks.onDeriveRecipeDifficulty((recipe, recipeStats, flags) => {
-  if (flags.unlockedUltimateCauldron === 1) {
-    recipeStats.completion *= 0.8;
-    recipeStats.perfection *= 0.8;
-  }
-  return recipeStats;
-});
-```
-
-### Combat Hooks
-
-#### `onCreateEnemyCombatEntity`
-
-Modify enemy stats after the combat entity is created.
-
-```typescript
-window.modAPI.hooks.onCreateEnemyCombatEntity((enemy, combatEntity, flags) => {
-  if (flags.hard_mode) {
-    combatEntity.stats.hp *= 1.5;
-    combatEntity.stats.power *= 1.2;
-  }
-  return combatEntity;
-});
-```
-
-#### `onBeforeCombat`
-
-Modify the enemy list and player state before combat starts. Return modified copies, mutations to the originals are not used.
-
-```typescript
-window.modAPI.hooks.onBeforeCombat((enemies, playerState, flags) => {
-  if (flags.hard_mode) {
-    const scaled = enemies.map(e => ({ ...e, stats: { ...e.stats, hp: e.stats.hp * 2 } }));
-    return { enemies: scaled, playerState };
-  }
-  return { enemies, playerState };
-});
-```
-
-#### `onCalculateDamage`
-
-Modify damage after all base reductions are applied.
-
-```typescript
-window.modAPI.hooks.onCalculateDamage((attacker, defender, damage, damageType, flags) => {
-  if (flags.iron_body && defender.entityType === 'Player') {
-    return Math.floor(damage * 0.8);
-  }
-  return damage;
-});
-```
-
-### Combat Step Hooks
-
-These hooks fire around individual steps of the combat round queue (player technique, enemy technique, artefact, party member, buffs, end-of-round). They fire from `CombatScreen.tsx` and allow mods to inspect and modify the combat state mid-round, or cancel a step entirely.
-
-#### `onCombatBeforeStep`
-
-Fires before each step in the round queue. Return a modified `CurrentCombatState` to change combat state, a cancel object `{ cancel: true, logMessage: string }` to skip the step and log a message, or `null` to continue as normal.
-
-```typescript
-window.modAPI.hooks.onCombatBeforeStep((step, ctx) => {
-  if (step.kind === 'player' && ctx.roundNum >= 5) {
-    return { cancel: true, logMessage: 'You refuse to continue after 5 rounds.' };
-  }
-  return null;
-});
-```
-
-- **`step`** -- The `RoundStep` being executed (`{ kind: 'player' }`, `{ kind: 'enemy' }`, `{ kind: 'playerArtefact', index: 0 }`, `{ kind: 'buffs' }`, `{ kind: 'end' }`, etc.)
-- **`ctx`** -- The current `CurrentCombatState` snapshot at the point before the step executes
-
-#### `onCombatAfterStep`
-
-Fires after each step in the round queue completes. Return a modified `CurrentCombatState` to change what gets stored, or `null` to keep the default.
-
-```typescript
-window.modAPI.hooks.onCombatAfterStep((step, ctx) => {
-  if (step.kind === 'enemy' && ctx.playerState && ctx.playerState.stats.hp <= 0) {
-    // Custom death handling
-    return { ...ctx, combatState: 'defeat' };
-  }
-  return null;
-});
-```
-
-#### `onCombatRoundStart`
-
-Fires at the start of each combat round, after the round queue is built but before any steps execute. Useful for round-based setup effects.
-
-```typescript
-window.modAPI.hooks.onCombatRoundStart((ctx) => {
-  console.log('Round', ctx.roundNum, 'starting');
-  return null; // or return a modified ctx to apply changes
-});
-```
-
-#### `onCombatRoundEnd`
-
-Fires at the end of each combat round (when the `{ kind: 'end' }` step completes). Useful for end-of-round effects, cleanup, or applying accumulated state changes.
-
-```typescript
-window.modAPI.hooks.onCombatRoundEnd((ctx) => {
-  // Clean up temporary buffs at end of round 3
-  if (ctx.roundNum === 3) {
-    const cleaned = { ...ctx };
-    return cleaned;
-  }
-  return null;
-});
-```
-
-#### `onConsumeItem`
-
-Fires when the player consumes a pill, concoction, or combat consumable during combat.
-
-```typescript
-window.modAPI.hooks.onConsumeItem((item, target, flags) => {
-  console.log('Consumed:', item.name, 'target hp:', target.stats.hp);
-});
-```
-
-- **`item`** -- The `Item` being consumed
-- **`target`** -- The `CombatEntity` receiving the item
-- **`flags`** -- Current game flags
-
-### Combat State Access
-
-During active combat, `modAPI.combat` provides direct access to the current combat state and allows mods to pause and resume the combat screen to inject custom UI or trigger events.
-
-```typescript
-if (modAPI.combat) {
-  const state = modAPI.combat.getCombatState();
-  modAPI.combat.setCombatState({ ...state, playerState: { ...state.playerState, stats: { ...state.playerState.stats, hp: 500 } } });
-  console.log('In combat:', modAPI.combat.isInCombat());
-  console.log('Log:', modAPI.combat.getCombatLog());
-}
-```
-
-- **`modAPI.combat.getCombatState()`** -- Returns the current `CurrentCombatState`, or `undefined` if not in combat
-- **`modAPI.combat.setCombatState(state)`** -- Overwrites the current combat state (use to modify HP, buffs, round number, etc.)
-- **`modAPI.combat.getCombatLog()`** -- Returns the array of `CombatLogEntry` entries so far
-- **`modAPI.combat.isInCombat()`** -- Returns `true` if a combat is in progress
-
-To pause combat and show a custom screen, mods can call `window.modAPI.actions.setCombatPaused(true)` from a hook or UI injection. The `CombatScreen` returns `null` while paused, allowing a parent component to render custom UI instead. Call `window.modAPI.actions.setCombatPaused(false)` to resume.
-
-### Completion Hooks
-
-These fire after specific activities complete and can inject additional event steps:
-
-#### `onCompleteCombat`
-
-```typescript
-window.modAPI.hooks.onCompleteCombat((eventStep, victory, playerState, enemies, droppedItems, flags) => {
-  const events: EventStep[] = [];
-  if (!victory && eventStep.kind === 'combat' && !eventStep.isSpar) {
-    events.push({ kind: 'text', text: 'You fall, vision narrowing to black.' });
-    events.push({ kind: 'changeSocialStat', stat: 'lifespan', amount: '-lifespan' });
-  }
-  return events;
-});
-```
-
-#### `onCompleteTournament`
-
-```typescript
-window.modAPI.hooks.onCompleteTournament((eventStep, tournamentState, flags) => {
-  const events: EventStep[] = [];
-  if (tournamentState === 'victory' && !flags.firstTournamentVictory) {
-    events.push({ kind: 'unlockLocation', location: 'Champion Training Grounds' });
-  }
-  return events;
-});
-```
-
-#### `onCompleteDualCultivation`, `onCompleteCrafting`, `onCompleteAuction`, `onCompleteStoneCutting`
-
-Analogous to `onCompleteCombat`. Each receives the relevant event step, outcome data, and flags, and returns additional `EventStep[]` to inject.
-
-### Event Hooks
-
-#### `onEventDropItem`
-
-Intercept items granted by `addItem`, `addMultipleItem`, or `dropItem` event steps. Return a modified `ItemDesc` to change the item or suppress it entirely (return `stacks <= 0`).
-
-```typescript
-window.modAPI.hooks.onEventDropItem((item, step, flags) => {
-  if (flags.item_bonus && item.name === 'Iron Ore') {
-    return { ...item, stacks: (item.stacks ?? 1) * 2 };
-  }
-  return item;
-});
-```
-
-### Exploration Hooks
-
-#### `onGenerateExploreEvents`
-
-Modify the pool of exploration events before one is selected. Fires after base-game eligibility filtering.
-
-```typescript
-window.modAPI.hooks.onGenerateExploreEvents((locationId, events, flags) => {
-  if (flags.lucky_mode) {
-    return [...events, myBonusEvent];
-  }
-  return events;
-});
-```
-
-### Location Hooks
-
-#### `onLocationEnter`
-
-Fires when the player enters a new location. Observation only, no return value.
-
-```typescript
-window.modAPI.hooks.onLocationEnter((locationId, flags) => {
-  console.log('Entered:', locationId);
-});
-```
-
-### Loot Hooks
-
-#### `onLootDrop`
-
-Fires when combat loot is distributed. Observation only.
-
-```typescript
-window.modAPI.hooks.onLootDrop((items, flags) => {
-  items.forEach(item => console.log('Loot:', item.name));
-});
-```
-
-### Time Hooks
-
-#### `onAdvanceDay` / `onAdvanceMonth`
-
-Fire on time progression. Observation only.
-
-```typescript
-window.modAPI.hooks.onAdvanceDay((days, flags) => {
-  console.log('Days passed:', days);
-});
-
-window.modAPI.hooks.onAdvanceMonth((month, year, flags) => {
-  if (month === 3) {
-    window.modAPI.actions.startEvent(mySpringFestival);
-  }
-});
-```
-
-### Redux Hooks
-
-#### `onReduxAction`
-
-Fires after every Redux action. Runs inside the reducer, keep it fast, deterministic, and side-effect free. Return a modified `stateAfter` to override what is stored.
-
-```typescript
-window.modAPI.hooks.onReduxAction((actionType, stateBefore, stateAfter, payload) => {
-  if (actionType === 'inventory/addItem' && stateAfter.gameData.flags?.hard_mode) {
-    return { ...stateAfter, inventory: doubleInventory(stateAfter.inventory) };
-  }
-  return stateAfter;
-});
-```
-
-#### `onReduxActionPayload`
-
-Fires before the reducer runs. Allows modifying or dropping an action. Return `null` to drop the action entirely.
-
-```typescript
-window.modAPI.hooks.onReduxActionPayload((actionType, payload) => {
-  if (actionType === 'inventory/removeItem') {
-    const p = payload as { name: string; stacks: number };
-    if (window.modAPI.gameData.items[p.name]?.kind === 'blueprint') {
-      return null; // prevent blueprint removal
-    }
-  }
-  return payload;
-});
+window.modAPI.actions.addHook(hook: ModHook)
 ```
 
 ## Utility Functions
 
-Helper functions through `window.modAPI.utils`:
+Utility functions are accessed through `window.modAPI.utils`:
 
 ### State Access
 
@@ -834,23 +240,66 @@ window.modAPI.getGameStateSnapshot(): RootState | null
 window.modAPI.utils.determineCurrentScreen(rootState: RootState): ScreenType
 ```
 
-- **`subscribe`** — Subscribe to any Redux state change. The callback is called after every dispatched action. Returns an unsubscribe function. Prefer this over direct store access.
-- **`getGameStateSnapshot`** — Returns a read-only snapshot of the complete game state, or `null` if no save is loaded.
-- **`determineCurrentScreen`** — Determines the current screen type from the Redux root state. Useful in custom screens or hooks to branch behavior based on where the player is.
+- **`subscribe`**  --  Subscribe to any Redux state change. The callback is called after every dispatched action. Returns an unsubscribe function. Prefer this over direct store access.
+- **`getGameStateSnapshot`**  --  Returns a read-only snapshot of the complete game state, or `null` if no save is loaded.
+- **`determineCurrentScreen`**  --  Determines the current screen type from the Redux root state. Useful in custom screens or hooks to branch behavior based on where the player is.
+
+### Redux Selectors
+
+Selectors retrieve values from the Redux store:
 
 ```typescript
-// Rate-limited reactive updates
-let lastUpdate = 0;
-window.modAPI.subscribe(() => {
-  const now = Date.now();
-  if (now - lastUpdate < 250) return;
-  lastUpdate = now;
-  const snap = window.modAPI.getGameStateSnapshot();
-  if (snap) refreshMyPanel(snap);
-});
+window.modAPI.select(resource: string, ...args: any[]): unknown
+window.modAPI.selectMany(...resources: string[]): Record<string, unknown>
+```
 
-// Determine current screen
-const screen = window.modAPI.utils.determineCurrentScreen(store.getState());
+- **`select`**  --  Call a Redux selector with the given arguments. The `resource` string is the selector path (e.g. `'player.realm'`). Returns the selected value or `undefined` if not found.
+- **`selectMany`**  --  Retrieve multiple values at once. Accepts any number of resource strings and returns a record mapping each resource to its value.
+
+```typescript
+// Get a single value
+const realm = window.modAPI.select('player.realm');
+
+// Get multiple values
+const { realm, progress, name } = window.modAPI.selectMany(
+  'player.realm',
+  'player.realmProgress',
+  'player.name',
+);
+```
+
+### State Slice Access
+
+Access top-level state slices directly:
+
+```typescript
+window.modAPI.player: PlayerState
+window.modAPI.characters: CharactersState
+window.modAPI.inventory: InventoryState
+window.modAPI.cultivation: CultivationState
+window.modAPI.calendar: CalendarState
+window.modAPI.location: LocationState
+window.modAPI.quest: QuestState
+window.modAPI.combat: CombatState
+window.modAPI.crafting: CraftingState
+```
+
+Each slice provides direct access to its domain:
+
+- **`player`**  --  Player stats, realm, breakthrough state, equipment, and equipped techniques
+- **`characters`**  --  NPC states, relationships, companion status, and party members
+- **`inventory`**  --  All items in the player's possession
+- **`cultivation`**  --  Techniques, manuals, cultivation progress, and spiritual stats
+- **`calendar`**  --  Current day, season, active events, and festival states
+- **`location`**  --  Current location, discovered areas, and available exits
+- **`quest`**  --  Active quests, completed quests, and quest log entries
+- **`combat`**  --  Combat state, enemies, stances, and battle outcomes
+- **`crafting`**  --  Crafting queues, active techniques, and recipe progress
+
+```typescript
+const player = window.modAPI.player;
+const realm = player.realm;  // 'qiCondensation'
+const breakthrough = player.breakthrough;
 ```
 
 ### Enemy Modifiers
@@ -890,13 +339,11 @@ window.modAPI.utils.createFetchQuest(title, description, srcLocation, srcHint, s
 window.modAPI.utils.createCraftingMission(recipe, cost, location, appraiser, description, introSteps, sublimeSteps, perfectSteps, basicSteps, failureSteps, favour)
 ```
 
-- **`createDeliveryMission`** — Simple delivery quest (favour reward only).
-- **`createPackQuest`** — Hunt quest targeting a group of the same monster type.
-- **`createDeliveryQuest`** — Full delivery quest with spirit stone and reputation rewards.
-- **`createFetchQuest`** — Two-location fetch quest with source and destination events.
-- **`createCraftingMission`** — Crafting hall commission with separate outcome steps for each quality tier (sublime, perfect, basic, failure).
+- **`createDeliveryMission`**  --  Simple delivery quest (favour reward only).
+- **`createPackQuest`**  --  Hunt quest targeting a group of the same monster type.
+- **`createDeliveryQuest`**  --  Full delivery quest with spirit stone and reputation rewards.
 
-### Balance Calculations
+### Player Stat Calculations
 
 ```typescript
 window.modAPI.utils.getExpectedHealth(realm: Realm, progress: RealmProgress)
@@ -916,14 +363,14 @@ window.modAPI.utils.getPillRealmMultiplier(realm: Realm)
 window.modAPI.utils.getCraftingEquipmentStats(realm: Realm, realmProgress: RealmProgress, factors: { pool: number; control: number; intensity: number }, type: 'cauldron' | 'flame')
 ```
 
-- **`getExpectedBarrier`** — Expected max barrier for a player in the given realm.
-- **`getExpectedToxicity`** — Expected toxicity resistance.
-- **`getExpectedPool`** — Expected crafting qi pool size.
-- **`getExpectedIntensity`** — Expected crafting intensity.
-- **`getExpectedControl`** — Expected crafting control.
-- **`getExpectedArtefactPower`** — Expected artefact power stat.
-- **`getBreakthroughQi`** — Qi cost for a breakthrough at the given realm and progress.
-- **`getPillRealmMultiplier`** — Multiplier applied to pill effectiveness based on realm. Use when computing flat consumable values.
+- **`getExpectedBarrier`**  --  Expected max barrier for a player in the given realm.
+- **`getExpectedToxicity`**  --  Expected toxicity resistance.
+- **`getExpectedPool`**  --  Expected crafting qi pool size.
+- **`getExpectedIntensity`**  --  Expected crafting intensity.
+- **`getExpectedControl`**  --  Expected crafting control.
+- **`getExpectedArtefactPower`**  --  Expected artefact power stat.
+- **`getBreakthroughQi`**  --  Qi cost for a breakthrough at the given realm and progress.
+- **`getPillRealmMultiplier`**  --  Multiplier applied to pill effectiveness based on realm. Use when computing flat consumable values.
 
 ### Equipment Calculations
 
@@ -944,12 +391,10 @@ window.modAPI.utils.evaluateScaling(scaling: Scaling, variables: Record<string, 
 window.modAPI.utils.generateSkipTutorialFlags(tutorials: Tutorial[], triggers: TriggeredEvent[])
 ```
 
-- **`evaluateScaling`** — Evaluate a `Scaling` object against a variables map. Applies base value, stat multipliers, equations, custom scaling, and max constraints. Useful when computing item or technique values in code.
-- **`generateSkipTutorialFlags`** — Generate the flags needed to skip tutorials for an alternative start. For each tutorial, sets `{name}`, `{name}Started`, `{name}Completed`; for each trigger, sets `{name}` and `{name}Started`.
+- **`evaluateScaling`**  --  Evaluate a `Scaling` object against a variables map. Applies base value, stat multipliers, equations, custom scaling, and max constraints. Useful when computing item or technique values in code.
+- **`generateSkipTutorialFlags`**  --  Generate the flags needed to skip tutorials for an alternative start. For each tutorial, sets `{name}`, `{name}Started`, `{name}Completed`; for each trigger, sets `{name}` and `{name}Started`.
 
 ### Tooltip Utilities
-
-Format and expand tooltip strings using the game's tooltip system:
 
 ```typescript
 window.modAPI.utils.parseTooltipLine(tooltip: string): React.ReactNode
@@ -957,14 +402,11 @@ window.modAPI.utils.expandTooltipTemplate(template: string, templateValues: Map<
 window.modAPI.utils.expandTooltipTags(template: string): string
 ```
 
-- **`parseTooltipLine`** — Parse a tooltip string and return a React node with styled formatting. Handles colour tags, element tags, buff/item references, and numbers.
-- **`expandTooltipTemplate`** — Expand a template string by replacing `{{key}}` placeholders with values from the map. Optionally appends a period.
-- **`expandTooltipTags`** — Expand `<tag>` syntax in a template string to their display equivalents.
-
-These utilities use the same formatting system as the game's built-in tooltips, ensuring consistent styling when you render custom tooltips in mod UI.
+- **`parseTooltipLine`**  --  Parse a tooltip string and return a React node with styled formatting. Handles colour tags, element tags, buff/item references, and numbers.
+- **`expandTooltipTemplate`**  --  Expand a template string by replacing `{{key}}` placeholders with values from the map. Optionally appends a period.
+- **`expandTooltipTags`**  --  Expand `<tag>` syntax in a template string to their display equivalents.
 
 ```typescript
-// Styled tooltip output for a custom buff display
 const tooltipNode = window.modAPI.utils.parseTooltipLine('Applies [[blood corruption]] to target for 3 turns');
 
 // Expand template with dynamic values
@@ -975,9 +417,7 @@ const expanded = window.modAPI.utils.expandTooltipTemplate(
 );
 ```
 
-### Text Formatting
-
-These helpers produce styled HTML strings for use in event text steps:
+### Display Styling Utilities
 
 ```typescript
 window.modAPI.utils.col(text: string | number, col: string) // Color any text with a CSS color
@@ -994,7 +434,6 @@ Use these inside event `text` fields to produce consistent in-game styling:
 
 ```typescript
 {
-  kind: 'text',
   text: `You travel to ${window.modAPI.utils.loc('Iron Peak Sect')} and meet ${window.modAPI.utils.char('Elder Zhang')}, who offers you ${window.modAPI.utils.itm('Spirit Core (III)')}.`
 }
 ```
@@ -1019,13 +458,16 @@ console.log('Completion after:', preview.progressState?.completion);
 ```typescript
 window.modAPI.utils.createPlayerCombatEntity(player: PlayerEntity, breakthrough: BreakthroughState, gameFlags?: Record<string, number>): CombatEntity
 window.modAPI.utils.createPlayerCraftingEntity(player: PlayerEntity, breakthrough: BreakthroughState, characters?: CharactersState, options?: { noCompanionBuff?: boolean }, gameFlags?: Record<string, number>): CraftingEntity
+window.modAPI.utils.getMaxQiDroplets(player: PlayerEntity, breakthrough: BreakthroughState): number
 ```
 
 Create full player entities for tooltips, calculations, and custom mechanics. Both functions apply breakthrough stats, scaling, destinies, and mod hooks.
 
-- **`createPlayerCombatEntity`** — Create a combat entity for damage calculations, tooltips, or custom combat mechanics. Returns a `CombatEntity` with all stats computed from the player's current breakthrough state.
+- **`createPlayerCombatEntity`**  --  Create a combat entity for damage calculations, tooltips, or custom combat mechanics. Returns a `CombatEntity` with all stats computed from the player's current breakthrough state.
 
-- **`createPlayerCraftingEntity`** — Create a crafting entity for crafting tooltips, preview calculations, or custom crafting mechanics. Takes optional `characters` state for companion bonuses, and `options.noCompanionBuff` to skip those bonuses.
+- **`createPlayerCraftingEntity`**  --  Create a crafting entity for crafting tooltips, preview calculations, or custom crafting mechanics. Takes optional `characters` state for companion bonuses, and `options.noCompanionBuff` to skip those bonuses.
+
+- **`getMaxQiDroplets`**  --  Calculate the maximum Qi Droplets the player can hold based on their condensation art and breakthrough state. Returns the maximum droplets (0 if no vessel is equipped). Useful for displaying capacity in tooltips or calculating overflow when crafting consumables.
 
 ```typescript
 // Create a combat entity for tooltip display
@@ -1040,6 +482,42 @@ if (player && breakthrough) {
 const craftingEntity = window.modAPI.utils.createPlayerCraftingEntity(player, breakthrough, characters);
 ```
 
+## Hooks
+
+Hooks intercept and modify game behavior:
+
+```typescript
+window.modAPI.hooks.onCreatePlayerCombatEntity(interceptor: (entity: CombatEntity, player: PlayerEntity, breakthrough: BreakthroughState, gameFlags?: Record<string, number>) => CombatEntity): void
+window.modAPI.hooks.onModifyTechniqueEffect(interceptor: (effect: TechniqueEffect, technique: Technique, source: 'item' | 'technique' | 'buff') => TechniqueEffect): void
+window.modAPI.hooks.onModifyItemTooltip(interceptor: (tooltip: string, item: Item, player: PlayerEntity) => string): void
+window.modAPI.hooks.onPreDamageCalculation(interceptor: (damage: DamageCalculation, context: DamageContext) => DamageCalculation): void
+window.modAPI.hooks.onPostDamageCalculation(interceptor: (result: DamageResult, damage: DamageCalculation) => DamageResult): void
+```
+
+### Key Hooks
+
+- **`onCreatePlayerCombatEntity`**  --  Called when a player combat entity is created. Modify the entity before it is used in combat calculations. Useful for applying mod-specific stat bonuses or adjusting base values.
+
+```typescript
+window.modAPI.hooks.onCreatePlayerCombatEntity((entity, player, breakthrough) => {
+  // Add 10% bonus to all stats from a mod-specific destiny
+  return {
+    ...entity,
+    stats: {
+      ...entity.stats,
+      power: entity.stats.power * 1.1,
+    },
+  };
+});
+```
+
+- **`onModifyTechniqueEffect`**  --  Called when a technique effect is computed. Modify effect values before they are applied. Useful for adjusting effect scaling or adding conditional modifiers.
+
+- **`onModifyItemTooltip`**  --  Called when an item tooltip is generated. Modify the tooltip string before it is displayed. Useful for adding mod-specific tooltips or conditional information.
+
+- **`onPreDamageCalculation`**  --  Called before damage is computed. Modify the damage calculation input. Useful for adjusting base damage, adding miss chances, or applying custom damage multipliers.
+
+- **`onPostDamageCalculation`**  --  Called after damage is computed but before it is applied. Modify the result. Useful for adding post-damage effects like leech or barrier breaking.
 
 ## Components
 
@@ -1049,78 +527,116 @@ The `ModReduxAPI.components` object provides pre-styled UI components for use in
 const { GameDialog, GameButton, GameIconButton, BackgroundImage, PlayerComponent, GameTooltip, GameTooltipBox, TooltipLine } = api.components;
 ```
 
-### `GameDialog`
+### Dialog Components
 
-Main content container with built-in title and close button:
+- **`GameDialog`**  --  Modal dialog with standard game styling. Props: `open`, `onClose`, `title`, `children`, `actions?`, `maxWidth?`.
+- **`GameButton`**  --  Standard game button with hover states and disabled styling. Props: `onClick`, `children`, `disabled?`, `variant?`, `size?`.
+- **`GameIconButton`**  --  Icon button for toolbars and compact actions. Props: `onClick`, `icon`, `tooltip?`, `disabled?`.
 
 ```typescript
-<GameDialog
-  title="Dialog Title"
-  onClose={() => actions.setScreen('location')}  // Omit to disable close button
-  removePad={false}
-  showBackdrop={true}
-  width="md"  // 'sm' | 'md' | 'lg'
->
-  Your content here
+<GameDialog open={showDialog} onClose={() => setShowDialog(false)} title="My Mod Dialog">
+  <p>Content goes here</p>
+  <GameButton onClick={() => setShowDialog(false)}>Close</GameButton>
 </GameDialog>
 ```
 
-### `GameButton`
+### Display Components
 
-Styled button matching the game theme:
+- **`BackgroundImage`**  --  Full-screen background image with fade support. Props: `src`, `opacity?`, `speed?`.
+- **`PlayerComponent`**  --  Compact player summary for use in UI panels. Props: `player`, `breakthrough?`, `showEquipment?`.
 
-```typescript
-<GameButton
-  onClick={() => handleClick()}
-  disabled={false}
-  keybinding={"Enter"}  // Keybinding that triggers click when pressed
-  keyPriority={1}
-  fancyBorder={false}  // When true, shows animated border like the combat fight button
->
-  Button Text
-</GameButton>
-```
+### Tooltip Components
 
-### `GameIconButton`
-
-Button with an icon (expects an MUI icon component):
+- **`GameTooltip`**  --  Wrapper that shows a tooltip on hover. Props: `content`, `children`, `placement?`.
+- **`GameTooltipBox`**  --  Styled tooltip box with title and content sections. Props: `title?`, `children`, `maxWidth?`.
+- **`TooltipLine`**  --  Single line in a tooltip with left/right alignment. Props: `left`, `right`, `highlight?`.
 
 ```typescript
-<GameIconButton onClick={() => handleClick()}>
-  <CloseIcon />
-</GameIconButton>
-```
-
-### `BackgroundImage`
-
-Screen background with optional particle effects:
-
-```typescript
-<BackgroundImage
-  image="path/to/background.png"
-  screenEffect="dust"  // 'dust', 'snow', 'rain', etc.
-/>
-```
-
-### `PlayerComponent`
-
-Shows the player character. Always include in location/event screens unless you custom-render the character elsewhere:
-
-```typescript
-<PlayerComponent />
-```
-
-### `GameTooltip`, `GameTooltipBox`, `TooltipLine`
-
-Styled tooltip components matching the game's tooltip system. Use these to display formatted buff, item, or technique information in mod UI:
-
-```typescript
-<GameTooltip>
-  <GameTooltipBox title="My Buff">
-    <TooltipLine left="Effect" right="Deal 50 damage" />
-    <TooltipLine left="Duration" right="3 turns" />
-  </GameTooltipBox>
+<GameTooltip content={<GameTooltipBox title="Item Name">Item description</GameTooltipBox>}>
+  <span>Hover me</span>
 </GameTooltip>
+
+<TooltipLine left="Power" right="100" />
+<TooltipLine left="Critical" right="15%" highlight />
+```
+
+## Key Types
+
+### PlayerEntity
+
+The `PlayerEntity` represents the player character with all their stats and properties:
+
+```typescript
+interface PlayerEntity {
+  id: string;
+  name: string;
+  realm: Realm;
+  realmProgress: RealmProgress;
+  level: number;
+  experience: number;
+  stats: {
+    health: number;
+    power: number;
+    defense: number;
+    barrier: number;
+    toxicity: number;
+    control: number;
+    intensity: number;
+    pool: number;
+    speed: number;
+    charisma: number;
+  };
+  equipment: Record<EquipmentSlot, Item | null>;
+  techniques: Technique[];
+  attributes: Record<string, number>;
+  backgrounds: BackgroundId[];
+  currentQi: number;
+  currentHealth: number;
+  currentBarrier: number;
+}
+```
+
+### CombatEntity
+
+The `CombatEntity` extends `PlayerEntity` with combat-specific fields:
+
+```typescript
+interface CombatEntity extends PlayerEntity {
+  maxHealth: number;
+  maxBarrier: number;
+  maxQi: number;
+  currentHealth: number;
+  currentBarrier: number;
+  currentQi: number;
+  stance: Technique[];
+  buffs: CombatBuff[];
+  elementalResistances: Record<TechniqueElement, number>;
+  combatBonuses: CombatBonus[];
+  appliedEffects: AppliedEffect[];
+}
+```
+
+### Item
+
+Items are the core building blocks for equipment, consumables, and quest objects:
+
+```typescript
+interface Item {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  type: ItemKind;
+  rarity: Rarity;
+  value: number;
+  stackable: boolean;
+  effects?: ItemEffect[];
+  equippable?: boolean;
+  equipmentSlot?: EquipmentSlot;
+  duration?: number;
+  charges?: number;
+  conditions?: Condition[];
+}
 ```
 
 `TooltipLine` accepts `left` (label) and `right` (value) strings. `parseTooltipLine` in `utils` can format raw tooltip strings with colour tags, element tags, buff/item references, and numbers into styled `ReactNode` output suitable for use in these components.
@@ -1130,18 +646,224 @@ Styled tooltip components matching the game's tooltip system. Use these to displ
 ### Adding a Custom Item
 
 ```typescript
-const myTreasure: TreasureItem = {
-  kind: 'treasure',
-  name: 'The Best Treasure',
-  description: 'Wooo mod content.',
-  icon: icon,
-  stacks: 1,
-  rarity: 'mundane',
-  realm: 'coreFormation',
+const myItem: Item = {
+  id: 'myMod/myItem',
+  name: 'Spirit Enhancement Crystal',
+  description: 'A crystal infused with spiritual energy. Use during crafting to boost success rates.',
+  icon: 'myMod/crystal',
+  type: 'material',
+  rarity: 'empowered',
+  value: 500,
+  stackable: true,
 };
 
-window.modAPI.actions.addItem(myTreasure);
+window.modAPI.actions.addItem(myItem);
 ```
 
-For docs on the more advanced features of the Mod API, then see the **[Advanced Mods](../advanced-mods/)** page.
+### Adding a Custom Enemy
 
+```typescript
+const myEnemy: EnemyEntity = {
+  id: 'myMod/bandit',
+  name: 'Rogue Cultivator',
+  description: 'A wandering cultivator with no sect affiliation.',
+  icon: 'bandit',
+  type: 'humanoid',
+  realm: 'meridianOpening',
+  baseStats: {
+    health: 500,
+    power: 50,
+    defense: 20,
+    barrier: 100,
+  },
+  techniques: ['basicStrike', 'qiShield'],
+  drops: [
+    { itemId: 'spiritStone', chance: 0.5, count: [1, 3] },
+  ],
+};
+
+window.modAPI.actions.addEnemy(myEnemy);
+```
+
+### Adding a Custom Location
+
+```typescript
+const hiddenValley: GameLocation = {
+  id: 'Hidden Valley',
+  name: 'Hidden Valley',
+  description: 'A secluded valley surrounded by mountains. Spiritual energy is unusually dense here.',
+  realm: 'qiCondensation',
+  image: 'valley',
+  enemies: [],
+  events: [],
+  buildings: [],
+  connections: ['Mountain Path'],
+};
+
+window.modAPI.actions.addLocation(hiddenValley);
+window.modAPI.actions.registerRootLocation('Hidden Valley', 'foundHiddenValley == 1');
+```
+
+### Creating a Quest
+
+```typescript
+const gatherQuest = window.modAPI.utils.createCollectionMission(
+  'myMod/rareHerb',
+  'Liang Tiao Village',
+  'Gather rare herbs from the forest',
+  50,
+);
+
+window.modAPI.actions.addQuest(gatherQuest);
+window.modAPI.actions.addQuestToRequestBoard(
+  gatherQuest,
+  'qiCondensation',
+  'qitouched',
+  '1',
+  'Liang Tiao Village',
+);
+```
+
+### Using Hooks
+
+```typescript
+// Modify player combat entity when created
+window.modAPI.hooks.onCreatePlayerCombatEntity((entity, player, breakthrough) => {
+  // Apply a 5% power bonus from a mod-specific source
+  return {
+    ...entity,
+    stats: {
+      ...entity.stats,
+      power: entity.stats.power * 1.05,
+    },
+  };
+});
+```
+
+### Accessing Game State
+
+```typescript
+// Subscribe to state changes
+const unsubscribe = window.modAPI.subscribe(() => {
+  const state = window.modAPI.getGameStateSnapshot();
+  if (state) {
+    const realm = state.player.realm;
+    const health = state.player.currentHealth;
+    console.log(`Player at ${realm}: ${health} health`);
+  }
+});
+
+// Later, when done
+unsubscribe();
+```
+
+## Realm Progression
+
+The game tracks ten realms of cultivation:
+
+| Realm | Key Character |
+|-------|---------------|
+| Mundane | Mortal beginnings |
+| Body Forging | Tempering the physical form |
+| Meridian Opening | Opening energy pathways |
+| Qi Condensation | Gathering and condensing Qi |
+| Core Formation | Forming the spirit core |
+| Pillar Creation | Building spiritual pillars |
+| Life Flourishing | Thriving with spiritual life |
+| World Shaping | Molding world energy |
+| Inner Genesis | Generating inner power |
+| Soul Ascension | Ascending beyond mortal limits |
+
+Each realm has three progress tiers: `Early`, `Middle`, `Late`.
+
+## Item Rarity
+
+Items have six rarity tiers:
+
+| Rarity | Description |
+|--------|-------------|
+| `mundane` | Common items with no spiritual properties |
+| `qitouched` | Items infused with trace spiritual energy |
+| `empowered` | Items with notable spiritual power |
+| `resplendent` | Radiant items of considerable strength |
+| `incandescent` | Brilliant items near spiritual perfection |
+| `transcendent` | Items that transcend mortal limits |
+
+## Utility Reference
+
+### Keybind Registration
+
+```typescript
+window.modAPI.utils.registerKeybind(action: string, displayText: string, defaultBinding?: string): void
+window.modAPI.utils.getRegisteredKeybindValue(action: string): RegisteredKeybind | undefined
+
+
+`RegisteredKeybind` has the following shape:
+
+```typescript
+interface RegisteredKeybind {
+  action: string;
+  displayText: string;
+  code: string;
+  modifiers: string[];
+}
+```
+
+Register a custom keybind for your mod:
+
+```typescript
+window.modAPI.utils.registerKeybind('myMod.specialAction', 'Special Action', 'KeyF');
+```
+
+Retrieve the current keybind:
+
+```typescript
+const binding = window.modAPI.utils.getRegisteredKeybindValue('myMod.specialAction');
+if (binding) {
+  console.log(`Special action is bound to ${binding.displayText} (${binding.code})`);
+  // Use binding.code to compare against KeyboardEvent.code
+}
+```
+
+## Condition Strings
+
+Conditions are flag expressions evaluated at runtime to determine if something should appear or trigger. They use a simple expression syntax:
+
+- Single flag: `'flagName'` (true if flagName == 1)
+- Comparison: `'flagName > 5'`, `'health < 50'`
+- Logical: `'flag1 == 1 && flag2 > 3'`, `'flag1 == 1 || flag2 == 1'`
+
+Common flags set by the game:
+- `player.realm` -- Current realm
+- `player.realmProgress` -- Current progress (Early/Middle/Late)
+- `player.level` -- Player level
+- `player.hasItem` -- Boolean, true if player has a specific item
+- `quest.active` -- Boolean, true if a quest is active
+
+## Scaling Objects
+
+Many game values use `Scaling` objects for dynamic adjustment:
+
+```typescript
+interface Scaling {
+  base: number;
+  perLevel?: number;
+  statMultiplier?: {
+    stat: StatName;
+    multiplier: number;
+  };
+  equation?: string;
+  max?: number;
+  min?: number;
+}
+```
+
+The `evaluateScaling` utility computes the final value:
+
+```typescript
+const result = window.modAPI.utils.evaluateScaling(
+  { base: 10, perLevel: 2, max: 100 },
+  { level: 20, power: 50 },
+  4, // stanceLength for stance-based effects
+);
+```
