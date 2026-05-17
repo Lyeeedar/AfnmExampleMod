@@ -25,6 +25,7 @@ interface ItemBase {
   realm: Realm | 'any'; // Cultivation requirement
   valueTier?: number; // Economic worth modifier
   upgradedFrom?: Item; // Upgrade chain tracking
+  corruption?: ItemCorruption; // Corruption effect applied on combat use
 }
 ```
 
@@ -134,6 +135,60 @@ interface Enchantment {
 - **Special Abilities**: Unique buff applications
 - **Economic Value**: Significant price increases
 
+## Corruption System
+
+Equipment items can have a corruption effect that applies when the item is used in combat. Corruption represents the item's dark power corrupting the user over time.
+
+```typescript
+interface ItemCorruption {
+  name: Translatable; // Display name for the corruption effect
+  debuff: Buff; // Debuff applied when corruption triggers
+  threshold: number; // Stack count that must be reached before corruption applies
+  countPerCombat: number; // How many times the corruption can trigger per combat
+}
+```
+
+### How Corruption Works
+
+When an item with corruption is **equipped and used in combat**, the game tracks how many times the item was used. Once the item reaches `threshold` uses in a single combat, the `debuff` is applied once. The `countPerCombat` determines how many times this cycle can repeat before the item must be used `threshold` times again.
+
+Example: an item with `threshold: 3` and `countPerCombat: 2`
+1. After 3 uses in combat, apply debuff once
+2. After another 3 uses, apply debuff a second time
+3. After a third 3 uses, no effect (countPerCombat limit reached)
+
+### Example: Corrupted Weapon
+
+```typescript
+const corruptedBlade: ArtefactItem = {
+  kind: 'artefact',
+  name: 'Void Cleaver',
+  description: 'A blade that hungers for life force.',
+  icon: voidCleaverIcon,
+  stacks: 1,
+  rarity: 'resplendent',
+  realm: 'pillarCreation',
+  stats: {
+    power: { value: 15, stat: 'power' },
+  },
+  corruption: {
+    name: 'Void Taint',
+    debuff: {
+      name: 'Void Taint',
+      icon: voidTaintIcon,
+      canStack: true,
+      stacks: 1,
+      stats: {
+        power: { value: -0.05, stat: 'power', scaling: 'stacks' },
+      },
+      onRoundEffects: [{ kind: 'add', amount: { value: -1, stat: undefined } }],
+    },
+    threshold: 5,
+    countPerCombat: 2,
+  },
+};
+```
+
 ## Integration Points
 
 Items must be registered with the game and integrated into acquisition sources.
@@ -177,8 +232,8 @@ window.modAPI.actions.addItemToAuction(
   myItem,           // Item to auction
   0.15,             // Appearance chance (15%)
   '1',              // Condition for availability. Normally always available (1), only use if intending to unlock with a quest flag
-  3,                // Stack override (optional)
-  1.5               // Count multiplier (optional)
+  3,               // Stack override (optional)
+  1.5              // Count multiplier (optional)
 );
 ```
 
@@ -291,9 +346,9 @@ Items automatically integrate with the economy:
 ### 4. Flag Integration
 
 Items automatically create flags for use in conditions:
-- Item names are converted to flag format: `"My Item Name"` → `"My_Item_Name"`
+- Item names are converted to flag format: `"My Item Name"` to `"My_Item_Name"`
 - Available in inventory: `My_Item_Name >= 1`
-- In storage: `storage_My_Item_Name >= 1`
+- In storage: `storage_My_Item_Name > 0`
 - Equipped status: `equipped_My_Item_Name == 1`
 
 ### 5. Common Integration Patterns
