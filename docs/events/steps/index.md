@@ -97,6 +97,13 @@ Comprehensive documentation for every type of event step available in AFNM. Each
 - **[Change BGM Step](changebgm)** - Change background music
 - **[Clear Change BGM Step](clearchangebgm)** - Restore location music
 
+### Expedition Systems
+
+- **[Increase Instability Step](instability)** - Increase expedition region instability
+- **[End Expedition Step](endexpedition)** - End expedition with success or failure
+- **[Add To Found Step](addtofound)** - Add items to expedition found inventory
+- **[Add To Extracted Step](addtoextracted)** - Add items to extraction slots (survive failure)
+
 ### Advanced Systems
 
 - **[Mark Calendar Event Complete Step](markcalendareventcomplete)** - Track monthly events
