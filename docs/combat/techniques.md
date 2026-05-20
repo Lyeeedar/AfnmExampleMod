@@ -706,6 +706,75 @@ upgradeMasteries: {
 }
 ```
 
+### Mastery Utility Functions
+
+The game provides helper functions for constructing common mastery patterns:
+
+**`createFullKindMap`** - Distributes a rarity map across all mastery effect kinds. Useful for cross-school masteries that apply to every effect category:
+
+```typescript
+import { createFullKindMap } from 'afnm-types';
+
+// Distributes the same bonus across damage, heal, barrier, buffSelf, etc.
+qiCondensation: createFullKindMap({ purity, reinforcement }),
+pillarCreation: createFullKindMap({ bloodBoost }),
+```
+
+Without `createFullKindMap`, you would need to write each kind explicitly:
+
+```typescript
+// Manual equivalent of createFullKindMap
+qiCondensation: {
+  damage: { purity, reinforcement },
+  heal: { purity, reinforcement },
+  barrier: { purity, reinforcement },
+  buffSelf: { purity, reinforcement },
+  buffTarget: { purity, reinforcement },
+  consumeSelf: { purity, reinforcement },
+  convertSelf: { purity, reinforcement },
+  mergeSelf: { purity, reinforcement },
+  repair: { purity, reinforcement },
+  temporaryHealth: { purity, reinforcement },
+  cleanseToxicity: { purity, reinforcement },
+  modifyBuffGroup: { purity, reinforcement },
+  trigger: { purity, reinforcement },
+},
+```
+
+The supported kinds are: `damage`, `heal`, `barrier`, `buffSelf`, `buffTarget`, `consumeSelf`, `convertSelf`, `mergeSelf`, `repair`, `temporaryHealth`, `cleanseToxicity`, `modifyBuffGroup`, `trigger`.
+
+**`createSingleTierMastery`** - Creates a mastery that only unlocks at `transcendent` rarity, with all lower rarities set to `undefined`. Use this for cross-school masteries that apply a specific buff effect at a single tier:
+
+```typescript
+import { createSingleTierMastery } from 'afnm-types';
+
+lifeFlourishing: createFullKindMap({
+  bloodReinforcement: createSingleTierMastery({
+    kind: 'effect',
+    effects: [
+      {
+        kind: 'buffSelf',
+        buff: bloodReinforcement,
+        amount: { value: 1, stat: undefined },
+      },
+    ],
+  }),
+  bloodCorruption: createSingleTierMastery({
+    kind: 'effect',
+    effects: [
+      {
+        kind: 'buffSelf',
+        buff: bloodCorruption,
+        amount: { value: 1, stat: undefined },
+      },
+    ],
+  }),
+  bloodBoost: bloodBoostLf,
+}),
+```
+
+This pattern is typically used for cross-school mastery pools at the `lifeFlourishing` realm, where a technique from one school gains bonuses based on buffs from another school.
+
 ### Upgrade Keys
 
 Properties with `upgradeKey` can be modified by mastery:
