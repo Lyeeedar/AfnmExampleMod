@@ -27,9 +27,9 @@ interface CraftingBuff {
   stacksAreMonths?: boolean; // If true, stacks represent in-game months (used for time-limited buffs)
 
   // Visual properties
-  effectHint?: string; // Brief hint text
+  effectHint?: string; // Brief hint text shown in the crafting UI
   tooltip?: string; // Custom description
-  statsTooltip?: string; // Stats-specific tooltip
+  statsTooltip?: string; // Stats-specific tooltip override
   displayLocation: CraftingBuffDisplayLocation; // Where buff appears in UI
   // Locations: 'none' | 'avatar' | 'companion' | 'stabilityLeft' | 'stabilityRight' |
   // 'perfectionLeft' | 'perfectionRight' | 'completionLeft' | 'completionRight'
@@ -48,11 +48,11 @@ interface CraftingBuff {
   onSupport?: CraftingBuffEffect[]; // Triggers on support techniques
 
   // Scaling properties
-  baseScaling?: number; // Base scaling value
-  stacksScaling?: number; // Per-stack scaling
+  baseScaling?: number; // Base scaling value for stat effects
+  stacksScaling?: number; // Per-stack scaling multiplier
 
   // Upgrade flag
-  cantUpgrade?: boolean; // If true, cannot be upgraded
+  cantUpgrade?: boolean; // If true, cannot be upgraded via mastery
 
   // Advanced fields
   bonusHiddenPotential?: Scaling; // Grants bonus hidden potential to the crafted item when this buff is active
