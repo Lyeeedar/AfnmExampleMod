@@ -37,6 +37,7 @@ interface RecipeItem {
   // Optional overrides
   conditionEffectOverride?: RecipeConditionEffect; // Override default condition type
   harmonyTypeOverride?: RecipeHarmonyType;         // Override default harmony system
+  perfectionEffectOverride?: 'quality';           // Controls what perfection affects in the crafted item
 }
 ```
 
@@ -68,6 +69,14 @@ Each recipe uses one of four harmony systems during crafting. By default the gam
 | `alchemical`  | Alchemy — charge-and-combo system                    |
 | `inscription` | Inscription — pattern-block system                   |
 | `resonance`   | Resonance — technique-type matching resonance system |
+
+## Perfection Effect Override
+
+Set `perfectionEffectOverride` to `'quality'` to make perfection affect the quality tier of the crafted item (basic/perfect/sublime) rather than applying a stat modifier. This is used by most recipes in the game.
+
+```typescript
+perfectionEffectOverride: 'quality';
+```
 
 ## Registering Recipes via the Mod API
 
