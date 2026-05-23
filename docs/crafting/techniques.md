@@ -358,7 +358,40 @@ upgradeMasteries: {
 
 Each function takes `(upgradeKey: string, startRarity: Rarity)`. The `upgradeKey` must match the `upgradeKey` on the `Scaling` object of the effect you want upgraded.
 
-There is also `createPowerUpgradeMap(key, rarity, tooltip)` for custom effect scaling — it applies the same multiplicative upgrade percentages but accepts a custom tooltip string.
+There is also `createPowerUpgradeMap(key, rarity, tooltip)` for custom effect scaling, it applies the same multiplicative upgrade percentages but accepts a custom tooltip string.
+
+#### Custom Stat Upgrades
+
+For upgrade effects on stats that are not completion, perfection, pool, stability, or stacks, use `createUpgradeMapSimple`. This function accepts explicit per-tier values, making it suitable for any numeric stat:
+
+```typescript
+upgradeMasteries: {
+  successChanceBonus: createUpgradeMapSimple(
+    'successChanceBonus',   // upgradeKey, must match the upgradeKey on the Scaling object
+    'resplendent',           // startRarity, first tier at which this upgrade applies
+    'Increase success chance bonus by <num>{change}%</num>.',  // tooltip template, {change} replaced per tier
+    false,                  // shouldMultiply, false for additive flat changes (e.g. +5%, +7.5%, +10%)
+    {                       // changes per tier, undefined means no upgrade at that tier
+      mundane: undefined,
+      qitouched: undefined,
+      empowered: undefined,
+      resplendent: 0.05,
+      incandescent: 0.075,
+      transcendent: 0.1,
+    },
+    (value: number) => value * 100,  // renderTransform, converts stored decimal to display percentage
+  ),
+}
+```
+
+`createUpgradeMapSimple(key, startRarity, tooltip, shouldMultiply, changes, renderTransform?)`:
+
+- `key` must match `upgradeKey` on the `Scaling` object you want to upgrade
+- `startRarity` is the first tier where the upgrade begins
+- `tooltip` is a template string, `{change}` is replaced with the rendered value per tier
+- `shouldMultiply` is `true` for multiplicative percentage upgrades (effect upgrades), `false` for additive flat increases
+- `changes` maps each rarity tier to the upgrade delta at that tier, `undefined` means no upgrade at that tier
+- `renderTransform` is an optional function to convert stored values to display strings (e.g. `v => v * 100` to show `0.05` as `5%`)
 
 #### Buff Stack Upgrades
 

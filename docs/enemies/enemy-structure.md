@@ -137,6 +137,77 @@ interface RandomStance {
 }
 ```
 
+### Player-Style Stance System
+
+Enemies can use the full player stance algorithm instead of `stanceRotation` and `rotationOverrides`. When `playerStyleStances` is set, the game uses complete stance definitions and conditional cycles:
+
+```typescript
+{
+  playerStyleStances?: StoredStance[];   // Player-style stance definitions
+  playerStyleCycles?: ConditionalCycle[]; // Conditional cycle rules
+}
+```
+
+`StoredStance` uses technique name strings instead of `Technique` objects:
+
+```typescript
+interface StoredStance {
+  name: string;
+  autoName?: boolean;
+  techniques: string[];   // Technique names, not objects
+  stanceRule?: StoredRule; // Position rule for the stance
+}
+
+type StoredRule =
+  | { kind: 'opener'; position: number }
+  | { kind: 'rotation'; position: number }
+  | { kind: 'conditional'; condition?: string; conditions?: Array<{ condition: string; check: '<' | '==' | '>' | '!='; value: number }>; operator?: 'AND' | 'OR' }
+  | { kind: 'conditionalRotation'; position: number; cycleId: string };
+```
+
+`ConditionalCycle` drives stance selection based on combat conditions:
+
+```typescript
+interface ConditionalCycle {
+  id: string;
+  name: string;
+  position: number;
+  conditions: Array<{
+    condition: string;  // Flag or variable expression
+    check: '<' | '==' | '>' | '!=';
+    value: number;
+  }>;
+  operator: 'AND' | 'OR';  // Combine multiple conditions
+}
+```
+
+**Example from Tai Kong expedition monsters:**
+
+```typescript
+playerStyleStances: [
+  { name: 'kindling', techniques: ['Spark', 'Flame Lick', 'Spark', 'Flame Lick', 'Spark', 'Flame Lick', 'Spark'] },
+  { name: 'ignite', techniques: ['Spark', 'Spark', 'Spark', 'Spark', 'Spark', 'Spark', 'Ignition'] },
+],
+playerStyleCycles: [
+  {
+    id: 'kindling-cycle',
+    name: 'Kindling Phase',
+    position: 1,
+    conditions: [{ condition: 'Rising Heat < 6', check: '<', value: 6 }],
+    operator: 'AND',
+  },
+  {
+    id: 'ignite-cycle',
+    name: 'Ignition Phase',
+    position: 2,
+    conditions: [{ condition: 'Rising Heat >= 6', check: '>=', value: 6 }],
+    operator: 'AND',
+  },
+],
+```
+
+When `playerStyleStances` is set, `rotationOverrides` can also accept `RandomStance` in addition to `SingleStance`, enabling mixed rotation strategies.
+
 ### Equipment & Pills
 
 ```typescript
