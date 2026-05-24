@@ -89,6 +89,51 @@ interface AppearanceChangePillItem extends BasePillItem {
 
 Appearance change pills let the player alter their character's appearance. They have no toxicity and no extra fields beyond the base item properties.
 
+## Auto-Use Items in Combat
+
+Combat pills can be set up for automatic use during combat through the player's `autoUseItems` loadout. The game supports two formats for auto-use items:
+
+### Legacy String Format
+
+Simple item names can be used directly:
+
+```typescript
+autoUseItems: ['Healing Pill', 'Toxic Concoction']
+```
+
+### Extended AutoUseItem Format
+
+For more control, use the `AutoUseItem` interface:
+
+```typescript
+interface AutoUseItem {
+  item?: string;              // Item name to auto-use
+  conditions?: AutoUseCondition[];  // Conditions that must be met
+  maxCount?: number;           // Maximum stacks to consume per combat
+}
+```
+
+This format allows specifying conditions and consumption limits per auto-use slot. Items with different quality tiers or enchantments are tracked separately. Only items with available stacks matching the exact quality and enchantment combination will be used.
+
+### Example: Combat Auto-Use Setup
+
+```typescript
+// In player entity setup
+const player: PlayerEntity = {
+  // ...
+  autoUseItems: [
+    // Simple string format
+    'Healing Pill',
+    // Extended format with conditions
+    {
+      item: 'Power Elixir',
+      conditions: [{ kind: 'hp', percentage: 50, mode: 'less' }],
+      maxCount: 2,
+    },
+  ],
+};
+```
+
 ## Examples
 
 ```typescript
