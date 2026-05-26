@@ -199,6 +199,64 @@ The game automatically provides numerous flags representing the current game sta
 - `age`, `lifespan`, `injured` - Character condition
 - Affinity levels: `fist`, `weapon`, `blossom`, `celestial`, `cloud`, `blood`
 
+### Combat Entity Variables
+
+The game provides a rich set of variables derived from combat entity state. These are available in combat-related condition contexts such as `AutoUseItem` conditions.
+
+**Player Entity Variables**
+
+All standard stats are available with their direct names:
+
+- `hp`, `maxHp` - Health points
+- `barrier`, `maxBarrier` - Barrier points
+- `power`, `defense`, `control`, «intensity` - Primary stats
+- `qi`, `maxqi`, `qiDroplets` - Qi resources
+- `realm`, `realmProgress` - Cultivation level
+- `critchance` - Critical hit chance percentage
+
+Buff-derived variables are also available:
+
+- Buff names as variables (e.g., having a buff named "Toxic" adds `Toxic` as a variable with its stack count)
+- Buff names with spaces converted via `flag` (e.g., `"Toxic (II)"` becomes `"Toxic___II_"`)
+- `average_<buffType>` - Average HP percentage of all guardian buffs of the same type
+- `weakest_<buffType>` - Lowest HP percentage of guardian buffs in the same group
+
+**Target Entity Variables**
+
+When an opponent is in context, `target.*` prefixes expose the opponent's stats:
+
+- `target.hp`, `target.maxHp` - Opponent health
+- `target.barrier`, `target.maxBarrier` - Opponent barrier
+- `target.power`, `target.defense`, `target.control`, `target.intensity` - Opponent stats
+- `target.qi`, `target.maxqi` - Opponent Qi
+- `target.realm`, `target.realmProgress` - Opponent cultivation
+- `target.critchance` - Opponent crit chance
+- `target.<buffName>` - Opponent's buff stack counts (e.g., `target.Toxic`)
+
+These enable conditions like `"target.Toxic < 1"` to check if the target does not have a particular buff, which is useful for auto-use item conditions that should only fire when the target lacks certain buffs.
+
+**Example: Target-Based Auto-Use Condition**
+
+```typescript
+// Only use a detox item when the target has Toxic stacks
+{
+  condition: 'target.Toxic >= 1',
+  check: '>',
+  value: 0
+}
+```
+
+**Example: Guarding a Healing Potion**
+
+```typescript
+// Only auto-use a healing potion when HP is below 50%
+{
+  condition: 'hp',
+  check: '<',
+  value: 0.5
+}
+```
+
 ## Advanced Techniques
 
 ### Flag Helper Function
@@ -264,6 +322,10 @@ condition: 'month >= 6 && completedPreQuest == 1';
 
 // Resource requirement checks
 condition: 'money >= 1000 && power >= 50';
+
+// Target-based conditions in combat auto-use
+condition: 'target.Toxic < 1'; // Only if opponent lacks the Toxic buff
+condition: 'target.hp < target.maxHp'; // Only if opponent is damaged
 ```
 
 The flags system is incredibly flexible and powerful. Master it, and you'll be able to create dynamic, responsive content that adapts to each player's unique journey through your mod.
