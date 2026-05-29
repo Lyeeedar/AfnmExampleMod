@@ -304,7 +304,7 @@ window.modAPI.actions.addPlayerSprite(sprite: PlayerSprite)
 - **`addMysticalRegionBlessing`** — Register a new blessing for mystical regions.
 - **`addPuppetType`** — Register a new puppet type for the training ground.
 - **`addAlternativeStart`** — Register an alternative game start. Players select from available starts when creating a new game. The `AlternativeStart` defines the opening event, starting location, starting items, and starting money.
-- **`addPlayerSprite`** — Register a custom player sprite that appears in character creation alongside the defaults for the specified gender. See [Player Sprites]({% link docs/characters/player-sprites.md %}) for the full interface definition.
+- **`addPlayerSprite`** — Register a custom player sprite that appears in character creation alongside the defaults for the specified gender.
 
 ```typescript
 interface PlayerSprite {
