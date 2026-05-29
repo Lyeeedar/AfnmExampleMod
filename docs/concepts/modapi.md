@@ -360,7 +360,32 @@ const highScore = flags['myMod_highScore'] ?? 0;
 - Store booleans as `0` / `1` and normalize any legacy values on startup
 - Initialize expected flags to defaults on mod load rather than assuming they exist
 - When renaming flags between versions, migrate old values to the new keys so existing users retain their settings
+### Save Data
 
+Mod-specific data that persists with the save file:
+
+```typescript
+window.modAPI.actions.setModData(modName: string, key: string, data: unknown)
+window.modAPI.actions.removeModData(modName: string, key: string)
+```
+
+Save-paired data lives in the Redux store alongside the save file. Unlike global flags, save-paired data is tied to a specific save and is not shared across saves.
+
+```typescript
+// Store custom per-save data
+window.modAPI.actions.setModData('myMod', 'customNPC_affinity', { npcId: 'elder_li', value: 75 });
+
+// Read it back via useSelector
+const npcAffinity = useSelector((state) => state.modData('myMod')?.customNPC_affinity);
+
+// Remove a key when no longer needed
+window.modAPI.actions.removeModData('myMod', 'customNPC_affinity');
+```
+
+- **`setModData`** — Store any JSON-serializable data namespaced under your mod name. Persists with the save file. Use for quest state, NPC relationships, discovered secrets, or any other per-save data.
+- **`removeModData`** — Remove a specific key from your mod's save-paired data thereafter.
+
+### Keybinding Registration
 ### Keybinding Registration
 
 Register custom keyboard shortcuts that players can rebind in the game settings Controls tab:
