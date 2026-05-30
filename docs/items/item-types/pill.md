@@ -59,6 +59,13 @@ interface ConsumablePillItem extends BasePillItem {
   physicalStats: Partial<Record<PhysicalStatistic, number>>;  // Permanent physical stat gains
   socialStats: Partial<Record<SocialStatistic, number>>;      // Permanent social stat gains
   rawStats?: Partial<Record<CombatStatistic | CraftingStatistic, Scaling>>; // Permanent combat/crafting stat bonuses
+  consumptionGroup?: string;           // Optional shared consumption group name
+  groupCap?: number;                   // Lifetime cap for the entire consumption group
+  flagEffect?: {                       // Optional: iterate a flag value on consumption
+    flag: string;                      // Flag key to modify
+    amount: number;                    // Value to add (or subtract if negative)
+  };
+  tooltip?: string;                    // Optional tooltip shown in the consumption dialogue
   toxicity?: undefined;
 }
 ```
@@ -142,6 +149,36 @@ export const artisanElixir: ConsumablePillItem = {
   rawStats: {
     itemEffectiveness: { value: 5, stat: undefined },
     control: { value: 3, stat: undefined },
+  },
+  // ... base properties
+};
+
+// Shared consumption group: all pills with the same group share a combined cap
+// Players can only consume groupCap pills total across all pills in the group
+export const sharedFortitudePill: ConsumablePillItem = {
+  pillKind: 'consumable',
+  kind: 'pill',
+  name: 'Minor Fortitude Pill',
+  max: 5,
+  physicalStats: { muscles: 2 },
+  socialStats: {},
+  consumptionGroup: 'fortitude_pills',  // Shares cap with other 'fortitude_pills' pills
+  groupCap: 10,                         // Total cap across all pills in the group
+  // ... base properties
+};
+
+// Flag effect: iterate a flag when consumed
+// Useful for tracking cumulative pill bonuses or unlocking gated content
+export const jadeDroplet: ConsumablePillItem = {
+  pillKind: 'consumable',
+  kind: 'pill',
+  name: 'Jade Droplet',
+  max: 99,
+  physicalStats: {},
+  socialStats: {},
+  flagEffect: {
+    flag: 'myMod_jadeDropletsConsumed',
+    amount: 1,
   },
   // ... base properties
 };

@@ -597,6 +597,85 @@ window.modAPI.hooks.onDeriveRecipeDifficulty((recipe, recipeStats, flags) => {
 });
 ```
 
+### Lifecycle Hooks
+
+#### `onNewGame`
+
+Fires when a new game is started, before any data is loaded. Use to set up initial mod state, global flags, or start events for a new playthrough.
+
+```typescript
+window.modAPI.hooks.onNewGame((intent: NewGameIntent) => {
+  // Initialize global flags for new game
+  window.modAPI.actions.setGlobalFlag('myMod.initialized', 1);
+  // Start a custom intro event
+  window.modAPI.actions.startEvent(myIntroEvent);
+});
+```
+
+- **`intent`** — `NewGameIntent` containing `characterName`, `characterType`, `background`, `alternativeStart`, `difficulty`, `mods`, and `seed`. Use this to branch mod setup based on the selected character configuration.
+
+The `NewGameIntent` structure:
+
+```typescript
+interface NewGameIntent {
+  characterName: string;
+  characterType: 'npc' | 'normal';
+  background?: Background;       // Selected background, or undefined for 'normal' character type
+  alternativeStart?: AlternativeStart;  // Alternative start data if one was selected
+  difficulty: string;
+  mods: string[];
+  seed: number;
+}
+```
+
+#### `onGameLoad`
+
+Fires after a saved game is fully loaded. Use to restore per-save mod state, validate global flags, or trigger post-load events.
+
+```typescript
+window.modAPI.hooks.onGameLoad((state: RootState) => {
+  // Validate or migrate mod flags on load
+  const flags = state.gameData.flags;
+  if (flags.myMod_version === undefined) {
+    window.modAPI.actions.setModData('myMod', 'needsMigration', true);
+  }
+});
+```
+
+- **`state`** — The complete `RootState` Redux snapshot of the loaded save, before the game begins rendering. Use `state.gameData.flags` for flag values, `state.player` for character data, and other slices as needed.
+
+#### `onDeleteCharacter`
+
+Fires when a character save is deleted from the Load page. Use to clean up per-character mod configuration.
+
+```typescript
+window.modAPI.hooks.onDeleteCharacter((saveInfo: Save) => {
+  myModConfig.deleteCharacterConfig(saveInfo.dbName);
+});
+```
+
+- **`saveInfo`** — A `Save` object containing metadata about the deleted save:
+
+```typescript
+interface Save {
+  dbName: string;          // Unique database key
+  playerName: string;      // Display name
+  forename?: string;
+  surname?: string;
+  icon: string;
+  realm: string;           // Realm name
+  realmProgress: string;   // Realm progress name
+  age: number;
+  createdAt: number;        // Unix timestamp (ms)
+  lastPlayed?: number;     // Unix timestamp (ms)
+  playtime: number;        // Seconds played
+  version: string;         // Game version at save time
+  mods: string[];          // Mods active when save was created
+  location?: string;       // Last location
+  screen?: string;         // Last screen type
+}
+```
+
 ### Combat Hooks
 
 #### `onCreateEnemyCombatEntity`
