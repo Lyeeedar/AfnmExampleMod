@@ -33,8 +33,11 @@ interface Scaling {
   max?: Scaling;          // Cap the final value
   upgradeKey?: string;    // Links to mastery upgrades
   divideByStanceLength?: boolean; // Divide the result by the number of techniques in the stance
+  multiplyByStanceLength?: boolean; // Multiply the result by the number of techniques in the stance
   buff?: Buff;            // Buff reference used internally for some effects
   increment?: number;     // For hit-based scaling: each subsequent hit costs this much more of the scaling buff
+  cantUpgrade?: boolean;  // When true, this scaling value cannot be improved by technique mastery upgrades
+  isItem?: boolean;       // When true, the result is additionally multiplied by (1 + itemEffectiveness * 0.01). Set on pills, concoctions, and formation parts.
 }
 ```
 
@@ -284,15 +287,25 @@ stats: {
 }
 ```
 
-### Pattern 8: Stance Length Division
+### Pattern 8: Stance Length Adjustment
 
-**When to use**: Effects spread evenly across all techniques in a stance, such as a total damage budget that should not grow as the stance gets longer.
+**When to use**: Effects that need to stay constant regardless of stance size (divide) or that should compound with longer stances (multiply).
 
 ```typescript
+// Total output stays constant regardless of stance size
+// (e.g. a technique that deals 300% power total, split across all techniques)
 {
   value: 3,
   stat: 'power',
-  divideByStanceLength: true  // Total output stays constant regardless of stance size
+  divideByStanceLength: true
+}
+
+// Total output grows with stance size
+// (e.g. a technique that deals 50% power per technique in the stance)
+{
+  value: 0.5,
+  stat: 'power',
+  multiplyByStanceLength: true
 }
 ```
 
@@ -442,6 +455,13 @@ Link scaling to mastery progression:
     upgradeKey: 'maxStacks'  // Max stacks increase with mastery
   }
 }
+
+// Prevent upgrade on specific scaling values
+{
+  value: 1.5,
+  stat: 'power',
+  cantUpgrade: true  // This specific value will not be improved by mastery
+}
 ```
 
 ### State-Dependent Effects
@@ -493,8 +513,9 @@ Link scaling to mastery progression:
    - Percentage-based effects
    - Multi-variable calculations
 
-5. **`divideByStanceLength`**:
-   - Total-budget effects that should not compound as stances grow longer
+5. **`divideByStanceLength`** and **`multiplyByStanceLength`**:
+   - Total-budget effects that should not compound as stances grow longer (`divideByStanceLength`)
+   - Effects that should grow with stance size (`multiplyByStanceLength`)
 
 6. **`increment`**:
    - Multi-hit techniques where later hits should cost more than earlier ones
@@ -506,6 +527,7 @@ Link scaling to mastery progression:
 - **Test edge cases thoroughly**, especially with equations
 - **Consider upgrade keys** for meaningful progression
 - **Make patterns intuitive** - players will optimize around your systems
+- **Use `cantUpgrade`** on effects that are already balanced at their base value and should not grow further
 
 ### Common Pitfalls
 
