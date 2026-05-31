@@ -95,13 +95,17 @@
 
 <script>
 const SPRITE_SLOTS = [
-  { key: 'base',       label: 'Base',       hint: 'default pose (required)' },
-  { key: 'aggressive', label: 'Aggressive', hint: 'attacking' },
-  { key: 'defensive',  label: 'Defensive',  hint: 'blocking' },
-  { key: 'hit',        label: 'Hit',        hint: 'taking damage' },
-  { key: 'offensive',  label: 'Offensive',  hint: 'offensive technique' },
-  { key: 'support',    label: 'Support',    hint: 'support technique' },
-  { key: 'utility',    label: 'Utility',    hint: 'utility technique' },
+  { key: 'base',              label: 'Base',              hint: 'default pose (required)' },
+  { key: 'aggressive',        label: 'Aggressive',        hint: 'attacking' },
+  { key: 'defensive',         label: 'Defensive',         hint: 'blocking' },
+  { key: 'hit',               label: 'Hit',               hint: 'taking damage' },
+  { key: 'offensive',         label: 'Offensive',         hint: 'offensive technique' },
+  { key: 'support',           label: 'Support',           hint: 'support technique' },
+  { key: 'utility',           label: 'Utility',           hint: 'utility technique' },
+  { key: 'craftingSupport',   label: 'Crafting Support',  hint: 'crafting support technique', optional: true },
+  { key: 'craftingStabilize', label: 'Crafting Stabilize', hint: 'crafting stabilize technique', optional: true },
+  { key: 'craftingRefine',    label: 'Crafting Refine',   hint: 'crafting refine technique', optional: true },
+  { key: 'craftingFusion',    label: 'Crafting Fusion',   hint: 'crafting fusion technique', optional: true },
 ];
 
 let nextSpriteUid = 1;
@@ -264,7 +268,11 @@ document.getElementById('build').addEventListener('click', async () => {
       if (!name) return setStatus(`Sprite #${s.uid}: Display Name is required.`, 'err');
       if (!s.images.base) return setStatus(`Sprite #${s.uid}: a "base" image is required.`, 'err');
       const images = {};
-      for (const slot of SPRITE_SLOTS) images[slot.key] = s.images[slot.key] || '';
+      for (const slot of SPRITE_SLOTS) {
+        const val = s.images[slot.key];
+        if (val) images[slot.key] = val;
+        else if (!slot.optional) images[slot.key] = '';
+      }
       spriteObjects.push({ id, name, gender: s.gender, sprites: images });
     }
 
