@@ -348,18 +348,41 @@ Player housing:
 
 ### Compression Altar
 
-Core compression service:
+Core compression service. Grants a temporary buff on use and a permanent `breakthroughReward` on the first compression at each altar.
 
 ```typescript
 {
   kind: 'altar',
   buff: {
-    name: 'Compressed Core',
+    name: 'Meditative Surge',
     description: 'Your core has been compressed...',
-    // ...buff properties
-  }
+    canStack: true,
+    stats: {
+      power: {
+        value: 0.2,
+        stat: 'power',
+        scaling: 'stacks',
+      },
+    },
+    // ...other buff properties
+  },
+  // Optional: permanent stat rewards granted once per altar on first compression.
+  // These rewards persist through Core Formation breakthrough.
+  breakthroughReward?: {
+    // Combat stat increments — flat values or percentage of a stat.
+    // Example: { value: 0.03, stat: 'power' } = +3% of current power.
+    combatStats?: Partial<{ [key in CombatStatistic]: Scaling }>;
+    // Crafting stat increments — e.g. poolCostPercentage reduces qi costs.
+    craftingStats?: Partial<{ [key in CraftingStatistic]: Scaling }>;
+  };
 }
 ```
+
+**`breakthroughReward`** is optional. If omitted, compressing at the altar grants no permanent bonus. Each unique altar (identified by location name or house name) can grant its `breakthroughReward` once per playthrough. The same altar visited again provides only the temporary buff.
+
+**Available `CombatStatistic` keys** include `power`, `protection`, `critchance`, `critmult`, `speed`, `dr` (damage resistance), `accuracy`, `evasion`, `maxhp`, `barrierMitigation`, `barrierStrength`, `startingBarrier`, `weakness`, `armour`, and `block`. Percentage scaling (e.g. `+10%` of current `power`) uses `{ value: 0.1, stat: 'power' }`. Flat values use `{ value: 5, stat: undefined }`.
+
+**Available `CraftingStatistic` keys** include `control`, `流派强度` (technique intensity), `critchance`, `critmult`, `successChanceBonus`, `poolCostPercentage`, `qualityBonus`, and `speed`. `poolCostPercentage` with value `0.95` reduces qi pool costs to `95%` of normal.
 
 ### Guild
 
