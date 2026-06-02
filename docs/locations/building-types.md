@@ -123,6 +123,28 @@ Advanced alchemy furnace for high-tier crafting:
 }
 ```
 
+### Expedition Building
+
+Expedition buildings provide team-based exploration missions at a specific realm tier. Each expedition targets its own realm, and the team members must meet that realm requirement.
+
+```typescript
+{
+  kind: 'expedition',
+  name: 'Expedition Hub',          // Internal name used as icon seed
+  displayName?: 'Expedition Hub',   // Optional display name (supports translation)
+  teamCount: 3,                      // Number of party members required
+  realm: 'coreFormation'             // Realm tier for this expedition
+}
+```
+
+**Properties:**
+- `name` — Internal identifier used to seed the building icon
+- `displayName` — Optional translatable display name shown in the UI
+- `teamCount` — Number of party members required to join the expedition (determines team size display)
+- `realm` — The realm tier the expedition targets. Team members must be at or above this realm to join. Expedition rewards, difficulty, and scaling are based on this realm.
+
+**Usage:** Add an expedition building to a location to make it a hub for team-based exploration missions. Players can form parties and embark on expeditions that reward essence, items, and other resources appropriate to the expedition's realm tier.
+
 ## Commerce Buildings
 
 ### Market
@@ -552,6 +574,15 @@ export const myLocation: GameLocation = {
       },
       costMultiplier: 1.8,
       refreshMonths: 2
+    },
+
+    // Expedition building
+    {
+      kind: 'expedition',
+      name: 'Expedition Hub',
+      displayName: 'Expedition Hub',
+      teamCount: 3,
+      realm: 'coreFormation'
     },
 
     // Custom event building

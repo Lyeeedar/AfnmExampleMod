@@ -29,6 +29,15 @@ interface ConditionalStep {
 
 **`branches`** - Array of conditional branches. Each branch has a `condition` string and `children` array of steps to execute if the condition is true. Only the first branch with a true condition will run
 
+## Behaviour
+
+**Branches evaluate in order, and the first matching branch executes.** The remaining branches are skipped entirely. This means:
+
+- Place more specific conditions before more general ones (e.g., `'realm >= coreFormation && chasmLoops >= 15'` before `'realm >= coreFormation'` before `'1'`).
+- If you need multiple independent conditions to fire, use separate `conditional` steps rather than combining them into one step with many branches.
+
+If no branch condition is true, the conditional step does nothing.
+
 ## Examples
 
 ### Simple Conditional override
@@ -79,4 +88,33 @@ interface ConditionalStep {
     }
   ]
 }
+```
+
+### Multiple independent conditionals
+
+When you need two conditions evaluated independently (so both can fire in the same step), use two separate conditional steps:
+
+```typescript
+// These run in order; each only fires its first matching branch.
+// If the first conditional's first branch fires, the second conditional still runs independently.
+[
+  {
+    kind: 'conditional',
+    branches: [
+      {
+        condition: 'altarQuestStarted == 0 && realm >= coreFormation',
+        children: [{ kind: 'addQuest', quest: 'altar_quest' }]
+      }
+    ]
+  },
+  {
+    kind: 'conditional',
+    branches: [
+      {
+        condition: 'sanctuaryQuestStarted == 0 && realm >= coreFormation && chasmLoops >= 15',
+        children: [{ kind: 'addQuest', quest: 'chasm_sanctuary_quest' }]
+      }
+    ]
+  }
+]
 ```
