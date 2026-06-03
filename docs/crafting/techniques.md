@@ -36,6 +36,10 @@ interface CraftingTechnique {
   successChance: number; // Base success rate (0.0–1.0; 1.0 = always succeeds)
   cooldown: number; // Turns before reuse
   conditionRequirement?: CraftingCondition;
+  /** When true, only usable on the first action of a craft (step 0). */
+  firstActionOnly?: boolean;
+  /** When set, only usable while current stability is strictly greater than this value. */
+  minStability?: number;
   buffRequirement?: { buff: CraftingBuff; amount: number };
 
   // Effects
@@ -202,6 +206,28 @@ buffRequirement: {
   amount: 5
 }
 ```
+
+### Action Restrictions
+
+#### `firstActionOnly`
+
+When set to `true`, the technique can only be used on the first action of a craft (step 0):
+
+```typescript
+firstActionOnly: true; // Can only be used at the start of crafting
+```
+
+This is useful for techniques that provide opening buffs or set up conditions that should not be reapplied mid-craft.
+
+#### `minStability`
+
+When set, the technique is only usable while current stability is strictly greater than the specified value:
+
+```typescript
+minStability: 10; // Cannot use if current stability is 10 or less
+```
+
+This allows techniques that depend on having sufficient stability to function properly.
 
 ## Effect Types
 

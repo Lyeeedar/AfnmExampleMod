@@ -54,6 +54,10 @@ interface CraftingBuff {
   // Upgrade flag
   cantUpgrade?: boolean; // If true, cannot be upgraded via mastery
 
+  // Animation triggers - fired in the UI when certain events occur during crafting
+  // Valid values: 'bump' | 'buff' | 'completion' | 'perfection' | 'stabilityup' | 'stabilitydown' | 'pool'
+  animations?: string[];
+
   // Advanced fields
   bonusHiddenPotential?: Scaling; // Grants bonus hidden potential to the crafted item when this buff is active
   realm?: Realm; // Minimum realm required for this buff to apply its effects
