@@ -118,6 +118,56 @@ When `cancelApplication: false`, the original buff is still applied, but additio
 }
 ```
 
+## Guardian Interception
+
+When a buff declares `guardianIntercept`, it acts as a damage shield that absorbs a percentage of incoming damage before it reaches the owner. When the guardian's HP reaches zero, the buff is permanently removed.
+
+### Guardian Structure
+
+```typescript
+guardianIntercept?: {
+  percent: Scaling;     // Percentage of incoming damage redirected to guardian HP
+  maxHp: Scaling;       // Maximum HP for the guardian, evaluated at buff creation
+  refreshMode?: 'refresh' | 'extend';  // How re-application combines with existing HP
+  canUpgrade?: boolean;
+  onDestroyed?: BuffEffect[];  // Effects fired on the owner when the guardian is destroyed
+};
+```
+
+### The `onDestroyed` Hook
+
+When a guardian is destroyed (its HP reaches zero), any `onDestroyed` effects declared on the `guardianIntercept` block are executed. This is equivalent to adding a `triggeredBuffEffects` entry with `trigger: 'guardianBroken.${name}'`, but declared directly on the guardian for convenience.
+
+The effects execute with:
+- **`source`**: The guardian's owner (the character who has the guardian buff)
+- **`target`**: The attacker who destroyed the guardian
+
+```typescript
+// Example: A guardian that explodes when destroyed
+{
+  name: 'Ritual Shield',
+  icon: shieldIcon,
+  canStack: false,
+  guardianIntercept: {
+    percent: { value: 0.50 },  // Absorb 50% of incoming damage
+    maxHp: { value: 0.30, stat: 'maxhp' },  // Guardian HP = 30% of max HP
+    onDestroyed: [
+      {
+        kind: 'damage',
+        amount: { value: 0.25, stat: 'power' },
+        damageType: 'true',
+      },
+    ],
+  },
+}
+```
+
+When this guardian is destroyed, it deals 25% of the owner's power as true damage back to the attacker.
+
+### Auto-Generated Tooltip
+
+Tooltips for `onDestroyed` are auto-generated using the "When destroyed, ..." prefix. The trigger description will include the effect details automatically. No custom tooltip is required unless you want different wording than the default.
+
 ## Advanced Interception Patterns
 
 ### Stack Conversion
