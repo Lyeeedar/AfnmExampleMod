@@ -354,11 +354,28 @@ All effects use the **[Scaling](../concepts/scaling)** interface for amount calc
 interface Scaling {
   value: number; // Base value
   stat?: CombatStatistic; // Stat to scale from
-  scaling?: string; // Custom scaling variable
+  scaling?: string; // Custom scaling variable (e.g. 'stacks', a buff name)
+  eqn?: string; // Expression multiplied onto the result
+  additiveEqn?: string; // Expression added to the result (after eqn multiplication)
   max?: Scaling; // Maximum value cap
   upgradeKey?: string; // Reference for upgrades
 }
 ```
+
+The `eqn` field enables complex calculations within the scaling value itself. For example, the Meteor buff uses `eqn` to scale its damage with the meteor's current mass:
+
+```typescript
+{
+  kind: 'damage',
+  amount: {
+    value: 3,
+    stat: 'power',
+    eqn: '1 + (state.mass * 0.2)',  // Base 3x power, plus 20% per mass
+  },
+}
+```
+
+See the [Scaling](../concepts/scaling) docs for the full formula and all available scaling patterns.
 
 ### Common Scaling Patterns
 

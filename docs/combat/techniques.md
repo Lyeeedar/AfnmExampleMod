@@ -749,4 +749,4 @@ interceptOnly: {
 },
 ```
 
-The `tooltip` field is required and must describe what the new behaviour does. The `newEffects` array completely replaces the technique's original `effects` — any effects not included in `newEffects` no longer apply when this mastery is active.
+The `tooltip` field is required and must describe what the new behaviour does. The `newEffects` array completely replaces the technique's original `effects`. Any effects not included in `newEffects` no longer apply when this mastery is active.
