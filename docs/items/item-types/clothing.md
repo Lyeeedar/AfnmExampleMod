@@ -19,7 +19,7 @@ interface ClothingItem extends ItemBase {
   qiAbsorption?: number;
   masteryPoints?: number;
   stats: Partial<CombatStatsMap>;
-  buffs?: { buff: Buff; buffStacks: Scaling }[];
+  buffs?: { buff: Buff; buffStacks: Scaling; condition?: Condition }[];
 }
 ```
 
@@ -29,7 +29,7 @@ interface ClothingItem extends ItemBase {
 - **charisma**: Social stat bonus
 - **qiAbsorption**: Optional qi regeneration boost
 - **masteryPoints**: Optional bonus points when mastering techniques / actions
-- **buffs**: Buffs to give at the start of each combat
+- **buffs**: Buffs to give at the start of each combat. Each entry can optionally include a `condition` that must be met for the buff to be applied
 
 ## Examples
 
@@ -104,48 +104,43 @@ export const fistMastersRegalia: ClothingItem = {
   realm: 'pillarCreation',
 };
 
-// Complex multi-school clothing with conditional effects
-export const eclipsePetalMantle: ClothingItem = {
+// Clothing with a conditional buff
+export const meteorfallMantle: ClothingItem = {
   kind: 'clothing',
-  charisma: window.modAPI.utils.getClothingCharisma('coreFormation', 1.2),
+  charisma: window.modAPI.utils.getClothingCharisma('lifeFlourishing', 0.8),
   stats: {
-    defense: window.modAPI.utils.getClothingDefense('coreFormation', 1.2),
-    maxbarrier: Math.floor(window.modAPI.utils.getExpectedBarrier() * 0.2),
-    celestialBoost: 10,
-    blossomBoost: 10,
+    defense: window.modAPI.utils.getClothingDefense('lifeFlourishing', 0.5),
+    barrierMitigation: 6,
+    celestialBoost: 20,
   },
   buffs: [{
     buff: {
-      name: 'Eclipse Petal Mantle',
-      icon,
+      name: 'Meteorfall Mantle',
+      icon: iconAsset,
       canStack: false,
       stats: undefined,
-      tooltip: 'After each technique if there is Sunlight then gain 1 stack of Razor Blossom, if there is Moonlight then gain 1 stack of Iron Blossom.',
-      afterTechniqueEffects: [
+      tooltip: `At the start of each round, if Sunlight and Moonlight are equal then summon a Meteor.`,
+      onRoundStartEffects: [
         {
           kind: 'buffSelf',
-          condition: { kind: 'condition', condition: `${sunlight.name} > 0` },
-          buff: razorBlossom,
+          condition: {
+            kind: 'condition',
+            condition: `${sunlight.name} == ${moonlight.name}`,
+          },
+          buff: meteor,
           amount: { value: 1, stat: undefined },
         },
-        {
-          kind: 'buffSelf',
-          condition: { kind: 'condition', condition: `${moonlight.name} > 0` },
-          buff: ironBlossom,
-          amount: { value: 1, stat: undefined },
-        }
       ],
-      onRoundEffects: [],
-      stacks: 0,
+      stacks: 1,
     },
     buffStacks: { value: 1, stat: undefined },
   }],
-  name: 'Eclipse Petal Mantle',
-  description: 'Mantle woven from Eclipse Lord remains that blooms under heavenly light.',
-  icon,
+  name: 'Meteorfall Mantle',
+  description: 'Mantle associated with celestial cultivators who pursue meteors aggressively.',
+  icon: iconAsset,
   stacks: 1,
   rarity: 'empowered',
-  realm: 'coreFormation',
+  realm: 'lifeFlourishing',
 };
 ```
 
