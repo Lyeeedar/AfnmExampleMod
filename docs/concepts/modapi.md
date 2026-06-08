@@ -957,12 +957,12 @@ Helper functions through `window.modAPI.utils`:
 
 ```typescript
 window.modAPI.subscribe(callback: () => void): () => void
-window.modAPI.getGameStateSnapshot(): RootState | null
+window.modAPI.getGameStateSnapshot(): RootState
 window.modAPI.utils.determineCurrentScreen(rootState: RootState): ScreenType
 ```
 
 - **`subscribe`** — Subscribe to any Redux state change. The callback is called after every dispatched action. Returns an unsubscribe function. Prefer this over direct store access.
-- **`getGameStateSnapshot`** — Returns a read-only snapshot of the complete game state, or `null` if no save is loaded.
+- **`getGameStateSnapshot`** — Returns a read-only snapshot of the complete game state. When no save is loaded, the default base state is returned.
 - **`determineCurrentScreen`** — Determines the current screen type from the Redux root state. Useful in custom screens or hooks to branch behavior based on where the player is.
 
 ```typescript
@@ -973,7 +973,7 @@ window.modAPI.subscribe(() => {
   if (now - lastUpdate < 250) return;
   lastUpdate = now;
   const snap = window.modAPI.getGameStateSnapshot();
-  if (snap) refreshMyPanel(snap);
+  refreshMyPanel(snap);
 });
 
 // Determine current screen
@@ -1156,8 +1156,8 @@ Create full player entities for tooltips, calculations, and custom mechanics. Bo
 
 ```typescript
 // Create a combat entity for tooltip display
-const player = window.modAPI.getGameStateSnapshot()?.player.player;
-const breakthrough = window.modAPI.getGameStateSnapshot()?.player.breakthrough;
+const player = window.modAPI.getGameStateSnapshot().player.player;
+const breakthrough = window.modAPI.getGameStateSnapshot().player.breakthrough;
 if (player && breakthrough) {
   const combatEntity = window.modAPI.utils.createPlayerCombatEntity(player, breakthrough, flags);
   // Use for damage calculations, technique effect previews, etc.
