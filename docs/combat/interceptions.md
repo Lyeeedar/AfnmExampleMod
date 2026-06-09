@@ -127,11 +127,34 @@ When a buff declares `guardianIntercept`, it acts as a damage shield that absorb
 ```typescript
 guardianIntercept?: {
   percent: Scaling;     // Percentage of incoming damage redirected to guardian HP
-  maxHp: Scaling;       // Maximum HP for the guardian, evaluated at buff creation
+  maxHp: Scaling;        // Maximum HP for the guardian, evaluated at buff creation
   refreshMode?: 'refresh' | 'extend';  // How re-application combines with existing HP
+  target?: 'all' | 'healthOnly';        // Which damage portion the guardian intercepts
   canUpgrade?: boolean;
   onDestroyed?: BuffEffect[];  // Effects fired on the owner when the guardian is destroyed
 };
+```
+
+### The `target` Field
+
+The `target` field controls which portion of incoming damage the guardian intercepts:
+
+- **`'all'`** (default): Intercepts the configured percent of total incoming damage at the pre-barrier location. This is the legacy behavior. Damage is intercepted before barrier absorption, so the guardian absorbs raw damage that would otherwise be reduced by the owner's barrier.
+
+- **`'healthOnly'`**: Skips the pre-barrier interception entirely. The guardian instead absorbs a percent of the damage that would actually reach HP, after all other reductions (barrier, other interceptors, damage reduction, temporary health) have been applied. This lets mods build guardians that do not interfere with barrier-gated effects.
+
+```typescript
+// Example: A guardian that only activates after barrier is fully breached
+{
+  name: 'Final Ward',
+  icon: wardIcon,
+  canStack: false,
+  guardianIntercept: {
+    percent: { value: 0.50 },
+    maxHp: { value: 0.20, stat: 'maxhp' },
+    target: 'healthOnly',  // Absorbs damage that reaches HP, not raw pre-barrier damage
+  },
+}
 ```
 
 ### The `onDestroyed` Hook
