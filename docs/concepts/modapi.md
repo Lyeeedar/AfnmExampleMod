@@ -518,6 +518,44 @@ window.modAPI.actions.addSfx(name: string, path: string)
 
 Note: When adding audio files the compiler will not know they exist at first, so you will get errors when trying to use the new names you added. To get around that, you will need to cast it to the expected type `'my_music' as MusicName` manually. This is essentially just saying to the compiler, 'trust me, this exists'.
 
+
+### Game Settings
+
+Access the player's current game settings at runtime via `useGameSettings`:
+
+```typescript
+window.modAPI.utils.useGameSettings(): GameSettingsProps;
+```
+
+Returns the full `GameSettingsProps` object containing all player preferences. Reading these values in your mod lets you adjust behaviour to match the player's chosen settings.
+
+**`GameSettingsProps` fields:**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `enableStancePreview` | `boolean` | Show stance preview on technique hover |
+| `removeCombatNumbers` | `boolean` | Hide floating damage/heal numbers |
+| `fastRewardAnimations` | `boolean` | Speed up reward popup animations |
+| `showCraftingRawNumbers` | `boolean` | Show exact crafting stat values |
+| `skipSeenDialogue` | `boolean` | Skip dialogue the player has already seen |
+| `skipDialogueMode` | `'flash' \| 'instant' \| 'none'` | How to skip seen dialogue |
+| `hideEmptySlotWarnings` | `boolean` | Suppress empty equipment slot warnings |
+| `pauseAutoBattleOnLowHealth` | `boolean` | Pause auto-battle when below threshold |
+| `sexuality` | `string` | Player's configured sexuality setting |
+| `eventHistoryLimit` | `number` | Max dialogue history entries to keep |
+| `tooltipLockTimeMs` | `number` | Mouse-lock duration for tooltips (ms) |
+| `combatZoom` | `number` | Combat viewport scale (0.5 to 1.5, default 1.0) |
+
+**Example:**
+
+```typescript
+const settings = window.modAPI.utils.useGameSettings();
+if (settings.combatZoom < 1.0) {
+  // Player prefers a zoomed-out combat view
+  myModEffect.intensity *= settings.combatZoom;
+}
+```
+
 ## Mod Hooks
 
 Intercept and modify game behavior at specific points through `window.modAPI.hooks`:
