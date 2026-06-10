@@ -44,7 +44,7 @@ These triggers are related to when buffs are processed during combat rounds.
 - **Usage:** Effects that scale with or react to stacking
 - **Examples:** Building secondary buffs, tracking stack milestones
 
-### `onRoundEffects` 
+### `onRoundEffects`
 - **When it triggers:** At the end of each combat round
 - **Condition:** Automatically triggered at round end for all entities with buffs that have these effects
 - **Usage:** End-of-round processing like DoT damage, healing over time, buff decay, stack management
@@ -72,7 +72,7 @@ These triggers are based on specific actions taken during combat.
 - **When it triggers:** When a technique of a specific type is used
 - **Condition:** Triggered when the entity uses any technique matching the specified type
 - **Usage:** Type-specific bonuses and effects based on technique element
-- **Examples:** 
+- **Examples:**
   - `use.fist` - Triggers when using fist techniques
   - `use.blood` - Triggers when using blood techniques
 
@@ -120,6 +120,14 @@ These triggers relate to taking or dealing damage and healing.
 ### `takeDamage`
 - **Condition:** Triggered every time the entity receives unblocked damage from any source (after defense calculations)
 - **Usage:** Damage-based reactions, defensive responses, damage-triggered effects
+
+### `takeDamage-normal`
+- **Condition:** Triggered when the entity receives untyped (physical) damage. Use for damage-type-specific reactions alongside `takeDamage`.
+- **Usage:** Type-specific defensive responses
+
+### `takeDamage-{damageType}`
+- **Condition:** Triggered when the entity receives damage of the specified type (`true`, `corrupt`, `disrupt`, etc.)
+- **Usage:** Type-specific defensive or offensive reactions
 
 ### `blockDamage`
 - **Condition:** Triggered every time the entity fully blocks damage from a hit (using barrier or damage resistance)
@@ -184,7 +192,89 @@ These triggers are related to specific game systems and mechanics.
 - **When it triggers:** Based on custom trigger strings
 - **Condition:** Triggered when the specified trigger string is activated
 - **Usage:** Custom trigger-based effects, complex conditional interactions
+- **Properties:**
+  - `listenToOpponent: true` - This trigger also fires when the opponent triggers the same event
 - **Examples:** Formation triggers, contingency effects, custom reaction systems
+
+### `blockTriggerEffects`
+- **When it triggers:** Prevents specific triggers from executing on this buff
+- **Condition:** When the specified trigger string is about to fire on this buff
+- **Usage:** Suppressing unwanted trigger effects from other buffs
+- **Properties:**
+  - `trigger: string` - The trigger to block
+  - `condition?: TechniqueCondition` - Optional condition; blocking only applies if condition is met
+  - `effects?: BuffEffect[]` - Effects to run instead of blocking outright
+
+### `damageInterceptorEffects`
+- **When it triggers:** Before incoming damage is applied to the entity
+- **Condition:** Runs whenever damage would be dealt to this entity
+- **Usage:** Modifying incoming damage (multiply, reduce, or add expressions), or reacting to it before it lands
+- **Properties:**
+  - `trigger?: TechniqueCondition` - Condition that must be met for the interceptor to run
+  - `damageModifier: DamageModifier` - How to modify the damage (`multiply`, `reduce`, or `expression`)
+  - `effects?: BuffEffect[]` - Additional effects to run when the interceptor fires
+  - `afterBarrier?: boolean` - If true, runs after barrier absorption but before net damage is applied
+  - `damageTypes?: (DamageType | 'normal')[]` - Restrict to specific damage types; `'normal'` matches untyped physical damage
+
+**Example:**
+
+```typescript
+damageInterceptorEffects: [
+  {
+    damageModifier: { kind: 'multiply', value: 0.5 }, // Reduce incoming damage by 50%
+    effects: [
+      { kind: 'buffSelf', amount: { value: 1, stat: undefined }, buff: defensiveStance }
+    ],
+    damageTypes: ['normal', 'true']
+  }
+]
+```
+
+### `techniqueAmplifierEffects`
+- **When it triggers:** Before outgoing damage, barrier, heal, or temporary health effects are applied
+- **Usage:** Amplifying the entity's own outgoing effects (e.g., increase all damage by 50%)
+- **Properties:**
+  - `trigger?: TechniqueCondition` - Optional condition
+  - `amplifier: { kind: 'multiply', value: number, cantUpgrade?: boolean }` - Multiplier to apply
+  - `effects?: BuffEffect[]` - Effects to run when amplifying (e.g., consume stacks of the amplifier buff)
+  - `appliesTo: ('damage' | 'barrier' | 'heal' | 'tempHealth')[]` - Which effect kinds to amplify
+
+**Example:**
+
+```typescript
+techniqueAmplifierEffects: [
+  {
+    amplifier: { kind: 'multiply', value: 1.5 }, // +50% to all outgoing damage
+    appliesTo: ['damage'],
+    effects: [
+      { kind: 'consumeSelf', amount: { value: 1, stat: undefined }, buff: empoweredBuff }
+    ]
+  }
+]
+```
+
+### `buffAmplifierEffects`
+- **When it triggers:** When a buff is created on the entity that has this effect
+- **Usage:** Modifying how many stacks are granted when a specific buff is applied to self
+- **Properties:**
+  - `trigger?: TechniqueCondition` - Optional condition
+  - `target: string` - Matches buffs by name, buffType, or flag
+  - `modifier: { kind: 'add' | 'multiply', value: number, cantUpgrade?: boolean }` - How to modify stacks
+  - `effects?: BuffEffect[]` - Effects to run when amplifying (e.g., consume stacks of the amplifier)
+
+**Example:**
+
+```typescript
+buffAmplifierEffects: [
+  {
+    target: 'Blood Corruption',
+    modifier: { kind: 'add', value: 1 }, // +1 extra stack when Blood Corruption is applied
+    effects: [
+      { kind: 'consumeSelf', amount: { value: 1, stat: undefined }, buff: amplifierBuff }
+    ]
+  }
+]
+```
 
 ---
 
@@ -203,6 +293,11 @@ These are specific custom triggers used by various systems in the game.
 - **Condition:** Triggered by formation system interactions
 - **Usage:** Formation-specific bonuses and effects
 - **Examples:** Formation technique synergies, group combat bonuses
+
+### `guardianBroken.{buffName}`
+- **When it triggers:** When a guardian sub-entity (declared via `guardianIntercept`) reaches 0 HP
+- **Condition:** Equivalent to a `triggeredBuffEffects` entry with `trigger: 'guardianBroken.${name}'` on the guardian buff itself
+- **Usage:** Effects that fire when a guardian is destroyed
 
 ---
 
@@ -229,7 +324,8 @@ These are specific custom triggers used by various systems in the game.
 ### Condition Evaluation
 - All triggers respect buff conditions (`TechniqueCondition`)
 - Failed conditions may remove buffs if `removeOnConditionFailed` is true
-- Condition types include: `chance`, `buff`, `hp`, and `condition`
+- Condition types include: `chance`, `buff`, `hp`, `condition`, and `inventoryItem`
+- Use `allowTriggers: true` on a condition to let `triggeredBuffEffects` fire even when the condition fails
 
 ---
 
@@ -276,6 +372,42 @@ triggeredBuffEffects: [
         kind: 'damage',
         amount: { value: 1, stat: 'power' },
       }
+    ]
+  }
+]
+```
+
+### Listen to Opponent
+```typescript
+triggeredBuffEffects: [
+  {
+    trigger: 'use.damage',
+    listenToOpponent: true, // Also triggers when the OPPONENT uses damage
+    effects: [
+      { kind: 'buffSelf', amount: { value: 1, stat: undefined }, buff: counterStance }
+    ]
+  }
+]
+```
+
+### Damage Interceptor
+```typescript
+damageInterceptorEffects: [
+  {
+    damageModifier: { kind: 'reduce', percent: 30 },
+    damageTypes: ['normal']
+  }
+]
+```
+
+### Technique Amplifier
+```typescript
+techniqueAmplifierEffects: [
+  {
+    amplifier: { kind: 'multiply', value: 1.5 },
+    appliesTo: ['damage', 'heal'],
+    effects: [
+      { kind: 'consumeSelf', amount: { value: 1, stat: undefined }, buff: focusBuff }
     ]
   }
 ]
