@@ -39,6 +39,7 @@ interface Technique {
   // Usage restrictions
   maxInstances?: number; // Uses per stance (default: 3)
   stanceRestriction?: 'opener' | 'finisher'; // Position in stance sequence
+  disableCrystalDrop?: boolean; // Exclude from technique crystal drops
 
   // Effects and mechanics
   effects: TechniqueEffect[]; // What happens when used
@@ -192,6 +193,24 @@ stanceRestriction: 'finisher'; // Must be last technique in stance
 - **Openers**: Set up resources/conditions for the stance
 - **Finishers**: Capitalize on resources built during the stance
 - **Flexible**: No restriction allows use anywhere in sequence
+
+### Disabling Crystal Drops
+
+Set `disableCrystalDrop: true` to exclude a technique from technique crystal drops. This is useful for techniques that are only obtainable through special means (e.g. spirit techniques unlocked via the spirit tree):
+
+```typescript
+export const frozenStorm: Technique = {
+  name: 'Frozen Storm',
+  // ...
+  disableCrystalDrop: true,
+};
+
+// Group techniques and disable drops on the array:
+const spiritTechniques = [stormfront, howlingShroud, stormAscension, frozenStorm];
+spiritTechniques.forEach((e) => {
+  e.disableCrystalDrop = true;
+});
+```
 
 ## Effect Types
 
@@ -388,14 +407,14 @@ Restores health to barrier-type buffs that have taken damage:
 }
 ```
 
-- **group**: Selects which buffs to repair — matched against the buff's `name`, `buffType`, or any flag set on it.
+- **group**: Selects which buffs to repair  -  matched against the buff's `name`, `buffType`, or any flag set on it.
 - **rule**: `'all'` repairs every matching buff; `'lowestHealth'` targets the most damaged one; `'highestHealth'` targets the least damaged.
 
 #### `permanentStatChange`
 
 Permanently modifies a physical or social statistic on the player. The change takes effect after combat ends. The amount is floored to an integer.
 
-Only applies when the technique is used by the player — enemy techniques with this effect kind are ignored.
+Only applies when the technique is used by the player  -  enemy techniques with this effect kind are ignored.
 
 ```typescript
 {
@@ -408,27 +427,27 @@ Only applies when the technique is used by the player — enemy techniques with 
 **Valid `stat` values:**
 
 Physical statistics:
-- `'flesh'` — Max Health and Barrier Effectiveness
-- `'muscles'` — Power and Qi Intensity
-- `'meridians'` — Qi Control and Artefact Power
-- `'dantian'` — Max Barrier, Max Qi Pool, and Qi Absorption
-- `'digestion'` — Toxicity Resistance and Item Effectiveness
-- `'eyes'` — Critical Chance and Critical Multiplier
+- `'flesh'`  -  Max Health and Barrier Effectiveness
+- `'muscles'`  -  Power and Qi Intensity
+- `'meridians'`  -  Qi Control and Artefact Power
+- `'dantian'`  -  Max Barrier, Max Qi Pool, and Qi Absorption
+- `'digestion'`  -  Toxicity Resistance and Item Effectiveness
+- `'eyes'`  -  Critical Chance and Critical Multiplier
 
 Social statistics:
-- `'charisma'` — Presence and shop prices
-- `'battlesense'` — Stance count and stance-switch power bonus
-- `'craftskill'` — Qi Control and Qi Intensity bonus
-- `'artefactslots'` — Number of equippable artefacts
-- `'talismanslots'` — Number of equippable talismans
-- `'condenseEfficiency'` — Qi to Qi Droplet conversion rate
-- `'pillsPerRound'` — Items usable per combat round
-- `'age'` — Current age
-- `'lifespan'` — Maximum lifespan
+- `'charisma'`  -  Presence and shop prices
+- `'battlesense'`  -  Stance count and stance-switch power bonus
+- `'craftskill'`  -  Qi Control and Qi Intensity bonus
+- `'artefactslots'`  -  Number of equippable artefacts
+- `'talismanslots'`  -  Number of equippable talismans
+- `'condenseEfficiency'`  -  Qi to Qi Droplet conversion rate
+- `'pillsPerRound'`  -  Items usable per combat round
+- `'age'`  -  Current age
+- `'lifespan'`  -  Maximum lifespan
 
 **Use case**: Combat consumables that permanently enhance the player's physical or social attributes when used during a fight.
 
-**Example — a pill that permanently boosts muscles by 1:**
+**Example  -  a pill that permanently boosts muscles by 1:**
 
 ```typescript
 {

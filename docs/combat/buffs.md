@@ -173,6 +173,96 @@ Triggers at the end of each round, after all techniques have been used.
 - **`buffAmplifierEffects`** - Modifies stack count when buffs are created on self
 - **`priority`** - Controls execution order (lower numbers execute first). Buffs whose `beforeTechniqueEffects` contain a `{ kind: 'damage', damageType: 'disruption' }` effect receive an automatic priority offset of -100, so they always execute before other buffs at the same `priority` value.
 
+## Scaling Fields
+
+The `stats` field on a buff uses `Scaling` objects to define stat bonuses. Beyond basic `value` and `stat`, the following fields control how those bonuses are modified:
+
+### `scaling`
+
+A variable multiplied onto the result. Usually the name of a buff whose stack count acts as the multiplier:
+
+```typescript
+stats: {
+  power: {
+    value: 0.06,
+    stat: 'power',
+    scaling: 'stacks',      // multiplies by this buff's own stack count
+    max: { value: 3.6, stat: 'power' },
+  },
+},
+```
+
+Can also reference another buff's name:
+
+```typescript
+scaling: 'SomeOtherBuff',  // multiplies by SomeOtherBuff's stack count
+```
+
+### `eqn`
+
+A string expression multiplied onto the final result. This enables cross-buff logic where one buff's presence modifies another buff's effect:
+
+```typescript
+stats: {
+  frostbiteStacks: {
+    value: 1,
+    stat: undefined,
+    scaling: 'stacks',
+    eqn: `1 + (${flag(frozenStormBuff.name)} ? 1 : 0)`,
+  },
+},
+```
+
+The expression can reference any flag. Use `window.modAPI.utils.flag(buff.name)` to convert a buff name to its flag key, then include it in the expression. The expression is evaluated at runtime, so it can check whether another buff is active.
+
+### `additiveEqn`
+
+Like `eqn`, but the result is **added** to the final value rather than multiplied:
+
+```typescript
+stats: {
+  power: {
+    value: 0.1,
+    stat: 'power',
+    additiveEqn: 'maxhp * 0.01',  // adds 1% of max HP to the power bonus
+  },
+},
+```
+
+### `customScaling`
+
+A fixed multiplier applied to the `scaling` value. Use when you want a flat percentage bonus per stack of another buff:
+
+```typescript
+stats: {
+  celestialBoost: {
+    value: 5,
+    stat: undefined,
+    customScaling: {
+      multiplier: 0.3,
+      scaling: 'stacks',           // 30% more per stack of this buff
+    },
+  },
+},
+```
+
+### `scalingMax`
+
+A cap applied only to the resolved `scaling` multiplier (the stack count or other variable), before that capped value is multiplied onto `value`:
+
+```typescript
+stats: {
+  hits: {
+    value: 1,
+    stat: undefined,
+    scaling: 'stacks',
+    scalingMax: { value: 5, stat: undefined },  // cap the multiplier at 5
+  },
+},
+```
+
+This is distinct from `max`, which caps the final computed result.
+
 ## Custom Tooltips
 
 The `tooltip` field on a buff supports dynamic placeholders that resolve at render time:
