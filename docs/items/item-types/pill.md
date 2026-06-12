@@ -56,6 +56,7 @@ interface MiscPillItem extends BasePillItem {
 interface ConsumablePillItem extends BasePillItem {
   pillKind: 'consumable';
   max: number;                         // Usage limit per character lifetime
+  stacks: number;                      // Inherited from ItemBase; set to 1 for consumables
   physicalStats: Partial<Record<PhysicalStatistic, number>>;  // Permanent physical stat gains
   socialStats: Partial<Record<SocialStatistic, number>>;      // Permanent social stat gains
   rawStats?: Partial<Record<CombatStatistic | CraftingStatistic, Scaling>>; // Permanent combat/crafting stat bonuses
@@ -118,6 +119,7 @@ export const strengthElixir: ConsumablePillItem = {
   kind: 'pill',
   name: 'Strength Elixir',
   max: 3,
+  stacks: 1,
   physicalStats: { muscles: 5 },
   socialStats: {},
   // ... base properties
@@ -129,6 +131,7 @@ export const powerElixir: ConsumablePillItem = {
   kind: 'pill',
   name: 'Power Elixir',
   max: 5,
+  stacks: 1,
   physicalStats: {},
   socialStats: {},
   rawStats: {
@@ -144,6 +147,7 @@ export const artisanElixir: ConsumablePillItem = {
   kind: 'pill',
   name: 'Artisan Elixir',
   max: 3,
+  stacks: 1,
   physicalStats: {},
   socialStats: {},
   rawStats: {
@@ -160,6 +164,7 @@ export const sharedFortitudePill: ConsumablePillItem = {
   kind: 'pill',
   name: 'Minor Fortitude Pill',
   max: 5,
+  stacks: 1,
   physicalStats: { muscles: 2 },
   socialStats: {},
   consumptionGroup: 'fortitude_pills',  // Shares cap with other 'fortitude_pills' pills
@@ -173,13 +178,18 @@ export const jadeDroplet: ConsumablePillItem = {
   pillKind: 'consumable',
   kind: 'pill',
   name: 'Jade Droplet',
+  description: 'A luminous droplet of condensed spiritual essence.',
+  icon: jadeDropletIcon,
   max: 99,
+  stacks: 1,
   physicalStats: {},
   socialStats: {},
   flagEffect: {
     flag: 'myMod_jadeDropletsConsumed',
     amount: 1,
   },
+  rarity: 'resplendent',
+  realm: 'qiCondensation',
   // ... base properties
 };
 ```
