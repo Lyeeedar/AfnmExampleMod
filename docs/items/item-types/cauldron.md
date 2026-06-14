@@ -28,6 +28,53 @@ interface CraftingEquipmentItem extends ItemBase {
 - **stats**: Crafting stat bonuses (control, intensity, etc.)
 - **buffs**: Optional crafting buffs to apply
 
+## getCraftingEquipmentStats
+
+The `stats` field is populated by calling `window.modAPI.utils.getCraftingEquipmentStats`. The function signature is:
+
+```typescript
+window.modAPI.utils.getCraftingEquipmentStats(
+  realm: Realm,
+  realmProgress: RealmProgress,
+  factors: { pool: number; control: number; intensity: number },
+  type: 'cauldron' | 'flame',
+): Partial<CraftingStatsMap>
+```
+
+## Critical: Realm Alignment
+
+**The `realm` parameter passed to `getCraftingEquipmentStats` must match the `realm` field on the cauldron item itself.**
+
+If the two realms differ, the cauldron's stats will be calculated at the wrong progression tier, producing below-par stats for the item's actual realm. This is a common source of unintentionally weak cauldrons.
+
+```typescript
+// WRONG: realm mismatch. Item is lifeFlourishing but stats calculated at coreFormation
+export const brokenCauldron: CauldronItem = {
+  kind: 'cauldron',
+  realm: 'lifeFlourishing',          // item is LF tier
+  stats: getCraftingEquipmentStats(
+    'coreFormation',                 // but stats are CF tier, two tiers too low
+    'Late',
+    { pool: 0, control: 0.5, intensity: 0.5 },
+    'cauldron',
+  ),
+  // ...
+};
+
+// CORRECT: realm parameters match
+export const workingCauldron: CauldronItem = {
+  kind: 'cauldron',
+  realm: 'lifeFlourishing',
+  stats: getCraftingEquipmentStats(
+    'lifeFlourishing',               // aligns with item's realm
+    'Late',
+    { pool: 0, control: 0.5, intensity: 0.5 },
+    'cauldron',
+  ),
+  // ...
+};
+```
+
 ## Examples
 
 ```typescript
