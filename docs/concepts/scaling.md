@@ -10,7 +10,7 @@ description: 'Mathematical foundations for dynamic values in AFNM'
 
 ## Introduction
 
-The Scaling system is the mathematical engine that powers all dynamic value calculations in Ascend from Nine Mountains. Whether you're creating techniques that deal damage, buffs that modify stats, or crafting effects that scale with player progression, understanding scaling is essential for creating balanced, engaging content.
+The Scaling system is the mathematical engine that powers all dynamic value calculations in Ascend from Nine Mountains. Whether you are creating techniques that deal damage, buffs that modify stats, or crafting effects that scale with player progression, understanding scaling is essential for creating balanced, engaging content.
 
 Every damage number, healing amount, buff strength, and stat modifier flows through this system, creating the progression curves that make cultivation feel meaningful.
 
@@ -31,13 +31,15 @@ interface Scaling {
     upgradeKey?: string;
   };
   max?: Scaling;          // Cap the final value
-  upgradeKey?: string;    // Links to mastery upgrades
+  scalingMax?: Scaling;   // Cap the resolved scaling multiplier before it is multiplied onto value
   divideByStanceLength?: boolean; // Divide the result by the number of techniques in the stance
   multiplyByStanceLength?: boolean; // Multiply the result by the number of techniques in the stance
+  upgradeKey?: string;    // Links to mastery upgrades
   buff?: Buff;            // Buff reference used internally for some effects
   increment?: number;     // For hit-based scaling: each subsequent hit costs this much more of the scaling buff
   cantUpgrade?: boolean;  // When true, this scaling value cannot be improved by technique mastery upgrades
   isItem?: boolean;       // When true, the result is additionally multiplied by (1 + itemEffectiveness * 0.01). Set on pills, concoctions, and formation parts.
+  removeEqnForTooltip?: boolean; // When true, eqn is ignored for tooltip display so the shown amount is the base (value * stat)
 }
 ```
 
@@ -55,10 +57,10 @@ The `stat` field accepts any **combat statistic**, **crafting statistic**, **phy
 
 ### Evaluation Formula
 
-The system follows a predictable pattern: **Base × Stat × Scaling × Equation + Additive**
+The system follows a predictable pattern: **Base x Stat x Scaling x Equation + Additive**
 
 ```
-Final Value = (value × [stat] × [scaling] × [eqn result]) + [additiveEqn result]
+Final Value = (value x [stat] x [scaling] x [eqn result]) + [additiveEqn result]
 ```
 
 Each component is optional, allowing for simple flat values or complex multi-variable calculations.
@@ -67,7 +69,7 @@ Each component is optional, allowing for simple flat values or complex multi-var
 
 ### Pattern 1: Flat Values
 
-**When to use**: Fixed effects, utility abilities, resource generation that shouldn't scale with combat stats.
+**When to use**: Fixed effects, utility abilities, resource generation that should not scale with combat stats.
 
 ```typescript
 // Always grants exactly 3 stacks
@@ -160,7 +162,7 @@ amount: {
 amount: {
   value: 0.3,
   stat: 'power',
-  scaling: 'stacks'  // 30% power × Vitality stacks
+  scaling: 'stacks'  // 30% power x Vitality stacks
 }
 ```
 
@@ -483,10 +485,10 @@ Link scaling to mastery progression:
 
 **Damage Multipliers:**
 
-- Basic attacks: 0.5-1.2× stat
-- Strong techniques: 1.5-2.5× stat
-- Ultimate abilities: 3.0-4.0× stat
-- Per-stack scaling: 0.05-0.1× stat per stack
+- Basic attacks: 0.5-1.2x stat
+- Strong techniques: 1.5-2.5x stat
+- Ultimate abilities: 3.0-4.0x stat
+- Per-stack scaling: 0.05-0.1x stat per stack
 
 ### When to Use Each Pattern
 
@@ -537,4 +539,4 @@ Link scaling to mastery progression:
 4. **Missing progression** - Static effects feel unrewarding
 5. **Inconsistent patterns** - Makes the system unpredictable
 
-The scaling system is powerful and flexible. Master these patterns, and you'll create techniques and effects that feel both impactful and balanced, scaling naturally with player progression while maintaining strategic depth.
+The scaling system is powerful and flexible. Master these patterns, and you will create techniques and effects that feel both impactful and balanced, scaling naturally with player progression while maintaining strategic depth.

@@ -263,6 +263,19 @@ stats: {
 
 This is distinct from `max`, which caps the final computed result.
 
+### `removeEqnForTooltip`
+
+When `true`, the `eqn` is ignored for tooltip display so the shown amount is the base `value * stat` instead of the current state-scaled value (which can be 0):
+
+```typescript
+{
+  value: 1,
+  stat: 'power',
+  eqn: 'someCondition ? 100 : 0',
+  removeEqnForTooltip: true,  // tooltip shows base value, not conditional result
+}
+```
+
 ## Custom Tooltips
 
 The `tooltip` field on a buff supports dynamic placeholders that resolve at render time:
@@ -270,7 +283,21 @@ The `tooltip` field on a buff supports dynamic placeholders that resolve at rend
 - `<name>BuffName</name>` - Inserts the display name of another buff, styled as a buff link
 - `{heal.amount}` - Inserts the calculated amount from a `heal` effect in `triggeredBuffEffects`
 - `{barrier.amount}` - Inserts the calculated amount from a `barrier` effect in `triggeredBuffEffects`
+- `{damageSelf.amount}` - Inserts the calculated amount from a `damageSelf` effect in `onRoundEffects` or similar timings
 - `{state.variableName}` - Inserts a value from `internalState` (requires `stateTooltip` to be set)
+
+The placeholder key is determined by the effect kind. For `damageSelf`, use `{damageSelf.amount}`. For `damage` (enemy damage), use `{damage.amount}`. The key is the effect's `kind` value followed by `.amount`:
+
+```typescript
+// onRoundEffects using damageSelf — tooltip must use {damageSelf.amount}
+onRoundEffects: [
+  {
+    kind: 'damageSelf',
+    amount: { value: 0.5, stat: 'power', scaling: 'stacks' },
+  },
+],
+tooltip: 'At the end of each round, take {damageSelf.amount} damage per stack.',
+```
 
 This allows buffs to display context-sensitive values that depend on other stats or effects:
 
