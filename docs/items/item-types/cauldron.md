@@ -28,6 +28,21 @@ interface CraftingEquipmentItem extends ItemBase {
 - **stats**: Crafting stat bonuses (control, intensity, etc.)
 - **buffs**: Optional crafting buffs to apply
 
+## Stat Realm Alignment
+
+The `realm` field on the cauldron and the realm passed to `getCraftingEquipmentStats` must match. The function uses the realm to look up the correct stat scaling curve, so passing a different realm produces incorrect stats. For example, a cauldron with `realm: 'lifeFlourishing'` should call:
+
+```typescript
+stats: getCraftingEquipmentStats(
+  'lifeFlourishing',  // must match the item's realm field
+  'Late',
+  { pool: 0, control: 0.6, intensity: 0.4 },
+  'cauldron',
+),
+```
+
+Passing `'coreFormation'` here while the item declares `realm: 'lifeFlourishing'` will produce stats appropriate for a Core Formation cauldron, not a Life Flourishing one.
+
 ## Examples
 
 ```typescript
