@@ -93,6 +93,18 @@ Restores health.
 }
 ```
 
+When healing exceeds the target's max HP, the excess is converted based on the target's combat stats:
+- **`overheal`** converts a percentage of excess healing into barrier
+- **`vitalOverheal`** converts a percentage of excess healing into temporary health (via the `giveTemporaryHealth` system)
+
+Both are percentage values (e.g. `100` = 100%). The raw excess heal amount is multiplied by the stat value, then the remaining overheal/vitalOverheal conversions stack additively.
+
+When healing exceeds the target's max HP, the excess is converted based on the target's combat stats:
+- **** converts a percentage of excess healing into barrier
+- **** converts a percentage of excess healing into temporary health (via the  system)
+
+Both are percentage values (e.g.  = 100%). The raw excess heal amount is multiplied by the stat value, then the remaining overheal/vitalOverheal conversions stack additively.
+
 ### `barrier`
 
 Grants barrier (damage absorption).

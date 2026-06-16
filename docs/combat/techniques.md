@@ -212,6 +212,28 @@ spiritTechniques.forEach((e) => {
 });
 ```
 
+### Stance Import Validation
+
+When the StyleManager component is used to import saved stances (via `window.myFS?.openFile()`), the import dialog validates two things before confirming:
+
+1. **Technique availability** - each technique referenced by the imported stance is checked against a known-technique list. Unknown techniques are shown in the dialog so the player can see what they are missing before confirming.
+2. **Stance slot capacity** - when a `stanceLimit` prop is provided (`{ max: number, current: number }`), the dialog shows how many free slots the player has and whether the imported stance fits. If `current >= max`, the import is blocked.
+
+```typescript
+// StyleManager props relevant to import validation:
+interface StyleManagerProps {
+  // ...other props
+  /** Known technique names used to validate the imported stances.
+   *  Techniques not in this list are shown in the import dialog as missing. */
+  knownTechniqueNames?: string[];
+  /** Stance slot capacity. When provided, the import dialog will validate
+   *  that the player has enough free stance slots for the imported stances. */
+  stanceLimit?: { max: number; current: number };
+}
+```
+
+Mods that add new techniques should pass `knownTechniqueNames` to StyleManager so the import dialog can flag missing techniques. If your mod also limits stance slots, pass `stanceLimit` to enforce that limit during import.
+
 ## Effect Types
 
 Techniques use similar effect types to buffs but execute immediately:

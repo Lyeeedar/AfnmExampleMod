@@ -47,7 +47,7 @@ interface Scaling {
 
 The `stat` field accepts any **combat statistic**, **crafting statistic**, **physical statistic**, **social statistic**, or **technique element**. The most commonly used values are:
 
-**Combat:** `'power'`, `'defense'`, `'barrier'`, `'artefactpower'`, `'maxhp'`, `'hp'`, `'toxicity'`, `'maxtoxicity'`, `'critchance'`, `'critmultiplier'`, `'lifesteal'`, `'vulnerability'`, `'qiDroplets'`
+**Combat:** `'power'`, `'defense'`, `'barrier'`, `'artefactpower'`, `'maxhp'`, `'hp'`, `'toxicity'`, `'maxtoxicity'`, `'critchance'`, `'critmultiplier'`, `'lifesteal'`, `'vulnerability'`, `'qiDroplets'`, `'healingBoost'`, `'barrierBoost'`, `'temphpBoost'`, `'overheal'`, `'vitalOverheal'`, `'damageBoost'`, `'dr'`, `'barrierMitigation'`, `'protection'`, `'weakness'`
 
 **Crafting:** `'control'`, `'intensity'`, `'maxpool'`, `'pool'`, `'resistance'`, `'itemEffectiveness'`
 
