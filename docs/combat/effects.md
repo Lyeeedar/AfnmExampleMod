@@ -408,6 +408,27 @@ amount: {
 }
 ```
 
+
+## Element Resistance and Amplification
+
+When a technique has one or more element types, the target's resistance for each element is checked. The highest resistance value (positive or negative) is selected and applied to the damage:
+
+- **Positive resistance** reduces incoming damage, capped at 90% reduction. For example, 50% resistance multiplies damage by 0.5.
+- **Negative resistance** amplifies incoming damage with no lower cap. For example, -20% resistance multiplies damage by 1.2.
+
+The system selects the single most impactful resistance value, so mixing positive and negative values picks whichever helps or hurts the target most.
+
+```typescript
+// Example: target has 30% Blossom resistance
+// A Blossom technique dealing 100 damage would deal 70 damage
+
+// Example: target has -15% Blood resistance (vulnerable to blood)
+// A Blood technique dealing 100 damage would deal 115 damage
+```
+
+This applies only when the technique has element types set. Techniques with no element type skip resistance checks entirely.
+
+## Damage Types
 ## Damage Types
 
 Special damage types bypass certain protections:

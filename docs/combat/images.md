@@ -3,7 +3,7 @@ layout: default
 title: Combat Images
 parent: Combat System
 nav_order: 4
-description: 'Visual representation system for buffs in combat'
+description: "Visual representation system for buffs in combat"
 ---
 
 # Combat Images
@@ -25,7 +25,8 @@ interface BaseCombatImage {
     | 'overlay'
     | 'companion'
     | 'ground'
-    | 'formation';
+    | 'formation'
+    | 'baseStand';
   animations?: ('buff' | 'bump' | 'attack' | 'debuff')[]; // Trigger animations
   animateOnEntity?: boolean; // Whether to animate the entity
 }
@@ -182,6 +183,30 @@ combatImage: {
 }
 ```
 
+### Base Stand
+
+Images that replace the dark blurred disc the avatar stands on during combat. Only the last active baseStand buff applies. When a new one is applied, it replaces the previous stand image, following the same priority rule as `transformation` and `avatarEffect`.
+
+```typescript
+combatImage: {
+  position: 'baseStand',
+  image: standImage,            // The image rendered as the stand
+  opacity?: 1.0,                // Opacity of the stand image (default: 1)
+  animations?: ('buff' | 'bump' | 'attack' | 'debuff')[],
+  animateOnEntity?: boolean,
+}
+```
+
+**Example -- a field of flowers as the avatar stand:**
+
+```typescript
+combatImage: {
+  position: 'baseStand',
+  image: flowerFieldImage,
+  opacity: 0.9,
+}
+```
+
 ## Advanced Features
 
 ### Image Overrides
@@ -231,4 +256,4 @@ Set the baseline visual properties:
 
 - **`baseScale`** - Starting size
 - **`baseOpacity`** - Starting opacity
-- **`scale`** - Fixed size (doesn't change with stacks)
+- **`scale`** - Fixed size (does not change with stacks)
