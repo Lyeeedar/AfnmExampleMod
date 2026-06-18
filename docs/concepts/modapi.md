@@ -52,7 +52,8 @@ Access existing game content through `window.modAPI.gameData`:
 - **`auction`** - `Record<Realm, AuctionItemDef[]>` - Auction items by realm
 - **`breakthroughs`** - `Record<Realm, Breakthrough[]>` - Breakthrough requirements
 - **`crops`** - `Record<Realm, Crop[]>` - Crops available by realm
-- **`mineChambers`** - `Record<Realm, Record<RealmProgress, MineChamber[]>>` - Mine chambers by realm and progress
+- **`mineConfigs`** - `Record<string, MineConfig>` - Registry of all mine configurations keyed by mine id (e.g. `'yinying'`, `'yuMai'`). Each entry exposes the full mine config including `chambers`, `pathingMonsters`, `depthStrata`, sickness settings, and combat flavour text. Use this in place of the legacy `mineChambers` to read per-mine metadata and pathing monsters.
+- **`mineChambers`** - `Record<Realm, Record<RealmProgress, MineChamber[]>>` - **Deprecated.** Use `mineConfigs` instead. Only kept for backwards compatibility with existing mods.
 - **`uncutStones`** - `Record<Realm, UncutStonePool | undefined>` - Uncut stone pools by realm
 
 ### Specialized Collections
@@ -289,7 +290,8 @@ For a full list of available slots on each screen, see the screen-specific slot 
 
 ```typescript
 window.modAPI.actions.addCrop(realm: Realm, crop: Crop)
-window.modAPI.actions.addMineChamber(realm: Realm, progress: RealmProgress, chamber: MineChamber)
+window.modAPI.actions.addMineConfig(mineId: string, config: MineConfig)
+window.modAPI.actions.addMineChamber(mineId: string, realm: Realm, progress: RealmProgress, chamber: MineChamber)
 window.modAPI.actions.addGuild(guild: Guild)
 window.modAPI.actions.addDualCultivationTechnique(technique: IntimateTechnique)
 window.modAPI.actions.addEnchantment(enchantment: Enchantment)
@@ -300,6 +302,9 @@ window.modAPI.actions.addPuppetType(puppet: PuppetType)
 window.modAPI.actions.addAlternativeStart(start: AlternativeStart)
 window.modAPI.actions.addPlayerSprite(sprite: PlayerSprite)
 ```
+
+- **`addMineConfig`** — Register a complete new spirit stone mine. The `MineConfig` type includes id, chartTitle, locationName, chambers, pathingMonsters, depthStrata, depthFlag, flareItem, combat flavour text, and music/ambience. All mines must be registered before adding chambers to them. See `src/types/mineConfig.ts` in the game repo for the full type definition.
+- **`addMineChamber`** — Add a chamber to an existing mine. The `mineId` parameter must match a key already registered via `addMineConfig`. The realm and progress determine which sub-pool the chamber belongs to.
 
 - **`addMysticalRegionBlessing`** — Register a new blessing for mystical regions.
 - **`addPuppetType`** — Register a new puppet type for the training ground.

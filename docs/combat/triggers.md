@@ -49,6 +49,7 @@ These triggers are related to when buffs are processed during combat rounds.
 - **Condition:** Automatically triggered at round end for all entities with buffs that have these effects
 - **Usage:** End-of-round processing like DoT damage, healing over time, buff decay, stack management
 - **Examples:** Poison damage, regeneration, buff duration reduction
+- **Note on `multiply` effects in `onRoundEffects`:** A `{ kind: 'multiply', amount: { value: -0.5 } }` effect does **not** multiply the buff's stacks — it consumes `ceil(stacks * |value|)` stacks each round. At `value: -0.5`, a 4-stack buff becomes 2 stacks after round end; at `value: -1`, a 1-stack buff is fully removed. Use `add` with a negative value to remove a fixed number of stacks per round.
 
 ### `onRoundStartEffects`
 - **When it triggers:** At the beginning of each combat round
@@ -314,7 +315,9 @@ These are specific custom triggers used by various systems in the game.
 ### Priority System
 - Buffs with lower `priority` values are processed first
 - Default priority is 0 if not specified
-- Negative priorities process before positive ones
+- Negative priorities process before positive ones — use e.g. `priority: -1` to ensure a buff's `onRoundStartEffects` run before the spirit-stone seed system.
+
+**Warning:** Avoid assigning very low priority values (more negative than `-100`) to `onRoundStartEffects`. Such buffs may be processed before round-start dependency chains are established, causing unpredictable interactions. Use `priority: -1` to `-100` as needed.
 
 ### Parent Buff Prevention
 - Triggers cannot activate buffs that are already in the parent chain
