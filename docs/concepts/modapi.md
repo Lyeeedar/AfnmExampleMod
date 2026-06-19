@@ -52,7 +52,7 @@ Access existing game content through `window.modAPI.gameData`:
 - **`auction`** - `Record<Realm, AuctionItemDef[]>` - Auction items by realm
 - **`breakthroughs`** - `Record<Realm, Breakthrough[]>` - Breakthrough requirements
 - **`crops`** - `Record<Realm, Crop[]>` - Crops available by realm
-- **`mineChambers`** - `Record<Realm, Record<RealmProgress, MineChamber[]>>` - Mine chambers by realm and progress
+- **`mineConfigs`** - `Record<string, MineConfig>` - Full mine configuration registry. Each entry exposes `chambers`, `pathingMonsters`, `depthStrata`, sickness buff, combat flavour text, music, and ambience. Replace for the legacy `mineChambers` object so you can read pathing monsters and per-mine metadata for any registered mine (not only the Yinying mine). The key is the stable mine id string (e.g. `'yinying'`, `'yuMai'`).
 - **`uncutStones`** - `Record<Realm, UncutStonePool | undefined>` - Uncut stone pools by realm
 
 ### Specialized Collections
@@ -289,7 +289,8 @@ For a full list of available slots on each screen, see the screen-specific slot 
 
 ```typescript
 window.modAPI.actions.addCrop(realm: Realm, crop: Crop)
-window.modAPI.actions.addMineChamber(realm: Realm, progress: RealmProgress, chamber: MineChamber)
+window.modAPI.actions.addMineConfig(mineId: string, config: MineConfig)
+window.modAPI.actions.addMineChamber(mineId: string, realm: Realm, progress: RealmProgress, chamber: MineChamber)
 window.modAPI.actions.addGuild(guild: Guild)
 window.modAPI.actions.addDualCultivationTechnique(technique: IntimateTechnique)
 window.modAPI.actions.addEnchantment(enchantment: Enchantment)
