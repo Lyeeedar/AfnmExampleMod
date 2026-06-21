@@ -44,6 +44,7 @@ combatImage: {
   image: sunIcon,
   entrance: 'rotate' | 'grow',     // How the image appears
   stacksScale?: 0.15,              // Scale increase per stack
+  zIndex?: 1,                      // Stacking order; higher renders in front
   mergedImage?: {                  // Special combined image
     image: eclipseIcon,
     otherBuff: 'Moonlight'
