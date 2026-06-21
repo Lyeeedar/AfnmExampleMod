@@ -125,6 +125,7 @@ Grants a buff to yourself.
   kind: 'buffSelf',
   amount: { value: 2, stat: undefined },
   buff: targetBuff,
+  instances?: { value: number, stat?: string }, // Number of separate buff instances to create (supports Scaling)
   silent?: true, // Don't show application message
   hideBuff?: true // Don't show buff in tooltips
 }

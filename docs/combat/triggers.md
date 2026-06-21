@@ -312,9 +312,9 @@ These are specific custom triggers used by various systems in the game.
 6. **Start of Round:** `onRoundStartEffects` at round beginning
 
 ### Priority System
-- Buffs with lower `priority` values are processed first
+- Buffs with **higher** `priority` values are processed **first**
 - Default priority is 0 if not specified
-- Negative priorities process before positive ones
+- Buffs with priority 1 execute before priority 0, which executes before priority -1
 
 ### Parent Buff Prevention
 - Triggers cannot activate buffs that are already in the parent chain
