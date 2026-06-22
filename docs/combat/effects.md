@@ -171,7 +171,7 @@ Removes a buff from the enemy.
 
 ### `add`
 
-Adds or removes stacks from the current buff.
+Adds or removes stacks from the current buff. Use a negative value to remove stacks. If stacks reach zero the buff is removed.
 
 ```typescript
 {
@@ -180,15 +180,16 @@ Adds or removes stacks from the current buff.
 }
 ```
 
-**Example from Moonchill:**
+**Example from Moonchill (removes 1 stack per technique use):**
 
 ```typescript
-// Consume 1 stack after each technique
 {
   kind: 'add',
   amount: { value: -1, stat: undefined }
 }
 ```
+
+Note the distinction from `negate`: `add` with a negative amount removes stacks one at a time and the buff persists as long as any stacks remain. This matters for buffs with `canStack: true` that need to decay gradually.
 
 ### `multiply`
 
@@ -203,12 +204,35 @@ Multiplies the current stack count.
 
 ### `negate`
 
-Removes all stacks of the current buff.
+Destroys the current buff immediately, removing it from the entity entirely regardless of how many stacks remain. This is distinct from `add` (which removes stacks one at a time and keeps the buff until stacks reach zero).
 
 ```typescript
 {
   kind: 'negate';
 }
+```
+
+**Common use case**: Self-destroying effect buffs created by techniques. When a technique applies a buff with a short duration via `onRoundEffects: [{ kind: 'negate' }]`, the buff applies its effects once and then removes itself at the end of the round. This pattern is useful for "Forking Shock" style effects where the buff has no stacks and must destroy itself after firing.
+
+Example: a technique applies a temporary buff that deals damage then self-destructs:
+
+```typescript
+// Technique buff definition
+const forkingShockBuff: Buff = {
+  name: 'Forking Shock',
+  canStack: false,       // Only one instance at a time
+  stats: undefined,
+  beforeTechniqueEffects: [
+    {
+      kind: 'damageSelf',
+      amount: { value: 0.3, stat: 'power' },
+    },
+  ],
+  onRoundEffects: [
+    { kind: 'negate' },  // Destroy this buff at end of round
+  ],
+  stacks: 1,
+};
 ```
 
 ## Advanced Effects
@@ -240,7 +264,7 @@ Converts stacks of one buff into stacks of another buff, one-for-one. Unlike `me
 }
 ```
 
-**Example — inscription upgrade chain (used in `onRoundEffects`):**
+**Example -- inscription upgrade chain (used in `onRoundEffects`):**
 
 ```typescript
 {
@@ -266,10 +290,10 @@ Sets or increments a named state variable that persists for the duration of comb
 }
 ```
 
-**Example — counting triggers this technique:**
+**Example -- counting triggers this technique:**
 
 ```typescript
-// In triggeredBuffEffects — increment counter each time a trigger fires
+// In triggeredBuffEffects -- increment counter each time a trigger fires
 {
   kind: 'setState',
   key: 'triggersThisTechnique',

@@ -34,6 +34,9 @@ export interface PillarShardItem extends ItemBase {
     bottom?: number;
     top?: number;
   };
+  // When true, the shard activates as long as at least one input has sufficient power,
+  // rather than requiring all inputs to be powered simultaneously.
+  anyInputSuffices?: boolean;
   output?: {
     mode: 'flat' | 'multiply' | 'add';
     left: number;
@@ -57,20 +60,25 @@ export interface PillarShardVariant {
 - **maxInstances**: Prevents overuse in pillar construction
 - **stability**: Adjusts pillar stability when this shard is placed (negative values decrease stability)
 - **variants**: Multiple configurations for same shard base
-- **portal**: Marks the shard as a portal entrance or exit — entrances absorb qither from below and route it to all matching-colour exit shards on the pillar
+- **portal**: Marks the shard as a portal entrance or exit. Entrance shards absorb qither from any direction and route it to all matching-colour exit shards on the pillar.
+- **inputs**: Network connectivity for energy flow. Each direction (top, bottom, left, right) maps to an input port; the numeric value is the power threshold required to activate that port.
+- **anyInputSuffices**: When true, the shard activates if at least one input has sufficient power, rather than requiring all inputs to be powered simultaneously. Applies to both regular shards and portal entrance shards.
 - **inputs/output**: Network connectivity for energy flow
 
 ## Portal Mechanic
 
-Portal shards route qither between non-adjacent positions on the pillar. Each entrance–exit pair is colour-coded: an entrance at variant index N connects to the exit at the same variant index. Multiple entrances of the same colour pool their power before splitting it equally across all matching exits.
+Portal shards route qither between non-adjacent positions on the pillar. Each entrance-exit pair is colour-coded: an entrance at variant index N connects to the exit at the same variant index. Multiple entrances of the same colour pool their power before splitting it equally across all matching exits.
+
+Portal entrances now accept beams from any direction (top, bottom, left, right). Set `anyInputSuffices: true` on an entrance to have it activate per incoming beam. Each beam's power is tracked independently and accumulates in the entrance's channel. This allows multi-input portal layouts to sum their power correctly without double-counting.
 
 ```typescript
-// Portal entrance — absorbs from bottom, routes to matching exits
+// Portal entrance -- absorbs from any direction, routes to matching exits
 export const portalEntrance: PillarShardItem = {
   kind: 'pillar_shard',
   portal: { type: 'entrance' },
-  tooltip: 'Absorbs qither from below and sends it to matching Portal Exit shards.',
-  inputs: { bottom: 1 },
+  tooltip: 'Absorbs qither from any direction and sends it to matching Portal Exit shards.',
+  inputs: { top: 1, bottom: 1, left: 1, right: 1 },
+  anyInputSuffices: true,
   name: 'Portal Entrance',
   variants: [
     { title: 'Vermillion', icon: vermillionIcon },
@@ -79,7 +87,7 @@ export const portalEntrance: PillarShardItem = {
   // ...other required fields
 };
 
-// Portal exit — emits the received qither upwards
+// Portal exit -- emits the received qither upwards
 export const portalExit: PillarShardItem = {
   kind: 'pillar_shard',
   portal: { type: 'exit' },
