@@ -209,12 +209,26 @@ These triggers are related to specific game systems and mechanics.
 - **When it triggers:** Before incoming damage is applied to the entity
 - **Condition:** Runs whenever damage would be dealt to this entity
 - **Usage:** Modifying incoming damage (multiply, reduce, or add expressions), or reacting to it before it lands
-- **Properties:**
-  - `trigger?: TechniqueCondition` - Condition that must be met for the interceptor to run
-  - `damageModifier: DamageModifier` - How to modify the damage (`multiply`, `reduce`, or `expression`)
-  - `effects?: BuffEffect[]` - Additional effects to run when the interceptor fires
-  - `afterBarrier?: boolean` - If true, runs after barrier absorption but before net damage is applied
-  - `damageTypes?: (DamageType | 'normal')[]` - Restrict to specific damage types; `'normal'` matches untyped physical damage
+
+**`InterceptorPhase` type:**
+
+```typescript
+type InterceptorPhase = 'beforeGuardian' | 'preBarrier' | 'postBarrier';
+```
+
+The damage pipeline executes interceptors in this order:
+
+| Phase | When it runs | Use case |
+|-------|-------------|----------|
+| `'beforeGuardian'` | Very start of the pipeline, before guardian/puppet interception and every other mitigation | Full-negation effects (e.g. a Grace Period that zeroes a hit before puppets absorb it) |
+| `'preBarrier'` | After guardian/puppet interception, before barrier absorption | Default. Damage reduction, reflect effects |
+| `'postBarrier'` | After barrier absorption, before damage reduction | Effects that should see post-barrier net damage |
+
+- **`trigger?: TechniqueCondition`** - Condition that must be met for the interceptor to run
+- **`damageModifier: DamageModifier`** - How to modify the damage (`multiply`, `reduce`, or `expression`)
+- **`effects?: BuffEffect[]`** - Additional effects to run when the interceptor fires
+- **`phase?: InterceptorPhase`** - Which phase of the damage pipeline this interceptor runs in. Defaults to `'preBarrier'`. (The old `afterBarrier` boolean field is no longer used: use `phase: 'postBarrier'` instead of `afterBarrier: true` and `phase: 'preBarrier'` instead of `afterBarrier: false`.)
+- **`damageTypes?: (DamageType | 'normal')[]`** - Restrict to specific damage types; `'normal'` matches untyped physical damage
 
 **Example:**
 
