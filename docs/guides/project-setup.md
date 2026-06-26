@@ -33,10 +33,9 @@ Node.js lets us run the build tools that compile and package your mod.
 **Windows Installation:**
 
 1. Go to [nodejs.org](https://nodejs.org/)
-2. Click "Download the LTS version" (the green button)
+2. Click "Get Node.js"
 3. Run the downloaded installer (.msi file)
-4. **Important:** Check "Add to PATH" during installation (should be default)
-5. Restart any open command prompts after installation
+4. Restart any open command prompts after installation
 
 **Verify it worked:**
 
@@ -62,62 +61,42 @@ Git helps you manage your code changes and download the mod template.
 
 **Windows Installation:**
 
-1. Go to [git-scm.com](https://git-scm.com/download/win)
+1. Go to [Github Desktop](https://desktop.github.com/download/)
 2. Download and run the installer
 3. Use default settings (they're fine for our needs)
-
-**Verify it worked:**
-
-```bash
-git --version
-# Should show something like: git version 2.40.1
-```
 
 ## Getting the Mod Template
 
 Now that your tools are installed, let's get the starter template for your mod.
 
-### Step 1: Choose Your Approach
+### Step 1: Choose Your Base Template
 
-You have three options to start your project:
+You have two options to start your project from:
 
-**Option A: Use the Agent Mod Template (Recommended for AI-assisted development)**
+**Option A: Agent Mod Template**
 _Best if you use AI coding agents (Cursor, Claude Code, Copilot, Windsurf, Cline, etc.) or want a modern bun-based scaffold with runtime validation and Workshop packaging built in._
 
-1. **Visit the template:** [AFNM Agent Mod Template](https://github.com/lemon07r/AfnmAgentModTemplate)
-2. **Clone or fork it** and follow the Quick Start in its README
-3. Comes with built-in agent context files, a ModAPI quick reference, runtime oracle scripts, and a supplementary guide distilled from shipping real mods
+**Visit the template:** [AFNM Agent Mod Template](https://github.com/lemon07r/AfnmAgentModTemplate)
 
-**Option B: Fork on GitHub** _Best if you want to use GitHub for backup and collaboration_
+**Option B: Standard Template** _Best if you want a simple setup with only the bare minimum features, or don't use AI assistants_
 
-1. **Create a GitHub account** (if you don't have one) at [github.com](https://github.com)
-2. **Visit the template:** [AFNM Example Mod repository](https://github.com/Lyeeedar/AfnmExampleMod)
-3. **Click "Fork"** (top-right corner) to create your own copy
-4. **Clone your fork locally:**
-   ```bash
-   # Replace YOUR-USERNAME with your actual GitHub username
-   git clone https://github.com/YOUR-USERNAME/AfnmExampleMod.git my-mod-project
-   ```
+**Visit the template:** [AFNM Example Mod](https://github.com/Lyeeedar/AfnmExampleMod)
 
-**Option B: Direct Download (Simpler)** _Good for getting started quickly_
+### Step 2: Download the template
 
-1. **Download the template:** Go to the [AFNM Example Mod repository](https://github.com/Lyeeedar/AfnmExampleMod)
-2. **Click "Code" → "Download ZIP"**
-3. **Extract the ZIP** to a folder like `C:\Users\YourName\Documents\my-mod-project`
-4. **Open Command Prompt/PowerShell** in that folder and run:
-   ```bash
-   git init
-   ```
+1. Click the green **Code** Button.
+2. Click **Open with Github Desktop**.
+3. Leave all settings as default, they are fine for our purposes
 
-### Step 2: Open Your Project
+Once done, Github Desktop will download the repository to your machine. 
 
-1. **Open VS Code**
-2. **File → Open Folder**
-3. **Navigate to and select your mod project folder**
+### Step 3: Open Your Project
+
+1. Click **Open with VS Code** in Github Desktop
 
 VS Code will open with your project files visible in the sidebar.
 
-### Step 3: Install Project Dependencies
+### Step 4: Install Project Dependencies
 
 Dependencies are pre-built code libraries that your mod uses (like TypeScript compiler, build tools, etc.).
 
@@ -142,15 +121,16 @@ Dependencies are pre-built code libraries that your mod uses (like TypeScript co
 - No red error messages
 - A new `node_modules/` folder appears in your project
 - VS Code shows TypeScript IntelliSense when you open `.ts` files
+- Note: Warnings that may be shown (such as outdated packages) can be ignored
 
 **Common Issues:**
 
-- **"npm: command not found"** - Node.js wasn't installed correctly. Reinstall and make sure "Add to PATH" is checked.
+- **"npm: command not found"** - Node.js wasn't installed correctly. Reinstall, or restart vscode if you have already installed.
 - **Permission errors on Windows** - Try running VS Code as Administrator, or use PowerShell instead of Command Prompt.
 
 ## Personalizing Your Mod
 
-### Step 4: Update Mod Information
+### Step 5: Update Mod Information
 
 Your mod needs a name, description, and author information. This appears in-game and on Steam Workshop.
 
@@ -187,7 +167,7 @@ Your mod needs a name, description, and author information. This appears in-game
 - **description**: 1-2 sentences explaining what your mod adds
 - **author.name**: Your modding alias (avoid using your real name for privacy)
 
-### Step 5: Test Your Setup
+### Step 6: Test Your Setup
 
 Let's verify everything is working correctly by building your mod:
 
@@ -196,15 +176,6 @@ Let's verify everything is working correctly by building your mod:
 ```bash
 # Build your mod package
 npm run build
-```
-
-**Expected output:**
-
-```
-> afnm-example-mod@1.0.0 build
-> vite build
-
-✓ built in 1.23s
 ```
 
 This command:
