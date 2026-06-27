@@ -57,15 +57,15 @@ export interface PillarShardVariant {
 - **maxInstances**: Prevents overuse in pillar construction
 - **stability**: Adjusts pillar stability when this shard is placed (negative values decrease stability)
 - **variants**: Multiple configurations for same shard base
-- **portal**: Marks the shard as a portal entrance or exit — entrances absorb qither from below and route it to all matching-colour exit shards on the pillar
+- **portal**: Marks the shard as a portal entrance or exit -- entrances absorb qither from below and route it to all matching-colour exit shards on the pillar
 - **inputs/output**: Network connectivity for energy flow
 
 ## Portal Mechanic
 
-Portal shards route qither between non-adjacent positions on the pillar. Each entrance–exit pair is colour-coded: an entrance at variant index N connects to the exit at the same variant index. Multiple entrances of the same colour pool their power before splitting it equally across all matching exits.
+Portal shards route qither between non-adjacent positions on the pillar. Each entrance-exit pair is colour-coded: an entrance at variant index N connects to the exit at the same variant index. Multiple entrances of the same colour pool their power before splitting it equally across all matching exits.
 
 ```typescript
-// Portal entrance — absorbs from bottom, routes to matching exits
+// Portal entrance -- absorbs from bottom, routes to matching exits
 export const portalEntrance: PillarShardItem = {
   kind: 'pillar_shard',
   portal: { type: 'entrance' },
@@ -79,7 +79,7 @@ export const portalEntrance: PillarShardItem = {
   // ...other required fields
 };
 
-// Portal exit — emits the received qither upwards
+// Portal exit -- emits the received qither upwards
 export const portalExit: PillarShardItem = {
   kind: 'pillar_shard',
   portal: { type: 'exit' },
@@ -93,6 +93,28 @@ export const portalExit: PillarShardItem = {
   // ...other required fields
 };
 ```
+
+## Soul Shard Delve Layouts
+
+The soul shard delve system lets players save and load pillar layouts. The `SavedDelveLayout` interface stores a named layout:
+
+```typescript
+export interface SavedDelveLayout {
+  id: string;
+  name: string;
+  /** When true the name is regenerated from the placed shards on every edit. Cleared once
+   *  the player types a custom name. */
+  autoName?: boolean;
+  placedShards: PersistedPlacedShard[];
+  /** The delve this layout belongs to. Every layout is scoped to one delve because
+   *  each delve has its own procedurally generated grid with unique cell coordinates,
+   *  so a layout from one delve would land its shards on cells that do not exist in
+   *  another. Used to filter the switch-layout list and to validate file imports. */
+  delveKey: string;
+}
+```
+
+**Important**: Layouts are scoped to a specific delve via `delveKey`. Importing a layout whose `delveKey` does not match the currently open delve is rejected with an error, because the grid coordinates would be invalid. Layouts saved before this field existed are also rejected, since their coordinates cannot be verified.
 
 ## Examples
 

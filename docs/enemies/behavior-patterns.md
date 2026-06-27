@@ -59,6 +59,51 @@ Non-deterministic selection from pool:
 }
 ```
 
+### Conditional Stance Rule
+
+Stances that activate only when a condition is met. The condition is evaluated at the start of each round:
+
+```typescript
+{
+  kind: 'conditional',
+  blocks: [
+    {
+      condition: 'Rage >= 3',     // Condition expression
+      stance: 'finisher',         // Stance to use if condition is true
+    },
+    {
+      condition: 'true',          // Fallback when no block matches
+      stance: 'basic_attack',
+    },
+  ],
+  rootOperator: 'AND',           // How to combine multiple blocks (AND/OR)
+  maxCount?: 1,                  // Maximum times this stance can fire per combat (optional)
+}
+```
+
+**maxCount (Per-Combat Usage Cap)**
+
+Use `maxCount` to limit how many times a conditional stance fires during a single combat. Once the cap is reached, the stance is treated as if it does not exist for the remainder of the fight:
+
+```typescript
+// A finisher that can only be used once per combat
+{
+  kind: 'conditional',
+  blocks: [
+    {
+      condition: 'Ultimate >= 5',
+      stance: 'ultimate_burst',
+    },
+  ],
+  maxCount: 1,  // Fire at most once per combat
+}
+```
+
+**Built-in condition variables** (same as stance rotation conditions):
+- Combat stats: `hp`, `maxhp`, `power`, `defense`, `barrier`, `maxbarrier`, `toxicity`, `maxtoxicity`
+- Buff stacks: use the buff name directly (e.g., `Rage` for the `Rage` buff's stack count; `0` if absent)
+- Target stats: `target.hp`, `target.maxhp`, `target.power`, `target.<stat>`
+
 ### Rotation Overrides
 
 Special conditions that interrupt normal rotation:
@@ -291,6 +336,23 @@ rotationOverrides: [
     repeatable: false  // Only spend once per build cycle
   }
 ]
+```
+
+### Limited-Use Conditional Stances
+
+Use `maxCount` on conditional stances to create abilities that fire only a set number of times per fight:
+
+```typescript
+{
+  kind: 'conditional',
+  blocks: [
+    {
+      condition: 'Barrier >= 3',
+      stance: 'counter_attack',
+    },
+  ],
+  maxCount: 2, // Only 2 counter-attacks per combat
+}
 ```
 
 ## Stance Design Best Practices
