@@ -183,6 +183,38 @@ export const autoHarvester: DeviceItem = {
 };
 ```
 
+
+### Ore Extractor Items
+
+Ore extractors are automated mining devices that can be installed into vein chambers inside mines. Once installed, an extractor bores into the vein each month and delivers ore to the mine screen automatically, without requiring the player to revisit the chamber. They are differentiated from standard `device` items (which operate on house farms) by the dedicated `ore_extractor` kind and are primarily used in the delve/mine system rather than house building.
+
+```typescript
+export interface OreExtractorItem extends ItemBase {
+  kind: 'ore_extractor';
+  /** Ores mined per month once installed in a vein chamber. Fractional amounts accumulate. */
+  extractionSpeed: number;
+}
+```
+
+**Fields:**
+- `kind` — Always `'ore_extractor'`
+- `extractionSpeed` — Number of ore units mined per month. Fractional values accumulate over time; e.g., an extractor yielding 0.5 ore/month delivers 1 ore after two months.
+
+Ore extractors are offered to the player via the [oreExtractor event step](../events/steps/oreExtractor). The event step presents the player with a choice of all compatible extractors in their inventory, filtered by vein realm. Higher extractor grades (resplendent base, incandescent +, transcendent S) multiply the base extraction rate for that realm.
+
+The three standard grades are defined in `src/data/items/oreExtractor/oreExtractors.ts`:
+```typescript
+// Resplendent base grade — e.g. Ore Extractor (Qi Condensation) yields 0.50 ore/month
+export const oreExtractorMap: Record<Realm, OreExtractorItem>
+
+// Incandescent + grade — 1.5x base rate
+export const oreExtractorMapPlus: Record<Realm, OreExtractorItem>
+
+// Transcendent S grade — 2.0x base rate
+export const oreExtractorMapS: Record<Realm, OreExtractorItem>
+```
+
+Register a custom extractor recipe with `window.modAPI.actions.addRecipe`, targeting one of the three ore extractor item names from `oreExtractorList` as the output.
 ## Manual Items
 
 Manual items contain a full combat style: a set of named stances each containing an ordered list of technique names. When the player reads a manual, they gain access to all stances defined within it.
