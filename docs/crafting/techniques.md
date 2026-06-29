@@ -48,6 +48,11 @@ interface CraftingTechnique {
   // Display
   showCreatesBuff?: boolean; // If true, the UI shows a buff indicator on the technique card
 
+  /** When true, the action button is disabled once any of its createBuff effects
+   *  would push an existing buff past `maxStacks`. A 'max' overlay is shown on the
+   *  button in that state. Use this for techniques whose buffs have a hard cap. */
+  disableAtMaxStacks?: boolean;
+
   // Mastery system
   masteryKindPools?: CraftingTechniqueEffectKind[]; // Override which effect kinds are used for mastery selection
   upgradeMasteries?: { [key: string]: CraftingTechniqueMasteryRarityMap };
