@@ -386,6 +386,10 @@ const followDefinition: FollowCharacterDefinition = {
     },
   ],
   supportsJoiningParty: true, // Can join an existing party as an additional member
+  expeditionRole: {
+    role: 'healer',
+    rarity: 'empowered',
+  },
 };
 ```
 
@@ -398,6 +402,19 @@ The game supports up to **3 party members** at once (the primary companion plus 
 - Each party member has its own cooldown and remaining-months counter.
 
 If `supportsJoiningParty` is omitted or `false`, the companion can only become the **primary** companion (occupying the main follow slot). A player can have at most one primary companion and up to two additional companions for a total party size of three.
+
+### Expedition Role
+
+A companion's `followCharacter` definition can optionally declare an `expeditionRole`. When set, the companion fills one of the expedition team slots with the specified role and rarity, so the player does not need a generic hireling to cover it:
+
+```typescript
+expeditionRole: {
+  role: 'healer' | 'fighter' | 'surveyor',
+  rarity: 'mundane' | 'qitouched' | 'empowered' | 'resplendent',
+}
+```
+
+The companion is also exempted from the standard party-break cooldown when entering an expedition, because they are coming along. Only companions with a `permanent` follow duration are eligible to join the expedition team this way.
 
 ## Dual Cultivation
 

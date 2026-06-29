@@ -393,9 +393,24 @@ Guild headquarters:
   kind: 'guild',
   guild: 'Merchant Alliance',
   position: 'topleft',
-  condition?: 'guildUnlocked == 1'
+  condition?: 'guildUnlocked == 1',
+  /** Token currency for this guild's shop. When set, the shop uses tokens instead
+   *  of spirit stones and every rankShop item must declare a `tokenCost`. */
+  token?: Item,
 }
 ```
+
+Items sold in a token-based guild's rank shop declare a fixed token price:
+
+```typescript
+{
+  kind: 'rankShop',
+  tokenCost: 3, // Fixed price in the guild's token currency
+  // ...
+}
+```
+
+> **Important:** When a guild declares `token`, every item in its `rankShop` must declare `tokenCost`. Items without it would be charged in spirit stones instead.
 
 ### Custom Building
 
