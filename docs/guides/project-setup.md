@@ -73,14 +73,16 @@ Now that your tools are installed, let's get the starter template for your mod.
 
 You have two options to start your project from:
 
-**Option A: Agent Mod Template**
-_Best if you use AI coding agents (Cursor, Claude Code, Copilot, Windsurf, Cline, etc.) or want a modern bun-based scaffold with runtime validation and Workshop packaging built in._
-
-**Visit the template:** [AFNM Agent Mod Template](https://github.com/lemon07r/AfnmAgentModTemplate)
-
-**Option B: Standard Template** _Best if you want a simple setup with only the bare minimum features, or don't use AI assistants_
+**Option A: Standard Template** _Best if you want a simple setup with only the required features, or don't use AI assistants_
 
 **Visit the template:** [AFNM Example Mod](https://github.com/Lyeeedar/AfnmExampleMod)
+
+**Option B: Agent Mod Template (Unofficial)**
+_Best if you use AI coding agents (Cursor, Claude Code, Copilot, Windsurf, Cline, etc.) or want a modern bun-based scaffold with runtime validation and Workshop packaging built in._
+
+_Note: This is managed by a community member, so theres is no guarantee of support._
+
+**Visit the template:** [AFNM Agent Mod Template](https://github.com/lemon07r/AfnmAgentModTemplate)
 
 ### Step 2: Download the template
 
