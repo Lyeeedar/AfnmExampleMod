@@ -62,6 +62,12 @@ interface RemoveItemStep {
 - First available item type gets removed
 - Useful for flexible payment systems
 
+## Item Removal Priority
+
+The step evaluates items in priority order: `item` first, then each entry in `alternates` in order. For each entry, it checks if the player has enough of that item to satisfy the remaining amount. The first item type the player has enough of is removed.
+
+**Message display**: The "You lose X" message shows the display name of the item that was actually removed, not necessarily the primary `item`. If an alternate was removed, the message reflects that alternate's name. This matters for quests with flexible payment where the player needs to know precisely which item was taken.
+
 ## Examples
 
 ### Simple Payment
@@ -107,3 +113,5 @@ interface RemoveItemStep {
   amount: '3'
 }
 ```
+
+When the player has none of the primary item but has enough alternates, the message correctly shows which alternate was removed. For example, "You lose 3 Silver Spirit Stone." rather than the primary item name.
