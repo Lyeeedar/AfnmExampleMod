@@ -387,74 +387,6 @@ window.modAPI.actions.removeModData('myMod', 'customNPC_affinity');
 - **`removeModData`** — Remove a specific key from your mod's save-paired data thereafter.
 
 ### Keybinding Registration
-### Keybinding Registration
-
-Register custom keyboard shortcuts that players can rebind in the game settings Controls tab:
-
-```typescript
-window.modAPI.actions.registerKeybinding(definition: KeybindingDefinition)
-```
-
-- **`definition.action`** — Unique action name (e.g. `'myMod.specialAction'`)
-- **`definition.category`** — Display category for grouping in the controls UI (e.g. `'general'`, `'combat'`)
-- **`definition.displayName`** — Human-readable name shown in the controls UI
-- **`definition.description`** — Tooltip description
-- **`definition.defaultKey`** — Default key binding (e.g. `'F'`, `'Shift+KeyG'`)
-- **`definition.allowRebind`** — Whether players can rebind this key
-- **`definition.modName`** — (optional) Mod name shown as a section heading in the Controls tab. Automatically set when using `registerKeybinding` via the ModAPI. Defaults to the mod's display name.
-
-```typescript
-window.modAPI.actions.registerKeybinding({
-  action: 'myMod.specialAction',
-  category: 'general',
-  displayName: 'Special Action',
-  description: 'Performs a special action',
-  defaultKey: 'F',
-  allowRebind: true,
-});
-```
-
-Registered keybindings appear in the Controls settings UI grouped by mod name. Call `registerKeybinding` during mod initialization. Keybindings are permanent for the session once registered.
-
-**Reading keybind values at runtime** — Use `getRegisteredKeybindValue` to check what key is currently bound to an action:
-
-```typescript
-window.modAPI.utils.getRegisteredKeybindValue(action: string): RegisteredKeybind | undefined
-
-
-`RegisteredKeybind` has the following shape:
-
-```typescript
-interface RegisteredKeybind {
-  displayText: string;  // Human-readable key display (e.g. 'F', 'Ctrl+S')
-  code: string;         // KeyboardEvent.code value (e.g. 'KeyF', 'KeyS')
-  ctrlKey: boolean;
-  altKey: boolean;
-  shiftKey: boolean;
-}
-```
-
-```
-
-Returns a `RegisteredKeybind` object with the current bound key details, or `undefined` if the action is not registered. Useful for displaying key hints in custom UI or comparing against `KeyboardEvent.code`.
-
-```typescript
-window.modAPI.actions.registerKeybinding({
-  action: 'myMod.specialAction',
-  category: 'general',
-  displayName: 'Special Action',
-  description: 'Performs a special action',
-  defaultKey: 'F',
-  allowRebind: true,
-});
-
-// Later, in a screen or injectUI callback:
-const binding = window.modAPI.utils.getRegisteredKeybindValue('myMod.specialAction');
-if (binding) {
-  console.log(`Special action is bound to ${binding.displayText} (${binding.code})`);
-  // Use binding.code to compare against KeyboardEvent.code
-}
-```
 
 ### Mod Settings UI
 
@@ -1310,4 +1242,5 @@ window.modAPI.actions.addItem(myTreasure);
 ```
 
 For docs on the more advanced features of the Mod API, then see the **[Advanced Mods](../advanced-mods/)** page.
+
 
