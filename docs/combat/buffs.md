@@ -656,3 +656,47 @@ condition: {
   allowTriggers: true, // triggeredBuffEffects still run even at > 50% HP
 }
 ```
+
+### (Any) — Any Instance of a Multi-Instance Buff
+
+For buffs with `allowMultipleInstances: true`, use the `(Any) ` prefix in a `condition`-kind condition to check whether **any single instance** of the buff satisfies the threshold:
+
+```typescript
+condition: {
+  kind: 'condition',
+  condition: '(Any) MyBuff > 3',  // true if at least one MyBuff instance has stacks > 3
+  tooltip: 'If any single instance of MyBuff exceeds 3 stacks'
+}
+```
+
+Without the prefix, the check sums all instances together. The `(Any) ` prefix is required when you want per-instance logic rather than a total.
+
+### Trigger: — Triggered Buff Conditions in Rule Editor
+
+In the rule editor (stance selection and auto-use item menus), prefix a condition with `Trigger: ` to check whether a specific triggered buff effect is active on the entity:
+
+```typescript
+condition: {
+  kind: 'condition',
+  condition: 'Trigger: MyFormation',
+  tooltip: 'If the Formation trigger has fired this combat'
+}
+```
+
+This maps to the `triggeredBuffEffects` system and is evaluated against the entity's current buff state.
+
+### Stance and Auto-Use Conditions
+
+Several combat statistics are available as stance and auto-use conditions in the rule editor. They are always present because every combat entity initialises them to 0:
+
+- **`Formation Part Recovery`** — the number of Formation Parts recovered in the current combat. Increased by the "Part Recovery" clothing enchantment. Use this to gate stance selection or auto-use slots based on accumulated parts.
+
+```typescript
+condition: {
+  kind: 'condition',
+  condition: 'formationPartRecovery >= 2',
+  tooltip: 'Once 2 or more Formation Parts are recovered'
+}
+```
+
+These conditions are evaluated as numeric comparisons against the entity's live combat statistics exposed via `getVariablesFromEntity`.
