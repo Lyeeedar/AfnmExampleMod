@@ -21,6 +21,32 @@ By the end of this tutorial, you'll have created:
 - **Custom Building** - Tea house location with interactive brewing system
 - **Event System** - Automatic quest distribution based on player actions
 
+## Files You'll Create
+
+All paths are relative to your **project root** (the folder containing `package.json`). By the end of the tutorial your project will contain:
+
+```
+your-mod-project/                  # Project root (contains package.json)
+├── package.json                   # Edited in Step 1 (mod name, version, author)
+└── src/
+    └── modContent/
+        ├── index.ts               # Entry point - updated in every step
+        ├── items/
+        │   └── teaItems.ts        # Created in Step 2
+        ├── crops/
+        │   └── teaCrops.ts        # Created in Step 2
+        ├── characters/
+        │   └── teaMasters.ts      # Created in Step 3
+        ├── locations/
+        │   └── teaBrewery.ts      # Created in Step 4
+        ├── quests/
+        │   └── teaQuests.ts       # Created in Step 5
+        └── events/
+            └── teaQuestEvents.ts  # Created in Step 6
+```
+
+Each step calls out exactly which file to create or edit with a 📁 **File:** marker before every code block.
+
 ## Prerequisites
 
 - Basic TypeScript knowledge

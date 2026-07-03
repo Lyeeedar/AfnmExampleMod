@@ -33,7 +33,9 @@ This structure works because each step naturally leads to the next, and the rewa
 
 ## Creating the Tea House Quest
 
-Create `src/modContent/quests/teaQuests.ts`:
+📁 **File to create:** `src/modContent/quests/teaQuests.ts`
+
+If the `quests/` folder doesn't exist yet, create it inside `src/modContent/`, then create a new file named `teaQuests.ts` inside it with the following content:
 
 ```typescript
 import { Quest, EventStep } from 'afnm-types';
@@ -172,6 +174,8 @@ This quest structure follows best practices:
 
 ## Registering the Quest
 
+📁 **File:** `src/modContent/quests/teaQuests.ts` — add this to the **bottom of the same file**, below the `restoreTeaHouseQuest` definition (this is not a new file):
+
 ```typescript
 export function initializeTeaQuests() {
   console.log('📜 Adding tea house quest...');
@@ -184,7 +188,7 @@ export function initializeTeaQuests() {
 
 ## Connect to Your Mod
 
-Update `src/modContent/index.ts`:
+📁 **File:** `src/modContent/index.ts` — update your existing entry point so it looks like this:
 
 ```typescript
 import { initializeTeaItems } from './items/teaItems';

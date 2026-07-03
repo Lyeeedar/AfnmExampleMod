@@ -49,15 +49,17 @@ Events (distribute quests)
 
 This structure matches the base game, making your mod feel native and professional.
 
-## The index.ts Entry Point
+## The Entry Point: `src/modContent/index.ts`
 
-Every mod needs a main initialization file. This file is responsible for:
+Every mod needs a main initialization file. It lives at `src/modContent/index.ts` (relative to your project root) and is responsible for:
 
 1. **Importing** all mod systems
 2. **Initializing** them in the correct order
 3. **Providing logging** for debugging
 
 Here's the pattern we'll follow:
+
+📁 **File:** `src/modContent/index.ts` — this file already exists in the template; over the course of this tutorial it will grow to look like this:
 
 ```typescript
 // Import all initialization functions
@@ -111,7 +113,9 @@ AFNM uses **strict TypeScript** for good reasons:
 
 1. **Configure your mod information**:
 
-   Update `package.json` to reflect your tea house mod instead of the generic example:
+   📁 **File:** `package.json` — in your **project root** (the top-level folder, next to the `src/` folder), NOT inside `src/`.
+
+   Update it to reflect your tea house mod instead of the generic example:
 
    ```json
    {
@@ -133,6 +137,8 @@ AFNM uses **strict TypeScript** for good reasons:
    - **author** gives you credit for your work
 
 2. **Install dependencies**:
+
+   Run this in a terminal from your **project root** (the folder containing `package.json`):
 
    ```bash
    npm install

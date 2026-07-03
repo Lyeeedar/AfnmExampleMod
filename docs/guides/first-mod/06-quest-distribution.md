@@ -13,7 +13,9 @@ Our quest exists, but players need a way to discover it naturally! We'll create 
 
 ## Quest Distribution Events
 
-Create `src/modContent/events/teaQuestEvents.ts`:
+📁 **File to create:** `src/modContent/events/teaQuestEvents.ts`
+
+If the `events/` folder doesn't exist yet, create it inside `src/modContent/`, then create a new file named `teaQuestEvents.ts` inside it with the following content:
 
 ```typescript
 import { TriggeredEvent, GameEvent } from 'afnm-types';
@@ -71,6 +73,8 @@ export const teaHouseQuestTrigger: TriggeredEvent = {
 
 ## Registering Quest Events
 
+📁 **File:** `src/modContent/events/teaQuestEvents.ts` — add this to the **bottom of the same file**, below the event definitions (this is not a new file):
+
 ```typescript
 export function initializeTeaQuestEvents() {
   console.log('🎯 Adding tea quest distribution...');
@@ -83,7 +87,7 @@ export function initializeTeaQuestEvents() {
 
 ## Connect to Your Mod
 
-Update `src/modContent/index.ts`:
+📁 **File:** `src/modContent/index.ts` — update your existing entry point so it looks like this:
 
 ```typescript
 import { initializeTeaItems } from './items/teaItems';

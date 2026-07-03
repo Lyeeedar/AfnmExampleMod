@@ -38,7 +38,9 @@ Note, for this example mod we will be using placeholder images from [placehold.c
 
 ## Creating Our Tea Items
 
-Create `src/modContent/items/teaItems.ts`:
+📁 **File to create:** `src/modContent/items/teaItems.ts`
+
+If the `items/` folder doesn't exist yet, create it inside `src/modContent/`, then create a new file named `teaItems.ts` inside it with the following content:
 
 ```typescript
 import { CraftingItem, CombatItem, Buff } from 'afnm-types';
@@ -166,7 +168,9 @@ export const brewedJasmineTea: CombatItem = {
 
 Now let's make our tea leaves growable! This gives players agency over their progression - instead of just buying materials, they can cultivate their own tea garden.
 
-Create `src/modContent/crops/teaCrops.ts`:
+📁 **File to create:** `src/modContent/crops/teaCrops.ts`
+
+If the `crops/` folder doesn't exist yet, create it inside `src/modContent/`, then create a new file named `teaCrops.ts` inside it with the following content:
 
 ```typescript
 import { Crop } from 'afnm-types';
@@ -223,6 +227,8 @@ export function initializeTeaCrops() {
 
 ## Registering Items and Crops
 
+📁 **File:** `src/modContent/items/teaItems.ts` — add this to the **bottom of the same file** you created above, below the item definitions (this is not a new file):
+
 ```typescript
 export const allTeaItems = [
   greenTeaLeaves,
@@ -250,7 +256,7 @@ export function initializeTeaItems() {
 
 ## Connect to Your Mod
 
-Update `src/modContent/index.ts`:
+📁 **File:** `src/modContent/index.ts` — update your existing entry point (don't create a new file) so it looks like this:
 
 ```typescript
 import { initializeTeaItems } from './items/teaItems';

@@ -21,7 +21,9 @@ We'll use a [custom building](../../locations/building-types.md#custom-building)
 
 ## Creating the Tea House
 
-Create `src/modContent/locations/teaBrewery.ts`:
+📁 **File to create:** `src/modContent/locations/teaBrewery.ts`
+
+If the `locations/` folder doesn't exist yet, create it inside `src/modContent/`, then create a new file named `teaBrewery.ts` inside it with the following content:
 
 ```typescript
 import { CustomBuilding, EventStep } from 'afnm-types';
@@ -182,7 +184,9 @@ export function initializeTeaBrewery() {
 
 ## Registering the Building
 
-Update `src/modContent/index.ts` to initialize the tea house:
+The `initializeTeaBrewery` function is already included at the bottom of `src/modContent/locations/teaBrewery.ts` above - now we just need to call it.
+
+📁 **File:** `src/modContent/index.ts` — update your existing entry point to initialize the tea house:
 
 ```typescript
 import { initializeTeaItems } from './items/teaItems';

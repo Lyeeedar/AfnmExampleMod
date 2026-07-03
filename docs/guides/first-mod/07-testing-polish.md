@@ -11,9 +11,35 @@ description: 'Package your mod and load it in-game'
 
 Your mod is complete! Now let's package it up and get it running in the actual game.
 
+## Checking Your File Structure
+
+Before building, verify every file from the tutorial is in the right place. Relative to your project root, your files should look like this:
+
+```
+your-mod-project/                  # Project root (contains package.json)
+├── package.json                   # Mod name, version, author (Step 1)
+└── src/
+    └── modContent/
+        ├── index.ts               # Entry point that initializes everything
+        ├── items/
+        │   └── teaItems.ts        # Tea items & buffs (Step 2)
+        ├── crops/
+        │   └── teaCrops.ts        # Growable tea crops (Step 2)
+        ├── characters/
+        │   └── teaMasters.ts      # Master Chen NPC (Step 3)
+        ├── locations/
+        │   └── teaBrewery.ts      # Tea house building (Step 4)
+        ├── quests/
+        │   └── teaQuests.ts       # Restoration quest (Step 5)
+        └── events/
+            └── teaQuestEvents.ts  # Quest distribution trigger (Step 6)
+```
+
 ## Building Your Mod
 
-First, make sure all your files are properly connected. Your final `src/modContent/index.ts` should look like this:
+First, make sure all your files are properly connected.
+
+📁 **File:** `src/modContent/index.ts` — your final entry point should look like this:
 
 ```typescript
 import { initializeTeaItems } from './items/teaItems';
@@ -39,17 +65,17 @@ function initializeMysticalTeaGarden() {
 initializeMysticalTeaGarden();
 ```
 
-Build your mod by running:
+Build your mod by running this in a terminal from your **project root** (the folder containing `package.json`):
 
 ```bash
 npm run build
 ```
 
-This creates a `.zip` file in the `builds/` folder with everything the game needs.
+This creates a `.zip` file in the `builds/` folder (created next to `package.json` in your project root) with everything the game needs.
 
 ## Loading Your Mod
 
-1. **Locate the zip file** in your `builds/` folder (e.g., `mystical-tea-garden-1.0.0.zip`)
+1. **Locate the zip file** in your project's `builds/` folder (e.g., `builds/mystical-tea-garden-1.0.0.zip`)
 
 2. **Copy it to your game installation's mod folder**:
 

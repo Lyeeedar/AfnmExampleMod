@@ -31,7 +31,9 @@ We're designing Master Chen as a **neutral character** because:
 
 ## Creating Master Chen
 
-Create `src/modContent/characters/teaMasters.ts`:
+📁 **File to create:** `src/modContent/characters/teaMasters.ts`
+
+If the `characters/` folder doesn't exist yet, create it inside `src/modContent/`, then create a new file named `teaMasters.ts` inside it with the following content:
 
 ```typescript
 import { Character, EventStep } from 'afnm-types';
@@ -175,6 +177,8 @@ export const masterChen: Character = {
 
 ## Registering the Character
 
+📁 **File:** `src/modContent/characters/teaMasters.ts` — add this to the **bottom of the same file**, below the `masterChen` definition (this is not a new file):
+
 ```typescript
 export const allTeaCharacters: Character[] = [masterChen];
 
@@ -193,7 +197,7 @@ All characters must be registered with the [ModAPI](../../concepts/modapi.md#cha
 
 ## Connect to Your Mod
 
-Update `src/modContent/index.ts` to include characters:
+📁 **File:** `src/modContent/index.ts` — update your existing entry point to include characters:
 
 ```typescript
 import { initializeTeaItems } from './items/teaItems';
