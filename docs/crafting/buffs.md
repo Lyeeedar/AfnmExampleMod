@@ -64,6 +64,144 @@ interface CraftingBuff {
 }
 ```
 
+
+## Scaling Interface
+
+The `stats` field on a buff uses `Scaling` objects to define stat bonuses. All fields of the `Scaling` interface are documented here.
+
+```typescript
+interface Scaling {
+  value: number;
+  stat:
+    | PhysicalStatistic
+    | SocialStatistic
+    | CombatStatistic
+    | CraftingStatistic
+    | TechniqueElement
+    | undefined;
+  scaling?: 'stacks' | 'consumed' | string; // A variable multiplied onto the result
+  eqn?: string; // An expression multiplied onto the result
+  removeEqnForTooltip?: boolean; // Ignore eqn in tooltip display
+  additiveEqn?: string; // An expression added to the result
+  customScaling?: {
+    multiplier: number;
+    scaling: 'stacks' | 'consumed' | string;
+    upgradeKey?: string;
+  };
+  max?: Scaling; // Caps the final computed result
+  scalingMax?: Scaling; // Caps the scaling multiplier before multiplying onto value
+  divideByStanceLength?: boolean;
+  multiplyByStanceLength?: boolean;
+  upgradeKey?: string;
+  buff?: Buff;
+  increment?: number; // For hits scaling: each subsequent hit costs this much more
+  cantUpgrade?: boolean;
+  isItem?: boolean; // When true, result is multiplied by (1 + itemEffectiveness * 0.01)
+}
+```
+
+### Scaling Fields
+
+`scaling` — a variable multiplied onto the result. Usually the name of a buff whose stack count acts as the multiplier:
+
+```typescript
+stats: {
+  intensity: {
+    value: 0.15,
+    stat: undefined,
+    scaling: 'stacks', // multiplies by this buff's own stack count
+  },
+},
+```
+
+Can also reference another buff's name:
+
+```typescript
+scaling: 'SomeOtherBuff', // multiplies by SomeOtherBuff's stack count
+```
+
+`eqn` — a string expression multiplied onto the final result. Enables cross-buff logic where one buff's presence modifies another buff's effect:
+
+```typescript
+stats: {
+  intensity: {
+    value: 1,
+    stat: undefined,
+    eqn: `1 + (${flag(otherBuff.name)} ? 0.5 : 0)`,
+  },
+},
+```
+
+Use `window.modAPI.utils.flag(buff.name)` to convert a buff name to its flag key, then include it in the expression.
+
+`additiveEqn` — like `eqn`, but the result is **added** to the final value rather than multiplied:
+
+```typescript
+stats: {
+  intensity: {
+    value: 0.1,
+    stat: 'intensity',
+    additiveEqn: 'control * 0.01', // adds 1% of control to intensity
+  },
+},
+```
+
+`customScaling` — a fixed multiplier applied to the `scaling` value. Use when you want a flat percentage bonus per stack of another buff:
+
+```typescript
+stats: {
+  intensity: {
+    value: 5,
+    stat: undefined,
+    customScaling: {
+      multiplier: 0.3,
+      scaling: 'stacks', // 30% more per stack of this buff
+    },
+  },
+},
+```
+
+### `max` and `scalingMax`
+
+`max` — caps the **final computed result**:
+
+```typescript
+stats: {
+  intensity: {
+    value: 0.15,
+    stat: undefined,
+    scaling: 'stacks',
+    max: { value: 1.5, stat: 'intensity' }, // cap final result at 1.5
+  },
+},
+```
+
+`scalingMax` — caps the **scaling multiplier** (the stack count or other variable), before that capped value is multiplied onto `value`:
+
+```typescript
+stats: {
+  hits: {
+    value: 1,
+    stat: undefined,
+    scaling: 'stacks',
+    scalingMax: { value: 5, stat: undefined }, // cap multiplier at 5
+  },
+},
+```
+
+This is distinct from `max`, which caps the final computed result.
+
+`removeEqnForTooltip` — when `true`, the `eqn` is ignored for tooltip display so the shown amount is the base `value * stat` instead of the current state-scaled value:
+
+```typescript
+{
+  value: 1,
+  stat: 'intensity',
+  eqn: 'someCondition ? 100 : 0',
+  removeEqnForTooltip: true, // tooltip shows base value, not conditional result
+}
+```
+
 ## Core Crafting Statistics
 
 Buffs modify these key statistics:

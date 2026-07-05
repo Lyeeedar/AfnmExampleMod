@@ -25,6 +25,9 @@ interface RecipeItem {
   baseItem: Item;      // Basic-quality crafted result
   perfectItem: Item;   // Perfect-quality crafted result
   sublimeItem?: Item;  // Optional sublime-quality crafted result
+  displayPerfect?: boolean; // When true, recipe screen shows the perfect-quality item as the representative instead of baseItem
+  hideFromCompendium?: boolean; // Prevents the recipe from appearing in the compendium
+
 
   realmProgress: 'Early' | 'Middle' | 'Late'; // Complexity within the realm
   difficulty: RecipeDifficulty;
@@ -96,6 +99,30 @@ Associates a recipe with a base item so players can unlock it through the Vault 
 // Players who obtain ancientScroll can research myRecipe
 modAPI.addRecipeToResearch(ancientScroll, myRecipe);
 ```
+
+
+## Display Flags
+
+### `displayPerfect`
+
+When `displayPerfect: true`, the recipe screen shows the **perfect-quality item** as the representative item for this recipe, rather than the base item. The base item is still used as a fallback if `perfectItem` is not defined.
+
+```typescript
+export const radiantFocusPillRecipe: RecipeItem = {
+  kind: 'recipe',
+  // ...
+  baseItem: radiantFocusPill,
+  perfectItem: radiantFocusPillPlus,
+  displayPerfect: true, // show the + version in the recipe screen
+  // ...
+};
+```
+
+### Defensive Handling for Missing `perfectItem`
+
+The game handles cases where `displayPerfect` is `true` but `perfectItem` is `undefined` (from mods or corrupted saves) by falling back to `baseItem`. Similarly, the recipe sorter uses `baseItem` as a fallback for both sides of comparisons when either item is missing, ensuring the recipe screen never crashes.
+
+When implementing recipe-based mods, always ensure `perfectItem` is defined if `displayPerfect` is used, and prefer using the `displayPerfect` flag over manually constructing parallel item sets for the UI.
 
 ## Full Example
 

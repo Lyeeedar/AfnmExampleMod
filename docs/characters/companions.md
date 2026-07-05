@@ -165,6 +165,28 @@ const qiCondensationMidDef: CompanionCharacterDefinition = {
 };
 ```
 
+### Non-Fighting Companions
+
+Some companions (e.g. Fei Na Li) do not participate in combat and declare an empty `stats` array. The game handles this gracefully: `getCharacterStats` falls back to a minimal `EnemyEntity` skeleton so callers that only need `realm`, `realmProgress`, or visuals — such as party-buff utilities or raid-dialogue — receive a usable result instead of crashing. When defining a non-fighting companion, omit combat-related fields from the `stats` entries and leave `stats` as an empty array:
+
+```typescript
+const feiNaLiDef: CompanionCharacterDefinition = {
+  kind: 'companion',
+  condition: 'fei_nali_following == 1',
+  realm: 'qiCondensation',
+  realmProgress: 'Late',
+
+  // Empty stats: companion does not fight
+  stats: [],
+
+  locations: [{ kind: 'static', condition: '1', location: 'Fei Na Li Studio' }],
+  talkInteraction: [dialogue],
+  giftInteraction: [gifts],
+  encounters: [],
+};
+```
+
+
 ## Companion-Specific Interactions
 
 ### Gift Interactions
