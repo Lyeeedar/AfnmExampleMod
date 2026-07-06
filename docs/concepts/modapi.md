@@ -52,7 +52,7 @@ Access existing game content through `window.modAPI.gameData`:
 - **`auction`** - `Record<Realm, AuctionItemDef[]>` - Auction items by realm
 - **`breakthroughs`** - `Record<Realm, Breakthrough[]>` - Breakthrough requirements
 - **`crops`** - `Record<Realm, Crop[]>` - Crops available by realm
-- **`mineConfigs`** - `Record<string, MineConfig>` - Full mine configuration registry. Each entry exposes `chambers`, `pathingMonsters`, `depthStrata`, sickness buff, combat flavour text, music, and ambience. Replace for the legacy `mineChambers` object so you can read pathing monsters and per-mine metadata for any registered mine (not only the Yinying mine). The key is the stable mine id string (e.g. `'yinying'`, `'yuMai'`).
+- **`mineConfigs`** - `Record<string, MineConfig>` - Full mine configuration registry. Each entry exposes `chambers`, `pathingMonsters`, `depthStrata`, sickness buff, combat flavour text, music, and ambience for any registered mine. The key is the stable mine id string (e.g. `'yinying'`, `'yuMai'`).
 - **`uncutStones`** - `Record<Realm, UncutStonePool | undefined>` - Uncut stone pools by realm
 
 ### Specialized Collections
@@ -252,7 +252,7 @@ For full documentation on building screens, see [Adding Screens](../advanced-mod
 Inject React content into named slots inside existing game dialogs or screens:
 
 ```typescript
-window.modAPI.injectUI(slotName: string, generator: (api: ModReduxAPI, element: HTMLElement, inject: InjectHelper) => void)
+window.modAPI.injectUI(slotName: string, generator: (api: ModReduxAPI, inject: InjectHelper) => void)
 ```
 
 **Slot names:**
@@ -262,22 +262,20 @@ window.modAPI.injectUI(slotName: string, generator: (api: ModReduxAPI, element: 
 **The `inject` helper:**
 
 ```typescript
-inject(selector: string, content: ReactNode, mode?: 'overlay' | 'inline', position?: InjectPosition)
+inject(selector: string | HTMLElement, content: ReactNode, placement?: InjectPlacement)
 ```
 
-- **`selector`** — CSS selector to target inside `element`
+- **`selector`** — CSS selector scoped to the target slot, or an `HTMLElement`
 - **`content`** — React node to render
-- **`mode`** — `'overlay'` (default, floats over target) or `'inline'` (inserts as a sibling after target)
-- **`position`** — Where to insert content relative to the target. Only valid for `inline` mode. `after` (default) inserts as the next sibling; `before` inserts as the previous sibling. For `overlay` mode, position is ignored — content is always placed inside the target element.
+- **`placement`** — Where to place content. For selector targets, `'after'` is the default. Other supported placements include `'before'`, `'appendChild'`, `'prependChild'`, `'overlay'`, replacement, and wrapping placements.
 
 ```typescript
-window.modAPI.injectUI('combat-victory', (api, element, inject) => {
-  return inject(
+window.modAPI.injectUI('combat-victory', (api, inject) => {
+  inject(
     '[aria-live="assertive"]',
-    <button style={{ pointerEvents: 'auto' }} onClick={() => console.log('bonus!')}>
+    <api.components.GameButton onClick={() => console.log('bonus!')}>
       Claim Bonus
-    </button>,
-    'inline',
+    </api.components.GameButton>,
     'after'
   );
 });
@@ -1242,5 +1240,3 @@ window.modAPI.actions.addItem(myTreasure);
 ```
 
 For docs on the more advanced features of the Mod API, then see the **[Advanced Mods](../advanced-mods/)** page.
-
-
