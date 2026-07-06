@@ -375,6 +375,8 @@ Externally controlled / powered items like artefacts and formation parts should 
 }
 ```
 
+Note: `artefactpower` benefits from the enhancement curve (the same +15% per level, 0.8× falloff applied repeatedly) in the same way `power` does. This was added in a recent update so that enhancing Formation techniques now correctly scales their damage, barrier, and healing values.
+
 ## Practical Examples by School
 
 ### Fist School: Stack Accumulation

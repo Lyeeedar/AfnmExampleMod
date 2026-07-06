@@ -45,9 +45,15 @@ export interface PillarShardItem extends ItemBase {
 
 export interface PillarShardVariant {
   title: string;
+  displayName?: Translatable;
   icon: string;
+
   physicalStats?: Partial<Record<PhysicalStatistic, number>>;
   socialStats?: Partial<Record<SocialStatistic, number>>;
+  combatBuffs?: { buff: Buff; buffStacks: Scaling }[];
+  craftingBuffs?: { buff: CraftingBuff; buffStacks: Scaling }[];
+  dropletRegen?: number;
+  maxDroplets?: number;
 }
 ```
 
@@ -56,9 +62,43 @@ export interface PillarShardVariant {
 - **tooltip**: Describes shard functionality
 - **maxInstances**: Prevents overuse in pillar construction
 - **stability**: Adjusts pillar stability when this shard is placed (negative values decrease stability)
-- **variants**: Multiple configurations for same shard base
+- **variants**: Multiple configurations for same shard base; the player chooses one when placing the shard in their pillar
 - **portal**: Marks the shard as a portal entrance or exit — entrances absorb qither from below and route it to all matching-colour exit shards on the pillar
 - **inputs/output**: Network connectivity for energy flow
+
+## Combat-Active Pillar Shards
+
+Some pillar shards grant combat buffs during fights rather than (or in addition to) pillar network effects. These shards use the `variants` field with `combatBuffs` to define the buffs they provide. The `buffStacks` field uses the `Scaling` interface — supply `{ value: N, stat: undefined }` for a flat N stacks:
+
+```typescript
+export const sixfoldAttunementShard: PillarShardItem = {
+  kind: 'pillar_shard',
+  tooltip: 'Grants the following effect during combat...',
+  inputs: { bottom: 6 },
+  name: 'Sixfold Attunement Shard',
+  variants: [
+    {
+      title: 'Sixfold Attunement Shard',
+      icon: iconAsset,
+      combatBuffs: [
+        {
+          buff: sixfoldAttunementBuff,
+          buffStacks: {
+            value: 1,
+            stat: undefined,
+          },
+        },
+      ],
+    },
+  ],
+  stability: -50,
+  maxInstances: 1,
+  icon: iconAsset,
+  stacks: 1,
+  rarity: 'transcendent',
+  realm: 'pillarCreation',
+};
+```
 
 ## Portal Mechanic
 
@@ -97,53 +137,6 @@ export const portalExit: PillarShardItem = {
 ## Examples
 
 ```typescript
-// Multi-variant combat shard with choices
-export const attackGem: PillarShardItem = {
-  kind: 'pillar_shard',
-  tooltip: 'Grants either +15% Power, +5% Crit Chance, or +50% Crit Damage in combat. The stat affected can be chosen when it is placed.',
-  inputs: { bottom: 5 },
-  name: 'Expression of Destruction Gem',
-  variants: [
-    {
-      title: 'Power',
-      icon: powerIcon,
-      combatBuffs: [{
-        buff: {
-          name: 'Expression of Destruction Gem',
-          icon: powerIcon,
-          canStack: false,
-          stats: { power: { value: 0.15, stat: 'power' } },
-          onRoundEffects: [],
-          stacks: 1,
-        },
-        buffStacks: { value: 1, stat: undefined },
-      }],
-    },
-    {
-      title: 'Crit Chance',
-      icon: critIcon,
-      combatBuffs: [{
-        buff: {
-          name: 'Expression of Destruction Gem',
-          icon: critIcon,
-          canStack: false,
-          stats: { critchance: { value: 5, stat: undefined } },
-          onRoundEffects: [],
-          stacks: 1,
-        },
-        buffStacks: { value: 1, stat: undefined },
-      }],
-    }
-  ],
-  stability: -10,
-  maxInstances: 1,
-  description: 'The Jade Forest has long stood as one of the centers of cultivation in the world.',
-  icon: powerIcon,
-  stacks: 1,
-  rarity: 'resplendent',
-  realm: 'pillarCreation',
-};
-
 // Simple enhancement shard
 export const enhancer: PillarShardItem = {
   kind: 'pillar_shard',
