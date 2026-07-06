@@ -204,7 +204,7 @@ rg -n "disable_steam|Restarting app through Steam" ./tmp/afnm-runtime/dist-elect
 
 ### Direct Binary Testing Without Steam Relaunch Loops
 
-If you need to launch the executable directly instead of going through Steam, current `0.6.50` runtimes support a `disable_steam` sentinel file beside the game executable.
+If you need to launch the executable directly instead of going through Steam, current runtimes support a `disable_steam` sentinel file beside the game executable.
 
 **Safe workflow:**
 

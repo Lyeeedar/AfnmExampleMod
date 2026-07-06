@@ -547,12 +547,11 @@ You can combine a persistent overlay with `injectUI()` entry points. For example
 mountOverlay();
 
 // Injected entry point — appears only in combat victory dialog
-window.modAPI.injectUI('combat-victory', (api, element, inject) => {
-  return inject(
+window.modAPI.injectUI('combat-victory', (api, inject) => {
+  inject(
     '[aria-live="assertive"]',
     <button onClick={() => openChat()}>Ask Advisor</button>,
-    'inline',
+    'after',
   );
 });
 ```
-

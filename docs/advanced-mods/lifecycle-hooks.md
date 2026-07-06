@@ -369,7 +369,7 @@ Modifies the pool of exploration events before one is selected. Fired after base
 **Returns:** `LocationEvent[]` - Modified event pool
 
 **Important Warning on Weighted Events:**
-In the 0.6.50 runtime, `onGenerateExploreEvents` fires before the game expands weighted explore candidates into repeated `{ index, event }` entries. Repeat-penalty bookkeeping (`currentLocationLastEvent` / `currentLocationLastEventCount`) is keyed by that expanded weighted event index. If your mod needs to precisely modify drop rates or probabilities without breaking repeat-penalty semantics, you may still need to carefully scope your modifications or narrowly patch the final weighted candidate array in combination with this hook.
+In current runtimes, `onGenerateExploreEvents` fires before the game expands weighted explore candidates into repeated `{ index, event }` entries. Repeat-penalty bookkeeping (`currentLocationLastEvent` / `currentLocationLastEventCount`) is keyed by that expanded weighted event index. If your mod needs to precisely modify drop rates or probabilities without breaking repeat-penalty semantics, you may still need to carefully scope your modifications or narrowly patch the final weighted candidate array in combination with this hook.
 
 **Example:**
 ```typescript
@@ -708,14 +708,12 @@ window.modAPI.subscribe(() => {
 
 ### `getGameStateSnapshot`
 
-Returns a read-only snapshot of the complete game state, or `null` if no save is loaded.
+Returns a read-only snapshot of the complete game state. When no save is loaded, AFNM returns the default base state.
 
 ```typescript
 const snap = window.modAPI.getGameStateSnapshot();
-if (snap) {
-  console.log('Player realm:', snap.player.player.realm);
-  console.log('Spirit stones:', snap.inventory.money);
-}
+console.log('Player realm:', snap.player.player.realm);
+console.log('Spirit stones:', snap.inventory.money);
 ```
 
 ### `injectUI`
@@ -728,20 +726,19 @@ Inject React content into a named slot inside an existing game dialog or screen.
 
 **Parameters passed to your generator:**
 - `api` — `ModReduxAPI` with game state, actions, and components
-- `element` — root DOM element of the slot; use `querySelector` to find children
-- `inject(selector, content, mode?)` — portal helper:
-  - `selector`: CSS selector to target inside `element`
+- `inject(selector, content, placement?)` — portal helper:
+  - `selector`: CSS selector scoped to the target slot, or an `HTMLElement`
   - `content`: React node to render
-  - `mode`: `'overlay'` (default, floats over target) or `'inline'` (inserts as a sibling after target)
+  - `placement`: `'after'` by default for selectors, with options like `'before'`, `'appendChild'`, `'prependChild'`, `'overlay'`, and replacement/wrap placements
 
 ```typescript
-window.modAPI.injectUI('combat-victory', (api, element, inject) => {
-  return inject(
+window.modAPI.injectUI('combat-victory', (api, inject) => {
+  inject(
     '[aria-live="assertive"]',
-    <button style={{ pointerEvents: 'auto' }} onClick={() => console.log('bonus!')}>
+    <api.components.GameButton onClick={() => console.log('bonus!')}>
       Claim Bonus
-    </button>,
-    'inline'
+    </api.components.GameButton>,
+    'after'
   );
 });
 ```

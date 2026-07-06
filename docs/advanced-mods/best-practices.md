@@ -229,11 +229,13 @@ Both JSX and createElement produce the same result — use whichever your build 
 Use slot injection when the action belongs to one dialog or screen:
 
 ```typescript
-window.modAPI.injectUI('combat-victory', (api, element, inject) => {
-  return inject(
+window.modAPI.injectUI('combat-victory', (api, inject) => {
+  inject(
     '[aria-live="assertive"]',
-    <button onClick={() => console.log('bonus!')}>Claim Bonus</button>,
-    'inline',
+    <api.components.GameButton onClick={() => console.log('bonus!')}>
+      Claim Bonus
+    </api.components.GameButton>,
+    'after',
   );
 });
 ```
