@@ -239,24 +239,83 @@ interface ManualStance {
 
 **Stance rules** control automatic stance switching during combat. Without a rule, the stance is always available for the player to select manually. With a rule, the game may switch stances automatically based on combat state.
 
-Common rule types:
-```typescript
-// Switch to this stance while a buff is below a threshold
-stanceRule: {
-  kind: 'conditional',
-  check: '<',            // '<' | '<=' | '>' | '>=' | '==' | '!='
-  condition: 'BuffName', // The buff to check (stack count)
-  value: 30,             // Threshold value
-}
+## Rule Types
 
-// Use this stance in a fixed rotation position
+### Opener
+
+Places the technique at a fixed position at the start of combat:
+
+```typescript
 stanceRule: {
-  kind: 'rotation',
-  position: 0,           // Position in the rotation cycle (0-indexed)
+  kind: 'opener',
+  position: 0,  // 0-indexed position in the opener sequence
 }
 ```
 
-**Example**:
+### Rotation
+
+Cycles through techniques at a fixed position each round:
+
+```typescript
+stanceRule: {
+  kind: 'rotation',
+  position: 0,  // 0-indexed position in the rotation cycle
+}
+```
+
+### Conditional
+
+Evaluates one or more conditions to decide whether to use this stance. Supports complex multi-condition logic with AND/OR grouping:
+
+```typescript
+stanceRule: {
+  kind: 'conditional',
+  blocks: [
+    {
+      // AND group: all conditions in a block must be true
+      conditions: [
+        { condition: 'Health', check: '<', value: 50 },
+        { condition: 'Iron Shell', check: '>=', value: 3 },
+      ],
+    },
+  ],
+  rootOperator: 'AND',    // 'AND' or 'OR' — how blocks combine
+  maxCount: 5,           // Optional: max uses per combat (unlimited if omitted)
+}
+```
+
+**Available condition names:**
+
+| Condition | Meaning |
+|---|---|
+| `Health` | Player HP percentage (0–100) |
+| `Enemy Health` | Enemy HP percentage (0–100) |
+| `Toxicity` | Player toxicity percentage |
+| `Barrier` | Player barrier percentage |
+| `Qi Droplets` | Player qi droplet count |
+| `Missing Qi Droplets` | Player missing qi droplets |
+| `Round` | Current combat round number (1-based; 0 before round 1) |
+| `Weapon Boost`, `Fist Boost`, etc. | Element boost percentages |
+| `Weakest <group>` | HP percentage of lowest-health entity in a guardian group |
+| `Average <group>` | Average HP percentage of a guardian group |
+| `Target: <buff>` | Stack count of a debuff on the enemy |
+| `Flag: <name>` | Value of a global flag |
+| `Trigger: <name>` | Value of a trigger flag |
+| `(Any) <buff>` | Whether any instance of a multi-instance buff meets the condition |
+
+Percent-based conditions (Health, Toxicity, Barrier, Enemy Health, element boosts, guardian groups) display a `%` suffix in the UI. All other conditions compare raw values.
+
+**Condition operators:** `<' `>`, `<=`, `>=`, `==`, `!=`
+
+For realm-specific buffs (pillar shard buffs, condensation art buffs, persistent month-buffs), the condition picker in-game surfaces them automatically once you have unlocked the relevant content. You can target them by name in conditions exactly as you would a technique-generated buff.
+
+**Expression-based conditions** — use `round` as a variable to gate round-specific behaviour:
+```typescript
+// Switch stance at round 5 or later
+{ condition: 'Round', check: '>=', value: 5 }
+```
+
+**Example:**
 ```typescript
 export const ironFistManual: ManualItem = {
   kind: 'manual',
@@ -278,9 +337,31 @@ export const ironFistManual: ManualItem = {
         stance: ['Iron Guard', 'Iron Guard', 'Iron Strike', 'Bone Crack'],
         stanceRule: {
           kind: 'conditional',
-          check: '<',
-          condition: 'Iron Shell',
-          value: 3,
+          blocks: [
+            {
+              conditions: [
+                { condition: 'Iron Shell', check: '<', value: 3 },
+              ],
+            },
+          ],
+          rootOperator: 'AND',
+        },
+      },
+      {
+        name: 'Counter Stance',
+        stance: ['Iron Strike', 'Iron Strike', 'Iron Guard', 'Iron Guard'],
+        stanceRule: {
+          kind: 'conditional',
+          blocks: [
+            {
+              conditions: [
+                { condition: 'Round', check: '>=', value: 5 },
+                { condition: 'Health', check: '>=', value: 75 },
+              ],
+            },
+          ],
+          rootOperator: 'AND',
+          maxCount: 3,  // Use at most 3 times per combat
         },
       },
     ],
