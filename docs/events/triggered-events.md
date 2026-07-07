@@ -38,6 +38,7 @@ interface TriggeredEvent {
     max: number;
   };
   usesCooldown?: boolean; // Optional: uses global encounter cooldown (3 days)
+  repeatPenaltyMonths?: number; // Optional: soft decay window (months) applied each time this event fires (default 72, i.e. 6 years)
 }
 ```
 
@@ -50,6 +51,26 @@ interface TriggeredEvent {
 3. **Random Chance** - Applies `triggerChance` probability if specified
 4. **Cooldown Verification** - Ensures cooldown period has passed since last trigger
 5. **Event Execution** - Processes the GameEvent's steps in sequence if all conditions pass
+
+### Repeat Penalty
+
+Each time a TriggeredEvent fires, the game applies a repeat penalty that temporarily reduces its triggerChance. This prevents the same event from monopolising a locations trigger slots by making it progressively rarer after it fires, before gradually recovering over time.
+
+The penalty works as follows:
+
+1. On fire - the events trigger chance is scaled down by up to 90% immediately after it fires
+2. Decay - the penalty linearly recovers back to 0 over repeatPenaltyMonths (default: 72 months, i.e. 6 years)
+3. Stacking - each subsequent fire resets the decay window and applies a fresh penalty
+
+This is a soft mechanism: it reduces the probability of re-triggering rather than blocking it outright. The resetMonths cooldown (if set) still provides a hard lockout window, and the repeat penalty applies on top of it once the cooldown expires.
+
+Use repeatPenaltyMonths to override the default decay window for a specific event:
+```typescript
+// Decay back to full chance in 12 months instead of 72
+repeatPenaltyMonths: 12,
+```
+
+The repeat penalty only applies to TriggeredEvent. LocationEvent uses a separate repeat-suppression system and is unaffected.
 
 ### Trigger Conditions
 

@@ -76,6 +76,7 @@ interface Buff {
   // System properties
   cantUpgrade?: boolean; // Prevent mastery upgrades
   hidden?: boolean; // Hide from buff list and tooltips
+  deweight?: boolean; // Hide from combat buff row (for passive mastery markers)
   charisma?: number; // NPC relationship modifier
   masteryPoints?: number; // Technique mastery points granted
   speed?: number; // Turn order modifier
