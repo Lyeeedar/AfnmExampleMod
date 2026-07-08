@@ -27,9 +27,9 @@ interface CraftingBuff {
   stacksAreMonths?: boolean; // If true, stacks represent in-game months (used for time-limited buffs)
 
   // Visual properties
-  effectHint?: string; // Brief hint text shown in the crafting UI
-  tooltip?: string; // Custom description
-  statsTooltip?: string; // Stats-specific tooltip override
+  effectHint?: Translatable; // Brief hint text shown in the crafting UI
+  tooltip?: Translatable; // Custom description (use tr() for deferred translation)
+  statsTooltip?: Translatable; // Stats-specific tooltip override (use tr() for deferred translation)
   displayLocation: CraftingBuffDisplayLocation; // Where buff appears in UI
   // Locations: 'none' | 'avatar' | 'companion' | 'stabilityLeft' | 'stabilityRight' |
   // 'perfectionLeft' | 'perfectionRight' | 'completionLeft' | 'completionRight'
@@ -56,13 +56,35 @@ interface CraftingBuff {
 
   // Animation triggers - fired in the UI when certain events occur during crafting
   // Valid values: 'bump' | 'buff' | 'completion' | 'perfection' | 'stabilityup' | 'stabilitydown' | 'pool'
-  animations?: string[];
+  animations?: (
+    'bump' | 'buff' | 'completion' | 'perfection' | 'stabilityup' | 'stabilitydown' | 'pool'
+  )[];
 
   // Advanced fields
   bonusHiddenPotential?: Scaling; // Grants bonus hidden potential to the crafted item when this buff is active
   realm?: Realm; // Minimum realm required for this buff to apply its effects
 }
 ```
+
+## Tooltip Translation
+
+The `tooltip` and `statsTooltip` fields accept a `Translatable` value, either a plain string or a `TranslatableString` created with `tr()`. Use `tr()` for deferred translation so the text is resolved at render time rather than module load time:
+
+```typescript
+import { tr } from 'afnm-types';
+
+// Plain string (translated as-is)
+tooltip: 'Grants bonus stability on each fusion.',
+
+// Deferred translation (recommended for data definitions)
+tooltip: tr(
+  'Grants bonus stability on each fusion.',
+  {},
+  'craftingBuff',
+),
+```
+
+The `tr()` function takes the translation key string, a variables record, and an optional context string. See the [Translation](../advanced-mods/translation) docs for full details.
 
 ## Core Crafting Statistics
 
@@ -284,7 +306,7 @@ Available condition kinds:
 
 | Kind          | Fields                                                    | Description                                      |
 | ------------- | --------------------------------------------------------- | ------------------------------------------------ |
-| `chance`      | `percentage: number`                                      | Random chance (0–100)                           |
+| `chance`      | `percentage: number`                                      | Random chance (0-100)                           |
 | `buff`        | `buff: CraftingBuff \| 'self'`, `count: number`, `mode: 'more' \| 'less' \| 'equal'` | Based on stack count of a buff |
 | `stability`   | `percentage: number`, `mode: 'more' \| 'less'`           | Based on current stability as % of max           |
 | `perfection`  | `percentage: number`, `mode: 'more' \| 'less'`           | Based on perfection progress %                   |
