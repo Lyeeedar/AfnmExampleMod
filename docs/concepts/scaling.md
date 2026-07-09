@@ -36,10 +36,11 @@ interface Scaling {
   multiplyByStanceLength?: boolean; // Multiply the result by the number of techniques in the stance
   upgradeKey?: string;    // Links to mastery upgrades
   buff?: Buff;            // Buff reference used internally for some effects
-  increment?: number;     // For hit-based scaling: each subsequent hit costs this much more of the scaling buff
+  increment?: number;     // For hit-based scaling: each subsequent hit costs this much more of the scaling buff. e.g., first hit at 10, next at 15, then 20, etc.
   cantUpgrade?: boolean;  // When true, this scaling value cannot be improved by technique mastery upgrades
   isItem?: boolean;       // When true, the result is additionally multiplied by (1 + itemEffectiveness * 0.01). Set on pills, concoctions, and formation parts.
   removeEqnForTooltip?: boolean; // When true, eqn is ignored for tooltip display so the shown amount is the base (value * stat)
+  hits?: Scaling;         // Number of hits. Each hit applies the `amount` independently. Used on damage, heal, barrier, and temporaryHealth effects to deal repeated instances of the effect per activation. The hits scaling value itself can also be dynamic, e.g. { value: 1, scaling: buffName } for one hit per stack of a given buff.
 }
 ```
 
@@ -47,13 +48,13 @@ interface Scaling {
 
 The `stat` field accepts any **combat statistic**, **crafting statistic**, **physical statistic**, **social statistic**, or **technique element**. The most commonly used values are:
 
-**Combat:** `'power'`, `'defense'`, `'barrier'`, `'artefactpower'`, `'maxhp'`, `'hp'`, `'toxicity'`, `'maxtoxicity'`, `'critchance'`, `'critmultiplier'`, `'lifesteal'`, `'vulnerability'`, `'qiDroplets'`
+**Combat:** 'power', 'defense', 'barrier', 'artefactpower', 'maxhp', 'hp', 'toxicity', 'maxtoxicity', 'critchance', 'critmultiplier', 'lifesteal', 'vulnerability', 'qiDroplets'
 
-**Crafting:** `'control'`, `'intensity'`, `'maxpool'`, `'pool'`, `'resistance'`, `'itemEffectiveness'`
+**Crafting:** 'control', 'intensity', 'maxpool', 'pool', 'resistance', 'itemEffectiveness'
 
-**Physical:** `'muscles'`, `'dantian'`, `'meridians'`, `'flesh'`, `'digestion'`, `'eyes'`
+**Physical:** 'muscles', 'dantian', 'meridians', 'flesh', 'digestion', 'eyes'
 
-**Elements:** `'fire'`, `'ice'`, `'wind'`, `'lightning'`, `'earth'`, `'water'` (and other `TechniqueElement` values)
+**Elements:** 'fire', 'ice', 'wind', 'lightning', 'earth', 'water' (and other `TechniqueElement` values)
 
 ### Evaluation Formula
 
@@ -248,7 +249,7 @@ amount: {
 // Multi-buff synergy
 {
   value: 4,
-  eqn: `${flag(buff1.name)} + ${flag(buff2.name)}`  // Sum of two buffs
+  eqn: flag(buff1.name) + ' + ' + flag(buff2.name)  // Sum of two buffs
 }
 ```
 
@@ -323,6 +324,28 @@ stats: {
   increment: 5  // First hit costs current stacks; second costs stacks+5; third costs stacks+10; etc.
 }
 ```
+
+### Pattern 10: Multi-Hit Effects
+
+**When to use**: Effects that apply multiple times per activation (damage, healing, barrier, temporary health). Each hit applies the `amount` independently.
+
+```typescript
+// Deal 50% power damage, 3 times (total 150% power)
+{
+  kind: 'damage',
+  amount: { value: 0.5, stat: 'power' },
+  hits: { value: 3 }
+}
+
+// Heal 30% power twice (total 60% power heal)
+{
+  kind: 'heal',
+  amount: { value: 0.3, stat: 'power' },
+  hits: { value: 2 }
+}
+```
+
+The `hits` field is available on `damage`, `heal`, `barrier`, and `temporaryHealth` effects. The `hits` scaling value itself can also be dynamic, for example `hits: { value: 1, scaling: buffName }` to deal one hit per stack of a given buff.
 
 ## Standard scaling
 
@@ -419,7 +442,7 @@ stats: {
 stats: {
   celestialBoost: {
     value: 4,
-    eqn: `${flag(lunarAttunement.name)} + ${flag(solarAttunement.name)}`
+    eqn: flag(lunarAttunement.name) + ' + ' + flag(solarAttunement.name)
   }
 }
 ```
@@ -521,6 +544,10 @@ Link scaling to mastery progression:
 
 6. **`increment`**:
    - Multi-hit techniques where later hits should cost more than earlier ones
+
+7. **`hits`**:
+   - Effects that apply multiple times per activation (damage, healing, barrier)
+   - The `hits` scaling itself can be dynamic, e.g. `hits: { value: 1, scaling: buffName }` for one hit per buff stack
 
 ### Balance Considerations
 

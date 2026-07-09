@@ -20,7 +20,7 @@ Think of flags as a simple database where you can store numbers and retrieve the
 
 Flags are **key-value pairs** consisting of:
 
-- **Key**: A unique string identifier (e.g., `"playerMetElder"`)
+- **Key**: A unique string identifier (e.g., "playerMetElder")
 - **Value**: A numeric value that can represent booleans, counters, or complex data
 
 ### Flag Types
@@ -56,9 +56,9 @@ When you set a flag, the `value` field is evaluated as a mathematical expression
 
 ```typescript
 value: '1'; // Stores: 1
-value: 'month'; // Stores: current month (e.g., 15)
+value: 'month'; // Stores: current month number (total months elapsed since game start, e.g. 15)
 value: 'existingFlag + 1'; // Stores: previous value + 1
-value: 'power * 2'; // Stores: player's power × 2
+value: 'power * 2'; // Stores: player's power multiplied by 2
 ```
 
 ### Reading Flags in Conditions
@@ -154,16 +154,40 @@ condition: 'totalScore >= requiredScore * 2';
   global: true
 }
 
-// Check elapsed time
+// Check elapsed time using yearMonth (current month in year, 1-12)
 {
   kind: 'conditional',
   branches: [
     {
-      condition: 'month - festivalMonth >= 6',
+      condition: 'festivalMonth > 0 && yearMonth - festivalMonth >= 3',
       children: [
         {
           kind: 'text',
-          text: 'Half a year has passed since the festival.'
+          text: 'At least three months have passed since the festival.'
+        }
+      ]
+    }
+  ]
+}
+
+// Remember absolute time using month (total months elapsed)
+{
+  kind: 'flag',
+  flag: 'lastVisitMonth',
+  value: 'month',
+  global: true
+}
+
+// Check elapsed time using month (total elapsed)
+{
+  kind: 'conditional',
+  branches: [
+    {
+      condition: 'month - lastVisitMonth >= 6',
+      children: [
+        {
+          kind: 'text',
+          text: 'Half a year has passed since your last visit.'
         }
       ]
     }
@@ -184,9 +208,10 @@ The game automatically provides numerous flags representing the current game sta
 
 ### Time and Calendar
 
-- `year`, `month`, `yearMonth`, `day` - Current game time
-- `month` - Total game months elapsed (increments by 1 each month; use for time-difference calculations)
-- `yearMonth` - The current month in the year, 1 -> 12
+- `year` - Current game year
+- `month` - Total game months elapsed since the start of the game (e.g. month 15 means 15 months have passed since year 1 month 1). Use this for tracking absolute elapsed time and calculating durations via subtraction.
+- `yearMonth` - The current month within the year, ranging from 1 to 12. Use this to check which season or quarter the player is in, or to branch on time of year. Compare with `yearMonth` values directly (e.g. `yearMonth <= 3` for the first quarter) rather than for elapsed-time calculations.
+- `day` - Current day within the month
 
 ### Inventory and Equipment
 
@@ -214,8 +239,8 @@ flag('Greater Spirit Grass'); // becomes: 'Greater_Spirit_Grass'
 flag('Corrupt Void Key (III)'); // becomes: 'Corrupt_Void_Key__III_'
 
 // Use in conditions
-condition: `${flag(itemName)} >= 5`;
-condition: `storage_${flag(itemName)} > 0`;
+condition: flag(itemName) + ' >= 5';
+condition: 'storage_' + flag(itemName) + ' > 0';
 ```
 
 ### Organized Flag Management
@@ -265,6 +290,15 @@ condition: 'month >= 6 && completedPreQuest == 1';
 
 // Resource requirement checks
 condition: 'money >= 1000 && power >= 50';
+
+// Season or time-of-year checks
+condition: 'yearMonth >= 1 && yearMonth <= 3';  // Early year
+condition: 'yearMonth >= 10';  // Late year
 ```
 
-The flags system is incredibly flexible and powerful. Master it, and you'll be able to create dynamic, responsive content that adapts to each player's unique journey through your mod.
+### Choosing Between month and yearMonth
+
+- Use **`month`** (total elapsed) when calculating durations or checking how much time has passed since a past event. Store the current `month` when something happens, then compare with `month - storedMonth >= N` later.
+- Use **`yearMonth`** (1-12) when branching on the current season, time of year, or calendar events that repeat each year. `yearMonth` wraps at 12 and starts at 1 again each new year, so it is not suitable for duration calculations across year boundaries.
+
+The flags system is incredibly flexible and powerful. Master it, and you will be able to create dynamic, responsive content that adapts to each player's unique journey through your mod.
