@@ -71,6 +71,7 @@ Access existing game content through `window.modAPI.gameData`:
 - **`mysticalRegionBlessings`** - `Blessing[]` - All mystical region blessings
 - **`dualCultivationTechniques`** - `IntimateTechnique[]` - All dual cultivation techniques
 - **`monsters`** - `EnemyEntity[]` - All registered enemy entities
+- **`soulShardDelves`** - `Record<string, SoulShardDelveConfig>` - All soul shard delve configurations keyed by delve key. Each entry exposes the delve's monster pools (mob / elite / boss), boss room, threshold events, intensity rewards, and recharge rate. See `addSoulShardDelve` for the registration action.
 - **`puppets`** - `PuppetType[]` - All training ground puppet types
 - **`alternativeStarts`** - `AlternativeStart[]` - All alternative game starts (first entry is always the default)
 - **`researchableMap`** - `Record<string, RecipeItem[]>` - Maps base item keys to researchable recipes
@@ -297,12 +298,14 @@ window.modAPI.actions.addRoom(room: Room)
 window.modAPI.actions.addMysticalRegionBlessing(blessing: Blessing)
 window.modAPI.actions.addPuppetType(puppet: PuppetType)
 window.modAPI.actions.addAlternativeStart(start: AlternativeStart)
+window.modAPI.actions.addSoulShardDelve(delve: SoulShardDelveConfig)
 window.modAPI.actions.addPlayerSprite(sprite: PlayerSprite)
 ```
 
 - **`addMysticalRegionBlessing`** — Register a new blessing for mystical regions.
 - **`addPuppetType`** — Register a new puppet type for the training ground.
 - **`addAlternativeStart`** — Register an alternative game start. Players select from available starts when creating a new game. The `AlternativeStart` defines the opening event, starting location, starting items, and starting money.
+- **`addSoulShardDelve`** — Register a new soul shard delve. Delves are randomised combat dungeons themed around a single memory shard. Each config supplies the mob / elite / boss monster pools, the boss room, threshold events, and intensity rewards earned as the delve progresses.
 - **`addPlayerSprite`** — Register a custom player sprite that appears in character creation alongside the defaults for the specified gender.
 
 ```typescript
