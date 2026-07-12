@@ -83,6 +83,34 @@ Portal to special cultivation areas:
 }
 ```
 
+### Expedition
+
+Portal to expedition dungeons. Expedition buildings require a `name` matching an existing expedition tile pool (registered by the base game or via `modAPI.actions.addExpeditionTiles`).
+
+```typescript
+{
+  kind: 'expedition';
+  name: string;              // Expedition identifier (e.g. 'Tai Kong')
+  displayName?: Translatable; // Optional custom display name
+  teamCount: number;         // Number of team members required
+  realm: Realm;              // Realm tier for the expedition
+}
+```
+
+**Example:**
+
+```typescript
+{
+  kind: 'expedition',
+  name: 'Tai Kong',          // Matches the base game's expedition
+  displayName: { en: 'Deep Vault Expedition' },
+  teamCount: 3,
+  realm: 'coreFormation',
+}
+```
+
+To add custom tiles to an expedition (or create a new one), use `window.modAPI.actions.addExpeditionTiles` before the player accesses the building. The new tiles will be included in the next dungeon generation.
+
 ### Training Ground
 
 Combat training and sparring:

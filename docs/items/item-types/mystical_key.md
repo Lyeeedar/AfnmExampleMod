@@ -29,9 +29,26 @@ interface MysticalKeyItem extends ItemBase {
 
   // Loot System
   rewardPools: string[];
+
+  /**
+   * Optional id of a `MysticalRegionDefinition` registered via
+   * `modAPI.actions.addMysticalRegionDefinition`. When set, the definition's
+   * `encounterPool`, `factionCurses`, and `eventSteps` override the key's
+   * own defaults. Used by mods to add NEW mystical regions that the player
+   * can visit via this key.
+   */
+  overrideRegion?: string;
 }
 
-type RegionContentType = 'blessed' | 'cursed' | 'glitch';
+type RegionContentType =
+  | 'balanced'
+  | 'elite'
+  | 'brutal'
+  | 'cursed'
+  | 'blessed'
+  | 'glitch'
+  | 'linGlitch'
+  | 'ancientRelic';
 ```
 
 ## Core Mechanics
@@ -100,6 +117,30 @@ factionCurses: ['Huo', 'Jin'];
 
 ## Content Types
 
+### Balanced Regions
+
+Standard mystical regions with a mix of encounters and blessings:
+
+- Curse, mob, blessing, elite encounters in varied order
+- Standard reward rarity distributions
+- Normal blessing effects
+
+### Elite Regions
+
+Regions scaled for elite challenges:
+
+- More elite encounters than balanced
+- Higher base difficulty
+- Better rewards
+
+### Brutal Regions
+
+High-difficulty regions for well-prepared players:
+
+- Frequent elite encounters
+- Two boss encounters possible
+- Premium reward rarities
+
 ### Blessed Regions
 
 Standard mystical regions with normal difficulty and rewards:
@@ -125,6 +166,22 @@ Special corrupted regions with the Glitch blessing:
 - Very high reward rarities
 - The '(%£\*!' blessing creates random technique effects
 - Unique encounter pools with special enemies
+
+### LinGlitch Regions
+
+Variant glitch regions with enhanced instability:
+
+- Similar to glitch regions but with additional distortion effects
+- Elite encounters throughout
+- Extreme difficulty and rewards
+
+### AncientRelic Regions
+
+Unstable ancient ruins with extreme danger:
+
+- Multiple boss encounters possible
+- Curse and elite encounters dominate
+- Highest difficulty tier with premium rewards
 
 ## Reward Pool System
 
@@ -213,6 +270,7 @@ export const voidKeyIII: MysticalKeyItem = {
   rewardRarities: ['mundane', 'qitouched'],
   factionCurses: [],
   difficulty: 'Early',
+  overrideRegion: undefined,
   hasCorePedestal: false,
   rewardPools: [
     'Condensation Art Enchantment (III)',
@@ -348,3 +406,38 @@ rewardPools: [
 - **Early**: Lower rarities, no core pedestal, basic blessings
 - **Late**: Higher rarities, core pedestal, powerful blessings
 - Match difficulty to expected player realm and capability
+
+### Using `overrideRegion` for Custom Regions
+
+The `overrideRegion` field lets a key point at a `MysticalRegionDefinition` registered via `modAPI.actions.addMysticalRegionDefinition`. This redirects the key into a fully custom region without needing to redefine the key itself:
+
+```typescript
+// Register a custom mystical region definition
+window.modAPI.actions.addMysticalRegionDefinition({
+  id: 'myMod_serpentTomb',
+  encounterPool: {
+    mob: [serpentMob, cobraMob],
+    elite: [coiledElite, pitViperElite],
+    boss: [ancientSerpentBoss],
+  },
+  factionCurses: ['serpent_poison_curse'],
+  eventSteps: {
+    boss: [{
+      kind: 'speech',
+      character: 'narrator',
+      text: 'The ancient serpent hisses as you step into its lair.',
+    }],
+  },
+});
+
+// Reference it from a mystical key
+export const serpentTombKey: MysticalKeyItem = {
+  kind: 'mystical_key',
+  name: 'Serpent Tomb Key',
+  // ... other fields
+  contentType: 'cursed',
+  overrideRegion: 'myMod_serpentTomb', // Points at the registered definition
+};
+```
+
+Any field left undefined on the definition falls back to the key's own overrides or the realm defaults, so a minimal override only needs to set what changes.
