@@ -102,14 +102,14 @@ Portal to expedition dungeons. Expedition buildings require a `name` matching an
 ```typescript
 {
   kind: 'expedition',
-  name: 'Tai Kong',          // Matches the base game's expedition
-  displayName: { en: 'Deep Vault Expedition' },
-  teamCount: 3,
-  realm: 'coreFormation',
+  name: 'Tai Kong',       // Expedition identifier - must match the key used in addExpeditionTiles
+  displayName?: 'Tai Kong Expedition',
+  teamCount: 3,           // Number of team member slots
+  realm: 'qiCondensation' // Minimum realm required to enter
 }
 ```
 
-To add custom tiles to an expedition (or create a new one), use `window.modAPI.actions.addExpeditionTiles` before the player accesses the building. The new tiles will be included in the next dungeon generation.
+The `name` field is the expedition identifier. It must match the `expeditionName` passed to `api.actions.addExpeditionTiles(expeditionName, tiles)` so that the tile pool is correctly associated with this building. See Expedition Tiles below for how to register tiles for a custom expedition.
 
 ### Training Ground
 
@@ -639,4 +639,147 @@ export const myLocation: GameLocation = {
     }
   ]
 };
+```
+
+## Expedition Tiles
+
+Expeditions use a tile-based dungeon generation system. Each tile has a `kind` (entrance, exit, combat, treasure, etc.) and defines connections to neighbouring tiles.
+
+Tiles are registered via `api.actions.addExpeditionTiles(expeditionName, tiles)` and are keyed by the same expedition identifier used in the `expedition` building's `name` field. An expedition building without any tiles registered will use the default game tiles.
+
+**Reading existing tiles:**
+
+```typescript
+// Inspect the tile pool for an existing expedition
+const tilePool = window.modAPI.gameData.expeditionTiles['Tai Kong'];
+const treasureTiles = tilePool.filter((t) => t.kind === 'treasure');
+```
+
+**Registering tiles for a custom expedition:**
+
+```typescript
+// Register a new expedition with a custom treasure tile
+window.modAPI.actions.addExpeditionTiles('Frozen Reach', [
+  {
+    kind: 'treasure',
+    name: 'Glacial Cache',
+    icon: 'mod://icons/ice.png',
+    bg: 'mod://backgrounds/iceBG.png',
+    description: 'A cache pulsing with cold qi.',
+    rarity: 'resplendent',
+    intro: [{ kind: 'text', text: 'You uncover a cache of frozen treasures.' }],
+    expeditionTiles: [],
+    edges: { left: [], right: [], top: [], bottom: [] },
+    tileConnections: [],
+    edgeConnections: [],
+  },
+]);
+```
+
+### Tile Kinds
+
+All tile types share these base fields:
+
+```typescript
+interface BaseTile {
+  name: string;              // Display name
+  icon: string;              // Icon path (use 'mod://' for mod assets)
+  bg: string;               // Background image path
+  description: Translatable; // Shown when the tile is revealed
+  rarity: Rarity;            // 'mundane' | 'qitouched' | 'empowered' | 'resplendent' | 'incandescent' | 'transcendent'
+  intro: EventStep[];        // Event steps shown when entering this tile
+  // Tile graph fields (required for generation)
+  expeditionTiles: ExpeditionTilePoint[];  // Named points inside this tile
+  edges: Record<ExpeditionDirection, ExpeditionTilePoint[]>;  // Connections per direction
+  tileConnections: { src: string; dst: string }[];           // Named point links
+  edgeConnections: { tile: string; edge: string; direction: ExpeditionDirection }[];
+}
+```
+
+**`entrance`** - Starting tile. Exactly one per expedition.
+
+```typescript
+{ kind: 'entrance', /* ...BaseTile */ }
+```
+
+**`exit`** - Goal tile. Reaching this tile completes the expedition.
+
+```typescript
+{ kind: 'exit', /* ...BaseTile */ }
+```
+
+**`extract`** - Grants extraction rewards (materials, items).
+
+```typescript
+{ kind: 'extract', extractCount: 3, /* ...BaseTile */ }
+```
+
+**`combat`** - Triggers a combat encounter.
+
+```typescript
+{
+  kind: 'combat',
+  modifier?: number,       // Difficulty multiplier (default 1)
+  enemyCount?: number,    // Number of enemies spawned
+  items?: { item: ItemDesc; count: number }[],  // Guaranteed drops
+  /* ...BaseTile */
+}
+```
+
+**`rest`** - Restores team health and removes debuffs.
+
+```typescript
+{ kind: 'rest', baseRestore: 50, /* ...BaseTile */ }
+```
+
+**`treasure`** - Grants treasure room loot.
+
+```typescript
+{ kind: 'treasure', /* ...BaseTile */ }
+```
+
+**`boss`** - Triggers a boss fight with scaled rewards.
+
+```typescript
+{
+  kind: 'boss',
+  modifier?: number,            // Difficulty multiplier
+  items?: { item: ItemDesc; count: number }[],  // Guaranteed drops
+  /* ...BaseTile */
+}
+```
+
+**`buff`** - Applies a positive buff to the team.
+
+```typescript
+{ kind: 'buff', /* ...BaseTile */ }
+```
+
+**`debuff`** - Applies a negative debuff to the team.
+
+```typescript
+{ kind: 'debuff', /* ...BaseTile */ }
+```
+
+**`challenge`** - High-difficulty combat with extra rewards.
+
+```typescript
+{
+  kind: 'challenge',
+  modifier?: number,
+  items?: { item: ItemDesc; count: number }[],
+  /* ...BaseTile */
+}
+```
+
+**`puzzle`** - A puzzle encounter, optionally with enemies.
+
+```typescript
+{ kind: 'puzzle', enemies?: boolean, /* ...BaseTile */ }
+```
+
+**`boonBane`** - Random beneficial or harmful effect.
+
+```typescript
+{ kind: 'boonBane', /* ...BaseTile */ }
 ```

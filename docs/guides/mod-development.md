@@ -66,6 +66,7 @@ This is like a giant catalog of everything that already exists in the game:
 - `items` - All existing items (weapons, consumables, artifacts, etc.)
 - `characters` - NPCs you can interact with
 - `locations` - All areas in the game world
+- `expeditionTiles` - Expedition tile pools, keyed by expedition name (see [Building Types](../locations/building-types))
 - `techniques` - Combat and cultivation abilities
 - `quests` - Available questlines
 - And much more...
@@ -96,6 +97,7 @@ These are the functions that actually add your content to the game. Think of the
 - `addItem(item)` - Register a new item
 - `addCharacter(character)` - Add an NPC
 - `addLocation(location)` - Create new areas
+- `addExpeditionTiles(expeditionName, tiles)` - Register tiles for an expedition (see [Building Types](../locations/building-types))
 - `addTechnique(technique)` - Add cultivation abilities
 - `addQuest(quest)` - Create questlines
 
