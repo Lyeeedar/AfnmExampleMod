@@ -69,6 +69,8 @@ Access existing game content through `window.modAPI.gameData`:
 - **`fallenStars`** - `FallenStar[]` - All fallen star events
 - **`rooms`** - `Room[]` - All house rooms
 - **`mysticalRegionBlessings`** - `Blessing[]` - All mystical region blessings
+- **`expeditionTiles`** - `Record<string, ExpeditionTiles[]>` - Registry of expedition tile pools keyed by expedition name. Each entry exposes every tile definition the expedition may spawn from, including universal tiles (entrance, exit, extract, rest) and any combat, treasure, boss, buff, debuff, challenge, or boonBane tiles that have been added to the pool. Read this to inspect an expedition's contents and use `addExpeditionTiles` to extend or replace the tile list.
+- **`mysticalRegionDefinitions`** - `Record<string, MysticalRegionDefinition>` - Registry of moddable mystical region definitions keyed by `definition.id`. Add a new entry with `actions.addMysticalRegionDefinition`, then point a `MysticalKeyItem`'s `overrideRegion` field at the id to redirect that key into the new region without redefining the key.
 - **`dualCultivationTechniques`** - `IntimateTechnique[]` - All dual cultivation techniques
 - **`monsters`** - `EnemyEntity[]` - All registered enemy entities
 - **`soulShardDelves`** - `Record<string, SoulShardDelveConfig>` - All soul shard delve configurations keyed by delve key. Each entry exposes the delve's monster pools (mob / elite / boss), boss room, threshold events, intensity rewards, and recharge rate. See `addSoulShardDelve` for the registration action.
@@ -296,6 +298,8 @@ window.modAPI.actions.addEnchantment(enchantment: Enchantment)
 window.modAPI.actions.addFallenStar(fallenStar: FallenStar)
 window.modAPI.actions.addRoom(room: Room)
 window.modAPI.actions.addMysticalRegionBlessing(blessing: Blessing)
+window.modAPI.actions.addExpeditionTiles(expeditionName: string, tiles: ExpeditionTiles[])
+window.modAPI.actions.addMysticalRegionDefinition(definition: MysticalRegionDefinition)
 window.modAPI.actions.addPuppetType(puppet: PuppetType)
 window.modAPI.actions.addAlternativeStart(start: AlternativeStart)
 window.modAPI.actions.addSoulShardDelve(delve: SoulShardDelveConfig)
@@ -303,6 +307,8 @@ window.modAPI.actions.addPlayerSprite(sprite: PlayerSprite)
 ```
 
 - **`addMysticalRegionBlessing`** — Register a new blessing for mystical regions.
+- **`addExpeditionTiles`** — Register tile definitions for an expedition so they can appear when the expedition is generated. If the expedition already exists in `gameData.expeditionTiles`, the provided tiles are appended to its existing tile pool. If the expedition name is new, a fresh pool is created and registered so subsequent generation calls can spawn tiles from it. Combine with a matching `addLocation` (or an existing expedition location) that uses an `expedition` building with `name: <expeditionName>` to expose the new expedition to players.
+- **`addMysticalRegionDefinition`** — Register a new moddable mystical region definition. Point a `MysticalKeyItem`'s `overrideRegion` field at the definition's `id` to redirect that key into the new region. Any field left undefined falls back to the key's own overrides (or realm defaults). The `eventSteps` map lets you inject event sequences at any combination of progress stages; when set for a stage, an event portal is shown before the default step and clicking it dispatches the supplied steps as a normal event.
 - **`addPuppetType`** — Register a new puppet type for the training ground.
 - **`addAlternativeStart`** — Register an alternative game start. Players select from available starts when creating a new game. The `AlternativeStart` defines the opening event, starting location, starting items, and starting money.
 - **`addSoulShardDelve`** — Register a new soul shard delve. Delves are randomised combat dungeons themed around a single memory shard. Each config supplies the mob / elite / boss monster pools, the boss room, threshold events, and intensity rewards earned as the delve progresses.

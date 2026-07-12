@@ -83,9 +83,21 @@ Portal to special cultivation areas:
 }
 ```
 
-### Expedition Hall
+### Expedition
 
-Portal to an expedition - a tile-based dungeon crawl where the player assigns team roles and navigates a procedurally generated map.
+Portal to expedition dungeons. Expedition buildings require a `name` matching an existing expedition tile pool (registered by the base game or via `modAPI.actions.addExpeditionTiles`).
+
+```typescript
+{
+  kind: 'expedition';
+  name: string;              // Expedition identifier (e.g. 'Tai Kong')
+  displayName?: Translatable; // Optional custom display name
+  teamCount: number;         // Number of team members required
+  realm: Realm;              // Realm tier for the expedition
+}
+```
+
+**Example:**
 
 ```typescript
 {
