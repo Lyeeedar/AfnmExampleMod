@@ -657,3 +657,26 @@ condition: {
   allowTriggers: true, // triggeredBuffEffects still run even at > 50% HP
 }
 ```
+
+### (This Effect) — Auto-Use Self-Reference
+
+The `(This Effect)` condition key is available in the **auto-use item rule editor** only. It resolves to the name of the buff applied by the item in the current auto-use slot, making it possible to write a single rule that automatically tracks item upgrades without rewriting:
+
+```typescript
+// A rule like this on a Replenishment (V) slot automatically becomes
+// "Replenishment VI < 2" when the slot's item is upgraded:
+condition: '(This Effect)',
+check: '<',
+value: 2
+```
+
+When the slot's item cannot be resolved (or has no `buffSelf` effect), the condition evaluates as false. The concrete buff name is only known at expression-evaluation time, so the rule editor summary displays `(This Effect)` verbatim.
+
+```typescript
+// In practice, rules are stored on AutoUseItem.slot and serialised as RuleBlocks:
+{
+  condition: '(This Effect)',
+  check: '<',
+  value: 2
+}
+```
