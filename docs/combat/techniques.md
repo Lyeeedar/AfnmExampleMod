@@ -713,7 +713,76 @@ export const sunrise: Technique = {
 - **Trigger system**: Fires celestial rotation event for other systems
 - **Scaling conversion**: Converts all existing Moonlight to Sunlight
 
+## Stances and Styles
+
+Stances group techniques into ordered sequences that execute automatically during combat. Each combatant maintains a current stance (the active technique sequence) and a library of stored stances.
+
+### StoredStance and StoredStyle
+
+The `PlayerEntity` and `EnemyEntity` types expose stances via `storedStyles`, a list of `StoredStyle` objects. Each `StoredStyle` holds a named style that contains ordered `StoredStance` entries:
+
+```typescript
+interface StoredStyle {
+  name: string;
+  id: string;
+  autoName?: boolean;
+  stances: StoredStance[];
+  conditionalCycles?: ConditionalCycle[];
+}
+
+interface StoredStance {
+  name: string;
+  autoName?: boolean;
+  techniques: string[];
+  stanceRule?: StoredRule;
+}
+```
+
+### Stance Rule Types
+
+Each `StoredStance` can declare a `stanceRule` to control when it fires:
+
+```typescript
+// Fires as the first technique of the combat
+{ kind: 'opener', position: 0 }
+
+// Fires in rotation at a fixed position
+{ kind: 'rotation', position: 2 }
+
+// Fires only when a condition is true; keeps firing while the condition remains true
+{
+  kind: 'conditional',
+  position: 1,
+  condition: TechniqueCondition,
+  maxCount?: number, // Maximum times this stance fires across the whole combat
+}
+
+// Fires in rotation at a fixed position, but only while a condition is true
+{ kind: 'conditionalRotation', position: 2, condition: TechniqueCondition }
+```
+
+### Conditional Stance Counters
+
+For combatants using the unified stance selector (players, manifested figments, evoked figments), the `enemyStanceData` field tracks per-stance usage so `ConditionalStoredRule.maxCount` is enforced:
+
+```typescript
+enemyStanceData?: {
+  playerStanceIndex: number;
+  usedPlayerStanceOpeners: boolean[];
+  lastPlayerStance: string;
+  lastCycleKey?: string;
+  usedConditionalStanceCounts?: Record<string, number>;
+};
+```
+
+### Manifested and Evoked Life Forms
+
+When a manifested or evoked life form (such as a figment) uses player-style stances, the stance configuration is forwarded from the figment data into the combat entity via `playerStyleStances` and `playerStyleCycles`. This ensures the unified `selectNextStoredStance` selector evaluates both the player entity and life-form entities using the same algorithm.
+
+**For modders adding manifested figments:** Seed `playerStyleStances` and `playerStyleCycles` on the combat entity so conditional stance rules and `maxCount` enforcement behave consistently with the player entity.
+
 ## Mastery System
+
 
 Techniques can be upgraded through the mastery system:
 
