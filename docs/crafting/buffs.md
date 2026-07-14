@@ -63,6 +63,7 @@ interface CraftingBuff {
   // Advanced fields
   bonusHiddenPotential?: Scaling; // Grants bonus hidden potential to the crafted item when this buff is active
   realm?: Realm; // Minimum realm required for this buff to apply its effects
+  deweight?: boolean; // Hide from the crafting buff row; surface only in the expanded effects panel (use for passive mastery markers the player does not need to track live)
 }
 ```
 
@@ -418,6 +419,25 @@ onFusion: [
   },
 ];
 ```
+
+## Buff Display — Deweighting Passive Markers
+
+The `deweight` flag hides a buff from the main crafting buff row, surfacing it only in the expanded effects popout:
+
+```typescript
+export const passiveMasteryMarker: CraftingBuff = {
+  name: 'Mastery Insight',
+  icon: masteryIcon,
+  canStack: true,
+  stats: undefined,
+  effects: [],
+  stacks: 1,
+  displayLocation: 'none',
+  deweight: true, // Player doesn't need to track this live during crafting
+};
+```
+
+Mark passive, self-refreshing mastery markers and item markers that get refreshed every round with `deweight: true`. These should be the first buffs to spill into the expand list when the row is space-constrained.
 
 ## Buff Interactions
 
