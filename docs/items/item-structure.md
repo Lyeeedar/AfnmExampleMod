@@ -25,7 +25,166 @@ interface ItemBase {
   realm: Realm | 'any'; // Cultivation requirement
   valueTier?: number; // Economic worth modifier
   upgradedFrom?: Item; // Upgrade chain tracking
+  upgradeHarmonies?: Partial<Record<RecipeHarmonyType, ItemHarmonyUpgrade[]>>; // Craft harmony upgrades
+  dropHarmonies?: RecipeHarmonyType[]; // Harmony types eligible when item drops with quality
 }
+```
+
+## Upgrade Harmonies
+
+Items can define upgrades that activate when the item is crafted with a specific harmony type and quality tier. This allows crafted equipment to grow stronger based on the harmony and quality of the craft.
+
+### ItemHarmonyUpgrade Interface
+
+```typescript
+interface ItemHarmonyUpgrade {
+  threshold: number;       // Minimum quality tier to activate (1=basic, 2=perfect, 3+=sublime tiers)
+  upgradeKey: string;      // Identifier matching upgradeKey on tagged fields
+  change: number;          // Amount to add, or multiplier when shouldMultiply is true
+  shouldMultiply?: boolean; // If true, value += value * change (percentage increase)
+  tooltip: Translatable;  // Description of the upgrade
+  exclusive?: boolean;     // When true, this upgrade cannot be borrowed by other harmonies
+}
+```
+
+### Tagging Fields with upgradeKey
+
+Fields that support upgradeKey are scaled when the item is crafted with a matching harmony above the threshold. The field value is adjusted by the upgrade change.
+
+**Supported locations:**
+
+- `Scaling.upgradeKey` -- on buff stat amounts and technique effect amounts:
+
+  ```typescript
+  // In a Buff stat definition
+  const myBuff: Buff = {
+    name: 'My Buff',
+    stats: {
+      power: {
+        value: 10,
+        stat: undefined,
+        upgradeKey: 'powerBonus', // Tagged for upgrade scaling
+      },
+    },
+  };
+
+  // In an ArtefactTechnique effect amount
+  const attack: ArtefactTechnique = {
+    icon: attackIcon,
+    effects: [{
+      kind: 'damage',
+      amount: {
+        value: 0.5,
+        stat: 'artefactpower',
+        upgradeKey: 'damageBonus', // Tagged for upgrade scaling
+      },
+    }],
+  };
+  ```
+
+- `Buff.maxStacks` -- controls stack ceiling for stackable buffs:
+
+  ```typescript
+  const stackingBuff: Buff = {
+    name: 'Stacking Buff',
+    canStack: true,
+    maxStacks: 5,
+    upgradeKey: 'maxStacksBonus', // Tagged -- raising maxStacks lets the buff stack higher
+    stacks: 1,
+  };
+  ```
+
+### Helper Functions
+
+The game provides three helpers (imported from `harmonyUpgradeHelpers`) to generate `ItemHarmonyUpgrade` objects:
+
+```typescript
+import {
+  harmonyStatUpgrade,  // Multiply a stat by +X% per threshold tier
+  harmonyStatStep,     // Add a fixed step to a stat per threshold tier
+  harmonyStacksStep,   // Add stacks to a buff per threshold tier
+} from 'harmonyUpgradeHelpers';
+```
+
+#### harmonyStatUpgrade -- Percentage Multiplier
+
+Multiply a tagged field by +percent% for every threshold quality tiers reached.
+
+```typescript
+// "Increase power by 20% per 4 quality tiers"
+harmonyStatUpgrade('powerBonus', 'Power', { threshold: 4, percent: 20 });
+
+// With a custom threshold (every 3 tiers, +15%)
+harmonyStatUpgrade('critBonus', 'Crit Chance', { threshold: 3, percent: 15 });
+```
+
+#### harmonyStatStep -- Additive Step
+
+Add a fixed step to a tagged field for every threshold quality tiers reached.
+
+```typescript
+// "Increase defence by 5 per 4 quality tiers"
+harmonyStatStep('defenseStep', 'Defense', 4, { step: 5 });
+
+// Percentage variant -- step is shown with a % suffix
+harmonyStatStep('speedStep', 'Speed', 2, { step: 3, percent: true });
+```
+
+#### harmonyStacksStep -- Stack Grant
+
+Add stacks to a buff maxStacks for every threshold quality tiers reached. Stack grants are exclusive by default -- a harmony cannot borrow another harmony stack upgrade.
+
+```typescript
+// "Increase Iron Blossom max stacks by 6 per 4 quality tiers"
+harmonyStacksStep('ironStacks', ironBlossom.name, 4, { step: 6 });
+
+// Non-exclusive variant
+harmonyStacksStep('razorStacks', razorBlossom.name, 4, { step: 6, exclusive: false });
+```
+
+### Defining upgradeHarmonies on an Item
+
+Attach upgradeHarmonies to any equipment item:
+
+```typescript
+import { harmonyStacksStep, harmonyStatStep, harmonyStatUpgrade } from 'harmonyUpgradeHelpers';
+
+export const eclipsePetalMantleS: ClothingItem = {
+  kind: 'clothing',
+  // ... other fields
+  upgradeHarmonies: {
+    forge: [harmonyStacksStep('ironStacks', ironBlossom.name, 6)],
+    resonance: [harmonyStatStep('stats_blossomBoost', 'Blossom Boost', 7, { step: 10, percent: true })],
+    alchemical: [
+      harmonyStatStep('stats_celestialBoost', 'Celestial Boost', 7, { step: 10, percent: true }),
+    ],
+    inscription: [harmonyStacksStep('razorStacks', razorBlossom.name, 6)],
+    eccentricDecree: [harmonyStatUpgrade('stats_maxbarrier', 'Max Barrier')],
+    enhancingEcho: [harmonyStatUpgrade('stats_charisma', 'Charisma')],
+  },
+};
+```
+
+**Inheriting upgrades on upgraded items:** When a higher-tier item is upgraded from a lower-tier one, copy the upgradeHarmonies object so all tiers benefit:
+
+```typescript
+export const eclipsePetalMantleUV: ClothingItem = {
+  kind: 'clothing',
+  upgradedFrom: eclipsePetalMantleS,
+  upgradeHarmonies: eclipsePetalMantleS.upgradeHarmonies, // Inherit from base tier
+};
+```
+
+### dropHarmonies -- Harmony Selection for Dropped Items
+
+Items that can drop with quality (not crafted) use dropHarmonies to restrict which harmony types are eligible for the random roll that generates harmonyAugment:
+
+```typescript
+// Item can only drop with forge or alchemical harmony
+dropHarmonies: ['forge', 'alchemical'],
+
+// Empty array (default) means all harmony types are eligible
+dropHarmonies: [],
 ```
 
 ## Item Categories
@@ -176,7 +335,7 @@ window.modAPI.actions.addItemToShop(
 window.modAPI.actions.addItemToAuction(
   myItem,           // Item to auction
   0.15,             // Appearance chance (15%)
-  '1',              // Condition for availability. Normally always available (1), only use if intending to unlock with a quest flag
+  '1',              // Condition for availability. Normally always available (1)
   3,                // Stack override (optional)
   1.5               // Count multiplier (optional)
 );
@@ -215,18 +374,10 @@ Items can be quest objectives or rewards:
 Items work in events through EventSteps:
 ```typescript
 // Give item to player
-{
-  kind: 'addItem',
-  item: { name: 'Story Item' },
-  amount: '1',
-}
+{ kind: 'addItem', item: { name: 'Story Item' }, amount: '1' }
 
 // Remove item from player
-{
-  kind: 'removeItem',
-  item: { name: 'Consumed Item' },
-  amount: '1',
-}
+{ kind: 'removeItem', item: { name: 'Consumed Item' }, amount: '1' }
 
 // Check if player has item
 {
@@ -235,17 +386,6 @@ Items work in events through EventSteps:
     condition: 'My_Custom_Item >= 1',
     children: [/* event steps */]
   }]
-}
-```
-
-#### Calendar Events
-Items can be distributed through scheduled events:
-```typescript
-// Resource distribution events
-{
-  kind: 'addItem',
-  item: { name: 'Seasonal Gift' },
-  amount: '3',
 }
 ```
 
@@ -268,33 +408,20 @@ perfectItem: myCustomCraftedItemPlus,
 
 **Research System**:
 ```typescript
-// Add recipe to research tree
-window.modAPI.actions.addRecipeToResearch(
-  baseItemName,     // Item that unlocks the recipe
-  recipeItem        // Recipe to unlock
-);
+window.modAPI.actions.addRecipeToResearch(baseItemName, recipeItem);
 ```
 
 ### 3. Economic Integration
 
-Items automatically integrate with the economy:
-
-**Pricing**: Based on `buyItemCostMap` and `sellItemCostMap` for the item's `kind`
-
-**Value Modifiers**:
-- `valueTier` multiplies base price
-- `rarity` affects market pricing
-- `realm` gates availability and cost
-- `enchantment` adds significant value
-- `Additional random element` applied to the final cost based on the item name to force unique pricing between items
+Items automatically integrate with the economy based on kind, rarity, realm, valueTier, and enchantment.
 
 ### 4. Flag Integration
 
 Items automatically create flags for use in conditions:
-- Item names are converted to flag format: `"My Item Name"` → `"My_Item_Name"`
-- Available in inventory: `My_Item_Name >= 1`
-- In storage: `storage_My_Item_Name >= 1`
-- Equipped status: `equipped_My_Item_Name == 1`
+- Item names are converted to flag format: "My Item Name" -> "My_Item_Name"
+- Available in inventory: My_Item_Name >= 1
+- In storage: storage_My_Item_Name >= 1
+- Equipped status: equipped_My_Item_Name == 1
 
 ### 5. Common Integration Patterns
 
