@@ -141,6 +141,8 @@ window.modAPI.actions.registerRootLocation(locationName: string, condition: stri
 window.modAPI.actions.addQuest(quest: Quest)
 window.modAPI.actions.addCalendarEvent(event: CalendarEvent)
 window.modAPI.actions.addTriggeredEvent(event: TriggeredEvent)
+window.modAPI.actions.startEvent(event: GameEvent): boolean
+window.modAPI.actions.startCombat(enemies: EnemyEntity[], playerBuffs: Buff[], locationBackgroundOverride?: { backgroundImage: string, screenEffect: ScreenEffectType }): void
 ```
 
 #### `registerRootLocation`
@@ -153,6 +155,46 @@ window.modAPI.actions.registerRootLocation('Hidden Valley', '1');
 
 // Unlocks after a flag is set
 window.modAPI.actions.registerRootLocation('Ancient Ruins', 'foundAncientMap == 1');
+```
+
+#### `startEvent`
+
+Start a game event programmatically at runtime. Returns `true` if the event started, or `false` if an event was already active.
+
+**Important:** If an event is already in progress, `startEvent` silently returns `false` — it will not interrupt or overwrite the running event. Use the return value to guard side-effects (such as quest consumption or item removal) that should only happen when the event actually begins.
+
+```typescript
+window.modAPI.actions.startEvent({
+  location: 'Liang Tiao Village',
+  steps: [{ kind: 'text', text: 'A stranger approaches you.' }],
+});
+```
+
+```typescript
+// Always check the return value when your mod's logic depends on the event firing
+const started = window.modAPI.actions.startEvent(myEvent);
+if (started) {
+  // Quest consumed here — safe, because the event actually started
+  dispatch(removeQuest('myQuest'));
+} else {
+  // Event was blocked — do not consume quest items, flags, etc.
+}
+```
+
+#### `startCombat`
+
+Initiate a combat encounter programmatically:
+
+```typescript
+// Basic combat
+window.modAPI.actions.startCombat([ratascar], []);
+
+// Combat with player buffs and custom background
+window.modAPI.actions.startCombat(
+  [bossEnemy],
+  [strengthBuff],
+  { backgroundImage: 'boss_arena.png', screenEffect: 'mist' },
+);
 ```
 
 ### Modifying Existing Locations
