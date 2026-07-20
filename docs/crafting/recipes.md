@@ -61,14 +61,17 @@ Higher difficulty raises the bar during the crafting mini-game: stability costs 
 
 ## Harmony Types
 
-Each recipe uses one of four harmony systems during crafting. By default the game assigns a harmony type based on the item category. Use `harmonyTypeOverride` to force a specific type:
+Each recipe uses one of seven harmony systems during crafting. By default the game assigns a harmony type based on the item category. Use `harmonyTypeOverride` to force a specific type:
 
-| Value         | Description                                          |
-| ------------- | ---------------------------------------------------- |
-| `forge`       | Forging — heat-based combo system                    |
-| `alchemical`  | Alchemy — charge-and-combo system                    |
-| `inscription` | Inscription — pattern-block system                   |
-| `resonance`   | Resonance — technique-type matching resonance system |
+| Value             | Description                                              |
+| ---------------- | -------------------------------------------------------- |
+| `forge`           | Forging -- heat-based combo system                       |
+| `alchemical`      | Alchemy -- charge-and-combo system                       |
+| `inscription`     | Inscription -- pattern-block system                       |
+| `resonance`       | Resonance -- technique-type matching resonance system     |
+| `formless`        | Formless Way -- realm-budget scaling harmony             |
+| `enhancingEcho`   | Enhancing Echo -- enhancement-focused harmony             |
+| `eccentricDecree` | Eccentric Decree -- special decree-based harmony          |
 
 ## Perfection Effect Override
 
