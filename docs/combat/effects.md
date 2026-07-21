@@ -114,6 +114,35 @@ Grants barrier (damage absorption).
 }
 ```
 
+### `repair`
+
+Restores health to barrier-type buffs that have taken damage.
+
+```typescript
+{
+  kind: 'repair',
+  amount: { value: 0.5, stat: 'power' },
+  group: 'shield',
+  rule: 'lowestHealth'
+}
+```
+
+**Parameters:**
+
+- **`group`** — Selects which buffs to repair. Matched against the buff's `name`, `buffType`, or any flag set on it (same matching rules as `modifyBuffGroup`).
+- **`rule`** — `'all'` repairs every matching buff; `'lowestHealth'` targets the most damaged one; `'highestHealth'` targets the least damaged.
+
+**Example — repair the most damaged shield buff:**
+
+```typescript
+{
+  kind: 'repair',
+  amount: { value: 0.3, stat: 'power' },
+  group: 'shield',
+  rule: 'lowestHealth'
+}
+```
+
 ## Buff Management
 
 ### `buffSelf`
@@ -211,25 +240,38 @@ Removes all stacks of the current buff.
 }
 ```
 
-## Advanced Effects
+### `mergeSelf`
 
-### `merge`
-
-Converts stacks from one buff to another.
+Combines multiple stacks from one buff into fewer stacks of another buff. Unlike `convertSelf` which transfers stacks one-for-one, `mergeSelf` condenses a ratio of source stacks into target stacks.
 
 ```typescript
 {
-  kind: 'merge',
-  sourceBuff?: sourceBuff, // If omitted, uses current buff
+  kind: 'mergeSelf',
+  source?: sourceBuff, // If omitted, uses the current buff
   sourceStacks: { value: 2, stat: undefined },
-  targetBuff: targetBuff,
+  target: targetBuff,
   targetStacks: { value: 1, stat: undefined }
 }
 ```
 
+**Example — condense 2 source stacks into 1 target stack:**
+
+```typescript
+{
+  kind: 'mergeSelf',
+  sourceStacks: { value: 2, stat: undefined },
+  target: condensingBuff,
+  targetStacks: { value: 1, stat: undefined }
+}
+```
+
+**Use case**: Efficiency mechanics where lower-tier resource buffs are consolidated into higher-tier forms. For example, a technique that generates multiple weak stacks which should be merged into a single stronger stack rather than accumulating separately.
+
+## Advanced Effects
+
 ### `convertSelf`
 
-Converts stacks of one buff into stacks of another buff, one-for-one. Unlike `merge`, this transfers all available stacks at the point of execution rather than merging by a ratio.
+Converts stacks of one buff into stacks of another buff, one-for-one. Unlike `mergeSelf`, this transfers all available stacks at the point of execution rather than merging by a ratio.
 
 ```typescript
 {
@@ -345,7 +387,54 @@ Consumes an item from the player's inventory. The effect silently does nothing i
 }
 ```
 
-**Use case**: Equipment or mount effects that deplete consumable items as part of their activation (e.g. a mount that burns a special pill each round to provide its bonus).
+**Use case**: Equipment or mount effects that deplete consumable items as part of their activation (for example, a mount that burns a special pill each round to provide its bonus).
+
+### `permanentStatChange`
+
+Permanently modifies a physical or social statistic on the player. The change takes effect after combat ends. The amount is floored to an integer.
+
+Only applies when the technique is used by the player — enemy techniques with this effect kind are ignored.
+
+```typescript
+{
+  kind: 'permanentStatChange',
+  stat: 'muscles',            // Any PhysicalStatistic or SocialStatistic
+  amount: { value: 5, stat: undefined }
+}
+```
+
+**Valid `stat` values:**
+
+Physical statistics:
+- `'flesh'` — Max Health and Barrier Effectiveness
+- `'muscles'` — Power and Qi Intensity
+- `'meridians'` — Qi Control and Artefact Power
+- `'dantian'` — Max Barrier, Max Qi Pool, and Qi Absorption
+- `'digestion'` — Toxicity Resistance and Item Effectiveness
+- `'eyes'` — Critical Chance and Critical Multiplier
+
+Social statistics:
+- `'charisma'` — Presence and shop prices
+- `'battlesense'` — Stance count and stance-switch power bonus
+- `'craftskill'` — Qi Control and Qi Intensity bonus
+- `'artefactslots'` — Number of equippable artefacts
+- `'talismanslots'` — Number of equippable talismans
+- `'condenseEfficiency'` — Qi to Qi Droplet conversion rate
+- `'pillsPerRound'` — Items usable per combat round
+- `'age'` — Current age
+- `'lifespan'` — Maximum lifespan
+
+**Use case**: Combat consumables that permanently enhance the player's physical or social attributes when used during a fight.
+
+**Example — a pill that permanently boosts muscles by 1:**
+
+```typescript
+{
+  kind: 'permanentStatChange',
+  stat: 'muscles',
+  amount: { value: 1, stat: undefined }
+}
+```
 
 ## Scaling System
 
@@ -409,7 +498,6 @@ amount: {
 }
 ```
 
-
 ## Element Resistance and Amplification
 
 When a technique has one or more element types, the target's resistance for each element is checked. The highest resistance value (positive or negative) is selected and applied to the damage:
@@ -429,7 +517,6 @@ The system selects the single most impactful resistance value, so mixing positiv
 
 This applies only when the technique has element types set. Techniques with no element type skip resistance checks entirely.
 
-## Damage Types
 ## Damage Types
 
 Special damage types bypass certain protections:
