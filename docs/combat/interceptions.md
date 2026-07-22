@@ -8,19 +8,55 @@ description: 'How buffs can intercept and modify other buffs'
 
 # Buff Interceptions
 
-The buff system includes a powerful interception mechanism that allows buffs to modify, replace, or cancel the application of other buffs.
+The buff system includes a powerful interception mechanism that allows buffs to intercept, modify, or cancel the application of other buffs.
 
 ## Interception Structure
 
-Interceptions are defined in the `interceptBuffEffects` array of a buff:
+Interceptions are defined in the `interceptBuffEffects` array of a buff. Each entry can match an incoming buff by name, by stat contribution, or both:
 
 ```typescript
 interceptBuffEffects?: {
-  buff: Buff;                    // The buff to intercept
-  effects: BuffEffect[];         // Effects to trigger instead
-  cancelApplication: boolean;    // Whether to prevent the original buff
+  /**
+   * Buffs this interceptor reacts to. Either a specific buff (matched by
+   * name) or leave it unset when only `statFilter` should drive matching.
+   */
+  buff?: Buff | string;
+  /**
+   * When set, this interceptor reacts to ANY incoming buff whose `stats`
+   * map evaluates to a non-zero contribution against any of these stats.
+   * Lets modders build category-wide rules (e.g. "intercept every buff that
+   * grants Power") without listing every applicable buff by name, so the
+   * interceptor can also catch buff names introduced by later mods.
+   *
+   * Can be combined with `buff` to broaden the criterion: an entry with
+   * both set matches an incoming buff when EITHER the name OR the stat
+   * filter is satisfied. At least one of `buff` / `statFilter` must be
+   * set, since an entry with neither matches nothing.
+   *
+   * Each listed stat is matched independently, so `['power', 'defense']`
+   * matches any buff contributing non-zero to Power OR Defense.
+   */
+  statFilter?: CombatStatistic[];
+  effects: BuffEffect[];
+  /**
+   * How many of the incoming stacks this interceptor blocks before the buff is
+   * applied. Evaluated once per application (NOT per stack) with `incoming` (the
+   * remaining incoming stack count) available. The blocked stacks are removed
+   * from the application, so `{ value: 9999 }` blocks all of them. Omit to block
+   * nothing (a pure listener that reacts without consuming any stacks).
+   *
+   * Either way the `effects` run exactly ONCE, with `intercepted` set to the
+   * number of stacks this interceptor handled (the blocked count, or the full
+   * incoming count for a pure listener), so an effect can scale itself per stack
+   * via `eqn: 'intercepted'` instead of the engine looping the effect per stack.
+   */
+  blockAmount?: Scaling;
 }[]
 ```
+
+**Migration from the old `cancelApplication` field:**
+- `cancelApplication: true` → set `blockAmount: { value: 9999 }` (blocks all stacks; effects fire once with `intercepted = incoming`)
+- `cancelApplication: false` → omit `blockAmount` entirely (effects fire as a pure listener without consuming any stacks)
 
 ## Real Example - Profane Exchange
 
@@ -54,7 +90,7 @@ export const profaneExchangeBuff: Buff = {
           damageType: 'true',
         },
       ],
-      cancelApplication: true, // Prevent the original buff
+      blockAmount: { value: 9999 }, // Block all incoming stacks — cancels the application
     },
   ],
 
@@ -86,24 +122,20 @@ A single buff can intercept multiple different buffs:
 interceptBuffEffects: [
   {
     buff: firstBuff,
-    effects: [
-      /* effects for first buff */
-    ],
-    cancelApplication: true,
+    effects: [/* effects for first buff */],
+    blockAmount: { value: 9999 }, // Block all — cancels the application
   },
   {
     buff: secondBuff,
-    effects: [
-      /* effects for second buff */
-    ],
-    cancelApplication: false, // Allow original buff but add effects
+    effects: [/* effects for second buff */],
+    // blockAmount omitted — pure listener, original buff still applies
   },
 ];
 ```
 
-### Partial Interception
+### Partial Interception (Listener Pattern)
 
-When `cancelApplication: false`, the original buff is still applied, but additional effects trigger:
+When `blockAmount` is omitted, the interceptor is a pure listener: the original buff still applies normally, but the effects also fire at the same time:
 
 ```typescript
 {
@@ -114,8 +146,41 @@ When `cancelApplication: false`, the original buff is still applied, but additio
       amount: { value: 0.1, stat: 'power' }
     }
   ],
-  cancelApplication: false  // Original buff applies + healing
+  // blockAmount omitted — original buff applies + bonus healing fires as a listener
 }
+```
+
+### Stat Filter — Category-Wide Interception
+
+Use `statFilter` to intercept any buff that grants a specific stat, without listing every buff by name:
+
+```typescript
+// Intercept every buff that grants Power (catches mod-added buffs too)
+interceptBuffEffects: [
+  {
+    statFilter: ['power'],
+    effects: [
+      {
+        kind: 'buffSelf',
+        buff: powerTracker,
+        amount: { value: 1, stat: undefined },
+      },
+    ],
+    blockAmount: { value: 9999 }, // Block the incoming buff entirely
+  },
+];
+```
+
+Combine `buff` and `statFilter` to broaden matching — a buff is intercepted when it matches **either** criterion:
+
+```typescript
+interceptBuffEffects: [
+  {
+    buff: specificDebuff,          // Match by name
+    statFilter: ['power'],         // OR match any buff that grants Power
+    effects: [/* intercept effects */],
+  },
+];
 ```
 
 ## Guardian Interception
@@ -208,7 +273,7 @@ interceptBuffEffects: [
         amount: { value: 2, stat: undefined }, // 1 incoming = 2 different
       },
     ],
-    cancelApplication: true,
+    blockAmount: { value: 9999 }, // Block the original application
   },
 ];
 ```
@@ -232,7 +297,7 @@ interceptBuffEffects: [
         },
       },
     ],
-    cancelApplication: true,
+    blockAmount: { value: 9999 },
   },
 ];
 ```
@@ -256,7 +321,7 @@ interceptBuffEffects: [
         amount: { value: 0.05, stat: 'maxhp' },
       },
     ],
-    cancelApplication: true,
+    blockAmount: { value: 9999 },
   },
 ];
 ```
