@@ -64,6 +64,13 @@ Access existing game content through `window.modAPI.gameData`:
 - **`craftingTechniques`** - `Record<string, CraftingTechnique>` - All crafting techniques
 - **`techniqueBuffs`** - School-specific technique buffs:
   - `blood`, `blossom`, `celestial`, `cloud`, `fist`, `weapon`
+- **`buffs`** - `Record<string, Buff>` - A flat registry of every combat `Buff` in the game, keyed by buff name, regardless of where it is defined. Buffs are gathered from combat techniques, items (corruption debuffs, pill effects, clothing/talisman/artefact/formation buffs), monster definitions, enchantments, and more. This is the general counterpart to `techniqueBuffs` (which only exposes a hand-picked set of the main school buffs): it lists buffs the same way `techniques` lists techniques. When two buffs share a name the first one wins. Read this to look up any buff definition at runtime:
+
+  ```typescript
+  const rot = window.modAPI.gameData.buffs['Rot'];
+  const stackingBuffs = Object.values(window.modAPI.gameData.buffs).filter((b) => b.canStack);
+  ```
+
 - **`guilds`** - `Record<string, Guild>` - All guilds
 - **`enchantments`** - `Enchantment[]` - All equipment enchantments
 - **`fallenStars`** - `FallenStar[]` - All fallen star events

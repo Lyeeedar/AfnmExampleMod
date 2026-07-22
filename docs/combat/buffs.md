@@ -49,15 +49,26 @@ interface Buff {
   onRoundEffects?: BuffEffect[]; // End of each round
 
   // Advanced mechanics
-  interceptBuffEffects?: InterceptEffect[]; // Intercept other buff applications
+  interceptBuffEffects?: {
+    /** The buff to intercept. Can also be a string buff name. Omit when using only statFilter. */
+    buff?: Buff | string;
+    /** Match any incoming buff that grants one of these stats. Catches mod-added buffs too. */
+    statFilter?: CombatStatistic[];
+    /** Effects to run when intercepted. Runs once per application regardless of stack count. */
+    effects: BuffEffect[];
+    /** Blocks this many incoming stacks. Omit for a pure listener (effects fire but the buff still applies). */
+    blockAmount?: Scaling;
+  }[]; // Intercept other buff applications
   triggeredBuffEffects?: TriggeredEffect[]; // Respond to custom triggers
   blockTriggerEffects?: BlockTriggerEffect[]; // Block specific triggers
   damageInterceptorEffects?: DamageInterceptorEffect[]; // Modify incoming damage
   techniqueAmplifierEffects?: TechniqueAmplifierEffect[]; // Amplify outgoing effects
   buffAmplifierEffects?: BuffAmplifierEffect[]; // Modify buff creation on self
-  condition?: TechniqueCondition; // When buff effects are active
+  condition?: TechniqueCondition; // When buff effects are active (see TechniqueCondition types for buff:'self' support)
   removeOnConditionFailed?: boolean; // Remove buff if condition stops being met
   allowTriggers?: boolean; // On TechniqueCondition: let triggers fire even when condition fails
+  /** Mastery upgrade key — scales the condition's count by the active technique mastery. */
+  upgradeKey?: string;
 
   // Multiple-instance support
   allowMultipleInstances?: boolean; // Keep independent copies instead of merging by name
