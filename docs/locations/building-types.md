@@ -53,6 +53,22 @@ Alchemy and item crafting:
 }
 ```
 
+A `CraftingBuilding` can optionally carry a `fixedCraftingRoom` to attach a special crafting facility directly to the furnace. The facility applies its buffs and spirit-stone cost per craft regardless of what house the player is in, so a location can offer a unique crafting environment without being a house. The optional `condition` field gates whether the facility is active:
+
+```typescript
+{
+  kind: 'crafting',
+  fixedCraftingRoom?: {
+    name: Translatable;
+    buffs: CraftingBuff[];
+    moneyCost: number;
+    condition?: string; // evaluated against game flags; facility only appears when truthy
+  };
+}
+```
+
+The `condition` is evaluated at render time by the recipe screen, so the furnace button remains visible while the facility is locked. Use this to unlock the crafting room after narrative progression. See the Forgelord's Crafting Chamber in the Wasteland Workshop for a reference implementation.
+
 ### Treasure Vault
 
 Banking and storage services:

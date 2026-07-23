@@ -24,7 +24,8 @@ interface RecipeItem {
 
   baseItem: Item;      // Basic-quality crafted result
   perfectItem: Item;   // Perfect-quality crafted result
-  sublimeItem?: Item;  // Optional sublime-quality crafted result
+  sublimeItem?: Item;  // Optional dedicated sublime result; required only when the sublime item differs from the perfect item
+  isSublimeCraft?: boolean; // Set to true when `perfectionEffectOverride: 'quality'` is used and the recipe does not declare a separate `sublimeItem`; the game falls back to upgrading `perfectItem` with the harmony augment
 
   realmProgress: 'Early' | 'Middle' | 'Late'; // Complexity within the realm
   difficulty: RecipeDifficulty;
