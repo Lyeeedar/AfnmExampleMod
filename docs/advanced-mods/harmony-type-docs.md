@@ -13,7 +13,7 @@ Harmony is one of the core features of the crafting system. In the base game, th
 window.modAPI.actions.addHarmonyType(harmonyType: RecipeHarmonyType, config: HarmonyTypeConfig)
 ```
 
-- **harmonyType**: A unique string identifier for your harmony type (e.g., `'elemental'`, `'temporal'`, `'chaos'`). Note, as you are adding new and unknown harmony types you need to tell the compiler this is the case, by 'casting' the string to the RecipeHarmonyType `'elemental' as RecipeHarmonyType`
+- **harmonyType**: A unique string identifier for your harmony type (e.g., 'elemental', 'temporal', 'chaos'). Note, as you are adding new and unknown harmony types you need to tell the compiler this is the case, by 'casting' the string to the RecipeHarmonyType 'elemental' as RecipeHarmonyType
 - **config**: An object containing all configuration for the harmony type:
 
 ## HarmonyTypeConfig Fields
@@ -21,7 +21,7 @@ window.modAPI.actions.addHarmonyType(harmonyType: RecipeHarmonyType, config: Har
 ### 1. `name` (string, required)
 The display name of your harmony type shown to players.
 
-**Example:** `"Elemental Balance"`
+**Example:** "Elemental Balance"
 
 ### 2. `description` (string, required)
 HTML-formatted description explaining the harmony mechanics to players. Supports special formatting tags:
@@ -41,7 +41,7 @@ description: `Balance the elements to maintain <name>Harmony</name>.
 ```
 
 ### 3. `processEffect` (function, required)
-Called after each crafting technique is executed. This is where you implement the core mechanics.
+Called once per crafting technique execution, after the technique's effects have been applied. Use this to implement per-technique harmony mechanics.
 
 **Function Signature:**
 ```typescript
@@ -68,7 +68,44 @@ processEffect: (
 - Log messages to `state.craftingLog`
 - Set `harmonyData.recommendedTechniqueTypes` to guide the player on the best crafting action types to use next (if relevant)
 
-### 4. `initEffect` (function, required)
+### 4. `onBarChange` (function, optional)
+Fired after every individual completion or perfection change during a technique's execution. Use this for per-instance reactions, such as scoring harmony rewards or penalties each time a bar moves, rather than once at end of turn. Omit if your harmony only cares about end-of-turn state.
+
+**Function Signature:**
+```typescript
+onBarChange?: (
+  bar: 'completion' | 'perfection',
+  harmonyData: HarmonyData,
+  progressState: ProgressState,
+  entity: CraftingEntity,
+  state: CraftingState
+) => void
+```
+
+**Parameters:**
+- `bar`: Which bar changed (`'completion'` or `'perfection'`)
+- `harmonyData`: Your harmony type's data object (same as in `processEffect`)
+- `progressState`: Current crafting progress
+- `entity`: Player's crafting entity
+- `state`: Overall crafting state
+
+**Example — scoring per-bar instead of per-technique:**
+```typescript
+onBarChange: (bar, harmonyData, progressState, entity, state) => {
+  // Award +5 harmony each time the focused bar rises
+  const data = harmonyData.additionalData;
+  if (bar === data.focusedBar) {
+    progressState.harmony += 5;
+    state.craftingLog.push('Eccentric Decree: focused bar advanced. +5 harmony');
+  } else {
+    progressState.harmony -= 5;
+    entity.stats.pool -= 5;
+    state.craftingLog.push('Eccentric Decree: other bar advanced. -5 harmony, -5 Qi Pool');
+  }
+},
+```
+
+### 5. `initEffect` (function, required)
 Called once when crafting begins to initialize your harmony type.
 
 **Function Signature:**
@@ -81,7 +118,7 @@ initEffect: (harmonyData: HarmonyData, entity: CraftingEntity) => void
 - Apply starting buffs to the entity
 - Set initial recommended techniques
 
-### 5. `renderComponent` (function, required)
+### 6. `renderComponent` (function, required)
 Returns a React component to display your harmony's visual state during crafting.
 
 **Function Signature:**
@@ -202,20 +239,19 @@ window.modAPI.actions.addHarmonyType('elemental', {
 
     return (
        <Box display="flex" mt={5.2} position="relative" justifyContent="center" id="elemental">
-        {/* Fit to the bounds of the cauldron. These are the magic numbers for width/height used in the game */}
+        {/* Fit to the bounds of the cauldron */}
         <Box
           width="calc(min(35vw, 35vh))"
           height="calc(min(35vw, 35vh))"
           position="relative"
           sx={{ overflow: 'visible' }}
         >
-           {/* The internal box that your styling should sit within, to prevent it going outside the bounds. zIndex is to ensure it renders over the cauldron */}
           <Box
             display="flex"
             position="absolute"
             sx={{ zIndex: 21, top: 0, left: 0, width: '100%', height: '100%' }}
           >
-            {/* Fire meter, absolutely positioned on the left */}
+            {/* Fire meter */}
             <Box
               flex={1}
               display="flex"
@@ -242,7 +278,7 @@ window.modAPI.actions.addHarmonyType('elemental', {
               </Box>
             </Box>
 
-            {/* Water meter, absolutely positioned on the right*/}
+            {/* Water meter */}
             <Box
               flex={1}
               display="flex"
@@ -269,15 +305,15 @@ window.modAPI.actions.addHarmonyType('elemental', {
               </Box>
             </Box>
 
-            {/* Custom border image overlay. The width/height/top/left are the magic numbers used in the game, but tweak to position your custom image perfectly */}
+            {/* Custom border image overlay */}
             <Box
               position="absolute"
-              width={`128%`}
-              height={`122%`}
-              top={`-6.5%`}
-              left={`-14%`}
+              width="128%"
+              height="122%"
+              top="-6.5%"
+              left="-14%"
               sx={{
-                backgroundImage: `url(${{ '{' }}${safeUrlEncode(elementalImg)}})`, 
+                backgroundImage: `url(${safeUrlEncode(elementalImg)})`,
                 backgroundSize: 'contain',
                 backgroundRepeat: 'no-repeat',
                 backgroundPosition: 'center',
@@ -318,16 +354,17 @@ const elementalRecipe: RecipeItem = {
 
 1. **Balance Risk/Reward**: Higher harmony bonuses should require more skill or risk
 2. **Clear Visual Feedback**: Your render component should clearly show the current state
-3. **Informative Logging**: Use `state.craftingLog.push()` to explain what's happening
+3. **Informative Logging**: Use `state.craftingLog.push()` to explain what is happening
 4. **Buff Management**: Always filter out old buffs before applying new ones with the same name
 5. **Recommended Techniques**: Use `harmonyData.recommendedTechniqueTypes` to guide players
+6. **Per-bar Reactions**: Use `onBarChange` when you need to react to individual bar changes, not just end-of-turn state
 
 ## Utility Functions
 
 Common utilities available in harmony implementations:
 
 ```typescript
-// Color formatting for logs
+// Colour formatting for logs
 const col = (content, color) => `<span style="color: ${color}">${content}</span>`;
 
 // Technique type formatting

@@ -492,6 +492,28 @@ condition: {
 }
 ```
 
+**Available stance condition variables:**
+- `formationPartRecovery` - Formation Part Recovery stat (integer)
+- `pillReplication` - Pill Replication stat (integer, added in #7777)
+- `missingQiDroplets` - Missing Qi Droplets stat (integer)
+- `round` - Current combat round (1-based; 0 before round 1)
+
+Variables can be used in comparisons and as right-hand values in `valueBuff` multipliers:
+
+```typescript
+// Require at least 2 Pill Replication stacks
+{ condition: 'Pill Replication', check: '>=', value: 2 }
+
+// Scale a requirement by twice the Pill Replication stat
+{
+  condition: 'Formation Part Recovery',
+  check: '>=',
+  value: 0,
+  valueBuff: 'Pill Replication',
+  valueMultiplier: 2
+}
+```
+
 ### Chance Conditions
 
 ```typescript
