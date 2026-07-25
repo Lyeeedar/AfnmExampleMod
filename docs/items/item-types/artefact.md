@@ -159,6 +159,9 @@ interface ArtefactTechnique {
   icon: string;
   tooltip?: string;
   effects: TechniqueEffect[];
+  /** Technique index within the artefact stance. Controls ordering when techniques
+   *  are sorted by slot. Unnecessary for manual stance construction. */
+  i?: number;
 }
 ```
 
@@ -172,4 +175,3 @@ interface ArtefactEnchantment extends Enchantment {
   buffs?: { buff: Buff; buffStacks: Scaling }[];
   restoredDroplets?: number;
 }
-```

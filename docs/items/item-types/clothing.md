@@ -19,7 +19,7 @@ interface ClothingItem extends ItemBase {
   qiAbsorption?: number;
   masteryPoints?: number;
   stats: Partial<CombatStatsMap>;
-  buffs?: { buff: Buff; buffStacks: Scaling; condition?: Condition }[];
+  buffs?: { buff: Buff; buffStacks: Scaling }[];
 }
 ```
 
@@ -29,7 +29,7 @@ interface ClothingItem extends ItemBase {
 - **charisma**: Social stat bonus
 - **qiAbsorption**: Optional qi regeneration boost
 - **masteryPoints**: Optional bonus points when mastering techniques / actions
-- **buffs**: Buffs to give at the start of each combat. Each entry can optionally include a `condition` that must be met for the buff to be applied
+- **buffs**: Buffs to give at the start of each combat
 
 ## Examples
 
@@ -103,45 +103,6 @@ export const fistMastersRegalia: ClothingItem = {
   rarity: 'empowered',
   realm: 'pillarCreation',
 };
-
-// Clothing with a conditional buff
-export const meteorfallMantle: ClothingItem = {
-  kind: 'clothing',
-  charisma: window.modAPI.utils.getClothingCharisma('lifeFlourishing', 0.8),
-  stats: {
-    defense: window.modAPI.utils.getClothingDefense('lifeFlourishing', 0.5),
-    barrierMitigation: 6,
-    celestialBoost: 20,
-  },
-  buffs: [{
-    buff: {
-      name: 'Meteorfall Mantle',
-      icon: iconAsset,
-      canStack: false,
-      stats: undefined,
-      tooltip: `At the start of each round, if Sunlight and Moonlight are equal then summon a Meteor.`,
-      onRoundStartEffects: [
-        {
-          kind: 'buffSelf',
-          condition: {
-            kind: 'condition',
-            condition: `${sunlight.name} == ${moonlight.name}`,
-          },
-          buff: meteor,
-          amount: { value: 1, stat: undefined },
-        },
-      ],
-      stacks: 1,
-    },
-    buffStacks: { value: 1, stat: undefined },
-  }],
-  name: 'Meteorfall Mantle',
-  description: 'Mantle associated with celestial cultivators who pursue meteors aggressively.',
-  icon: iconAsset,
-  stacks: 1,
-  rarity: 'empowered',
-  realm: 'lifeFlourishing',
-};
 ```
 
 ## Enchantments
@@ -158,4 +119,3 @@ interface ClothingEnchantment extends Enchantment {
   restoredDroplets?: number;
   buffs?: { buff: Buff; buffStacks: Scaling }[];
 }
-```
