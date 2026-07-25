@@ -136,6 +136,7 @@ renderComponent: (harmonyData: HarmonyData) => ReactNode
 
 ## Complete Example
 
+{% raw %}
 ```typescript
 window.modAPI.actions.addHarmonyType('elemental', {
   name: 'Elemental Balance',
@@ -328,6 +329,7 @@ window.modAPI.actions.addHarmonyType('elemental', {
   }
 });
 ```
+{% endraw %}
 
 ## Item Type Mapping
 

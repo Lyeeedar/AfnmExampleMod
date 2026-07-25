@@ -1112,11 +1112,12 @@ window.modAPI.utils.expandTooltipTags(template: string): string
 ```
 
 - **`parseTooltipLine`** — Parse a tooltip string and return a React node with styled formatting. Handles colour tags, element tags, buff/item references, and numbers.
-- **`expandTooltipTemplate`** — Expand a template string by replacing `{{key}}` placeholders with values from the map. Optionally appends a period.
+- **`expandTooltipTemplate`** — Expand a template string by replacing {% raw %}`{{key}}`{% endraw %} placeholders with values from the map. Optionally appends a period.
 - **`expandTooltipTags`** — Expand `<tag>` syntax in a template string to their display equivalents.
 
 These utilities use the same formatting system as the game's built-in tooltips, ensuring consistent styling when you render custom tooltips in mod UI.
 
+{% raw %}
 ```typescript
 // Styled tooltip output for a custom buff display
 const tooltipNode = window.modAPI.utils.parseTooltipLine('Applies [[blood corruption]] to target for 3 turns');
@@ -1128,6 +1129,7 @@ const expanded = window.modAPI.utils.expandTooltipTemplate(
   true,
 );
 ```
+{% endraw %}
 
 ### Text Formatting
 
