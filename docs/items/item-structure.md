@@ -42,7 +42,7 @@ interface ItemHarmonyUpgrade {
   upgradeKey: string;      // Identifier matching upgradeKey on tagged fields
   change: number;          // Amount to add, or multiplier when shouldMultiply is true
   shouldMultiply?: boolean; // If true, value += value * change (percentage increase)
-  tooltip: Translatable;  // Description of the upgrade
+  tooltip: Translatable;   // Description of the upgrade
   exclusive?: boolean;     // When true, this upgrade cannot be borrowed by other harmonies
 }
 ```
@@ -189,7 +189,7 @@ dropHarmonies: [],
 
 ## Item Categories
 
-AFNM supports 35 distinct item categories:
+AFNM supports 36 distinct item categories:
 
 ### Equipment Types
 
@@ -200,6 +200,7 @@ AFNM supports 35 distinct item categories:
 'cauldron'; // Alchemy equipment
 'flame'; // Crafting heat sources
 'mount'; // Transportation items
+'ore_extractor'; // Mine ore extraction devices
 ```
 
 ### Consumable Types

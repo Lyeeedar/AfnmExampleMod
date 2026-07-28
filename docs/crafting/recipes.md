@@ -81,6 +81,17 @@ Set `perfectionEffectOverride` to `'quality'` to make perfection affect the qual
 perfectionEffectOverride: 'quality';
 ```
 
+## Ingredient Variant Matching
+
+Many items in the game exist in three quality tiers: base (normal), Perfect (`+`), and Sublime (` S`). Recipe ingredients are specified by their **base name only** (e.g. `"Empowered Fusing Cauldron (V)"`), but the crafting system automatically matches all three tiers when checking and consuming ingredients.
+
+For example, a recipe requiring `Ironwood Bark` accepts:
+- `Ironwood Bark` (base)
+- `Ironwood Bark+` (Perfect)
+- `Ironwood Bark S` (Sublime)
+
+The matching uses the base name without any quality suffix, so higher-tier variants can always be used as substitutes for lower-tier requirements. This applies both to availability checks (the recipe is craftable if you hold any variant) and to ingredient consumption (any variant in inventory or storage can satisfy the cost).
+
 ## Registering Recipes via the Mod API
 
 ### Add to the Sect Recipe Library
