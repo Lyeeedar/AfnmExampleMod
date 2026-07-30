@@ -279,7 +279,7 @@ const MyScreen: ModScreenFC = ({ screenAPI }) => {
   return (
     <Box position="relative" flexGrow={1} display="flex" flexDirection="column">
       <BackgroundImage image="town.png" />
-      <GameDialog title="My Screen" onClose={() => actions.setScreen('location')}>
+      <GameDialog id="my-screen" title="My Screen" onClose={() => actions.setScreen('location')}>
         <Typography>Hello, {player.forename}!</Typography>
         <GameButton onClick={() => actions.changeMoney(100)}>Get Stones</GameButton>
       </GameDialog>
@@ -1254,6 +1254,7 @@ Main content container with built-in title and close button:
 
 ```typescript
 <GameDialog
+  id="my-dialog"  // Required. Unique identifier for this dialog
   title="Dialog Title"
   onClose={() => actions.setScreen('location')}  // Omit to disable close button
   removePad={false}

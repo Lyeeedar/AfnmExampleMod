@@ -89,7 +89,7 @@ const { GameDialog, GameButton, BackgroundImage, PlayerComponent } = components;
 
 // Use these instead of raw HTML or unstyled components
 <GameButton onClick={handleClick}>My Button</GameButton>
-<GameDialog title="My Dialog">Dialog content</GameDialog>
+<GameDialog id="my-dialog" title="My Dialog">Dialog content</GameDialog>
 ```
 
 ## Standard Screen Layout
@@ -112,7 +112,7 @@ export const MyModScreen: ModScreenFC = ({ screenAPI }) => {
       <BackgroundImage image="path/to/background.png" screenEffect="sun"  />
 
       {/* Main content dialog */}
-      <GameDialog title="My Screen" onClose={() => actions.setScreen('location')}>
+      <GameDialog id="my-mod-screen" title="My Screen" onClose={() => actions.setScreen('location')}>
         {/* Your screen content goes here */}
       </GameDialog>
 
@@ -165,6 +165,7 @@ export const SimpleWelcomeScreen: ModScreenFC = ({ screenAPI }) => {
 
       {/* Main dialog */}
       <GameDialog
+        id="simple-welcome-screen"
         title="Welcome Screen"
         onClose={() => actions.setScreen('location')}
       >
@@ -297,6 +298,7 @@ The main container for your screen content:
 
 ```typescript
 <GameDialog
+  id="my-dialog"           // Required. Unique identifier for this dialog
   title="Dialog Title"
   onClose={() => actions.setScreen('location')}  // Close handler. Omit to disable the close button
   removePad={false}        // Remove default padding
@@ -382,7 +384,7 @@ export const ShopScreen: ModScreenFC = ({ screenAPI }) => {
   };
 
   return (
-    <GameDialog title="Shop" onClose={() => actions.setScreen('location')}>
+    <GameDialog id="shop-screen" title="Shop" onClose={() => actions.setScreen('location')}>
       {/* Shop interface */}
       {showConfirmation && (
         <Box>
@@ -414,7 +416,7 @@ export const GuildScreen: ModScreenFC = ({ screenAPI }) => {
   const meetsPrestigeRequirement = (player.socialStats.prestige ?? 0) >= 3;
 
   return (
-    <GameDialog title="Cultivator Guild" onClose={() => actions.setScreen('location')}>
+    <GameDialog id="guild-screen" title="Cultivator Guild" onClose={() => actions.setScreen('location')}>
       {!isGuildMember ? (
         // Not a member - show join option
         <Box>
@@ -471,7 +473,7 @@ export const NamingScreen: ModScreenFC = ({ screenAPI }) => {
   };
 
   return (
-    <GameDialog title="Name Your Pet" onClose={() => actions.setScreen('location')}>
+    <GameDialog id="pet-naming-screen" title="Name Your Pet" onClose={() => actions.setScreen('location')}>
       <TextField
         value={petName}
         onChange={(e) => setPetName(e.target.value)}
