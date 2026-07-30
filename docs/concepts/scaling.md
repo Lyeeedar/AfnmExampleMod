@@ -57,13 +57,20 @@ The `stat` field accepts any **combat statistic**, **crafting statistic**, **phy
 
 ### Evaluation Formula
 
-The system follows a predictable pattern: **Base x Stat x Scaling x Equation + Additive**
+The system resolves fields in this fixed order, each layer multiplying or adding onto the result of the previous:
 
 ```
-Final Value = (value x [stat] x [scaling] x [eqn result]) + [additiveEqn result]
+output = value
+output *= stat                          // if stat is set
+output *= scalingValue                  // if scaling is set; bounded by scalingMax if present
+output *= eqn                           // if eqn is set
+output *= (1 + itemEffectiveness * 0.01) // if isItem is true
+output *= (1 + customScaling.multiplier * customScalingValue) // if customScaling is set
+output += additiveEqn                  // if additiveEqn is set
+output = apply max cap                 // if max is set
 ```
 
-Each component is optional, allowing for simple flat values or complex multi-variable calculations.
+The key implication is that `isItem` and `customScaling` are applied **after** `eqn`, meaning they compound on top of any equation-based multiplier rather than being part of it.
 
 ## Deep Dive: Scaling Patterns
 
@@ -321,6 +328,27 @@ stats: {
   stat: 'power',
   scaling: flow.name,
   increment: 5  // First hit costs current stacks; second costs stacks+5; third costs stacks+10; etc.
+}
+```
+
+### Pattern 10: Item-Effectiveness Scaling
+
+**When to use**: Consumables (pills, concoctions, formation parts) where the effect should scale with the item's quality tier.
+
+```typescript
+// A healing pill that benefits from item effectiveness
+{
+  value: 500,
+  stat: undefined,
+  isItem: true  // Multiplies by (1 + itemEffectiveness * 0.01)
+}
+
+// A formation part that scales with both artefactpower and item effectiveness
+{
+  value: 1,
+  stat: 'artefactpower',
+  eqn: '1 + (itemEffectiveness * 0.01)',
+  isItem: true
 }
 ```
 

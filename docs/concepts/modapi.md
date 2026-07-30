@@ -86,7 +86,6 @@ Access existing game content through `window.modAPI.gameData`:
 - **`researchableMap`** - `Record<string, RecipeItem[]>` - Maps base item keys to researchable recipes
 - **`recipeConditionEffects`** - `RecipeConditionEffect[]` - All crafting condition effects
 - **`harmonyConfigs`** - `Record<RecipeHarmonyType, HarmonyTypeConfig>` - Harmony type configurations
-- **`itemTypeToHarmonyType`** - `Record<ItemKind, RecipeHarmonyType>` - Maps item kinds to harmony types
 - **`tutorials`** - Tutorial system data:
   - `newGameTutorials: Tutorial[]` — Base game tutorials played during a new game
   - `tutorialTriggers: TriggeredEvent[]` — Triggered events forming the opening sequence
