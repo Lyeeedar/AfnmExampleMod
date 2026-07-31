@@ -15,6 +15,72 @@ The Tournament Step creates structured competitive events where the player parti
 
 The system automatically manages tournament bracket progression, opponent selection from participant pools, and handles victory/defeat outcomes at different stages including first place, second place, and elimination scenarios.
 
+## Supporting Types
+
+### TournamentRewardTier
+
+Describes one rung of a tournament's placement-reward ladder. Tiers are cumulative: a champion (rank 1) collects every tier.
+
+```typescript
+interface TournamentRewardTier {
+  /** Best final rank still awarded this tier (e.g. 8 = top eight, 1 = champion only). */
+  placementMin: number;
+  /** Spirit stones awarded. */
+  money?: number;
+  /** Items awarded; each entry's `stacks` is the quantity (defaults to 1). */
+  items: ItemDesc[];
+}
+```
+
+### TournamentIntroEntry
+
+One conditional announcer line for a tournament's opening. The `condition` is a flag expression evaluated the same way event `condition`s are.
+
+```typescript
+interface TournamentIntroEntry {
+  /** Flag expression; the entry applies when it evaluates truthy. */
+  condition: string;
+  /** A few announcer variants; one is picked. `{player}` and `{n}` fill at play time. */
+  lines: string[];
+  /** Optional flag whose value fills `{n}` in the lines (e.g. a win count). */
+  countFlag?: string;
+}
+```
+
+### TournamentIntro
+
+A tournament's announcer opening: the strongest matching credential, then an optional flavour line.
+
+```typescript
+interface TournamentIntro {
+  /** Credentials, most impressive first; the first whose condition holds is spoken. */
+  credentials: TournamentIntroEntry[];
+  /** Optional flavour (e.g. how far under the field's realm), spoken after the credential. */
+  flavour?: TournamentIntroEntry[];
+}
+```
+
+### TournamentCrowdChatter
+
+Extra crowd chatter for one tournament, mixed into the shared pools rather than replacing them. Each field feeds the pool of the same name.
+
+```typescript
+interface TournamentCrowdChatter {
+  /** Idle gossip with no fighter named. */
+  generic?: string[];
+  /** Idle gossip naming a live fighter, via `{fighter}`. */
+  fighter?: string[];
+  /** Short shouts answering an announcer call. */
+  hype?: string[];
+  /** Idle gossip once the field is down to four. */
+  semi?: string[];
+  /** Idle gossip once the field is down to two. */
+  final?: string[];
+  /** Idle gossip once a champion is crowned, via `{champion}`. */
+  champion?: string[];
+}
+```
+
 ## Interface
 
 ```typescript
@@ -29,6 +95,23 @@ interface TournamentStep {
   victory: EventStep[];
   secondPlace?: EventStep[];
   defeat: EventStep[];
+  /** The announcer's opening credentials for this tournament, reacting to the player's record. */
+  announcerIntro?: TournamentIntro;
+  /**
+   * Stable, non-translated key identifying this tournament. Harvested player
+   * builds are stored and looked up under it.
+   */
+  tournamentKey?: string;
+  /**
+   * Spirit stones this tournament charged at the registration booth, matching the `money` step
+   * the entry choice deducts. The prize displays read purses against it, so a haul shows as a
+   * multiple of what the player paid to walk in. Omitted where entry is free (story bouts).
+   */
+  entryFee?: number;
+  /** Placement-reward ladder for this tournament (paid cumulatively by final placement). */
+  rewards?: TournamentRewardTier[];
+  /** Occasion-specific crowd lines, mixed into the shared chatter pools. */
+  crowdChatter?: TournamentCrowdChatter;
 }
 ```
 
@@ -95,6 +178,38 @@ interface TournamentStep {
 - Event steps executed when player reaches the final match but loses
 - Provides distinct narrative and rewards for getting second place
 - If not specified, `defeat` steps are used for final match losses
+
+**`announcerIntro`** - Announcer opening
+
+- `TournamentIntro` describing the announcer's credential lines and optional flavour
+- Each `credentials` entry's `condition` is evaluated as a flag expression; the first match is spoken
+- The `{player}` placeholder fills with the player's name at play time
+- Use `countFlag` to fill `{n}` in lines with a flag value (e.g. a win count)
+
+**`tournamentKey`** - Stable tournament identifier
+
+- Non-translated string key identifying this tournament
+- Player builds harvested by the system are stored and looked up under this key
+- Omit for one-off story tournaments where build storage is not needed
+
+**`entryFee`** - Registration cost
+
+- Spirit stones deducted at the registration choice
+- The prize display reads winnings as a multiple of this fee
+- Omit for free-entry story bouts
+
+**`rewards`** - Placement-reward ladder
+
+- Array of `TournamentRewardTier` sorted by decreasing `placementMin`
+- Each tier is awarded cumulatively by final placement: rank 1 gets every tier
+- `placementMin` is the best rank that still earns that tier (e.g. 8 = top 8, 1 = champion only)
+- `money` and `items` fields on each tier specify the payout for that tier
+
+**`crowdChatter`** - Occasion-specific crowd lines
+
+- `TournamentCrowdChatter` mixed into the shared crowd line pools
+- Each populated field adds to the pool of the same name (`generic`, `fighter`, `hype`, `semi`, `final`, `champion`)
+- Template placeholders `{fighter}` and `{champion}` fill with fighter/champion names at play time
 
 ## Basic Examples
 
@@ -200,51 +315,52 @@ interface TournamentStep {
 }
 ```
 
-### Tournament with Named Character
+### Tournament with Rewards and Announcer
 
 ```typescript
 {
   kind: 'tournament',
-  title: 'Championship Finals',
-  participantPool: [
-    ...tournamentEliteParticipants
+  title: 'Shen Henda Arena Open',
+  tournamentKey: 'shenHendaArenaOpen',
+  entryFee: 500,
+  announcerIntro: {
+    credentials: [
+      {
+        condition: 'shenHendaArenaOpen_wins >= 3',
+        lines: [
+          '{player} returns to the Shen Henda Arena with {n} prior victories under their belt.',
+        ],
+        countFlag: 'shenHendaArenaOpen_wins',
+      },
+      {
+        condition: 'realm >= coreFormation',
+        lines: [
+          'A Core Formation cultivator enters the arena. The field will have their hands full.',
+        ],
+      },
+      {
+        condition: 'true',
+        lines: [
+          'A new challenger steps into the Shen Henda Arena. Let the competition begin!',
+        ],
+      },
+    ],
+  },
+  rewards: [
+    { placementMin: 1, money: 5000, items: [{ name: 'Champion\'s Seal' }] },
+    { placementMin: 2, money: 2000, items: [{ name: 'Finalist Medal' }] },
+    { placementMin: 8, items: [{ name: 'Participation Ribbon' }] },
   ],
-  participantCharacters: ['Lingxi Gian'], // Add specific rival
+  participantPool: arenaCompetitors,
   participantBuffs: [],
-  guaranteedWinner: 'Lingxi Gian', // Ensures dramatic final confrontation
   victory: [
-    {
-      kind: 'text',
-      text: 'In an intense final battle, you manage to overcome Lingxi Gian\'s formidable cloud techniques. She nods with grudging respect.'
-    },
-    {
-      kind: 'speech',
-      character: 'Lingxi Gian',
-      text: '"Impressive. You have earned this victory. Perhaps I misjudged your potential."'
-    },
-    {
-      kind: 'approval',
-      character: 'Lingxi Gian',
-      amount: '2'
-    }
-  ],
-  secondPlace: [
-    {
-      kind: 'text',
-      text: 'You fight with all your might, but cannot prevail against Lingxi\'s overwhelming power. Still, reaching the finals against such an opponent is an achievement.'
-    },
-    {
-      kind: 'speech',
-      character: 'Lingxi Gian',
-      text: '"You showed more skill than I expected. Continue your cultivation and perhaps next time will be different."'
-    }
+    { kind: 'money', amount: '5000' },
+    { kind: 'text', text: 'You are crowned Shen Henda Arena Champion!' },
   ],
   defeat: [
-    {
-      kind: 'text',
-      text: 'You are eliminated before reaching the finals, but the tournament has shown you areas where your cultivation must improve.'
-    }
-  ]
+    { kind: 'money', amount: '500' },
+    { kind: 'text', text: 'You were eliminated before the finals.' },
+  ],
 }
 ```
 
@@ -281,3 +397,20 @@ Tournament results trigger different event sequences:
 - **Victory**: Player wins finals → `victory` steps
 - **Second Place**: Player loses finals → `secondPlace` steps (if provided) or `defeat` steps
 - **Elimination**: Player loses before finals → `defeat` steps
+
+---
+
+## Summary
+
+The Tournament Step enables developers to create bracket-style competitions with three distinct outcomes: victory (first place), second place (reaching finals but losing), and defeat (elimination before finals). Key configuration options include:
+
+- **`participantPool`** and **`participantCharacters`**: Define who competes
+- **`guaranteedWinner`**: Ensures a specific character reaches the finals for dramatic confrontations
+- **`participantBuffs`**: Apply modifiers during all tournament matches
+- **`victory`**, **`secondPlace`**, and **`defeat`**: Define narrative and rewards for each outcome
+- **`announcerIntro`**: Custom announcer opening lines reacting to the player's record
+- **`entryFee`** and **`rewards`**: Configure paid entry and a cumulative reward ladder by placement
+- **`crowdChatter`**: Add occasion-specific crowd lines to the shared pools
+- **`tournamentKey`**: Stable key for storing harvested player builds across runs
+
+The system handles bracket generation and progression automatically, requiring only the configuration of opponents and outcomes.
