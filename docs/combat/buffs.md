@@ -67,7 +67,7 @@ interface Buff {
   condition?: TechniqueCondition; // When buff effects are active (see TechniqueCondition types for buff:'self' support)
   removeOnConditionFailed?: boolean; // Remove buff if condition stops being met
   allowTriggers?: boolean; // On TechniqueCondition: let triggers fire even when condition fails
-  /** Mastery upgrade key — scales the condition's count by the active technique mastery. */
+  /** Mastery upgrade key -- scales the condition's count by the active technique mastery. */
   upgradeKey?: string;
 
   // Multiple-instance support
@@ -91,6 +91,16 @@ interface Buff {
   charisma?: number; // NPC relationship modifier
   masteryPoints?: number; // Technique mastery points granted
   speed?: number; // Turn order modifier
+  /** Marks this buff as a finisher for boost purposes. Effects gain <n>finisherBoost</n>. */
+  isFinisher?: boolean;
+  /**
+   * Strips the holder's barrier once combat has finished setting up, after the
+   * Meridian barrier fill and every `onCombatStartEffects` have run. Use for buffs
+   * that turn the holder's own barrier against them. They must never open a fight
+   * holding any barrier.
+   */
+  removeBarrierOnCombatStart?: boolean;
+  enhancement?: number;
 
   // Guardian (sub-entity HP pool)
   guardianIntercept?: {
@@ -301,7 +311,7 @@ The `tooltip` field on a buff supports dynamic placeholders that resolve at rend
 The placeholder key is determined by the effect kind. For `damageSelf`, use `{damageSelf.amount}`. For `damage` (enemy damage), use `{damage.amount}`. The key is the effect's `kind` value followed by `.amount`:
 
 ```typescript
-// onRoundEffects using damageSelf — tooltip must use {damageSelf.amount}
+// onRoundEffects using damageSelf -- tooltip must use {damageSelf.amount}
 onRoundEffects: [
   {
     kind: 'damageSelf',
