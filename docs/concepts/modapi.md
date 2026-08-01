@@ -564,7 +564,7 @@ window.modAPI.hooks.onCreatePlayerCombatEntity((player, combatEntity, breakthrou
 ```
 
 - **`player`** — The `PlayerEntity` from the Redux store
-- **`combatEntity`** — The newly created `CombatEntity` for the player
+- **`combatEntity`** — The newly created `CombatEntity` for the player. The player’s `meridians` stat is carried onto the combat entity here (via the `meridians` field), so it can be modified before combat starts. The value is set automatically based on `player.meridians`.
 - **`breakthrough`** — The current `BreakthroughState` (realm and progress)
 - **`flags`** — Current game flags
 
@@ -717,6 +717,8 @@ window.modAPI.hooks.onCreateEnemyCombatEntity((enemy, combatEntity, flags) => {
   return combatEntity;
 });
 ```
+
+- **`combatEntity`** — The newly created `CombatEntity`. For character enemies (cultivators and other player-equivalent NPCs), the `meridians` field is populated using the expected meridian value for their realm, so the combat entity opens with the correct starting barrier. Regular mobs leave `meridians` unset.
 
 #### `onBeforeCombat`
 
