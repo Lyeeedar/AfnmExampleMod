@@ -1244,8 +1244,56 @@ const craftingEntity = window.modAPI.utils.createPlayerCraftingEntity(player, br
 
 The `ModReduxAPI.components` object provides pre-styled UI components for use in mod screens, injected UI, and options panels:
 
+
+## Components
+
+The `ModReduxAPI.components` object provides pre-styled UI components for use in mod screens, injected UI, and options panels. It also exposes the full set of game tooltip variants and recipe display components under `api.components.tooltips` and `api.components.recipes`:
+
 ```typescript
-const { GameDialog, GameButton, GameIconButton, BackgroundImage, PlayerComponent, GameTooltip, GameTooltipBox, TooltipLine } = api.components;
+// Core layout and base components
+const { ItemComponent, GameDialog, GameButton, GameIconButton, BackgroundImage, PlayerComponent } = api.components;
+
+// Game tooltip variants — use these instead of re-implementing from GameTooltip primitives
+const tooltips = api.components.tooltips;
+// tooltips.ItemTooltip, tooltips.ItemTooltipWithLocation, tooltips.ItemHeaderComponent,
+// tooltips.BuffTooltip, tooltips.ArtefactTooltip, tooltips.CondensationArtTooltip,
+// tooltips.CraftingActionItemTooltip, tooltips.CraftingBuffTooltip, tooltips.CraftingConditionTooltip,
+// tooltips.CraftingEquipmentTooltip, tooltips.CraftingEquipmentEnchantmentTooltip,
+// tooltips.CraftingReagentTooltip, tooltips.CraftingTechniqueTooltip,
+// tooltips.CraftingTechniqueMasteryTooltip, tooltips.ElixirTooltip, tooltips.PillTooltip,
+// tooltips.ConcoctionTooltip, tooltips.TechniqueTooltip,
+// tooltips.TechniqueCrystalTooltip, tooltips.TechniqueItemTooltip, tooltips.TechniqueMasteryTooltip,
+// tooltips.TechniqueShardTooltip, tooltips.BlueprintTooltip, tooltips.CharacterTooltip,
+// tooltips.DestinyTooltip, tooltips.ManualTooltip, tooltips.BackgroundTooltip,
+// tooltips.MountTooltip, tooltips.MountEnchantmentTooltip, tooltips.ClothingTooltip,
+// tooltips.ClothingEnchantmentTooltip, tooltips.TalismanTooltip, tooltips.TalismanEnchantmentTooltip,
+// tooltips.ArtefactEnchantmentTooltip, tooltips.ArtefactTechniqueTooltip,
+// tooltips.CondensationArtEnchantmentTooltip, tooltips.CropTooltip, tooltips.FruitTooltip,
+// tooltips.DeviceTooltip, tooltips.EnchantmentItemTooltip, tooltips.OreExtractorTooltip,
+// tooltips.QiDensityFormationTooltip, tooltips.LocalMapTooltip, tooltips.MysticalKeyTooltip,
+// tooltips.PillarPatternTooltip, tooltips.PillarShardTooltip, tooltips.LifeEssenceTooltip,
+// tooltips.IntimateResourceTooltip, tooltips.IntimateTechniqueTooltip, tooltips.IntimateTraitTooltip,
+// tooltips.AuctionAbilityTooltip, tooltips.AuctionResourceTooltip,
+// tooltips.RecipeConditionEffectTooltip
+
+// Recipe display components — render the full crafting recipe UI in mod screens
+const recipes = api.components.recipes;
+// recipes.RecipesComponent, recipes.RecipeRow, recipes.RecipeDetails,
+// recipes.RecipeIngredients, recipes.RecipeCraftingBuffs, recipes.RecipeResultColumns,
+// recipes.RecipeCraftButtons, recipes.RecipePinButton, recipes.RecipeFilters
+```
+
+### `ItemComponent`
+
+Renders an inventory grid item icon with tooltip and click handling. Use for displaying items in mod UI:
+
+```typescript
+<ItemComponent
+  item={item}
+  stacks={stacks}
+  onClick={() => handleItemClick(item)}
+  selected={isSelected}
+/>
 ```
 
 ### `GameDialog`
@@ -1310,21 +1358,39 @@ Shows the player character. Always include in location/event screens unless you 
 <PlayerComponent />
 ```
 
-### `GameTooltip`, `GameTooltipBox`, `TooltipLine`
+### Tooltip Variants
 
-Styled tooltip components matching the game's tooltip system. Use these to display formatted buff, item, or technique information in mod UI:
+All tooltip components accept the same props as their game-internal counterparts. Use `api.components.tooltips.BuffTooltip` to render a buff tooltip, `api.components.tooltips.ItemTooltip` for items, and so on. Each renders the full styled tooltip with all automatic formatting:
 
 ```typescript
-<GameTooltip>
-  <GameTooltipBox title="My Buff">
-    <TooltipLine left="Effect" right="Deal 50 damage" />
-    <TooltipLine left="Duration" right="3 turns" />
-  </GameTooltipBox>
-</GameTooltip>
+// Render a buff tooltip in mod UI
+const BuffTooltip = api.components.tooltips.BuffTooltip;
+<BuffTooltip buff={myBuff} />
+
+// Render an item tooltip
+const ItemTooltip = api.components.tooltips.ItemTooltip;
+<ItemTooltip item={myItem} />
 ```
 
-`TooltipLine` accepts `left` (label) and `right` (value) strings. `parseTooltipLine` in `utils` can format raw tooltip strings with colour tags, element tags, buff/item references, and numbers into styled `ReactNode` output suitable for use in these components.
+### Recipe Display Components
 
+Use `api.components.recipes.RecipesComponent` to embed the full recipe list and crafting UI in a mod screen:
+
+```typescript
+const { RecipesComponent } = api.components.recipes;
+<RecipesComponent />
+```
+
+Use individual recipe components to build custom recipe interfaces:
+
+```typescript
+const { RecipeRow, RecipeDetails, RecipeIngredients } = api.components.recipes;
+<RecipeRow recipe={myRecipe} onSelect={() => setSelected(myRecipe)} selected={isSelected} />
+<RecipeDetails recipe={selectedRecipe} />
+<RecipeIngredients recipe={selectedRecipe} />
+```
+
+## Examples
 ## Examples
 
 ### Adding a Custom Item
