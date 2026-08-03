@@ -80,6 +80,8 @@ interface Buff {
   internalState?: Record<string, number>; // Mutable runtime state (updated during combat)
   initialState?: Record<string, string>; // Expressions evaluated to seed internalState
   stateTooltip?: string; // Template rendering internalState values in tooltips
+  /** Override the value shown in the buff icon's stack badge. Evaluated against a scope exposing `internalState` and `stacks`. Defaults to `stacks`. Useful for non-stacking buffs that track a live value (e.g. a chain counter). */
+  iconBadgeValue?: Scaling;
 
   // Entity reference
   applicationEntity?: CombatEntity; // Entity that applied this buff (for debuffs)
