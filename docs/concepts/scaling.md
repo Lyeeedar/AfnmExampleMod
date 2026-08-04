@@ -40,6 +40,7 @@ interface Scaling {
   cantUpgrade?: boolean;  // When true, this scaling value cannot be improved by technique mastery upgrades
   isItem?: boolean;       // When true, the result is additionally multiplied by (1 + itemEffectiveness * 0.01). Set on pills, concoctions, and formation parts.
   removeEqnForTooltip?: boolean; // When true, eqn is ignored for tooltip display so the shown amount is the base (value * stat)
+  baseValue?: number;     // Snapshot value taken before harmony upgrades are applied; used internally for stacking effects that need the original pre-harmony number
 }
 ```
 
