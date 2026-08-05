@@ -441,8 +441,6 @@ window.modAPI.actions.removeModData('myMod', 'customNPC_affinity');
 - **`setModData`** — Store any JSON-serializable data namespaced under your mod name. Persists with the save file. Use for quest state, NPC relationships, discovered secrets, or any other per-save data.
 - **`removeModData`** — Remove a specific key from your mod's save-paired data thereafter.
 
-### Keybinding Registration
-
 ### Mod Settings UI
 
 ```typescript
@@ -1242,11 +1240,6 @@ const craftingEntity = window.modAPI.utils.createPlayerCraftingEntity(player, br
 
 ## Components
 
-The `ModReduxAPI.components` object provides pre-styled UI components for use in mod screens, injected UI, and options panels:
-
-
-## Components
-
 The `ModReduxAPI.components` object provides pre-styled UI components for use in mod screens, injected UI, and options panels. It also exposes the full set of game tooltip variants and recipe display components under `api.components.tooltips` and `api.components.recipes`:
 
 ```typescript
@@ -1390,7 +1383,6 @@ const { RecipeRow, RecipeDetails, RecipeIngredients } = api.components.recipes;
 <RecipeIngredients recipe={selectedRecipe} />
 ```
 
-## Examples
 ## Examples
 
 ### Adding a Custom Item
