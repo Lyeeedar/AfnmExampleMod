@@ -1283,11 +1283,27 @@ Renders an inventory grid item icon with tooltip and click handling. Use for dis
 ```typescript
 <ItemComponent
   item={item}
-  stacks={stacks}
+  equipped={false}
   onClick={() => handleItemClick(item)}
-  selected={isSelected}
 />
 ```
+
+All available props are defined in `src/types/components.ts` as `ItemComponentProps`. Key props include:
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `item` | `Item` | The item to render. Required. |
+| `equipped` | `boolean` | Draws the equipped highlight around the cell. |
+| `onClick` | `() => void` | Callback fired when the item is clicked. |
+| `size` | `string` | CSS size of the square cell, e.g. `64px`. |
+| `borderThickness` | `string` | Thickness of the border. |
+| `hideKnown` | `boolean` | Hides the "already known" overlay on recipes and manuals. |
+| `removeOverlays` | `boolean` | Renders icon and border only, no stack count or state overlays. |
+| `showIfZero` | `boolean` | Shows the stack count even when the player holds none. |
+| `disabled` | `boolean` | Disables interaction. |
+| `inLoadout` | `boolean` | Used when rendering in a loadout screen. |
+| `producesRange` | `{ min: number; max: number }` | Shows a `min - max` range under the icon. |
+| `expedition` | `boolean` | Used for expedition item display. |
 
 ### `GameDialog`
 
@@ -1343,6 +1359,7 @@ Screen background with optional particle effects:
 />
 ```
 
+
 ### `PlayerComponent`
 
 Shows the player character. Always include in location/event screens unless you custom-render the character elsewhere:
@@ -1351,18 +1368,37 @@ Shows the player character. Always include in location/event screens unless you 
 <PlayerComponent />
 ```
 
+All available props are defined in `src/types/components.ts` as `PlayerComponentProps`:
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `keybindingPriority` | `number` | Priority passed to the panel's keybindings. Raise it above a surrounding screen's priority so the player panel wins shared keys while it is the focused surface. |
+
 ### Tooltip Variants
 
-All tooltip components accept the same props as their game-internal counterparts. Use `api.components.tooltips.BuffTooltip` to render a buff tooltip, `api.components.tooltips.ItemTooltip` for items, and so on. Each renders the full styled tooltip with all automatic formatting:
+All tooltip components accept the same props as their game-internal counterparts, documented in `src/types/components.ts`. The interfaces are named `{Component}Props` (e.g. `BuffTooltipProps`, `ItemTooltipProps`). Use `api.components.tooltips.BuffTooltip` to render a buff tooltip, `api.components.tooltips.ItemTooltip` for items, and so on. Each renders the full styled tooltip with all automatic formatting.
+
+**Key props that recur across most tooltip components:**
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `entity` | `CombatEntity` | Stat context the tooltip resolves numbers against. Build with `createPlayerCombatEntity`. |
+| `craftingEntity` | `CraftingEntity` | Crafting stat context for crafting-related tooltips. Build with `createPlayerCraftingEntity`. |
+| `player` | `PlayerEntity` | Player reference for additional context. |
+| `alreadyCreated` | `Set<string>` | Names of buffs/effects whose nested tooltips have already been rendered, preventing repetition. Pass a fresh `new Set<string>()` for a top-level popup. |
+| `isAux` | `boolean` | Marks the tooltip as a nested/auxiliary tooltip. |
+
+**Example:**
 
 ```typescript
 // Render a buff tooltip in mod UI
 const BuffTooltip = api.components.tooltips.BuffTooltip;
-<BuffTooltip buff={myBuff} />
+const entity = window.modAPI.utils.createPlayerCombatEntity();
+<BuffTooltip buff={myBuff} entity={entity} alreadyCreated={new Set()} />
 
 // Render an item tooltip
 const ItemTooltip = api.components.tooltips.ItemTooltip;
-<ItemTooltip item={myItem} />
+<ItemTooltip item={myItem} entity={entity} player={player} equipped={undefined} />
 ```
 
 ### Recipe Display Components
