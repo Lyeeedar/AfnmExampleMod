@@ -56,7 +56,7 @@ When you set a flag, the `value` field is evaluated as a mathematical expression
 
 ```typescript
 value: '1'; // Stores: 1
-value: 'month'; // Stores: current month (e.g., 15)
+value: 'month'; // Stores: current total months elapsed (e.g., 15)
 value: 'existingFlag + 1'; // Stores: previous value + 1
 value: 'power * 2'; // Stores: player's power × 2
 ```
@@ -150,7 +150,7 @@ condition: 'totalScore >= requiredScore * 2';
 {
   kind: 'flag',
   flag: 'festivalMonth',
-  value: 'yearMonth',
+  value: 'month',
   global: true
 }
 
@@ -173,7 +173,7 @@ condition: 'totalScore >= requiredScore * 2';
 
 ## Built-in Game Flags
 
-The game automatically provides numerous flags representing the current game state:
+The game automatically provides numerous flags representing the current game state. Access character stats (such as `age`, `lifespan`, `battlesense`, and affinity levels) directly via the Redux store rather than through flags -- for example, `state.player.player.socialStats.age`.
 
 ### Player Stats
 
@@ -184,9 +184,10 @@ The game automatically provides numerous flags representing the current game sta
 
 ### Time and Calendar
 
-- `year`, `month`, `yearMonth`, `day` - Current game time
-- `month` - Total game months elapsed (increments by 1 each month; use for time-difference calculations)
-- `yearMonth` - The current month in the year, 1 -> 12
+- `year` - Current game year
+- `month` - Total game months elapsed since game start (increments by 1 each in-game month; use for time-difference calculations)
+- `yearMonth` - Alias for `calendar.month` -- the current month of the year, 1 to 12. Equivalent to `month` when the year has just started.
+- `day` - Current day of the month
 
 ### Inventory and Equipment
 
@@ -194,11 +195,6 @@ The game automatically provides numerous flags representing the current game sta
 - `storage_` + item flag - Storage quantities
 - `equipped_` + item flag - Equipment status
 - `recipe_` + item flag - Known recipes
-
-### Character State
-
-- `age`, `lifespan`, `injured` - Character condition
-- Affinity levels: `fist`, `weapon`, `blossom`, `celestial`, `cloud`, `blood`
 
 ## Advanced Techniques
 
@@ -267,4 +263,4 @@ condition: 'month >= 6 && completedPreQuest == 1';
 condition: 'money >= 1000 && power >= 50';
 ```
 
-The flags system is incredibly flexible and powerful. Master it, and you'll be able to create dynamic, responsive content that adapts to each player's unique journey through your mod.
+The flags system is incredibly flexible and powerful. Master it, and you will be able to create dynamic, responsive content that adapts to each player's unique journey through your mod.
