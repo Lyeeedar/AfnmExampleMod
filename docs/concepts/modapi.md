@@ -607,6 +607,29 @@ window.modAPI.hooks.onBeforeCraft((player, recipe, recipeStats, flags) => {
 
 Return `{ recipe?: RecipeItem; recipeStats?: CraftingRecipeStats; player?: CraftingEntity }` to modify any of these, or `undefined` to leave them unchanged.
 
+#### `onModifyRecipeIngredients`
+
+Modify recipe ingredients before they are used in the crafting process. Fires before `onDeriveRecipeDifficulty` and `onBeforeCraft`.
+
+```typescript
+window.modAPI.hooks.onModifyRecipeIngredients((recipe, flags) => {
+  if (flags.efficient_crafting) {
+    const modified = { ...recipe };
+    modified.ingredients = recipe.ingredients.map(ing => ({
+      ...ing,
+      count: Math.max(1, Math.floor(ing.count * 0.5)),
+    }));
+    return modified;
+  }
+  return recipe;
+});
+```
+
+- **`recipe`** — The `RecipeItem` whose ingredients to modify
+- **`flags`** — Current game flags
+
+Return a modified `RecipeItem` to change the ingredients, or the original `recipe` to leave it unchanged.
+
 #### `onDeriveRecipeDifficulty`
 
 Modify the difficulty and stats of crafting recipes during the crafting process.
@@ -1133,8 +1156,8 @@ window.modAPI.utils.getBreakthroughCharisma(realm: Realm, mult: number)
 ```typescript
 window.modAPI.utils.createQuestionAnswerList(key: string, questions: QuestionAnswer[], exit: QuestionAnswer, showExitOnAllComplete?: boolean)
 window.modAPI.utils.flag(flag: string) // Convert flag name to game flag format
-window.modAPI.utils.evalExp(exp: string, flags: Record<string, number>) // Evaluate an expression using the given flags, then floor it if the number is greater than 3
-window.modAPI.utils.evalExpNoFloor(exp: string, flags: Record<string, number>) // The above but without the floor
+window.modAPI.utils.evalExp(exp: string, flags: Record<string, number>) // Evaluate an expression using the given flags, then floors the result
+window.modAPI.utils.evalExpNoFloor(exp: string, flags: Record<string, number>) // Evaluates without flooring
 window.modAPI.utils.evaluateScaling(scaling: Scaling, variables: Record<string, number>, stanceLength: number, preMaxTransform?: (value: number) => number)
 window.modAPI.utils.generateSkipTutorialFlags(tutorials: Tutorial[], triggers: TriggeredEvent[])
 ```
