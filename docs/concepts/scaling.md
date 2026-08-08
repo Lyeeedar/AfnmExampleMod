@@ -569,3 +569,18 @@ Link scaling to mastery progression:
 5. **Inconsistent patterns** - Makes the system unpredictable
 
 The scaling system is powerful and flexible. Master these patterns, and you will create techniques and effects that feel both impactful and balanced, scaling naturally with player progression while maintaining strategic depth.
+
+### Preserving Pre-Harmony Values with `baseValue`
+
+When harmony upgrades modify a scaling value, the modification happens once at upgrade time and is baked into the field. For stacking effects that need the original pre-harmony number (for example, to recompute the current value from scratch each round rather than compounding from a modified base), `baseValue` holds the snapshot taken before any harmony upgrades were applied:
+
+```typescript
+{
+  value: 1,
+  stat: 'power',
+  eqn: 'baseValue * (1 + harmonyRank * 0.1)', // rebuild from base
+  baseValue: 1, // original value, preserved after harmony modifies 'value'
+}
+```
+
+In practice, `baseValue` is set automatically by the engine when a harmony upgrade is applied to a scaling field. It is useful when authoring a buff that intentionally rebuilds its own value each time it is evaluated, rather than accumulating harmony changes.

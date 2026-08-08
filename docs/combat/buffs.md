@@ -680,3 +680,34 @@ condition: {
   allowTriggers: true, // triggeredBuffEffects still run even at > 50% HP
 }
 ```
+
+### Desperation (Stacking damageBoost)
+
+Desperation is a stacking buff applied automatically to both combatants once combat exceeds a configurable round threshold. It is symmetric — both sides gain it equally — so it does not decide who wins a fight, only that a stalled fight eventually resolves. This pattern is useful for mods that need a guaranteed endgame damage ramp without hard-coding round numbers.
+
+```typescript
+// Constants: round threshold and damage boost per stack
+export const desperationStartRound = 50;
+export const desperationDamageBoostPerStack = 1;
+
+// The buff — granted once per round past the threshold
+export const makeDesperationBuff = (icon: string): Buff => ({
+  name: 'Desperation',
+  icon: icon,
+  canStack: true,
+  stats: {
+    damageBoost: {
+      value: desperationDamageBoostPerStack, // 1% per stack
+      stat: undefined,
+      scaling: 'stacks',
+    },
+  },
+  stacks: 1,
+  cantUpgrade: true,
+});
+```
+
+Key design points:
+- **`canStack: true`** with **`scaling: 'stacks'`** on the `damageBoost` stat means each stack adds another +1% damage
+- **`cantUpgrade: true`** prevents technique mastery from accidentally modifying the stacking rate
+- The icon is the holder's own portrait — no technique icon is relevant since Desperation comes from the fight itself
