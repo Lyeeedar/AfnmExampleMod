@@ -228,7 +228,7 @@ Enemies can fight alongside allies:
     condition?: string; // Optional condition
   }[];
 
-  shardMult?: number; // Pillar shard multiplier
+  shardMult?: number; // Technique shard multiplier
   qiMult?: number;    // Qi reward multiplier
 }
 ```
