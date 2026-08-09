@@ -53,15 +53,17 @@ export interface LocalMapModifier {
 
 ## Built-in Modifiers
 
-The game ships three modifiers in `src/util/localMapModifiers.ts` that you can import in your mod:
+The game ships five modifiers in `src/util/localMapModifiers.ts` that you can import in your mod:
 
 ```typescript
-import { bulwarkModifier, frenziedModifier, ancientModifier } from 'afnm/util/localMapModifiers';
+import { bulwarkModifier, frenziedModifier, ancientModifier, twistedModifier, realmbreakerModifier } from 'afnm/util/localMapModifiers';
 ```
 
 - **bulwarkModifier** — Fortified beasts with high defense, barrier generation, and school resistances. Good for defensive challenge maps.
 - **frenziedModifier** — Aggressive beasts with high power and offensive buffs. Good for high-risk, high-reward maps.
-- **ancientModifier** — Ancient beasts with balanced boosts and unique ability pools. For end-game challenge content.
+- **ancientModifier** — Ancient beasts with balanced boosts and unique ability pools. For endgame challenge content.
+- **twistedModifier** — Twisted beasts spawned by a star impact. Enemies drop a fixed batch of Twisted Remnants on victory rather than per-enemy loot; the batch size scales with realm tier (2 / 6 / 9 / 15 remnants for Meridian Opening / Qi Condensation / Core Formation / Pillar Creation). Enemies have high encounter counts (12-20) and carry offensive debuffs.
+- **realmbreakerModifier** — Realm-breakers that have broken through the realm ceiling. The map burns out after a single use and yields valuable realm cores.
 
 You can also define custom modifiers by constructing a `LocalMapModifier` object directly.
 
@@ -151,5 +153,6 @@ window.modAPI.actions.addItemToShop(fortressMap, 3, 'Nine Mountain Sect', 'qiCon
 
 - **No modifier = easier, lower reward.** Scout maps are the baseline: straightforward fights, no buff penalties, standard drop rates.
 - **Higher `yieldMult` justifies harder maps.** If enemies are tankier or hit harder, increase `yieldMult` to compensate. A common range is `1.3` to `2.0` for modified maps.
-- **Keep `encounterCount` ranges tight.** A spread of 4–5 (e.g. `min: 10, max: 14`) gives meaningful variance without making the map feel unpredictable.
+- **Keep `encounterCount` ranges tight.** A spread of 4-5 (e.g. `min: 10, max: 14`) gives meaningful variance without making the map feel unpredictable.
 - **`realm` gates map use.** A player below the required realm cannot activate the map. Match the realm to the encounter difficulty.
+- **Twisted modifier is not per-enemy loot.** Unlike other modifiers where drops scale with the encounter count via `yieldMult`, the Twisted modifier pays a fixed batch of tokens on victory. Design accordingly. The high encounter count (12-20) means players fight more battles, not that they get more loot per fight.
