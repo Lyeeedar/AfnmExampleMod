@@ -38,6 +38,9 @@ interface RecipeItem {
   conditionEffectOverride?: RecipeConditionEffect; // Override default condition type
   harmonyTypeOverride?: RecipeHarmonyType;         // Override default harmony system
   perfectionEffectOverride?: 'quality';           // Controls what perfection affects in the crafted item
+
+  // Optional custom quality threshold
+  customThreshold?: CraftCustomThreshold; // A named quality mark shown as its own bar above Completion
 }
 ```
 
@@ -68,10 +71,10 @@ Each recipe uses one of seven harmony systems during crafting. By default the ga
 | `forge`           | Forging -- heat-based combo system                       |
 | `alchemical`      | Alchemy -- charge-and-combo system                       |
 | `inscription`     | Inscription -- pattern-block system                       |
-| `resonance`       | Resonance -- technique-type matching resonance system     |
+| `resonance`       | Resonance -- technique-type matching resonance system      |
 | `formless`        | Formless Way -- realm-budget scaling harmony             |
-| `enhancingEcho`   | Enhancing Echo -- enhancement-focused harmony             |
-| `eccentricDecree` | Eccentric Decree -- special decree-based harmony          |
+| `enhancingEcho`   | Enhancing Echo -- enhancement-focused harmony            |
+| `eccentricDecree` | Eccentric Decree -- special decree-based harmony         |
 
 ## Perfection Effect Override
 
@@ -79,6 +82,35 @@ Set `perfectionEffectOverride` to `'quality'` to make perfection affect the qual
 
 ```typescript
 perfectionEffectOverride: 'quality';
+```
+
+## Custom Thresholds
+
+A custom threshold displays a quality mark as its own bar above the Completion and Perfection bars while the craft is worked. The bar shows how many quality tiers the craft has cleared versus the threshold the mark requires.
+
+```typescript
+interface CraftCustomThreshold {
+  /** Title shown on the bar. */
+  name: Translatable;
+  /** Quality tiers the craft has to reach to clear the mark. */
+  threshold: number;
+  /** Tooltip for the bar. A generic line is used when this is unset.
+   *  Both this and the generic line receive `{needed}` (the threshold value)
+   *  and `{name}` (the bar title). */
+  tooltip?: Translatable;
+}
+```
+
+**How quality tiers work:** A finished craft earns quality tiers based on how well it scores on Perfection. The first tier clears the threshold and is spent reaching the perfect or sublime result; any tiers above that are bonuses. The bar fills as the player works the pot, and a cleared mark turns a distinct colour.
+
+**In events:** When a craft comes out of a crafting event step, the event's `customThreshold` field sets the mark. Clearing it runs the threshold's own event steps in place of the sublime result.
+
+```typescript
+const myThreshold: CraftCustomThreshold = {
+  name: tr('Masterwork'),
+  threshold: 3,
+  tooltip: tr('You need <num>{needed}</num> quality tiers to earn the Masterwork designation.'),
+};
 ```
 
 ## Registering Recipes via the Mod API

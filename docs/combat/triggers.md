@@ -19,6 +19,7 @@ Buffs can trigger effects off the back of a variety of other parts of the combat
 4. [Damage and Healing Triggers](#damage-and-healing-triggers)
 5. [Special System Triggers](#special-system-triggers)
 6. [Custom Triggers](#custom-triggers)
+7. [Variables Available in Buff Conditions](#variables-available-in-buff-conditions)
 
 ---
 
@@ -343,6 +344,29 @@ These are specific custom triggers used by various systems in the game.
 
 ---
 
+## Variables Available in Buff Conditions
+
+Buff conditions and stance rule expressions have access to a set of named variables that describe the current combat state. These are evaluated lazily: only variables actually referenced by an expression are computed.
+
+### `round`
+- **Type:** number
+- **Value:** The current combat round, **1-based**, matching the round number shown in the combat UI (Round 1, Round 2, etc.)
+- **Availability:** Read in any buff condition expression and in stance rule condition expressions
+
+> **Note:** Prior to game version 2026-08-09, `round` returned a 0-based value (0 during the UI's Round 1, 1 during Round 2, etc.). If you have existing stance rules that compare `round` to a number, verify they still behave as intended after updating. A rule written as `round == 1` now fires on Round 1 as intended, whereas previously it fired on Round 2.
+
+### Other common variables
+
+| Variable | Type | Description |
+|----------|------|-------------|
+| `hp` | number | Current HP of the entity |
+| `maxhp` | number | Maximum HP of the entity |
+| `barrier` | number | Current barrier of the entity |
+| `power` | number | Current power stat |
+| `{buffName}` | number | Stack count of the named buff (use the actual buff name) |
+
+---
+
 ## Usage Examples
 
 ### Basic Damage Reaction
@@ -389,6 +413,14 @@ triggeredBuffEffects: [
     ]
   }
 ]
+```
+
+### Round-Based Effect
+```typescript
+condition: {
+  kind: 'condition',
+  condition: 'round >= 3', // Only activates from Round 3 onwards
+}
 ```
 
 ### Listen to Opponent
