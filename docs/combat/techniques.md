@@ -198,385 +198,6 @@ stanceRestriction: 'finisher'; // Must be last technique in stance
 
 Set `disableCrystalDrop: true` to exclude a technique from technique crystal drops. This is useful for techniques that are only obtainable through special means (e.g. spirit techniques unlocked via the spirit tree):
 
-```typescript
-export const frozenStorm: Technique = {
-  name: 'Frozen Storm',
-  // ...
-  disableCrystalDrop: true,
-};
-
-// Group techniques and disable drops on the array:
-const spiritTechniques = [stormfront, howlingShroud, stormAscension, frozenStorm];
-spiritTechniques.forEach((e) => {
-  e.disableCrystalDrop = true;
-});
-```
-
-## Effect Types
-
-Techniques use similar effect types to buffs but execute immediately:
-
-### Damage Effects
-
-#### `damage`
-
-Deal damage to the enemy:
-
-```typescript
-{
-  kind: 'damage',
-  amount: { value: 0.9, stat: 'power' },
-  hits?: { value: 2, stat: undefined },
-  damageType?: 'true' | 'corrupt' | 'disruption'
-}
-```
-
-#### `damageSelf`
-
-Deal damage to yourself:
-
-```typescript
-{
-  kind: 'damageSelf',
-  amount: { value: 0.05, stat: 'maxhp' },
-  damageType?: 'true'
-}
-```
-
-### Healing and Protection
-
-#### `heal`
-
-Restore health:
-
-```typescript
-{
-  kind: 'heal',
-  amount: { value: 0.8, stat: 'power' },
-  hits?: { value: 1, stat: undefined }
-}
-```
-
-#### `barrier`
-
-Grant damage absorption:
-
-```typescript
-{
-  kind: 'barrier',
-  amount: { value: 0.9, stat: 'power' },
-  hits?: { value: 1, stat: undefined }
-}
-```
-
-### Buff Management
-
-#### `buffSelf`
-
-Grant a buff to yourself:
-
-```typescript
-{
-  kind: 'buffSelf',
-  buff: targetBuff,
-  amount: { value: 2, stat: undefined },
-  hits?: { value: 1, stat: undefined },
-  hideBuff?: true
-}
-```
-
-#### `consumeSelf`
-
-Remove a buff from yourself:
-
-```typescript
-{
-  kind: 'consumeSelf',
-  buff: targetBuff,
-  amount: { value: 1, stat: undefined },
-  hideBuff?: true
-}
-```
-
-#### `buffTarget`
-
-Give a buff to the enemy:
-
-```typescript
-{
-  kind: 'buffTarget',
-  buff: debuffBuff,
-  amount: { value: 3, stat: undefined },
-  hits?: { value: 1, stat: undefined }
-}
-```
-
-#### `consumeTarget`
-
-Remove a buff from the enemy:
-
-```typescript
-{
-  kind: 'consumeTarget',
-  buff: enemyBuff,
-  amount: { value: 2, stat: undefined }
-}
-```
-
-### Resource Manipulation (Technique-Specific)
-
-#### `convertSelf`
-
-Transform one buff type into another:
-
-```typescript
-{
-  kind: 'convertSelf',
-  source: sourceBuff,
-  target: targetBuff,
-  amount: { value: 1, stat: undefined, scaling: 'stacks' }
-}
-```
-
-**Use case**: Resource transformation mechanics like celestial sun/moon cycling.
-
-#### `mergeSelf`
-
-Combine multiple stacks from one buff into fewer of another:
-
-```typescript
-{
-  kind: 'mergeSelf',
-  source: sourceBuff,
-  sourceStacks: { value: 2, stat: undefined },
-  target: targetBuff,
-  targetStacks: { value: 1, stat: undefined }
-}
-```
-
-**Use case**: Efficiency techniques that condense resources.
-
-### Utility Effects
-
-#### `cleanseToxicity`
-
-Modify toxicity levels:
-
-```typescript
-{
-  kind: 'cleanseToxicity',
-  amount: { value: 10, stat: undefined }  // Positive removes, negative adds
-}
-```
-
-#### `modifyBuffGroup`
-
-Adds/removes stacks to all buffs of a specific group:
-
-```typescript
-{
-  kind: 'modifyBuffGroup',
-  group: 'celestial', // Must be defined as the 'buffType' field of the buff
-  amount: { value: 1, stat: undefined }
-}
-```
-
-#### `trigger`
-
-Fire custom events for other systems:
-
-```typescript
-{
-  kind: 'trigger',
-  triggerKey: 'celestialRotation',
-  amount: { value: 1, stat: undefined },
-  triggerTooltip?: 'Explanation of the trigger' // Will appear in its own sub-tooltip to the side of the main one
-}
-```
-
-#### `repair`
-
-Restores health to barrier-type buffs that have taken damage:
-
-```typescript
-{
-  kind: 'repair',
-  amount: { value: 0.5, stat: 'power' },
-  group: 'shield',       // Matches buffs by name, buffType, or flag (same matching as modifyBuffGroup)
-  rule: 'lowestHealth'   // 'all' | 'lowestHealth' | 'highestHealth'
-}
-```
-
-- **group**: Selects which buffs to repair  -  matched against the buff's `name`, `buffType`, or any flag set on it.
-- **rule**: `'all'` repairs every matching buff; `'lowestHealth'` targets the most damaged one; `'highestHealth'` targets the least damaged.
-
-#### `permanentStatChange`
-
-Permanently modifies a physical or social statistic on the player. The change takes effect after combat ends. The amount is floored to an integer.
-
-Only applies when the technique is used by the player  -  enemy techniques with this effect kind are ignored.
-
-```typescript
-{
-  kind: 'permanentStatChange',
-  stat: 'muscles',            // Any PhysicalStatistic or SocialStatistic
-  amount: { value: 5, stat: undefined }
-}
-```
-
-**Valid `stat` values:**
-
-Physical statistics:
-- `'flesh'`  -  Max Health and Barrier Effectiveness
-- `'muscles'`  -  Power and Qi Intensity
-- `'meridians'`  -  Qi Control and Artefact Power
-- `'dantian'`  -  Max Barrier, Max Qi Pool, and Qi Absorption
-- `'digestion'`  -  Toxicity Resistance and Item Effectiveness
-- `'eyes'`  -  Critical Chance and Critical Multiplier
-
-Social statistics:
-- `'charisma'`  -  Presence and shop prices
-- `'battlesense'`  -  Stance count and stance-switch power bonus
-- `'craftskill'`  -  Qi Control and Qi Intensity bonus
-- `'artefactslots'`  -  Number of equippable artefacts
-- `'talismanslots'`  -  Number of equippable talismans
-- `'condenseEfficiency'`  -  Qi to Qi Droplet conversion rate
-- `'pillsPerRound'`  -  Items usable per combat round
-- `'age'`  -  Current age
-- `'lifespan'`  -  Maximum lifespan
-
-**Use case**: Combat consumables that permanently enhance the player's physical or social attributes when used during a fight.
-
-**Example  -  a pill that permanently boosts muscles by 1:**
-
-```typescript
-{
-  kind: 'permanentStatChange',
-  stat: 'muscles',
-  amount: { value: 1, stat: undefined }
-}
-```
-
-
-## Conditional Effects
-
-Effects can have conditions that determine when they execute:
-
-### Buff Conditions
-
-```typescript
-condition: {
-  kind: 'buff',
-  buff: requiredBuff,
-  count: 5,
-  mode: 'more'
-}
-```
-
-### HP Conditions
-
-```typescript
-condition: {
-  kind: 'hp',
-  percentage: 50,
-  mode: 'less'
-}
-```
-
-### Custom Conditions
-
-```typescript
-condition: {
-  kind: 'condition',
-  condition: 'custom_flag > 0'
-}
-```
-
-**Available stance condition variables:**
-- `formationPartRecovery` - Formation Part Recovery stat (integer)
-- `pillReplication` - Pill Replication stat (integer, added in #7777)
-- `missingQiDroplets` - Missing Qi Droplets stat (integer)
-- `round` - Current combat round (1-based; 0 before round 1)
-
-Variables can be used in comparisons and as right-hand values in `valueBuff` multipliers:
-
-```typescript
-// Require at least 2 Pill Replication stacks
-{ condition: 'Pill Replication', check: '>=', value: 2 }
-
-// Scale a requirement by twice the Pill Replication stat
-{
-  condition: 'Formation Part Recovery',
-  check: '>=',
-  value: 0,
-  valueBuff: 'Pill Replication',
-  valueMultiplier: 2
-}
-```
-
-### Chance Conditions
-
-```typescript
-condition: {
-  kind: 'chance',
-  percentage: 30
-}
-```
-
-## Multiple Hits
-
-Many effects support the `hits` parameter for repeated application:
-
-### Fixed Hits
-
-```typescript
-hits: { value: 3, stat: undefined }     // Always 3 hits
-```
-
-### Scaling Hits
-
-```typescript
-hits: { value: 1, scaling: 'stacks' }   // 1 hit per stack of something
-```
-
-### Capped Scaling
-
-```typescript
-hits: {
-  value: 0.5,                           // 1 hit per 2 stacks
-  scaling: 'bloodCorruption',
-  max: { value: 5, stat: undefined }    // Maximum 5 hits
-}
-```
-
-## Triggered Effects
-
-Certain effects can be configured to only trigger if the main effects (those in the `effects` array) emit a specific trigger. This can hook off any trigger that can be produced (see the [Triggers](triggers) docs for more details).
-
-Note, triggered effects are not supported by automatic tooltip generation so require a custom tooltp to be written. See [Tooltips](tooltips) for details.
-
-### Extra effect when healing to full
-
-```typescript
-effects: [{
-  kind: "heal",
-  amount: {
-    value: 2,
-    stat: "power"
-  }
-}],
-triggeredEffects: [{
-  trigger: "fullHeal", // When this techniques heals the player to full, gain an additional barrier
-  effects: [{
-    kind: "barrier",
-    amount: {
-      value: 1,
-      stat: "power"
-    }
-  }]
-}]
-```
-
 ## Complete Examples
 
 ### Simple Damage Technique - Advancing Fist
@@ -805,14 +426,15 @@ When a manifested or evoked life form (such as a figment) uses player-style stan
 
 ## Mastery System
 
+Techniques can be upgraded through the mastery system. All mastery helpers are available on `window.modAPI.utils`.
 
-Techniques can be upgraded through the mastery system:
+### Quick Reference
 
 ```typescript
 upgradeMasteries: {
-  power: createPowerUpgradeMap('power', 'empowered'),
-  cost: createCostUpgradeMap('cost', 'empowered', fragrantBlossom.name, -1),
-  stacks: createStacksUpgradeMap('stacks', 'empowered', buffName, 1)
+  power: window.modAPI.utils.createPowerUpgradeMap('power', 'empowered'),
+  cost: window.modAPI.utils.createCostUpgradeMap('cost', 'empowered', fragrantBlossom.name, -1),
+  stacks: window.modAPI.utils.createStacksUpgradeMap('stacks', 'empowered', buffName, 1),
 }
 ```
 
@@ -824,6 +446,48 @@ Properties with `upgradeKey` can be modified by mastery:
 - **Resource costs**: Reduce consumption
 - **Stack generation**: Generate more resources
 - **Requirements**: Modify usage conditions
+
+### Mastery Helper Reference
+
+All helpers accept `(key: string, rarity: Rarity, ...)` and return a `TechniqueMasteryRarityMap`.
+
+#### Generic Builders
+
+These give you full control but require explicit per-rarity definitions:
+
+- **`createUpgradeMap(key, rarity, upgrades)`** — Explicit per-rarity tooltip/change/shouldMultiply. Omit a rarity by passing `undefined` for that tier.
+- **`createUpgradeMapSimple(key, rarity, tooltip, shouldMultiply, changes, renderTransform?)`** — One tooltip template with `{change}` placeholder; per-rarity numbers in `changes`. `renderTransform` lets you customise the displayed value (e.g. converting to percentages).
+- **`createUpgradeMapStepped(key, rarity, tooltip, maxChange, shouldMultiply?, renderTransform?)`** — Automatically steps the value from `maxChange/5` (mundane) up to `maxChange` (incandescent), dropping rarities whose value reaches zero or flips sign.
+
+#### Percentage Helpers (5% mundane → 30% transcendent)
+
+These are shorthand for common multiplicative patterns:
+
+- **`create30PercentUpgradeMap(key, rarity, tooltip)`** — Arbitrary key at 5–30% multiplicative.
+- **`createPowerUpgradeMap(key, rarity)`** — Technique base power (named `basePower`).
+- **`createScalingUpgradeMap(key, rarity)`** — Technique scaling stat multiplier.
+- **`createDamageUpgradeMap(key, rarity)`** — Damage dealt.
+- **`createHealingUpgradeMap(key, rarity)`** — Health restored.
+- **`createBarrierUpgradeMap(key, rarity)`** — Barrier granted.
+- **`createTemporaryHealthUpgradeMap(key, rarity)`** — Temporary health granted.
+
+#### Named Buff Helpers
+
+These auto-generate tooltips referencing a specific buff:
+
+- **`createStacksUpgradeMap(key, rarity, buffName, maxChange)`** — Stacks of a buff gained by the technique. Pass negative `maxChange` for reductions.
+- **`createCleanseUpgradeMap(key, rarity, buffName, maxChange, verb)`** — Stacks of a buff removed by a cleanse. `verb` controls the tooltip word (e.g. `'cleansed'`, `'consumed'`).
+- **`createStacksInflictedUpgradeMap(key, rarity, buffName, maxChange)`** — Stacks of a buff inflicted on the target.
+- **`createCostUpgradeMap(key, rarity, buffName, maxChange)`** — Buff cost of an effect (pass negative to reduce).
+- **`createRequirementUpgradeMap(key, rarity, buffName, maxChange)`** — Buff requirement of an effect (pass negative to reduce).
+- **`createMaxIncreaseUpgradeMap(key, rarity, buffName, maxChange)`** — Maximum stacks of one or more buffs. `buffName` can be a string or an array of names joined with `'and'` in the tooltip.
+
+#### Special Helpers
+
+- **`createSingleTierMastery(mastery)`** — Wrap a single `TechniqueMastery` so it can only roll at transcendent rarity.
+- **`createRoundBuffMap(buff, rarity, chanceStep, effectKind?)`** — Grants `buff` with a chance that scales per rarity (`chanceStep * tier` at each step; above 100% grants one guaranteed stack plus a chance at a second). `effectKind` is `'buffSelf'` (default) or `'buffTarget'`.
+- **`createStackingRoundBuffMap(buff, rarity, stacks, effectKind?)`** — Grants a fixed `stacks` per rarity (0 to skip that rarity).
+- **`createFullKindMap(rarityMap)`** — Expand a rarity-map keyed by mastery name into a full `kind` map so the same masteries are offered for every technique effect kind. Use when building a custom mastery pool.
 
 ### Mastery Pools
 
