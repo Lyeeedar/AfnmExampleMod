@@ -1,372 +1,275 @@
 ---
 layout: default
-title: Crafting Technique System
+title: Crafting Techniques
 parent: Crafting System
-nav_order: 6
-description: 'Core concepts and structure of the AFNM crafting technique system'
+nav_order: 3
+description: 'How to define and register crafting techniques'
 ---
 
-# Crafting Technique System
+# Crafting Techniques
 
-Crafting techniques are the primary actions used during the crafting process to transform materials into finished items. Each technique serves a specific purpose and consumes resources while advancing the craft toward completion.
+Crafting techniques are active abilities used during the crafting process to manipulate materials, manage resources, and influence outcomes.
 
-## Basic Structure
-
-Every crafting technique is defined by the `CraftingTechnique` interface:
+## Interface
 
 ```typescript
 interface CraftingTechnique {
-  name: string; // Stable, non-localized identifier (matches KnownCraftingTechnique.technique and modAPI.gameData.craftingTechniques)
-  displayName?: Translatable; // Optional translated display name
-  icon: string; // Visual representation
-  type: CraftingTechniqueType; // fusion, refine, stabilize, or support
-  realm: Realm; // Minimum cultivation level
-  tooltip?: string; // Custom description
+  id: string;
+  name: Translatable;
+  description: Translatable;
+  icon: SvgIconType | CustomSvgIcon;
+
+  type: CraftingTechniqueType; // 'fusion' | 'refine' | 'support' | 'stabilize'
 
   // Resource costs
-  poolCost: number; // Qi pool cost
-  noQiCost?: boolean; // If true, Qi cost is always 0 regardless of active modifiers
-  stabilityCost: number; // Stability cost
-  noMaxStabilityLoss?: boolean; // If true, max stability is not reduced when used
-  maxStabilityLossTooltip?: string; // Custom tooltip text explaining the stability behaviour
-  toxicityCost?: number; // Optional toxicity gain
-  buffCost?: { buff: CraftingBuff; amount: number };
-
-  // Requirements and restrictions
-  successChance: number; // Base success rate (0.0–1.0; 1.0 = always succeeds)
-  cooldown: number; // Turns before reuse
-  conditionRequirement?: CraftingCondition;
-  /** When true, only usable on the first action of a craft (step 0). */
-  firstActionOnly?: boolean;
-  /** When set, only usable while current stability is strictly greater than this value. */
-  minStability?: number;
-  buffRequirement?: { buff: CraftingBuff; amount: number };
+  stabilityCost?: number;       // Stability removed from current when used
+  maxStabilityCost?: number;     // Stability removed from max when used
+  poolCost?: number;             // Qi drawn from pool when used
 
   // Effects
-  effects: CraftingTechniqueEffect[];
+  effects: CraftingEffect[];     // What happens when technique is used
 
-  // Display
-  showCreatesBuff?: boolean; // If true, the UI shows a buff indicator on the technique card
-
-  /** When true, the action button is disabled once any of its createBuff effects
-   *  would push an existing buff past `maxStacks`. A 'max' overlay is shown on the
-   *  button in that state. Use this for techniques whose buffs have a hard cap. */
-  disableAtMaxStacks?: boolean;
-
-  // Mastery system
-  masteryKindPools?: CraftingTechniqueEffectKind[]; // Override which effect kinds are used for mastery selection
+  // Mastery upgrades
   upgradeMasteries?: { [key: string]: CraftingTechniqueMasteryRarityMap };
+  masteryKindPools?: CraftingEffectKind[];
 
-  // Runtime state — always initialise to 0 / undefined in data definitions
-  currentCooldown: number; // Must be set to 0 in every technique definition
+  // Visual
+  colour?: string;               // CSS colour for the technique's effect particles
+  particleIcon?: string;         // Override particle image
+
+  // UI
+  isItem?: boolean;              // Technique is granted by an item (e.g. pills)
+  successChance?: number;        // 0-1 chance of success; defaults to 1
+  critThreshold?: number;         // Threshold for perfection/crit success; defaults to 0.9
 }
 ```
-
-> **Important:** `currentCooldown` is a required field. Always set it to `0` in your technique definition. The engine updates it at runtime.
 
 ## Technique Types
 
-There are **four core technique types**, each serving a distinct purpose:
+Four technique types drive all crafting:
 
-### Fusion
+### Fusion (`fusion`)
 
-- **Purpose**: Increases completion progress toward finishing the item
-- **Scaling**: Progress scales with Qi Intensity stat
-- **Visual**: Green-tinted techniques
-- **Strategic use**: Focus on these to complete crafts quickly
+Increases **completion** progress. The foundational technique type for basic crafting.
 
-### Refine
+```typescript
+type: 'fusion',
+effects: [
+  {
+    kind: 'completion',
+    amount: { value: 1, stat: 'control', upgradeKey: 'completion' },
+  }
+]
+```
 
-- **Purpose**: Increases perfection progress for higher quality
-- **Scaling**: Progress scales with Qi Control stat
-- **Visual**: Cyan-tinted techniques
-- **Strategic use**: Balance with fusion for quality items
+### Refine (`refine`)
 
-### Stabilize
+Increases **perfection** progress. Higher risk/reward — often has stricter requirements or higher stability costs.
 
-- **Purpose**: Restores stability or creates stability buffs
-- **Scaling**: Often fixed amounts or based on current stability
-- **Visual**: Orange-tinted techniques
-- **Strategic use**: Prevent craft failure from stability loss
+```typescript
+type: 'refine',
+effects: [
+  {
+    kind: 'perfection',
+    amount: { value: 1.5, stat: 'control', upgradeKey: 'perfection' },
+  }
+]
+```
 
-### Support
+### Support (`support`)
 
-- **Purpose**: Creates buffs and utility effects
-- **Scaling**: Varies by specific buff created
-- **Visual**: Purple-tinted techniques
-- **Strategic use**: Set up powerful combinations
+Applies helpful **buffs** to the crafter or the craft itself. Does not directly advance progress.
+
+```typescript
+type: 'support',
+effects: [
+  {
+    kind: 'buffSelf',
+    buff: swiftHands,
+    amount: { value: 1, stat: undefined, upgradeKey: 'stacks' },
+  }
+]
+```
+
+### Stabilize (`stabilize`)
+
+Restores **current stability** and applies stability-related buffs. Critical for managing risk in complex crafts.
+
+```typescript
+type: 'stabilize',
+effects: [
+  {
+    kind: 'stability',
+    amount: { value: 0.5, stat: 'control', upgradeKey: 'stability' },
+  }
+]
+```
 
 ## Resource Costs
 
-### Qi Pool Cost
-
-The primary resource consumed by all techniques:
+Understanding stability costs is critical for balanced technique design:
 
 ```typescript
-poolCost: 20; // Base cost in qi
+// Low impact — only affects current stability
+stabilityCost: 5,
+
+// High impact — reduces the cap, limiting future technique use
+maxStabilityCost: 10,
+
+// Qi pool consumption
+poolCost: 20,
 ```
 
-- Modified by **Qi Pool Cost Multiplier** stat
-- Can be reduced through mastery upgrades
-- Running out prevents technique use
-- Set `noQiCost: true` to force the technique to always cost 0 Qi, bypassing all cost modifiers
+**Stability mechanics:**
 
-### Stability Cost
+- Current stability falling to 0 causes craft failure
+- Max stability sets the ceiling for current stability
+- Techniques that reduce max stability without restoring current first are dangerous
+- The `noMaxStabilityLoss` flag on effects preserves max stability (only current drops)
 
-Risk factor for each technique:
+## Effects Reference
 
-```typescript
-stabilityCost: 5; // Stability lost on use
-```
+### Completion (`completion`)
 
-**Current Stability vs Max Stability:**
-
-- **Current Stability**: The active stability pool that decreases with technique use
-- **Max Stability**: The upper limit for current stability
-- When current stability reaches 0, the craft fails
-- When using a technique, max stability usually decreases by 1
-- The `noMaxStabilityLoss` flag prevents max stability reduction (only current decreases)
-
-**Modifiers:**
-
-- Modified by **Stability Cost Multiplier** stat
-- Some buffs restore current stability without affecting max
-- Other effects specifically target max stability
-
-### Toxicity Cost
-
-Accumulation from certain techniques:
-
-```typescript
-toxicityCost: 10; // Toxicity gained
-```
-
-- Primarily from pill-related techniques
-- Accumulates over multiple crafts
-- High toxicity causes negative effects
-
-### Buff Cost
-
-Some techniques consume buff stacks:
-
-```typescript
-buffCost: {
-  buff: focusBuff,
-  amount: 3
-}
-```
-
-## Success Mechanics
-
-### Base Success Chance
-
-Each technique has a success rate:
-
-```typescript
-successChance: 0.8; // 80% base success rate (0.0 to 1.0)
-```
-
-- Value ranges from 0.0 (always fails) to 1.0 (always succeeds)
-- Modified by **Action Success Chance** stat bonus
-- Failed techniques still consume resources
-- Some risky techniques have rates as low as 0.4 (40%)
-
-### Cooldown System
-
-Prevents technique spam:
-
-```typescript
-cooldown: 3; // Cannot use for 3 turns
-```
-
-- Tracked per technique
-- Some buffs can reduce cooldowns
-- Strategic planning required for technique rotation
-
-## Requirements
-
-### Condition Requirements
-
-Techniques may require specific recipe conditions:
-
-```typescript
-conditionRequirement: 'positive'; // Only usable when Harmonious
-```
-
-**Condition states:**
-
-- `neutral` - Balanced
-- `positive` - Harmonious
-- `negative` - Resistant
-- `veryPositive` - Brilliant
-- `veryNegative` - Corrupted
-
-### Buff Requirements
-
-Need specific buffs active:
-
-```typescript
-buffRequirement: {
-  buff: concentrationBuff,
-  amount: 5
-}
-```
-
-### Action Restrictions
-
-#### `firstActionOnly`
-
-When set to `true`, the technique can only be used on the first action of a craft (step 0):
-
-```typescript
-firstActionOnly: true; // Can only be used at the start of crafting
-```
-
-This is useful for techniques that provide opening buffs or set up conditions that should not be reapplied mid-craft.
-
-#### `minStability`
-
-When set, the technique is only usable while current stability is strictly greater than the specified value:
-
-```typescript
-minStability: 10; // Cannot use if current stability is 10 or less
-```
-
-This allows techniques that depend on having sufficient stability to function properly.
-
-## Effect Types
-
-Techniques produce various effects on the crafting process. Effects can also carry an optional `condition` field (a `CraftingTechniqueCondition`) to make the effect conditional.
-
-### Completion Effect
-
-Advances craft progress:
+Advances the completion meter:
 
 ```typescript
 {
   kind: 'completion',
-  amount: { value: 15, stat: 'intensity', upgradeKey: 'completion' },
+  amount: Scaling,
 }
 ```
 
-### Perfection Effect
+### Perfection (`perfection`)
 
-Improves item quality:
+Advances the perfection meter:
 
 ```typescript
 {
   kind: 'perfection',
-  amount: { value: 10, stat: 'control', upgradeKey: 'perfection' },
+  amount: Scaling,
 }
 ```
 
-### Stability Effect
+### Stability (`stability`)
 
-Restores or reduces current stability (not max):
+Restores current stability:
 
 ```typescript
 {
   kind: 'stability',
-  amount: { value: 8, stat: undefined } // Positive = restore, negative = reduce
+  amount: Scaling,
 }
 ```
 
-**Note:** This only affects current stability. Your max stability remains unchanged.
+### Buff Effects
 
-### Max Stability Effect
+Apply or consume crafting buffs:
 
-Modifies the maximum stability cap:
+```typescript
+// Apply a crafting buff to the crafter
+{
+  kind: 'buffSelf',
+  buff: craftingBuff,
+  amount: Scaling,
+}
+
+// Apply a crafting buff to the craft
+{
+  kind: 'buffCraft',
+  buff: craftBuff,
+  amount: Scaling,
+}
+
+// Consume stacks of a crafting buff
+{
+  kind: 'consumeSelf',
+  buff: craftingBuff,
+  amount: Scaling,
+}
+```
+
+### Conditional Effects
+
+Effects can be conditional based on current crafting state:
 
 ```typescript
 {
-  kind: 'maxStability',
-  amount: { value: 2, stat: undefined } // Positive = increase cap, negative = reduce cap
+  kind: 'perfection',
+  amount: { value: 1, stat: 'control', upgradeKey: 'perfection' },
+  condition: {
+    kind: 'condition',
+    condition: 'currentStability > 50',
+  },
 }
 ```
 
-**Note:** This changes your stability ceiling. If max decreases below current, current is reduced to match.
+### Scaling Reference
 
-### Pool Effect
-
-Restores qi pool:
+All `amount` fields use the `Scaling` type for stat-based values:
 
 ```typescript
 {
-  kind: 'pool',
-  amount: { value: 10, stat: undefined, upgradeKey: 'pool' },
+  value: number;          // Base value
+  stat?: StatName;       // Stat to scale from (e.g. 'control', 'intensity')
+  upgradeKey?: string;   // Links to mastery upgrade
+  equation?: string;      // Custom equation using {stat}
 }
 ```
 
-### Create Buff Effect
+The game supports these stats for crafting techniques: `control`, `intensity`, `pool`, `power`, `qiAbsorption`, `masteryPoints`, `charisma`, `speed`.
 
-Grants crafting buffs:
+## Registration
 
-```typescript
-{
-  kind: 'createBuff',
-  buff: empowerIntensityBuff,
-  stacks: { value: 3, stat: undefined }
-}
-```
-
-### Consume Buff Effect
-
-Removes buff stacks:
+Use `addCraftingTechnique` to register a technique with the game:
 
 ```typescript
-{
-  kind: 'consumeBuff',
-  buff: targetBuff,
-  stacks: { value: 2, stat: undefined }
-}
-```
-
-### Cleanse Toxicity Effect
-
-Reduces accumulated toxicity:
-
-```typescript
-{
-  kind: 'cleanseToxicity',
-  amount: { value: 5, stat: undefined }
-}
-```
-
-## The `upgradeKey` on Scaling
-
-To make an effect upgradeable through the mastery system, set `upgradeKey` on the effect's `Scaling` amount. The key must match the corresponding entry in `upgradeMasteries`:
-
-```typescript
-const myTechnique: CraftingTechnique = {
-  name: 'Focused Fusion',
-  // ...
+window.modAPI.actions.addCraftingTechnique({
+  id: 'my_custom_technique',
+  name: 'Custom Fusion',
+  description: 'A powerful completion technique.',
+  icon: MyCustomIcon,
+  type: 'fusion',
+  stabilityCost: 10,
+  poolCost: 15,
   effects: [
     {
       kind: 'completion',
-      amount: { value: 2.0, stat: 'intensity', upgradeKey: 'completion' }, // links to upgradeMasteries['completion']
+      amount: { value: 2, stat: 'control' },
     },
   ],
-  currentCooldown: 0,
-  upgradeMasteries: {
-    completion: createCompletionUpgradeMap('completion', 'empowered'), // first arg must match upgradeKey
-  },
-};
+});
 ```
 
 ## Mastery System
 
-Techniques improve through mastery tiers:
+Crafting techniques can be upgraded through the mastery system. All helper functions are available on `window.modAPI.utils`.
 
-### Mastery Tiers
+### Quick Reference
 
-| Tier value      | Display name    | Roman numeral |
-| --------------- | --------------- | ------------- |
-| `mundane`       | Mundane         | I             |
-| `qitouched`     | Qi Touched      | II            |
-| `empowered`     | Empowered       | III           |
-| `resplendent`   | Resplendent     | IV            |
-| `incandescent`  | Incandescent    | V             |
-| `transcendent`  | Transcendent    | VI            |
+```typescript
+upgradeMasteries: {
+  completion: window.modAPI.utils.createCraftingCompletionUpgradeMap('completion', 'empowered'),
+  perfection: window.modAPI.utils.createCraftingPerfectionUpgradeMap('perfection', 'empowered'),
+  pool: window.modAPI.utils.createCraftingPoolUpgradeMap('pool', 'empowered'),
+  stability: window.modAPI.utils.createCraftingStabilityUpgradeMap('stability', 'empowered'),
+  stacks: window.modAPI.utils.createCraftingStacksUpgradeMap('stacks', 'resplendent', 'Empower Intensity', 2),
+  cost: window.modAPI.utils.createCraftingCostUpgradeMap('poolCost', 'empowered', 'Qi Pool', -5),
+}
+```
+
+### Rarity Tiers
+
+Crafting technique masteries use the same rarity tiers as combat techniques:
+
+| Tier | Value |
+|------|-------|
+| mundane | 1 |
+| qitouched | 2 |
+| empowered | 3 |
+| resplendent | 4 |
+| incandescent | 5 |
+| transcendent | 6 |
 
 Use the **tier value** (left column) when specifying `startRarity` arguments in helper functions.
 
@@ -376,20 +279,28 @@ The `upgradeMasteries` field maps upgrade keys to a `CraftingTechniqueMasteryRar
 
 #### Effect Upgrades
 
-Increase completion/perfection/pool/stability amounts multiplicatively:
+Increase completion/perfection/pool/stability amounts multiplicatively (5% mundane to 30% transcendent):
 
 ```typescript
 upgradeMasteries: {
-  completion: createCompletionUpgradeMap('completion', 'empowered'),
-  perfection: createPerfectionUpgradeMap('perfection', 'empowered'),
-  pool: createPoolUpgradeMap('pool', 'empowered'),
-  stability: createStabilityUpgradeMap('stability', 'empowered'),
+  completion: window.modAPI.utils.createCraftingCompletionUpgradeMap('completion', 'empowered'),
+  perfection: window.modAPI.utils.createCraftingPerfectionUpgradeMap('perfection', 'empowered'),
+  pool: window.modAPI.utils.createCraftingPoolUpgradeMap('pool', 'empowered'),
+  stability: window.modAPI.utils.createCraftingStabilityUpgradeMap('stability', 'empowered'),
 }
 ```
 
 Each function takes `(upgradeKey: string, startRarity: Rarity)`. The `upgradeKey` must match the `upgradeKey` on the `Scaling` object of the effect you want upgraded.
 
-There is also `createPowerUpgradeMap(key, rarity, tooltip)` for custom effect scaling — it applies the same multiplicative upgrade percentages but accepts a custom tooltip string.
+There is also `createCraftingPowerUpgradeMap(key, rarity, tooltip)` for custom effect scaling — it applies the same multiplicative upgrade percentages but accepts a custom tooltip string.
+
+#### Generic Builders
+
+For full control over per-rarity values:
+
+- **`createCraftingUpgradeMap(key, rarity, upgrades)`** — Explicit per-rarity tooltip/change/shouldMultiply. Omit a rarity by passing `undefined`.
+- **`createCraftingUpgradeMapSimple(key, rarity, tooltip, shouldMultiply, changes, renderTransform?)`** — One tooltip template with `{change}` placeholder; per-rarity numbers in `changes`.
+- **`createCraftingUpgradeMapStepped(key, rarity, tooltip, maxChange)`** — Automatically steps the value from `maxChange/5` (mundane) up to `maxChange` (incandescent).
 
 #### Buff Stack Upgrades
 
@@ -397,11 +308,11 @@ Increase the number of buff stacks granted:
 
 ```typescript
 upgradeMasteries: {
-  stacks: createStacksUpgradeMap('stacks', 'resplendent', 'Empower Intensity', 2),
+  stacks: window.modAPI.utils.createCraftingStacksUpgradeMap('stacks', 'resplendent', 'Empower Intensity', 2),
 }
 ```
 
-`createStacksUpgradeMap(key, startRarity, buffName, maxChange)` — `maxChange` is the maximum stack change at Transcendent tier.
+`createCraftingStacksUpgradeMap(key, startRarity, buffName, maxChange)` — `maxChange` is the maximum stack change at Transcendent tier.
 
 #### Cost Reductions
 
@@ -409,11 +320,11 @@ Lower resource consumption (pool cost, stability cost):
 
 ```typescript
 upgradeMasteries: {
-  poolCost: createCostUpgradeMap('poolCost', 'empowered', 'Qi Pool', -5),
+  poolCost: window.modAPI.utils.createCraftingCostUpgradeMap('poolCost', 'empowered', 'Qi Pool', -5),
 }
 ```
 
-`createCostUpgradeMap(key, startRarity, costName, maxChange)` — `costName` appears in the mastery tooltip. Use negative `maxChange` to reduce costs.
+`createCraftingCostUpgradeMap(key, startRarity, costName, maxChange)` — `costName` appears in the mastery tooltip. Use negative `maxChange` to reduce costs.
 
 #### Max Amount Increases
 
@@ -421,11 +332,11 @@ Increase the maximum amount of a stepped value:
 
 ```typescript
 upgradeMasteries: {
-  maxStacks: createMaxIncreaseUpgradeMap('maxStacks', 'resplendent', 3),
+  maxStacks: window.modAPI.utils.createCraftingMaxIncreaseUpgradeMap('maxStacks', 'resplendent', 3),
 }
 ```
 
-`createMaxIncreaseUpgradeMap(key, startRarity, maxChange)` — useful for techniques that cap at a certain amount.
+`createCraftingMaxIncreaseUpgradeMap(key, startRarity, maxChange)` — useful for techniques that cap at a certain amount.
 
 #### Success Improvements
 
@@ -440,3 +351,46 @@ masteryKindPools: ['completion', 'pool'], // Only offer completion and pool mast
 ```
 
 This is useful when a technique has multiple effect kinds but you only want mastery selection to draw from a subset.
+
+### Custom Thresholds
+
+A recipe can define a named **custom threshold** — a quality milestone that runs its own event outcome in place of the sublime one when cleared. This lets a craft award different results depending on how well the player performed beyond mere perfection.
+
+Define the threshold in the recipe:
+
+```typescript
+export const myRecipe: Recipe = {
+  id: 'my_recipe',
+  name: 'Celestial Pill',
+  // ... other fields ...
+  customThreshold: {
+    name: 'Celestial Radiance',
+    threshold: 3, // Clear at 3 perfection tiers above perfect
+    tooltip: 'Achieve true perfection with the celestial radiance.',
+  },
+  sublimeSteps: [{ kind: 'text', text: 'You produce a sublime pill.' }],
+  perfectSteps: [{ kind: 'text', text: 'You produce a perfect pill.' }],
+  outcomeSteps: [
+    // Called when custom threshold is NOT met (falls back to sublime outcome)
+    { kind: 'text', text: 'The pill absorbs the celestial energy.' },
+    // Called when custom threshold IS met
+    { kind: 'text', text: 'The pill blazes with celestial radiance!' },
+  ],
+};
+```
+
+The `CraftCustomThreshold` interface:
+
+```typescript
+interface CraftCustomThreshold {
+  /** Title shown on the quality bar. */
+  name: Translatable;
+  /** Quality tiers the craft has to reach to clear the mark. */
+  threshold: number;
+  /** Tooltip for the bar. A generic line is used when this is unset. Both this and
+   *  the generic line are given `{needed}` (the threshold) and `{name}`. */
+  tooltip?: Translatable;
+}
+```
+
+When the threshold is met, the craft's `outcomeSteps` fires with the threshold's name available via `{name}` in text. When it is not met, the sublime outcome fires instead.
