@@ -180,9 +180,13 @@ Gives a buff to the enemy.
 {
   kind: 'buffTarget',
   amount: { value: 3, stat: undefined },
-  buff: debuffBuff
+  buff: debuffBuff,
+  hideBuff?: true, // Don't show buff in tooltips
+  initialState?: Record<string, Scaling> // Seeds the created buff's internalState (evaluated in this effect's context)
 }
 ```
+
+**New in recent update:** `initialState` seeds the created buff's `internalState` at application time, with each value resolved in the effect's scaling scope. This mirrors the `initialState` field already available on `buffSelf`. It is useful for debuffs that track a value derived from the technique's context — for example, a debuff that stores how much damage was absorbed during the application and exposes it via `stateTooltip`.
 
 ### `consumeTarget`
 
