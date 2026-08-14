@@ -21,6 +21,8 @@ Every damage number, healing amount, buff strength, and stat modifier flows thro
 ```typescript
 interface Scaling {
   value: number;          // Base multiplier
+  /** When false, this stat remains active but is omitted from buff tooltips. */
+  tooltipCondition?: string;
   stat?: string;          // Stat to multiply by (see valid stat names below)
   scaling?: string;       // Special scaling mode (e.g. 'stacks', 'consumed', or a buff name)
   eqn?: string;           // Expression MULTIPLIED onto the result

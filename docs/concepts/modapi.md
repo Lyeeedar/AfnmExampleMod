@@ -203,6 +203,41 @@ window.modAPI.actions.startCombat(
 );
 ```
 
+### Technique Effect Reference
+
+The `technique.effects` array supports different effect kinds. This section documents notable fields on each kind.
+
+#### `buffTarget`
+
+Apply a buff to the enemy (or the current combat target):
+
+```typescript
+{
+  kind: 'buffTarget',
+  buff: myBuff,
+  amount: { value: 3 },      // stacks to apply
+  initialState?: Record<string, Scaling>,  // seed buff internal state at application time
+}
+```
+
+- **`initialState`** -- Seeds the created buff's internal state at application time. Each value is a Scaling expression evaluated in the applier's context, so values only known at apply-time (e.g. `absorbed` damage) can be captured into the debuff. The buff's `internalState` then uses these seed values as starting values rather than defaults. Both `CreateBuffTargetEffect` (in `buff.ts`) and `BuffTargetTechniqueEffect` (in `technique.ts`) expose this field. This mirrors the `initialState` already available on the `buffSelf` effect kind.
+
+**Example use case:** a debuff that stores the damage it absorbed so it can repay that amount when the buff expires:
+
+```typescript
+const absorbedDamageTracker: Buff = {
+  name: 'Absorbed Damage Tracker',
+  internalState: { stored: { value: 0 } },
+};
+
+{
+  kind: 'buffTarget',
+  buff: absorbedDamageTracker,
+  amount: { value: 1 },
+  initialState: { stored: { eqn: 'absorbed' } },  // capture absorbed damage at apply time
+}
+```
+
 ### Modifying Existing Locations
 
 Add content to locations that already exist in the game:
