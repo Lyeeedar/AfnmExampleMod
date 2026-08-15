@@ -174,13 +174,16 @@ Removes a buff from yourself.
 
 ### `buffTarget`
 
-Gives a buff to the enemy.
+Gives a buff to the enemy. The `initialState` field seeds the created buff's `internalState` with values evaluated in the applier's context at application time, useful for capturing values only known at apply-time (e.g. absorbed damage) into the debuff.
 
 ```typescript
 {
   kind: 'buffTarget',
   amount: { value: 3, stat: undefined },
-  buff: debuffBuff
+  buff: debuffBuff,
+  initialState: {
+    stored: { eqn: 'absorbed' } // seeds internalState.stored from the applier's absorbed value
+  }
 }
 ```
 
