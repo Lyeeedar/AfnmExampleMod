@@ -176,20 +176,14 @@ amount: {
 
 ### Pattern 4: Game State Scaling
 
-**When to use**: Effects that respond to dynamic game conditions like toxicity, stability, or qi levels.
+**When to use**: Effects that respond to dynamic game conditions like toxicity, health, etc.
 
 ```typescript
-// Power increases with risk (toxicity)
+// Final value = 0.1 * power * toxicity
 {
   value: 0.1,
   stat: 'power',
-  scaling: 'toxicity'  // More toxic = more powerful
-}
-
-// Cost scales with current stability
-{
-  value: -50,
-  scaling: 'stability'  // Costs current stability
+  scaling: 'toxicity'
 }
 ```
 

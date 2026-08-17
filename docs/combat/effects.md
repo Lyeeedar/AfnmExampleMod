@@ -184,6 +184,22 @@ Gives a buff to the enemy.
 }
 ```
 
+**`initialState`** — Seeds the created buff's `internalState` at application time. Each key is evaluated in the applier's variable scope, so apply-time values like absorbed damage can be captured into the debuff.
+
+```typescript
+// Seed the debuff with the applier's current power
+{
+  kind: 'buffTarget',
+  amount: { value: 1, stat: undefined },
+  buff: debuffBuff,
+  initialState: {
+    stored: { value: 1, stat: 'power' }  // evaluates in applier's scope
+  }
+}
+```
+
+This mirrors the `initialState` field already available on `buffSelf`.
+
 ### `consumeTarget`
 
 Removes a buff from the enemy.

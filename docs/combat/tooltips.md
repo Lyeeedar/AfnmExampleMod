@@ -185,6 +185,52 @@ condition: {
 // Uses the custom tooltip text
 ```
 
+## Conditional Tooltip Fragments
+
+Use `tooltipFragments` to append conditional text after the normal tooltip. Each fragment has a `condition` (evaluated at render time) and `tooltip` (the text shown when true).
+
+```typescript
+const myBuff: Buff = {
+  name: 'Empowering Mark',
+  tooltipFragments: {
+    fragments: [
+      {
+        condition: 'stacks >= 5',
+        tooltip: 'At 5+ stacks, also grant +20% critical chance.'
+      },
+      {
+        condition: 'stacks >= 10',
+        tooltip: 'At 10+ stacks, critical multiplier +50%.'
+      }
+    ],
+    separator: '<br/>'  // optional; defaults to a line break
+  }
+};
+```
+
+**`childTooltips`** — Renders a separate titled tooltip panel alongside the main one when the condition is true. Useful for detailed side panels that would clutter the main tooltip.
+
+```typescript
+const myBuff: Buff = {
+  name: 'Ritual Circle',
+  childTooltips: [
+    {
+      condition: 'stacks >= 3',
+      title: 'Ritual Circle — Tier 2',
+      body: 'At 3+ stacks, all Blood techniques deal +30% damage.'
+    },
+    {
+      condition: 'stacks >= 7',
+      title: 'Ritual Circle — Tier 3',
+      body: 'At 7+ stacks, Blood techniques also apply a 2-stack bleed.'
+    }
+  ]
+};
+```
+
+Both fields are also available on `Technique`.
+
+
 ## Special Tooltips
 
 ### Damage Types
