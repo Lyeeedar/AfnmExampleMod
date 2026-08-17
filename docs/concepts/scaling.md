@@ -176,20 +176,14 @@ amount: {
 
 ### Pattern 4: Game State Scaling
 
-**When to use**: Effects that respond to dynamic game conditions like toxicity, qiDroplets, or corruption levels.
+**When to use**: Effects that respond to dynamic game conditions like toxicity, health, etc.
 
 ```typescript
-// Power increases with risk (toxicity)
+// Final value = 0.1 * power * toxicity
 {
   value: 0.1,
   stat: 'power',
-  scaling: 'toxicity'  // More toxic = more powerful
-}
-
-// Cost scales with current qiDroplets
-{
-  value: -50,
-  scaling: 'qiDroplets'  // Costs current qiDroplets
+  scaling: 'toxicity'
 }
 ```
 
