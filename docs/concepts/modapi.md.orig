@@ -1003,8 +1003,8 @@ Helper functions through `window.modAPI.utils`:
 ### State Access
 
 ```typescript
-window.modAPI.utils.subscribe(callback: () => void): () => void
-window.modAPI.utils.getGameStateSnapshot(): RootState
+window.modAPI.subscribe(callback: () => void): () => void
+window.modAPI.getGameStateSnapshot(): RootState
 window.modAPI.utils.determineCurrentScreen(rootState: RootState): ScreenType
 ```
 
@@ -1015,11 +1015,11 @@ window.modAPI.utils.determineCurrentScreen(rootState: RootState): ScreenType
 ```typescript
 // Rate-limited reactive updates
 let lastUpdate = 0;
-window.modAPI.utils.subscribe(() => {
+window.modAPI.subscribe(() => {
   const now = Date.now();
   if (now - lastUpdate < 250) return;
   lastUpdate = now;
-  const snap = window.modAPI.utils.getGameStateSnapshot();
+  const snap = window.modAPI.getGameStateSnapshot();
   refreshMyPanel(snap);
 });
 
@@ -1219,6 +1219,20 @@ Use these inside event `text` fields to produce consistent in-game styling:
 }
 ```
 
+### Crafting Utilities
+
+```typescript
+window.modAPI.utils.previewCraftingTechnique(technique: CraftingTechnique, state: CraftingState): CraftingState
+```
+
+Preview the outcome of a crafting technique given the current crafting state. Returns the predicted `CraftingState` with `progressState.completion` and other metrics.
+
+```typescript
+const craftingState = api.useSelector(state => state.crafting);
+const technique = api.craftingTechniqueFromKnown(knownTechnique);
+const preview = window.modAPI.utils.previewCraftingTechnique(technique, craftingState);
+console.log('Completion after:', preview.progressState?.completion);
+```
 
 ### Player Entity Utilities
 
@@ -1235,8 +1249,8 @@ Create full player entities for tooltips, calculations, and custom mechanics. Bo
 
 ```typescript
 // Create a combat entity for tooltip display
-const player = window.modAPI.utils.getGameStateSnapshot().player.player;
-const breakthrough = window.modAPI.utils.getGameStateSnapshot().player.breakthrough;
+const player = window.modAPI.getGameStateSnapshot().player.player;
+const breakthrough = window.modAPI.getGameStateSnapshot().player.breakthrough;
 if (player && breakthrough) {
   const combatEntity = window.modAPI.utils.createPlayerCombatEntity(player, breakthrough, flags);
   // Use for damage calculations, technique effect previews, etc.
