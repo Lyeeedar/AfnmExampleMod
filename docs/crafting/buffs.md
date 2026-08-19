@@ -62,8 +62,27 @@ interface CraftingBuff {
 
   // Advanced fields
   bonusHiddenPotential?: Scaling; // Grants bonus hidden potential to the crafted item when this buff is active
+  /**
+   * Lifts the perfection/completion cap by this many threshold steps. Each step added
+   * past the recipe's natural cap stretches the bar to one more 1.3x-scaled threshold
+   * on top of whatever `canOvercraft`/`sublimeItem` already allow, so a +1 buff turns
+   * a 5-step cap into a 6-step cap. The cap is computed once per craft and threaded
+   * through `getMaxCompletion` / `getMaxPerfection`. Composes additively with
+   * `canOvercraft` and `sublimeItem`; floored at one step so a build with neither
+   * still has a reachable cap even if the boost is negative.
+   */
+  bonusMaximumQuality?: Scaling;
+  /**
+   * Awards this many hidden potential stars on the finished item if the craft reaches
+   * the maximum possible perfection tier (i.e. the highest quality the recipe and any
+   * `bonusMaximumQuality` buffs together define). Grants nothing on partial-perfect
+   * finishes; pair with `bonusMaximumQuality` if you want the buff to do anything on
+   * lower tiers. Mirrors the read path for `bonusHiddenPotential` in the crafting
+   * completion handler.
+   */
+  bonusQuality?: Scaling;
   realm?: Realm; // Minimum realm required for this buff to apply its effects
-  deweight?: boolean; // Hide from the crafting buff row; surface only in the expanded effects panel (use for passive mastery markers the player does not need to track live)
+  deweight?: boolean; // Hide from the crafting buff row; surface only in the expanded effects panel (use for passive mastery markers the player does not need to track live during crafting)
 }
 ```
 
@@ -105,6 +124,59 @@ Buffs modify these key statistics:
 - **Action Success Chance** (`successChanceBonus`) - Improves technique success rate
 - **Pills Per Action** (`pillsPerRound`) - Number of pills usable per crafting action
 - **Item Effectiveness** (`itemEffectiveness`) - Effectiveness of consumables used during crafting
+
+## Quality Cap Buffs
+
+Two fields on `CraftingBuff` extend the quality tier system beyond its default limits.
+
+### `bonusMaximumQuality`
+
+Lifts the perfection and completion caps by additional threshold steps. Each step adds one 1.3x-scaled threshold on top of what `canOvercraft` and `sublimeItem` already allow. Compose it additively with those recipe flags:
+
+```typescript
+// A flame that raises the cap by 1 step at base tier and 2 steps at upgraded tier
+const myFlame: FlameItem = {
+  kind: 'flame',
+  buffs: [{
+    buff: {
+      name: `My Flame (${realmToTier[e]})`,
+      icon: myFlameIcon,
+      canStack: false,
+      stats: undefined,
+      effects: [],
+      stacks: 1,
+      displayLocation: 'none',
+      bonusMaximumQuality: {
+        value: realms.indexOf(e) >= realms.indexOf('pillarCreation') ? 2 : 1,
+        stat: undefined,
+      },
+    },
+    buffStacks: { value: 1, stat: undefined },
+  }],
+  // ...
+};
+```
+
+The cap is computed once per craft and passed as `maxStepsBoost` to `getMaxCompletion` / `getMaxPerfection`. It is floored at one step so a recipe with no `canOvercraft` and no `sublimeItem` always has a reachable cap.
+
+### `bonusQuality`
+
+Awards hidden potential stars on the finished item only when the craft reaches the maximum possible perfection tier. Grants nothing on partial-perfect finishes. Pair it with `bonusMaximumQuality` if you want the buff to have any effect at lower tiers:
+
+```typescript
+const myFlameBuff: CraftingBuff = {
+  name: 'My Flame',
+  icon: myFlameIcon,
+  canStack: false,
+  stats: undefined,
+  effects: [],
+  stacks: 1,
+  displayLocation: 'none',
+  // Awards 1 bonus star at lifeFlourishing realm and above
+  bonusMaximumQuality: { value: 1, stat: undefined },
+  bonusQuality: { value: 1, stat: undefined },
+};
+```
 
 ## Buff Categories
 
@@ -308,12 +380,12 @@ Available condition kinds:
 | Kind          | Fields                                                    | Description                                      |
 | ------------- | --------------------------------------------------------- | ------------------------------------------------ |
 | `chance`      | `percentage: number`                                      | Random chance (0-100)                           |
-| `buff`        | `buff: CraftingBuff \| 'self'`, `count: number`, `mode: 'more' \| 'less' \| 'equal'` | Based on stack count of a buff |
-| `stability`   | `percentage: number`, `mode: 'more' \| 'less'`           | Based on current stability as % of max           |
-| `perfection`  | `percentage: number`, `mode: 'more' \| 'less'`           | Based on perfection progress %                   |
-| `completion`  | `percentage: number`, `mode: 'more' \| 'less'`           | Based on completion progress %                   |
-| `pool`        | `percentage: number`, `mode: 'more' \| 'less'`           | Based on current qi pool as % of max             |
-| `toxicity`    | `percentage: number`, `mode: 'more' \| 'less'`           | Based on current toxicity as % of max            |
+| `buff`        | `buff: CraftingBuff | 'self'`, `count: number`, `mode: 'more' | 'less' | 'equal'` | Based on stack count of a buff |
+| `stability`   | `percentage: number`, `mode: 'more' | 'less'`           | Based on current stability as % of max           |
+| `perfection`  | `percentage: number`, `mode: 'more' | 'less'`           | Based on perfection progress %                   |
+| `completion`  | `percentage: number`, `mode: 'more' | 'less'`           | Based on completion progress %                   |
+| `pool`        | `percentage: number`, `mode: 'more' | 'less'`           | Based on current qi pool as % of max             |
+| `toxicity`    | `percentage: number`, `mode: 'more' | 'less'`           | Based on current toxicity as % of max            |
 | `condition`   | `condition: string`                                       | Based on recipe condition state (e.g. `'positive'`) |
 
 ## Buff Triggers
@@ -420,7 +492,7 @@ onFusion: [
 ];
 ```
 
-## Buff Display — Deweighting Passive Markers
+## Buff Display -- Deweighting Passive Markers
 
 The `deweight` flag hides a buff from the main crafting buff row, surfacing it only in the expanded effects popout:
 

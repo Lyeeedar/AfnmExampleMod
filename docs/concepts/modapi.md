@@ -524,7 +524,7 @@ Returns the full `GameSettingsProps` object containing all player preferences. R
 | `fastRewardAnimations` | `boolean` | Speed up reward popup animations |
 | `showCraftingRawNumbers` | `boolean` | Show exact crafting stat values |
 | `skipSeenDialogue` | `boolean` | Skip dialogue the player has already seen |
-| `skipDialogueMode` | `'flash' \| 'instant' \| 'none'` | How to skip seen dialogue |
+| `skipDialogueMode` | `'flash' | 'instant' | 'none'` | How to skip seen dialogue |
 | `hideEmptySlotWarnings` | `boolean` | Suppress empty equipment slot warnings |
 | `pauseAutoBattleOnLowHealth` | `boolean` | Pause auto-battle when below threshold |
 | `sexuality` | `string` | Player's configured sexuality setting |
@@ -1088,6 +1088,8 @@ window.modAPI.utils.getBreakthroughQi(realm: Realm, realmProgress: RealmProgress
 window.modAPI.utils.getNumericReward(base: number, realm: Realm, progress: RealmProgress)
 window.modAPI.utils.getPillRealmMultiplier(realm: Realm)
 window.modAPI.utils.getCraftingEquipmentStats(realm: Realm, realmProgress: RealmProgress, factors: { pool: number; control: number; intensity: number }, type: 'cauldron' | 'flame')
+window.modAPI.utils.getMaxCompletion(recipe: RecipeItem, recipeStats: CraftingRecipeStats, realm: Realm, maxStepsBoost?: number): { flat: number; percentage: number }
+window.modAPI.utils.getMaxPerfection(recipe: RecipeItem, recipeStats: CraftingRecipeStats, realm: Realm, maxStepsBoost?: number): { flat: number; percentage: number }
 ```
 
 - **`getExpectedBarrier`** — Expected max barrier for a player in the given realm.
@@ -1098,6 +1100,60 @@ window.modAPI.utils.getCraftingEquipmentStats(realm: Realm, realmProgress: Realm
 - **`getExpectedArtefactPower`** — Expected artefact power stat.
 - **`getBreakthroughQi`** — Qi cost for a breakthrough at the given realm and progress.
 - **`getPillRealmMultiplier`** — Multiplier applied to pill effectiveness based on realm. Use when computing flat consumable values.
+
+### Crafting Quality Cap Utilities
+
+The crafting system uses a threshold-based quality tier model. Each tier requires reaching a 1.3x-scaled checkpoint; `canOvercraft` adds one step and `sublimeItem` adds a second. Two utility functions let mods read and compute the current quality cap:
+
+```typescript
+window.modAPI.utils.getMaxCompletion(recipe: RecipeItem, recipeStats: CraftingRecipeStats, realm: Realm, maxStepsBoost?: number): { flat: number; percentage: number }
+window.modAPI.utils.getMaxPerfection(recipe: RecipeItem, recipeStats: CraftingRecipeStats, realm: Realm, maxStepsBoost?: number): { flat: number; percentage: number }
+```
+
+- **`getMaxCompletion`** — Returns the completion cap as a `{ flat, percentage }` pair. The `flat` value is the raw threshold step the player must reach. The `percentage` is the normalised progress bar value. Pass `maxStepsBoost` from `getMaxStepsBoost` (see below) when computing against a live crafting entity that carries `bonusMaximumQuality` buffs.
+
+- **`getMaxPerfection`** — Same shape as `getMaxCompletion`, but for the perfection cap. Both functions compose additively with `canOvercraft` and `sublimeItem`, and both floor at one step so a recipe with neither still has a reachable cap.
+
+**Computing `maxStepsBoost`:**
+
+```typescript
+const entity = window.modAPI.utils.createPlayerCraftingEntity(player, breakthrough, characters);
+// Sum every active buff's bonusMaximumQuality value
+const maxStepsBoost = (entity.buffs ?? []).reduce((boost, buff) => {
+  if (buff.bonusMaximumQuality) {
+    const val = window.modAPI.utils.evaluateScaling(
+      { ...buff.bonusMaximumQuality, eqn: undefined },
+      { ...entity.stats, stacks: 1 },
+      1,
+    );
+    boost += Math.floor(val);
+  }
+  return boost;
+}, 0);
+
+const cap = window.modAPI.utils.getMaxPerfection(recipe, recipeStats, realm, maxStepsBoost);
+```
+
+The `bonusMaximumQuality` field lifts the quality tier cap by additional threshold steps. Each step adds one 1.3x-scaled checkpoint on top of whatever `canOvercraft` and `sublimeItem` already allow. The new cap is computed once per craft and threaded through `getMaxCompletion` and `getMaxPerfection` via the `maxStepsBoost` parameter.
+
+**Awarding bonus quality stars:**
+
+When a craft reaches the maximum possible perfection tier, `bonusQuality` buffs on the active entity award hidden potential stars on the finished item. Compute the bonus like this:
+
+```typescript
+const bonusQuality = (entity.buffs ?? []).reduce((bonus, buff) => {
+  if (buff.bonusQuality) {
+    const val = window.modAPI.utils.evaluateScaling(
+      { ...buff.bonusQuality, eqn: undefined },
+      { ...entity.stats, stacks: 1 },
+      1,
+    );
+    bonus += Math.floor(val);
+  }
+  return bonus;
+}, 0);
+// Add bonusQuality to the crafted item's hidden potential
+```
 
 ### Altar Utilities
 
