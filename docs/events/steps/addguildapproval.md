@@ -1,3 +1,5 @@
+```markdown
+---
 ---
 layout: default
 title: Add Guild Approval Step
@@ -13,8 +15,6 @@ description: 'Add approval points to specific guilds'
 
 The Add Guild Approval Step increases a player's approval rating with specific guilds in AFNM. Guild approval represents standing, reputation, and respect within an organization, affecting access to guild-specific benefits like shops, quests, and promotions.
 
-This step is essential for implementing guild progression systems, quest rewards that build faction reputation, and any content where players need to earn their way through guild hierarchies.
-
 ## Interface
 
 ```typescript
@@ -23,6 +23,10 @@ interface AddGuildApprovalStep {
   condition?: string;
   guild: string;
   amount: string;
+  /** Optional rank cap. When set, approval is only granted when the player's
+   *  current guild rank is <= maxRank. Use this to prevent current-rank missions
+   *  from awarding promotion progress. */
+  maxRank?: number;
 }
 ```
 
@@ -30,25 +34,17 @@ interface AddGuildApprovalStep {
 
 ### Required Properties
 
-**`kind`** - Always `'addGuildApproval'`
+**kind** - Always 'addGuildApproval'
 
-- Identifies this as a guild approval addition step
+**guild** - Guild name to modify approval for. Must match an existing guild name exactly.
 
-**`guild`** - Guild name to modify approval for
-
-- Must match an existing guild name exactly
-
-**`amount`** - Approval points to add
-
-- String expression that evaluates to the number of approval points
+**amount** - Approval points to add as a string expression.
 
 ### Optional Properties
 
-**`condition`** - Conditional execution
+**condition** - Flag expression that must be true for approval to be added.
 
-- [Flag expression](../../concepts/flags) that must be true for approval to be added
-- Step is skipped if condition fails
-- Useful for conditional rewards based on player actions or state
+**maxRank** - Rank ceiling for this approval grant. When set, the step is suppressed (no approval awarded) if the player's rank in the target guild exceeds `maxRank`. Use this for guild mission boards where completing a mission of a given rank should award tokens and items but not further rank progress — only missions one rank above the player's current rank should advance them.
 
 ## Basic Examples
 
@@ -59,5 +55,16 @@ interface AddGuildApprovalStep {
   kind: 'addGuildApproval',
   guild: 'Immortal Fang Society',
   amount: '3'
+}
+```
+
+### Rank-Capped Mission Reward
+
+```typescript
+{
+  kind: 'addGuildApproval',
+  guild: 'Star Observers',
+  amount: '2',
+  maxRank: 1   // only awards approval to players ranked 1 or below; rank-2+ players get tokens/items but no approval
 }
 ```

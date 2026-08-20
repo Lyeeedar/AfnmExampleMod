@@ -1,3 +1,5 @@
+```markdown
+---
 ---
 layout: default
 title: Buff System Overview
@@ -114,6 +116,31 @@ interface Buff {
 
   // Persistence
   persistence?: BuffPersistence; // Controls behaviour outside combat
+
+  // Auxiliary tooltip suppression (issue #8943)
+  /**
+   * Optional expression evaluated against the same buff-aware scope as `childBuffs.condition`
+   * (exposes `stacks`, `internalState`, `storedValues`). When truthy, the auxiliary
+   * tooltips that this buff would normally surface are suppressed:
+   *  - barrier effects: hides the "Barrier" mechanic aux tooltip
+   *  - temporaryHealth effects: hides the "Temporary Health" mechanic aux tooltip
+   *  - effects that reference another buff (buffSelf/buffTarget/consumeSelf/consumeTarget/
+   *    convertSelf/merge/repair/modifyBuffGroup): hides the referenced buff's aux tooltip
+   * Use to hide the generic explanation when the player is already familiar with the
+   * mechanic in this specific context, or when the buff is sourced from a tooltip fragment
+   * that already explains it.
+   */
+  hideAuxTooltip?: string;
+
+  // Horde battle transfer (issue #8941)
+  /**
+   * When the buff's holder is the current enemy and dies mid-fight (i.e. a horde
+   * battle), this flag causes the buff to be deep-cloned onto the next enemy that
+   * takes its place, preserving `stacks`, `internalState`, `storedValues`,
+   * `guardianHp`, and any other accumulated runtime state. Unmarked buffs are
+   * discarded with the dying enemy as before.
+   */
+  transferOnTargetDeath?: boolean;
 
   // Cached hash of static fields (set automatically, do not assign)
   _staticHash?: number;
@@ -300,6 +327,36 @@ When `true`, the `eqn` is ignored for tooltip display so the shown amount is the
 }
 ```
 
+## Auxiliary Tooltip Suppression
+
+The `hideAuxTooltip` field lets a buff suppress its own auxiliary ("aux") tooltips — the generic mechanic explanations that appear for barrier, temporary health, and referenced buffs. This is useful when the buff's own `tooltip` already explains the mechanic, or when the context makes it self-evident.
+
+The field accepts an expression string evaluated against the same buff-aware scope as `childBuffs.condition` (exposes `stacks`, `internalState`, `storedValues`). When the expression evaluates truthy, aux tooltips are hidden.
+
+```typescript
+{
+  name: 'Arcane Barrier',
+  icon: arcaneBarrierIcon,
+  // ...other fields...
+  hideAuxTooltip: '1',  // always hide the Barrier aux tooltip
+}
+```
+
+```typescript
+{
+  name: 'Chain Lightning',
+  icon: chainLightningIcon,
+  // ...other fields...
+  // Only hide the referenced buff's aux tooltip once stacks are high enough
+  hideAuxTooltip: 'stacks >= 3',
+}
+```
+
+Available aux tooltip targets:
+- **Barrier effects**: hides the "Barrier" mechanic aux
+- **temporaryHealth effects**: hides the "Temporary Health" mechanic aux
+- **Buff-reference effects** (buffSelf/buffTarget/consumeSelf/consumeTarget/convertSelf/merge/repair/modifyBuffGroup): hides the referenced buff's aux tooltip
+
 ## Custom Tooltips
 
 The `tooltip` field on a buff supports dynamic placeholders that resolve at render time:
@@ -416,6 +473,28 @@ A buff can declare a guardian: a secondary HP pool that sits in front of the cha
 ```
 
 When the guardian intercepts damage, damage goes to `guardianHp` first. When `guardianHp` reaches 0, `onDestroyed` effects fire and `guardianMaxHp` is cleared.
+
+## Horde Battle Transfer
+
+In horde battles (where multiple enemies fight the player sequentially), buffs with `transferOnTargetDeath: true` are preserved when the current enemy dies. The buff is deep-cloned onto the next enemy, carrying over all accumulated state:
+
+```typescript
+{
+  name: 'Corruption Stack',
+  icon: corruptionIcon,
+  canStack: true,
+  transferOnTargetDeath: true,  // Survives across enemies in horde fights
+  // ...other fields...
+}
+```
+
+State that transfers:
+- `stacks` — current stack count
+- `internalState` — any tracked counters or flags
+- `storedValues` — values captured at creation time
+- `guardianHp` / `guardianMaxHp` — guardian sub-entity state
+
+Buffs without this flag are discarded when the enemy dies, matching the previous behaviour.
 
 ## Real Examples
 
