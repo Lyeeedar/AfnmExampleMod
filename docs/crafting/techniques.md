@@ -1,3 +1,5 @@
+```markdown
+---
 ---
 layout: default
 title: Crafting Techniques
@@ -28,6 +30,9 @@ interface CraftingTechnique {
 
   // Effects
   effects: CraftingEffect[];     // What happens when technique is used
+
+  // Triggered effects (walked for tooltip substitution — see Tooltip Templates below)
+  triggeredEffects?: { trigger: string; effects: CraftingEffect[] }[];
 
   // Mastery upgrades
   upgradeMasteries?: { [key: string]: CraftingTechniqueMasteryRarityMap };
@@ -394,3 +399,45 @@ interface CraftCustomThreshold {
 ```
 
 When the threshold is met, the craft's `outcomeSteps` fires with the threshold's name available via `{name}` in text. When it is not met, the sublime outcome fires instead.
+
+## Tooltip Templates
+
+The `tooltip` field on a crafting technique supports dynamic placeholders that resolve at render time. The system walks both the main `effects` block and each `triggeredEffects` block, populating template values for each effect. This means you can reference values from triggered effects in your tooltips:
+
+```typescript
+// In a crafting technique:
+tooltip: 'When you gain {createBuff.buff} gain {createBuff.amount} extra stacks.',
+effects: [
+  {
+    kind: 'createBuff',
+    buff: someCraftingBuff,
+    stacks: { value: 1, stat: undefined },
+  },
+],
+triggeredEffects: [
+  {
+    trigger: 'onFusion',
+    effects: [
+      {
+        kind: 'createBuff',
+        buff: someCraftingBuff,
+        amount: { value: 1, stat: undefined },  // can use {createBuff.amount} in tooltip
+      },
+    ],
+  },
+],
+```
+
+### Template Value Keys
+
+For each effect, the following keys are registered in the template scope:
+
+| Form | Example | Notes |
+|------|---------|-------|
+| Bare | `{createBuff.amount}` | Refers to the effect in the main `effects` block |
+| Kind-qualified | `{buffSelf.stacks}` | `kind` is the effect's `kind` value |
+| Indexed | `{[0].amount}` | Position in the `effects` array |
+| Trigger-prefixed | `{trigger0.[0].amount}` | Effect at index 0 of `triggeredEffects[0]` |
+| Nested trigger | `{trigger0.createBuff.amount}` | Same as above, kind-qualified form |
+
+Both `stacks` and `amount` are available on `createBuff` / `consumeBuff` effects for use in authored tooltips.
