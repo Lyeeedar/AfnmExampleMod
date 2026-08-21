@@ -53,6 +53,32 @@ interface Technique {
 }
 ```
 
+### Base Technique Effect Properties
+
+All technique effects (`TechniqueEffect` types) extend `BaseTechniqueEffect` which provides common optional fields:
+
+```typescript
+interface BaseTechniqueEffect {
+  condition?: TechniqueCondition;  // Optional condition that must be met
+  triggerKey?: string;             // Key used for triggered effects system
+  isAdditionalTooltip?: boolean;    // Marks additional tooltip entries
+  cantUpgrade?: boolean;            // Prevent mastery upgrades on this effect
+  statChanges?: Partial<{ [key in CombatStatistic]: Scaling }>; // Stat modifications
+  /**
+   * Optional expression evaluated against the technique tooltip's variable
+   * scope. When truthy, the auxiliary tooltips that this effect would
+   * normally surface are suppressed:
+   *  - barrier effects: the "Barrier" mechanic aux tooltip
+   *  - temporaryHealth effects: the "Temporary Health" mechanic aux tooltip
+   *  - effects that reference a buff (buffSelf/buffTarget/consumeSelf/
+   *    consumeTarget/convertSelf/mergeSelf): the referenced buff's
+   *    auxiliary tooltip
+   * Mirror of the same property on BaseBuff (issue #8943).
+   */
+  hideAuxTooltip?: string;
+}
+```
+
 ## Element Types
 
 The `type` field determines which cultivation school the technique belongs to:
@@ -144,7 +170,7 @@ dropletCost: 1; // Consume 1 droplet when used
 
 ## Requirements
 
-Requirements must be met for the technique to be usable, but aren't consumed:
+Requirements must be met for the technique to be usable, but are not consumed:
 
 ```typescript
 requirements: [
@@ -176,7 +202,7 @@ maxInstances: 1; // Can only be used once per stance
 **Use cases:**
 
 - Powerful techniques
-- Setup abilities that shouldn't be spammed
+- Setup abilities that should not be spammed
 - Weaker techniques that would benefit from more than the usual 3 instances
 
 ### Stance Restrictions
@@ -256,7 +282,7 @@ export const restoringFragrance: Technique = {
   effects: [
     {
       kind: 'buffSelf',
-      buff: { 
+      buff: {
         // Buff implementation...
       },
       amount: { value: 1, stat: undefined, upgradeKey: 'stacks' },
@@ -455,39 +481,39 @@ All helpers accept `(key: string, rarity: Rarity, ...)` and return a `TechniqueM
 
 These give you full control but require explicit per-rarity definitions:
 
-- **`createUpgradeMap(key, rarity, upgrades)`** — Explicit per-rarity tooltip/change/shouldMultiply. Omit a rarity by passing `undefined` for that tier.
-- **`createUpgradeMapSimple(key, rarity, tooltip, shouldMultiply, changes, renderTransform?)`** — One tooltip template with `{change}` placeholder; per-rarity numbers in `changes`. `renderTransform` lets you customise the displayed value (e.g. converting to percentages).
-- **`createUpgradeMapStepped(key, rarity, tooltip, maxChange, shouldMultiply?, renderTransform?)`** — Automatically steps the value from `maxChange/5` (mundane) up to `maxChange` (incandescent), dropping rarities whose value reaches zero or flips sign.
+- **`createUpgradeMap(key, rarity, upgrades)`** - Explicit per-rarity tooltip/change/shouldMultiply. Omit a rarity by passing `undefined` for that tier.
+- **`createUpgradeMapSimple(key, rarity, tooltip, shouldMultiply, changes, renderTransform?)`** - One tooltip template with `{change}` placeholder; per-rarity numbers in `changes`. `renderTransform` lets you customise the displayed value (e.g. converting to percentages).
+- **`createUpgradeMapStepped(key, rarity, tooltip, maxChange, shouldMultiply?, renderTransform?)`** - Automatically steps the value from `maxChange/5` (mundane) up to `maxChange` (incandescent), dropping rarities whose value reaches zero or flips sign.
 
-#### Percentage Helpers (5% mundane → 30% transcendent)
+#### Percentage Helpers (5% mundane to 30% transcendent)
 
 These are shorthand for common multiplicative patterns:
 
-- **`create30PercentUpgradeMap(key, rarity, tooltip)`** — Arbitrary key at 5–30% multiplicative.
-- **`createPowerUpgradeMap(key, rarity)`** — Technique base power (named `basePower`).
-- **`createScalingUpgradeMap(key, rarity)`** — Technique scaling stat multiplier.
-- **`createDamageUpgradeMap(key, rarity)`** — Damage dealt.
-- **`createHealingUpgradeMap(key, rarity)`** — Health restored.
-- **`createBarrierUpgradeMap(key, rarity)`** — Barrier granted.
-- **`createTemporaryHealthUpgradeMap(key, rarity)`** — Temporary health granted.
+- **`create30PercentUpgradeMap(key, rarity, tooltip)`** - Arbitrary key at 5-30% multiplicative.
+- **`createPowerUpgradeMap(key, rarity)`** - Technique base power (named `basePower`).
+- **`createScalingUpgradeMap(key, rarity)`** - Technique scaling stat multiplier.
+- **`createDamageUpgradeMap(key, rarity)`** - Damage dealt.
+- **`createHealingUpgradeMap(key, rarity)`** - Health restored.
+- **`createBarrierUpgradeMap(key, rarity)`** - Barrier granted.
+- **`createTemporaryHealthUpgradeMap(key, rarity)`** - Temporary health granted.
 
 #### Named Buff Helpers
 
 These auto-generate tooltips referencing a specific buff:
 
-- **`createStacksUpgradeMap(key, rarity, buffName, maxChange)`** — Stacks of a buff gained by the technique. Pass negative `maxChange` for reductions.
-- **`createCleanseUpgradeMap(key, rarity, buffName, maxChange, verb)`** — Stacks of a buff removed by a cleanse. `verb` controls the tooltip word (e.g. `'cleansed'`, `'consumed'`).
-- **`createStacksInflictedUpgradeMap(key, rarity, buffName, maxChange)`** — Stacks of a buff inflicted on the target.
-- **`createCostUpgradeMap(key, rarity, buffName, maxChange)`** — Buff cost of an effect (pass negative to reduce).
-- **`createRequirementUpgradeMap(key, rarity, buffName, maxChange)`** — Buff requirement of an effect (pass negative to reduce).
-- **`createMaxIncreaseUpgradeMap(key, rarity, buffName, maxChange)`** — Maximum stacks of one or more buffs. `buffName` can be a string or an array of names joined with `'and'` in the tooltip.
+- **`createStacksUpgradeMap(key, rarity, buffName, maxChange)`** - Stacks of a buff gained by the technique. Pass negative `maxChange` for reductions.
+- **`createCleanseUpgradeMap(key, rarity, buffName, maxChange, verb)`** - Stacks of a buff removed by a cleanse. `verb` controls the tooltip word (e.g. `'cleansed'`, `'consumed'`).
+- **`createStacksInflictedUpgradeMap(key, rarity, buffName, maxChange)`** - Stacks of a buff inflicted on the target.
+- **`createCostUpgradeMap(key, rarity, buffName, maxChange)`** - Buff cost of an effect (pass negative to reduce).
+- **`createRequirementUpgradeMap(key, rarity, buffName, maxChange)`** - Buff requirement of an effect (pass negative to reduce).
+- **`createMaxIncreaseUpgradeMap(key, rarity, buffName, maxChange)`** - Maximum stacks of one or more buffs. `buffName` can be a string or an array of names joined with `'and'` in the tooltip.
 
 #### Special Helpers
 
-- **`createSingleTierMastery(mastery)`** — Wrap a single `TechniqueMastery` so it can only roll at transcendent rarity.
-- **`createRoundBuffMap(buff, rarity, chanceStep, effectKind?)`** — Grants `buff` with a chance that scales per rarity (`chanceStep * tier` at each step; above 100% grants one guaranteed stack plus a chance at a second). `effectKind` is `'buffSelf'` (default) or `'buffTarget'`.
-- **`createStackingRoundBuffMap(buff, rarity, stacks, effectKind?)`** — Grants a fixed `stacks` per rarity (0 to skip that rarity).
-- **`createFullKindMap(rarityMap)`** — Expand a rarity-map keyed by mastery name into a full `kind` map so the same masteries are offered for every technique effect kind. Use when building a custom mastery pool.
+- **`createSingleTierMastery(mastery)`** - Wrap a single `TechniqueMastery` so it can only roll at transcendent rarity.
+- **`createRoundBuffMap(buff, rarity, chanceStep, effectKind?)`** - Grants `buff` with a chance that scales per rarity (`chanceStep * tier` at each step; above 100% grants one guaranteed stack plus a chance at a second). `effectKind` is `'buffSelf'` (default) or `'buffTarget'`.
+- **`createStackingRoundBuffMap(buff, rarity, stacks, effectKind?)`** - Grants a fixed `stacks` per rarity (0 to skip that rarity).
+- **`createFullKindMap(rarityMap)`** - Expand a rarity-map keyed by mastery name into a full `kind` map so the same masteries are offered for every technique effect kind. Use when building a custom mastery pool.
 
 ### Mastery Pools
 
@@ -520,7 +546,44 @@ interceptOnly: {
       },
     ],
   },
-},
+}
 ```
 
-The `tooltip` field is required and must describe what the new behaviour does. The `newEffects` array completely replaces the technique's original `effects`. Any effects not included in `newEffects` no longer apply when this mastery is active.
+## Triggered Effects
+
+The `triggeredEffects` field allows technique effects to trigger additional effect chains:
+
+```typescript
+triggeredEffects: [
+  {
+    trigger: 'onHit',
+    effects: [
+      {
+        kind: 'buffSelf',
+        buff: someBuff,
+        amount: { value: 1, stat: undefined },
+      },
+    ],
+  },
+],
+```
+
+Triggers fire when specific combat events occur. See the [Triggers](../combat/triggers/) page for full documentation.
+
+## Hiding Auxiliary Tooltips
+
+Individual technique effects can suppress their auxiliary tooltips using `hideAuxTooltip`. When the expression evaluates truthy, the following auxiliary tooltips are hidden:
+
+- `barrier` effects: hides the "Barrier" mechanic aux tooltip
+- `temporaryHealth` effects: hides the "Temporary Health" mechanic aux tooltip
+- Effects that reference a buff (`buffSelf`, `buffTarget`, `consumeSelf`, `consumeTarget`, `convertSelf`, `mergeSelf`): hides the referenced buff's aux tooltip
+
+This mirrors the same property on `BaseBuff` (issue #8943). Use it when the effect's context already makes the mechanic obvious, or when the buff is sourced from a tooltip fragment that already explains it.
+
+```typescript
+{
+  kind: 'barrier',
+  amount: { value: 0.5, stat: 'power' },
+  hideAuxTooltip: 'stacks >= 3', // Hide barrier aux when player has 3 or more stacks
+}
+```
