@@ -1,5 +1,3 @@
-```markdown
----
 ---
 layout: default
 title: Crafting Techniques

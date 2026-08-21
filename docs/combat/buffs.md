@@ -1,5 +1,3 @@
-```markdown
----
 ---
 layout: default
 title: Buff System Overview
