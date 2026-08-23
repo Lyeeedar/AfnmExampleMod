@@ -27,10 +27,49 @@ interface CompanionCharacterDefinition extends BaseCharacterDefinition {
   patrolInteraction?: PatrolCharacterInteraction[];
   aidBreakthroughInteraction?: AidBreakthroughCharacterInteraction[];
 
-  mount?: MountItem; // Mount for faster travel
+  /** Mount the companion rides. Use a static MountItem or a DynamicMountDefinition
+   *  to swap mounts based on game flags (realm, quest completion, etc.). */
+  mount?: MountItem | DynamicMountDefinition;
 }
 ```
 
+## Dynamic Mounts
+
+Companions can ride different mounts depending on game state using `DynamicMountDefinition`. This lets a single companion definition swap between mounts as the player progresses — for example, upgrading from a transport sword to a faster blade after a realm breakthrough, or receiving a quest reward mount that replaces the default.
+
+```typescript
+// Static mount — always used when defined
+mount: transportSwordMap.qiCondensation,
+
+// Dynamic mount — selects the first matching condition
+mount: {
+  kind: 'dynamic',
+  mounts: [
+    // Most-specific conditions first
+    {
+      condition: 'metalAndBloodQuest == 1 && realmProgress >= "Late"',
+      mount: starflashPlus,
+    },
+    {
+      condition: 'realm >= "pillarCreation"',
+      mount: starflash,
+    },
+    {
+      condition: 'realm >= "qiCondensation"',
+      mount: brilliantPalanquin,
+    },
+    // Fallback — no condition means always matches when reached
+    {
+      condition: '1',
+      mount: transportSwordMap.earlyGame,
+    },
+  ],
+},
+```
+
+The `getCharacterMount(def, variables)` utility evaluates the conditions against the current game flags and returns a single `MountItem | undefined`. Conditions follow the same flag-expression syntax used in event conditions. Conditions are checked in order; the first truthy result wins. If no condition matches, the companion has no mount.
+
+## Relationship System
 ## Relationship System
 
 Companions have a full relationship progression system defined at the character level:
@@ -149,8 +188,28 @@ const qiCondensationMidDef: CompanionCharacterDefinition = {
     },
   ],
 
-  // Mount for this realm
-  mount: transportSwordMap.qiCondensation,
+  // Mount for this realm — static or dynamic (see Dynamic Mounts section)
+  mount: {
+    kind: 'dynamic',
+    mounts: [
+      {
+        condition: 'realm >= "pillarCreation"',
+        mount: soaringDisksU,
+      },
+      {
+        condition: 'realm >= "coreFormation"',
+        mount: soaringDisks,
+      },
+      {
+        condition: 'realm >= "meridianOpening"',
+        mount: mountainCleaver,
+      },
+      {
+        condition: '1',
+        mount: transportSwordEarly,
+      },
+    ],
+  },
 
   // Interactions available at this realm
   talkInteraction: [mainDialogue, questDialogue],
