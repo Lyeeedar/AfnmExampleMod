@@ -155,6 +155,52 @@ interface BaseCharacterDefinition {
 }
 ```
 
+### Companion Definition
+
+Companions extend the base with party mechanics, relationship progression, and optional mount:
+
+```typescript
+interface CompanionCharacterDefinition extends BaseCharacterDefinition {
+  kind: 'companion';
+
+  breakthroughInteraction?: TalkCharacterInteraction;
+  talkInteraction?: TalkCharacterInteraction[];
+  shopInteraction?: ShopCharacterInteraction[];
+  tradeInteraction?: TradeCharacterInteraction[];
+  sparInteraction?: SparCharacterInteraction[];
+  giftInteraction?: GiftCharacterInteraction[];
+  craftingInteraction?: CraftingCharacterInteraction[];
+  challengeInteraction?: ChallengeCharacterInteraction[];
+  patrolInteraction?: PatrolCharacterInteraction[];
+  aidBreakthroughInteraction?: AidBreakthroughCharacterInteraction[];
+
+  /**
+   * Mount the companion rides. Use a static MountItem or a DynamicMountDefinition
+   * to swap mounts based on game flags (realm, quest completion, etc.).
+   * Resolved at render time by `getCharacterMount(def, variables)`.
+   */
+  mount?: MountItem | DynamicMountDefinition;
+}
+
+/**
+ * A mount that resolves at render time from a list of condition/mount pairs.
+ * Lets a companion ride different mounts depending on in-game state (e.g.
+ * breakthrough realm, quest completion) without splitting the companion into
+ * separate definitions per mount.
+ */
+interface DynamicMountDefinition {
+  kind: 'dynamic';
+  /**
+   * Evaluated in order against the current flag scope. The first entry whose
+   * `condition` is truthy (non-zero) supplies the mount. If none match, the
+   * companion is treated as mountless. Conditions follow the same expression
+   * syntax as event/character conditions elsewhere in the codebase.
+   */
+  mounts: { condition: string; mount: MountItem }[];
+}
+```
+
+## Character Stats
 ## Character Stats
 
 Combat statistics for when the character is fought:
