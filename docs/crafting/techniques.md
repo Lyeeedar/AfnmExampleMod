@@ -213,12 +213,16 @@ All `amount` fields use the `Scaling` type for stat-based values:
 
 ```typescript
 {
-  value: number;          // Base value
-  stat?: StatName;       // Stat to scale from (e.g. 'control', 'intensity')
-  upgradeKey?: string;   // Links to mastery upgrade
-  equation?: string;      // Custom equation using {stat}
+  value: number;              // Base value
+  stat?: StatName;            // Stat to scale from (e.g. 'control', 'intensity')
+  upgradeKey?: string;        // Links to mastery upgrade
+  eqn?: string;               // Custom expression multiplied onto the result (e.g. 'floor(perfectionPercentage / 100)')
+  additiveEqn?: string;       // Expression added after eqn multiplication
+  max?: Scaling;              // Maximum value cap
 }
 ```
+
+The game supports these stats for crafting techniques: `control`, `intensity`, `pool`, `power`, `qiAbsorption`, `masteryPoints`, `charisma`, `speed`.
 
 The game supports these stats for crafting techniques: `control`, `intensity`, `pool`, `power`, `qiAbsorption`, `masteryPoints`, `charisma`, `speed`.
 
@@ -439,3 +443,4 @@ For each effect, the following keys are registered in the template scope:
 | Nested trigger | `{trigger0.createBuff.amount}` | Same as above, kind-qualified form |
 
 Both `stacks` and `amount` are available on `createBuff` / `consumeBuff` effects for use in authored tooltips.
+
