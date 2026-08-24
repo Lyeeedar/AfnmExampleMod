@@ -16,6 +16,11 @@ Techniques for qi condensation and droplet creation.
 interface CondensationArtItem extends ItemBase {
   kind: 'condensation_art';
 
+  /** Condensation arts are always qiCondensation realm — this is fixed by the type. */
+  realm: 'qiCondensation';
+  /** Suppresses the realm numeral (III) drawn in the item's top-left corner. */
+  hideRealmTier: true;
+
   patternBg: string;        // Background pattern image
   patternOpacity: number;   // Visual opacity
 
@@ -45,7 +50,7 @@ export const basicCondensationArt: CondensationArtItem = {
   icon: condensationIcon,
   stacks: 1,
   rarity: 'mundane',
-  realm: 'qiCondensation',
+  // realm and hideRealmTier are set automatically — do not override them
 
   patternBg: 'basic_pattern.png',
   patternOpacity: 0.7,

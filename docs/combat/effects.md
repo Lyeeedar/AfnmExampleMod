@@ -31,7 +31,8 @@ Deals damage to the enemy.
   kind: 'damage',
   amount: { value: 1.0, stat: 'power' },
   hits?: { value: 3, stat: undefined }, // Optional multiple hits
-  damageType?: 'true' | 'corrupt' | 'disruption' // Optional special damage
+  damageType?: 'true' | 'corrupt' | 'disruption', // Optional special damage
+  scalesCrit?: boolean // Opt into crit roll independently of power scaling
 }
 ```
 
@@ -452,6 +453,25 @@ Social statistics:
 }
 ```
 
+### `scalesCrit` — Crit Eligibility Without Power Scaling
+
+By default, a damage effect only rolls crit (and applies the buff's `statChanges.overcrit` re-roll chain) when `amount.stat` is `power` or `artefactpower`. The `scalesCrit` flag lets damage that uses a custom `eqn` opt into crit without reapplying power-scaled boosts that already affected the original hit.
+
+```typescript
+// Stored-damage release: full value already computed, opt into crit only
+{
+  kind: 'damage',
+  amount: {
+    value: 1,
+    stat: undefined,
+    eqn: 'storedDamage', // pre-computed; do not re-apply power scaling
+  },
+  scalesCrit: true, // roll crit using player's critChance/overcrit stats
+}
+```
+
+**Use case**: Effects like Sinew-Bound Wraps that store a portion of a hit's damage and release it later. The stored value is already the final damage — applying power-scaled boosts a second time would double-count them. Setting `scalesCrit: true` lets the stored damage still benefit from the player's crit investment without inflating the base amount.
+
 ## Scaling System
 
 All effects use the **[Scaling](../concepts/scaling)** interface for amount calculations:
@@ -592,3 +612,4 @@ Only affects barrier, not health.
   }
 }
 ```
+
