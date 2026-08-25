@@ -190,7 +190,21 @@ Apply or consume crafting buffs:
   buff: craftingBuff,
   amount: Scaling,
 }
+
+// Modify all buffs in a group
+{
+  kind: 'modifyBuffGroup',
+  group: 'buffGroupName',
+  amount: { value: 1, stat: undefined },
+  mode?: 'all' | 'highest' | 'lowest' | 'random'
+}
 ```
+
+**`mode`** — Controls which matching buffs are affected:
+- `'all'` (default): affects every matching buff
+- `'highest'`: affects the matching buff with the most stacks
+- `'lowest'`: affects the matching buff with the fewest stacks
+- `'random'`: affects one randomly chosen matching buff
 
 ### Conditional Effects
 
@@ -443,4 +457,5 @@ For each effect, the following keys are registered in the template scope:
 | Nested trigger | `{trigger0.createBuff.amount}` | Same as above, kind-qualified form |
 
 Both `stacks` and `amount` are available on `createBuff` / `consumeBuff` effects for use in authored tooltips.
+
 
