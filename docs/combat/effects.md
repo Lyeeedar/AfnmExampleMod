@@ -388,9 +388,16 @@ Modifies all buffs of a specific group.
 {
   kind: 'modifyBuffGroup',
   group: 'celestial',
-  amount: { value: 1, stat: undefined }
+  amount: { value: 1, stat: undefined },
+  mode?: 'all' | 'highest' | 'lowest' | 'random'
 }
 ```
+
+**`mode`** — Controls which matching buffs are affected:
+- `'all'` (default): affects every matching buff
+- `'highest'`: affects the matching buff with the most stacks
+- `'lowest'`: affects the matching buff with the fewest stacks
+- `'random'`: affects one randomly chosen matching buff
 
 ### `consumeInventoryItem`
 
@@ -612,4 +619,5 @@ Only affects barrier, not health.
   }
 }
 ```
+
 
