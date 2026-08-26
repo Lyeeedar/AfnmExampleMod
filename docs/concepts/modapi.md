@@ -12,7 +12,7 @@ The ModAPI provides access to game data, content registration functions, and uti
 
 ## Structure
 
-The ModAPI is available globally as `window.modAPI` with four main sections:
+The ModAPI is available globally as `window.modAPI` with five main sections:
 
 ```typescript
 interface ModAPI {
@@ -28,8 +28,11 @@ interface ModAPI {
   hooks: {
     /* Interceptors for game behavior */
   };
+  components: ModReduxAPI['components'];
 }
 ```
+
+The `components` field exposes the same pre-styled React components available through `api.components` inside mod screens (GameDialog, GameButton, GameIconButton, BackgroundImage, PlayerComponent, ItemComponent, GameTooltip, GameTooltipBox, TooltipLine, every tooltip variant under `tooltips`, and every recipe component under `recipes`). Unlike `api.components`, which is only available inside a mod screen's render function, `window.modAPI.components` is accessible from **any** mod code, including helper functions, exported mod scripts, and options UI. The shape is identical: `window.modAPI.components.GameButton` works the same as `api.components.GameButton` inside a screen.
 
 ## Game Data Access
 
