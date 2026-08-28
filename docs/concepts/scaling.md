@@ -54,7 +54,7 @@ The `stat` field accepts any **combat statistic**, **crafting statistic**, **phy
 
 **Physical:** `'muscles'`, `'dantian'`, `'meridians'`, `'flesh'`, `'digestion'`, `'eyes'`
 
-**Elements:** `'fire'`, `'ice'`, `'wind'`, `'lightning'`, `'earth'`, `'water'` (and other `TechniqueElement` values)
+**Elements:** `'blood'`, `'blossom'`, `'fist'`, `'cloud'`, `'weapon'`, `'celestial'`, `'none'`
 
 ### Evaluation Formula
 
