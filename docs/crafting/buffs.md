@@ -116,7 +116,7 @@ Buffs modify these key statistics:
 - **Qi Pool** (`pool`) - Current qi pool (usually only read, not set via stats)
 - **Max Toxicity** (`maxtoxicity`) - Maximum toxicity capacity
 - **Toxicity** (`toxicity`) - Current toxicity level (read-only; useful as a scaling stat in expressions)
-- **Toxicity Resistance** (`resistance`) - Reduces toxicity accumulation
+- **Toxicity Resistance** (`resistance`) - Reduces toxicity accumulation; positive values are capped at 90% (additional resistance has no further effect)
 - **Crit Chance** (`critchance`) - Chance for enhanced effects
 - **Crit Multiplier** (`critmultiplier`) - Damage/effect multiplier on critical actions
 - **Pool Cost Multiplier** (`poolCostPercentage`) - Reduces qi costs (negative values reduce cost)
