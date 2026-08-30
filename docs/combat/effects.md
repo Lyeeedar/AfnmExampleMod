@@ -238,7 +238,7 @@ Adds or removes stacks from the current buff.
 
 ### `multiply`
 
-Multiplies the current stack count.
+Multiplies the current stack count by the given amount. The result is floored to the nearest integer.
 
 ```typescript
 {
@@ -247,9 +247,18 @@ Multiplies the current stack count.
 }
 ```
 
+**Stack-decay use case:** A negative multiply amount floors the stacks in place, producing a gradual decay without removing the buff. For example, `amount: { value: -0.5 }` halves the stacks each trigger (4 → 2 → 1 → 0):
+
+```typescript
+{
+  kind: 'multiply',
+  amount: { value: -0.5 } // Halve stacks; floored so 1 → 0 rather than removing the buff
+}
+```
+
 ### `negate`
 
-Removes all stacks of the current buff.
+Removes all stacks of the current buff, deleting the buff entirely.
 
 ```typescript
 {
