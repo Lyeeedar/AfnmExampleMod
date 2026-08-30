@@ -238,8 +238,6 @@ All `amount` fields use the `Scaling` type for stat-based values:
 
 The game supports these stats for crafting techniques: `control`, `intensity`, `pool`, `power`, `qiAbsorption`, `masteryPoints`, `charisma`, `speed`.
 
-The game supports these stats for crafting techniques: `control`, `intensity`, `pool`, `power`, `qiAbsorption`, `masteryPoints`, `charisma`, `speed`.
-
 ## Registration
 
 Use `addCraftingTechnique` to register a technique with the game:

@@ -124,6 +124,10 @@ Buffs modify these key statistics:
 - **Action Success Chance** (`successChanceBonus`) - Improves technique success rate
 - **Pills Per Action** (`pillsPerRound`) - Number of pills usable per crafting action
 - **Item Effectiveness** (`itemEffectiveness`) - Effectiveness of consumables used during crafting
+- **Completion Boost** (`completionBoost`) - Multiplies completion gains (1 + boost/100)
+- **Perfection Boost** (`perfectionBoost`) - Multiplies perfection gains (1 + boost/100)
+- **Stability Boost** (`stabilityBoost`) - Multiplies stability gains and losses; does not affect costs (1 + boost/100)
+- **Qi Boost** (`qiBoost`) - Multiplies qi pool gains and restoration; does not affect costs (1 + boost/100)
 
 ## Quality Cap Buffs
 
