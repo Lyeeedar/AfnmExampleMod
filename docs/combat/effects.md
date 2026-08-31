@@ -74,7 +74,9 @@ Deals damage to yourself.
 
 ### `heal`
 
-Restores health.
+Restores health. The `healingBoost` stat multiplies the heal amount by `(1 + healingBoost * 0.01)`. Crit multipliers and technique power boosts still gate on `scalesOffPower`, but `healingBoost` applies to all heals including reactive ones triggered by buffs.
+
+Healing Boost does **not** apply to heals whose `amount.stat` is `maxhp`. These are treated as fixed proportions of the holder's health pool and are not boosted.
 
 ```typescript
 {
@@ -92,6 +94,9 @@ Restores health.
   kind: 'heal',
   amount: { value: 0.25, stat: 'power', upgradeKey: 'power' }
 }
+```
+
+**Reactive heals:** Techniques and items that heal through `triggeredBuffEffects` (e.g. a take-damage reactive heal) still receive the `healingBoost` multiplier, so the actual amount restored matches what the buff tooltip advertises.
 ```
 
 ### `barrier`

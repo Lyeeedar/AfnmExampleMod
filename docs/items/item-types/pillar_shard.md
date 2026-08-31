@@ -48,6 +48,8 @@ export interface PillarShardVariant {
   icon: string;
   physicalStats?: Partial<Record<PhysicalStatistic, number>>;
   socialStats?: Partial<Record<SocialStatistic, number>>;
+  combatBuffs?: { buff: Buff; buffStacks: Scaling }[];
+  craftingBuffs?: { buff: CraftingBuff; buffStacks: Scaling }[];
 }
 ```
 
@@ -57,15 +59,26 @@ export interface PillarShardVariant {
 - **maxInstances**: Prevents overuse in pillar construction
 - **stability**: Adjusts pillar stability when this shard is placed (negative values decrease stability)
 - **variants**: Multiple configurations for same shard base
-- **portal**: Marks the shard as a portal entrance or exit — entrances absorb qither from below and route it to all matching-colour exit shards on the pillar
+- **portal**: Marks the shard as a portal entrance or exit. Entrances absorb qither from below and route it to all matching-colour exit shards on the pillar.
 - **inputs/output**: Network connectivity for energy flow
+
+## Combat and Crafting Buff Aggregation
+
+When a pillar contains multiple shards that grant `combatBuffs` or `craftingBuffs` with the same buff name, the game aggregates them. All contributions are merged into a single buff entry with `buffStacks.value` equal to the sum of the individual `buffStacks.value` values. This means the UI shows one icon with combined stacks, matching the in-combat view.
+
+```typescript
+// Example: two shards each contributing Vitality through Healing
+// Result: one "Vitality" entry with buffStacks.value = 2 (sum of both)
+```
+
+This aggregation applies to both `combatBuffs` and `craftingBuffs`. Same-named entries from different shards are not shown as separate icons. They are merged.
 
 ## Portal Mechanic
 
-Portal shards route qither between non-adjacent positions on the pillar. Each entrance–exit pair is colour-coded: an entrance at variant index N connects to the exit at the same variant index. Multiple entrances of the same colour pool their power before splitting it equally across all matching exits.
+Portal shards route qither between non-adjacent positions on the pillar. Each entrance-exit pair is colour-coded. An entrance at variant index N connects to the exit at the same variant index. Multiple entrances of the same colour pool their power before splitting it equally across all matching exits.
 
 ```typescript
-// Portal entrance — absorbs from bottom, routes to matching exits
+// Portal entrance - absorbs from bottom, routes to matching exits
 export const portalEntrance: PillarShardItem = {
   kind: 'pillar_shard',
   portal: { type: 'entrance' },
@@ -79,7 +92,7 @@ export const portalEntrance: PillarShardItem = {
   // ...other required fields
 };
 
-// Portal exit — emits the received qither upwards
+// Portal exit - emits the received qither upwards
 export const portalExit: PillarShardItem = {
   kind: 'pillar_shard',
   portal: { type: 'exit' },
@@ -205,4 +218,3 @@ export const originFragment: PillarShardItem = {
   realm: 'pillarCreation',
   valueTier: 0,
 };
-```
