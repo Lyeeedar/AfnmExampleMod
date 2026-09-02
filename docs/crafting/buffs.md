@@ -18,6 +18,8 @@ Every crafting buff follows the `CraftingBuff` interface:
 interface CraftingBuff {
   name: string; // Unique identifier
   displayName?: Translatable; // Optional translated display name
+  /** Category used by effects that modify a family of buffs at once. */
+  buffType?: string;
   icon: string; // Visual representation
   canStack: boolean; // Whether buff can stack
 
@@ -344,6 +346,27 @@ Modifies toxicity levels:
 ```typescript
 { kind: 'changeToxicity', amount: { value: -5, stat: undefined } }
 ```
+
+### Modify Buff Group Effect
+
+Adds or removes stacks from every buff sharing a `buffType` or name, letting a single effect act on a family of buffs without listing each one individually:
+
+```typescript
+{
+  kind: 'modifyBuffGroup',
+  group: 'buffTypeName', // or a specific buff name
+  amount: { value: 1, stat: undefined },
+  mode?: 'all' | 'highest' | 'lowest' | 'random'
+}
+```
+
+**`mode`** — Controls which matching buffs are affected:
+- `'all'` (default): affects every matching buff
+- `'highest'`: affects the matching buff with the most stacks
+- `'lowest'`: affects the matching buff with the fewest stacks
+- `'random'`: affects one randomly chosen matching buff
+
+Negative `amount` consumes stacks from the matching buffs instead of adding them.
 
 ### Negate Effect
 

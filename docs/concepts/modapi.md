@@ -1158,6 +1158,27 @@ const bonusQuality = (entity.buffs ?? []).reduce((bonus, buff) => {
 // Add bonusQuality to the crafted item's hidden potential
 ```
 
+### Crafting Statics
+
+Static crafting values for rendering tooltips and computing stats outside an active crafting session:
+
+```typescript
+window.modAPI.utils.defaultRecipeStats: CraftingRecipeStats
+window.modAPI.utils.defaultProgressState: ProgressState
+window.modAPI.utils.completionBonusBuffName: string
+```
+
+- **`defaultRecipeStats`** — Default `CraftingRecipeStats` for a recipe with no bonuses applied. Useful as a fallback when rendering `CraftingBuff` tooltips outside an active crafting session.
+- **`defaultProgressState`** — Default `ProgressState` for a fresh craft. Similarly useful for tooltip rendering without an active session.
+- **`completionBonusBuffName`** — Stable non-localized identifier for the Completion Bonus buff. Use when filtering or inspecting entity buffs so your mod is not coupled to a raw string literal:
+
+```typescript
+const bonusStacks = entity.buffs.find(
+  (b) => b.name === window.modAPI.utils.completionBonusBuffName,
+)?.stacks ?? 0;
+```
+
+
 ### Altar Utilities
 
 ```typescript
