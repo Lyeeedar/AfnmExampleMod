@@ -21,9 +21,20 @@ Every damage number, healing amount, buff strength, and stat modifier flows thro
 ```typescript
 interface Scaling {
   value: number;          // Base multiplier
-  stat?: string;          // Stat to multiply by (see valid stat names below)
+  /** When false, this stat remains active but is omitted from buff tooltips. */
+  tooltipCondition?: string;
+  stat?:                   // Stat to scale off. Normally 'power' or undefined
+    | PhysicalStatistic
+    | SocialStatistic
+    | CombatStatistic
+    | CraftingStatistic
+    | TechniqueElement
+    | undefined;
   scaling?: string;       // Special scaling mode (e.g. 'stacks', 'consumed', or a buff name)
   eqn?: string;           // Expression MULTIPLIED onto the result
+  // When true, the eqn is INCLUDED in tooltip display. Default strips eqn so the
+  // shown amount is just the base (value * stat), which is often zero outside combat.
+  keepEqnForTooltip?: boolean;
   additiveEqn?: string;   // Expression ADDED to the result (after eqn multiplication)
   customScaling?: {       // Additional multiplier, e.g. '+30% per stack of a buff'
     multiplier: number;
@@ -39,8 +50,12 @@ interface Scaling {
   increment?: number;     // For hit-based scaling: each subsequent hit costs this much more of the scaling buff
   cantUpgrade?: boolean;  // When true, this scaling value cannot be improved by technique mastery upgrades
   isItem?: boolean;       // When true, the result is additionally multiplied by (1 + itemEffectiveness * 0.01). Set on pills, concoctions, and formation parts.
-  removeEqnForTooltip?: boolean; // When true, eqn is ignored for tooltip display so the shown amount is the base (value * stat)
-  baseValue?: number;     // Snapshot value taken before harmony upgrades are applied; used internally for stacking effects that need the original pre-harmony number
+  /** When true, the result is additionally scaled by the Charisma multiplier in scope. */
+  scalesWithCharisma?: boolean;
+  /** Value that Charisma scales away from. Defaults to 0; inverse percentages use 100. */
+  charismaScalingPivot?: number;
+  /** Snapshot of `value` taken before harmony upgrades are applied; used internally for stacking effects that need the original pre-harmony number. */
+  baseValue?: number;
 }
 ```
 
