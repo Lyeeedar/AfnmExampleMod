@@ -529,6 +529,7 @@ Returns the full `GameSettingsProps` object containing all player preferences. R
 | `skipSeenDialogue` | `boolean` | Skip dialogue the player has already seen |
 | `skipDialogueMode` | `'flash' | 'instant' | 'none'` | How to skip seen dialogue |
 | `hideEmptySlotWarnings` | `boolean` | Suppress empty equipment slot warnings |
+| `hideCombatAvatars` | `boolean` | Hide combat avatar displays |
 | `pauseAutoBattleOnLowHealth` | `boolean` | Pause auto-battle when below threshold |
 | `sexuality` | `string` | Player's configured sexuality setting |
 | `eventHistoryLimit` | `number` | Max dialogue history entries to keep |
