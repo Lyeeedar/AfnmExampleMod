@@ -19,6 +19,7 @@ interface ArtefactItem extends ItemBase {
   charisma?: number;
   techniques: ArtefactTechnique[];
   buffs?: { buff: Buff; buffStacks: Scaling }[];
+  upgradeHarmonies?: Partial<Record<RecipeHarmonyType, ItemHarmonyUpgrade[]>>;
 }
 ```
 
@@ -28,6 +29,7 @@ interface ArtefactItem extends ItemBase {
 - **charisma**: Optional social stat bonus
 - **techniques**: Artefact techniques the artefact will use. These make up the artefacts stance, so ensure it is the correct length for the realm
 - **buffs**: Optional buffs applied at the start of each combat
+- **upgradeHarmonies**: Harmony upgrades that scale tagged technique effect amounts or buff maxStacks based on crafting quality. See [Upgrade Harmonies](../item-structure#upgrade-harmonies) in the Item Structure docs.
 
 ## Examples
 
@@ -37,7 +39,7 @@ const strike: ArtefactTechnique = {
   icon: strikeIcon,
   effects: [{
     kind: 'damage',
-    amount: { value: 0.4, stat: 'artefactpower' },
+    amount: { value: 0.4, stat: 'artefactpower', upgradeKey: 'damage' },
   }],
 };
 
@@ -94,6 +96,43 @@ export const shroudedForestWand: ArtefactItem = {
   stacks: 1,
   rarity: 'empowered',
   realm: 'bodyForging',
+};
+
+// Artefact with harmony upgrades
+import { harmonyStatUpgrade, harmonyStacksStep } from 'harmonyUpgradeHelpers';
+
+const channelAttunement: ArtefactTechnique = {
+  icon: attunementIcon,
+  effects: [
+    {
+      kind: 'buff',
+      amount: { value: 10, stat: undefined, upgradeKey: 'attunement' },
+      buff: someAttunementBuff,
+    },
+  ],
+};
+
+const damageAttack: ArtefactTechnique = {
+  icon: attackIcon,
+  effects: [{
+    kind: 'damage',
+    amount: { value: 0.4, stat: 'artefactpower', upgradeKey: 'damage' },
+  }],
+};
+
+export const forgedPuppet: ArtefactItem = {
+  kind: 'artefact',
+  techniques: [channelAttunement, damageAttack, damageAttack],
+  name: 'Forged Puppet',
+  description: 'A puppet that grows stronger when forged with care.',
+  icon: puppetIcon,
+  stacks: 1,
+  rarity: 'resplendent',
+  realm: 'pillarCreation',
+  upgradeHarmonies: {
+    forge: [harmonyStatUpgrade('damage', 'Artefact Technique Damage')],
+    inscription: [harmonyStacksStep('attunement', someAttunementBuff.name, 4)],
+  },
 };
 
 // Conditional artefact based on celestial techniques
@@ -162,6 +201,10 @@ interface ArtefactTechnique {
   /** Technique index within the artefact stance. Controls ordering when techniques
    *  are sorted by slot. Unnecessary for manual stance construction. */
   i?: number;
+  /** Tags this technique's effect amounts for harmony upgrade scaling.
+   *  Set on individual effect amounts rather than here. See upgradeHarmonies
+   *  on ArtefactItem for the upgrade definitions. */
+  upgradeKey?: string;
 }
 ```
 
@@ -175,3 +218,4 @@ interface ArtefactEnchantment extends Enchantment {
   buffs?: { buff: Buff; buffStacks: Scaling }[];
   restoredDroplets?: number;
 }
+```

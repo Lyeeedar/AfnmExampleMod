@@ -84,6 +84,23 @@ Set `perfectionEffectOverride` to `'quality'` to make perfection affect the qual
 perfectionEffectOverride: 'quality';
 ```
 
+## Quality Preview Ceiling
+
+The crafting UI shows a quality tier ceiling in recipe previews, for example "Quality (Max 5)". This ceiling determines how high the quality bar can go before the craft is complete.
+
+The ceiling is computed from the recipe's sublime/perfect flags, the player's realm, and any `bonusMaximumQuality` from active crafting buffs (such as flames). The formula is:
+
+```
+(base tiers: 2 for non-sublime, 3 for sublime)
++ (player realm offset relative to bodyForging)
++ (recipe realm offset relative to lifeFlourishing)
++ bonusMaximumQuality from active crafting buffs
+```
+
+For example, a Purifying Flame with `bonusMaximumQuality: { value: 1, stat: undefined }` adds +1 to the preview ceiling, so the UI shows "Quality (Max 6)" instead of "Quality (Max 5)". This lifted cap also grants the hidden potential stars needed to reach it.
+
+See [Crafting Buff System > Quality Cap Buffs](./buffs#quality-cap-buffs) for the full `bonusMaximumQuality` field definition.
+
 ## Custom Thresholds
 
 A custom threshold displays a quality mark as its own bar above the Completion and Perfection bars while the craft is worked. The bar shows how many quality tiers the craft has cleared versus the threshold the mark requires.
