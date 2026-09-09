@@ -18,13 +18,14 @@ import {
   TechniqueEffect,
   TechniqueCost,
   TechniqueRequirement,
+  RealTechniqueElement,
 } from 'afnm-types';
 
 interface Technique {
   // Identity
   name: string; // Display name
   icon: string; // Visual representation
-  type: TechniqueElement; // School/element type
+  type: 'origin' | TechniqueElement | RealTechniqueElement[]; // School type: single school, array for hybrid techniques, or 'origin'
   realm?: Realm; // Minimum cultivation level
   tooltip?: string; // Custom description (auto-generated if omitted)
 
@@ -45,8 +46,6 @@ interface Technique {
   effects: TechniqueEffect[]; // What happens when used
   triggeredEffects?: { trigger: string, effects: TechniqueEffect[] }[]; // Effects that can be triggered by the base effects
   enhancement?: number; // Bonus from element matching
-  secondaryType?: TechniqueElement | 'origin'; // Additional element
-
   // Mastery system
   upgradeMasteries?: { [key: string]: TechniqueMasteryRarityMap }; // Fixed upgrades
   masteryKindPools?: TechniqueEffectKind[]; // Random upgrade pools
@@ -81,7 +80,38 @@ interface BaseTechniqueEffect {
 
 ## Element Types
 
-The `type` field determines which cultivation school the technique belongs to:
+The `type` field determines which cultivation school(s) the technique belongs to. It accepts three forms:
+
+### Single School
+
+The `type` is a single element string:
+
+```typescript
+type: 'fist';      // Pure martial arts technique
+type: 'celestial'; // Pure celestial technique
+```
+
+### Hybrid Techniques
+
+The `type` is an **array** of two distinct schools. Hybrid techniques fire `use.<school>` triggers for **each** school in the array, allowing effects that listen on multiple schools to respond to a single technique use:
+
+```typescript
+type: ['celestial', 'fist']; // Fires both use.celestial and use.fist
+```
+
+For example, a Sinew-Bound Wraps listener on `damageHp-fist` will now correctly trigger when a hybrid `['celestial', 'fist']` technique deals damage, because the hybrid fires `use.fist` in addition to `use.celestial`.
+
+### Origin Techniques
+
+The `type` is the literal `'origin'`. Origin techniques fire `use.<school>` for every non-`none` school simultaneously, and use a single `use.origin` trigger instead of one per school. They represent techniques that draw on every cultivation path:
+
+```typescript
+type: 'origin'; // Fires use.origin (not one per school)
+```
+
+### RealTechniqueElement
+
+The array form of `type` uses `RealTechniqueElement[]` which is `TechniqueElement` excluding `'none'`. Only the six real schools may appear in hybrid arrays.
 
 ### Primary Schools
 
@@ -91,17 +121,14 @@ The `type` field determines which cultivation school the technique belongs to:
 - **`'fist'`** - Martial arts, momentum and flow
 - **`'weapon'`** - Tool-based combat, metal manipulation
 - **`'cloud'`** - Storm effects, weather manipulation
-
-### Special Types
-
 - **`'none'`** - Universal techniques not tied to any school
-- **`secondaryType`** - Additional element for dual-school techniques
 
 Element types affect:
 
 - **Enhancement scaling** - Techniques gain bonuses from matching element buffs
 - **Affinity calculations** - Damage/healing modified by element affinity
 - **School identity** - Each school has distinct mechanical themes
+- **Trigger hooks** - `use.<school>` triggers fire based on the technique's type; hybrid fires for each school in the array
 
 ## Realm
 
