@@ -13,7 +13,7 @@ Buffs are the core of AFNM's combat system. They represent temporary effects, en
 ## Complete Buff Interface
 
 ```typescript
-import { Buff, BuffEffect, Scaling } from 'afnm-types';
+import { Buff, BuffEffect, Scaling, RealTechniqueElement } from 'afnm-types';
 
 interface Buff {
   // Identity
@@ -34,7 +34,7 @@ interface Buff {
 
   // Combat properties
   stats?: { [key in CombatStatistic]?: Scaling }; // Passive stat modifications
-  type?: TechniqueElement; // Element type for enhancement/affinity
+  type?: 'origin' | TechniqueElement | RealTechniqueElement[]; // Element type for enhancement/affinity (single school, array for hybrid, or origin)
   noneType?: string; // Subtype for techniques with no element
   buffType?: string; // Grouping for modifyBuffGroup effects
   flag?: string; // Marker string for flag-based lookups
