@@ -73,6 +73,7 @@ These triggers are based on specific actions taken during combat.
 - **When it triggers:** When a technique of a specific type is used
 - **Condition:** Triggered when the entity uses any technique matching the specified type
 - **Usage:** Type-specific bonuses and effects based on technique element
+- **Hybrid techniques:** When a technique's `type` is an array (e.g. `['celestial', 'fist']`), this trigger fires once per school in the array. A buff listening on `use.fist` will activate for both a pure-fist technique and a `['celestial', 'fist']`-typed hybrid. Origin techniques (`type: 'origin'`) fire `use.origin` instead — a single trigger covering all six schools.
 - **Examples:**
   - `use.fist` - Triggers when using fist techniques
   - `use.blood` - Triggers when using blood techniques
@@ -84,7 +85,7 @@ These triggers are based on specific actions taken during combat.
 - **Examples:**
   - `use.damage` - When using techniques that deal damage
   - `use.heal` - When using techniques that heal
-  - `use.buffSelf` - When using techniques that apply buffs
+  - `use.buffSelf` - When using techniques that apply buffs to self
   - `use.buffTarget` - When using techniques that buff the target
 
 ### `use.artefact`
@@ -136,6 +137,7 @@ These triggers relate to taking or dealing damage and healing.
 
 ### `damageHp`
 - **Condition:** Triggered every time the entity deals damage to the opponents health (so not blocked by barrier or damage resistance)
+- **Hybrid techniques:** For hybrid techniques (array `type`), this fires once per school in the array. A listener on `damageHp-fist` activates for a `['celestial', 'fist']` technique that deals damage. Origin techniques (`type: 'origin'`) use a single `damageHp` trigger.
 - **Usage:** Poison effects, leech mechanics
 
 ### `damageBlocked`
