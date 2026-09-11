@@ -360,7 +360,7 @@ Adds or removes stacks from every buff sharing a `buffType` or name, letting a s
 }
 ```
 
-**`mode`** — Controls which matching buffs are affected:
+**`mode`** -- Controls which matching buffs are affected:
 - `'all'` (default): affects every matching buff
 - `'highest'`: affects the matching buff with the most stacks
 - `'lowest'`: affects the matching buff with the fewest stacks
@@ -563,3 +563,62 @@ export const focus: CraftingBuff = {
   stacks: 1,
 };
 ```
+
+## Buff Effect Interception
+
+The `CraftingEffectInterceptor` interface lets buffs intercept and modify the effects that other buffs or items apply during crafting. This enables conditional suppression, amplification, or replacement of crafting effects.
+
+```typescript
+interface CraftingEffectInterceptor {
+  /** Restrict interception to these crafting action types. */
+  techniqueTypes?: CraftingTechniqueType[];
+  trigger?: CraftingTechniqueCondition;
+  modifier: {
+    kind: 'multiply';
+    value: number;
+  };
+  appliesTo: CraftingInterceptableEffectKind[];
+  /** Additional effects to run when this interceptor fires. */
+  effects?: CraftingBuffEffect[];
+}
+```
+
+**`techniqueTypes`** -- When set, the interceptor only fires for these specific crafting action types (e.g. `'fusion'`, `'refine'`, `'stabilize'`, `'support'`). Omit to intercept all action types.
+
+**`trigger`** -- An optional condition that must be met for the interceptor to apply.
+
+**`modifier`** -- A multiply modifier applied to matched effects. Values below `1` reduce the effect; values above `1` amplify it.
+
+**`appliesTo`** -- Which effect kinds this interceptor can modify:
+
+```typescript
+type CraftingInterceptableEffectKind =
+  'completion' | 'perfection' | 'stability' | 'maxStability' | 'pool' | 'cleanseToxicity';
+```
+
+**`effects`** -- Additional `CraftingBuffEffect[]` effects that fire when the interceptor triggers. These run alongside the modifier, giving interceptors side-effects beyond just scaling the target effect.
+
+```typescript
+// Example: a mastery buff that amplifies completion gains on difficult recipes
+const interceptionMastery: CraftingBuff = {
+  name: 'Interception Mastery',
+  icon: masteryIcon,
+  canStack: true,
+  stats: undefined,
+  effects: [],
+  stacks: 1,
+  displayLocation: 'completionLeft',
+  // Intercept perfection effects when crafting difficult recipes
+  interceptors: [{
+    techniqueTypes: ['refine'],
+    modifier: { kind: 'multiply', value: 1.25 }, // +25% perfection on refine
+    appliesTo: ['perfection'],
+    effects: [
+      // Also grant a small stability bonus when intercepting
+      { kind: 'stability', amount: { value: 1, stat: undefined } },
+    ],
+  }],
+};
+```
+
+---

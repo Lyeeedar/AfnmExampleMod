@@ -15,6 +15,8 @@ Powerful weapons that provide combat stats and unique techniques.
 ```typescript
 interface ArtefactItem extends ItemBase {
   kind: 'artefact';
+  /** Additional equipment slots while this artefact is equipped. */
+  extraArtefactSlots?: number;
   combatStats?: Partial<CombatStatsMap>;
   charisma?: number;
   techniques: ArtefactTechnique[];
@@ -24,6 +26,7 @@ interface ArtefactItem extends ItemBase {
 
 ## Properties
 
+- **extraArtefactSlots**: Additional equipment slots granted while this artefact is equipped. This lets artefacts function as slot extenders, giving the player more artefact slots beyond the default count.
 - **combatStats**: Combat bonuses (power, speed, etc.)
 - **charisma**: Optional social stat bonus
 - **techniques**: Artefact techniques the artefact will use. These make up the artefacts stance, so ensure it is the correct length for the realm
@@ -94,6 +97,19 @@ export const shroudedForestWand: ArtefactItem = {
   stacks: 1,
   rarity: 'empowered',
   realm: 'bodyForging',
+};
+
+// Artefact that grants extra equipment slots
+export const archmagesBracelet: ArtefactItem = {
+  kind: 'artefact',
+  extraArtefactSlots: 2, // Equipping this grants 2 additional artefact slots
+  techniques: [attack, attack, attack],
+  name: "Archmage's Binding",
+  description: 'A jade bracelet worn by the sect archmages. Its resonance field expands the cultivator\'s capacity for bound weapons.',
+  icon: braceletIcon,
+  stacks: 1,
+  rarity: 'resplendent',
+  realm: 'coreFormation',
 };
 
 // Conditional artefact based on celestial techniques
@@ -175,3 +191,4 @@ interface ArtefactEnchantment extends Enchantment {
   buffs?: { buff: Buff; buffStacks: Scaling }[];
   restoredDroplets?: number;
 }
+```
