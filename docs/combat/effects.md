@@ -70,6 +70,8 @@ Deals damage to yourself.
 }
 ```
 
+Vulnerability debuffs on the source entity do not amplify self-damage. The vulnerability amplifier is gated on `trackingEntity === undefined`, so only self-inflicted costs (buff/technique self-damage with no opposing tracking entity) are excluded. Enemy-inflicted self-damage debuffs still apply normally.
+
 ## Healing and Protection
 
 ### `heal`

@@ -27,6 +27,7 @@ interface CraftingEquipmentItem extends ItemBase {
 
 - **stats**: Crafting stat bonuses (control, intensity, etc.)
 - **buffs**: Optional crafting buffs to apply
+- **upgradeHarmonies**: Craft harmony upgrades inherited from `ItemBase`. Use `harmonyStatUpgrade` or `harmonyStatStep` to scale tagged fields on the cauldron's stats or its buffs when the item is crafted with a matching harmony type and quality tier.
 
 ## Stat Realm Alignment
 
@@ -118,5 +119,23 @@ export const stellarFurnace: CauldronItem = {
   stacks: 1,
   rarity: 'empowered',
   realm: 'pillarCreation',
+};
+
+// Cauldron with harmony upgrades
+export const convergingCauldron: CauldronItem = {
+  kind: 'cauldron',
+  stats: window.modAPI.utils.getCraftingEquipmentStats(
+    'bodyForging', 'Middle', { pool: 0, control: 0.6, intensity: 0 },
+    'cauldron',
+  ),
+  upgradeHarmonies: {
+    inscription: [harmonyStatUpgrade('stats_control', 'Control')],
+  },
+  name: 'Converging Jade Cauldron',
+  description: 'A jade cauldron that resonates with inscription techniques.',
+  icon,
+  stacks: 1,
+  rarity: 'empowered',
+  realm: 'bodyForging',
 };
 ```

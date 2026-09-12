@@ -99,7 +99,21 @@ The `type` is an **array** of two distinct schools. Hybrid techniques fire `use.
 type: ['celestial', 'fist']; // Fires both use.celestial and use.fist
 ```
 
-For example, a Sinew-Bound Wraps listener on `damageHp-fist` will now correctly trigger when a hybrid `['celestial', 'fist']` technique deals damage, because the hybrid fires `use.fist` in addition to `use.celestial`.
+A Sinew-Bound Wraps listener on `damageHp-fist` will correctly trigger when a hybrid `['celestial', 'fist']` technique deals damage, because the hybrid fires `use.fist` alongside `use.celestial`.
+
+#### School Disabling
+
+When a school is disabled, a technique is blocked only when every declared school is disabled. A single-school technique is blocked when its school is disabled. A hybrid technique fires as long as at least one of its schools is enabled:
+
+```typescript
+// Blocked only when both celestial and fist are disabled
+type: ['celestial', 'fist'];
+
+// Blocked when blood is disabled
+type: 'blood';
+```
+
+This is implemented as `techniqueSchools.every((t) => variables.get(\`${t}Disabled\`))` in the technique execution pipeline. Guard the check against an empty `types` list; a technique with no declared type cannot be blocked this way.
 
 ### Origin Techniques
 
