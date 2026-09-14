@@ -25,7 +25,7 @@ interface ItemBase {
   realm: Realm | 'any'; // Cultivation requirement
   valueTier?: number; // Economic worth modifier
   upgradedFrom?: Item; // Upgrade chain tracking
-  upgradeHarmonies?: Partial<Record<RecipeHarmonyType, ItemHarmonyUpgrade[]>>; // Craft harmony upgrades
+  upgradeHarmonies?: Partial<Record<RecipeHarmonyType, ItemHarmonyUpgrade>>; // Craft harmony upgrades
   dropHarmonies?: RecipeHarmonyType[]; // Harmony types eligible when item drops with quality
 }
 ```
@@ -43,7 +43,6 @@ interface ItemHarmonyUpgrade {
   change: number;          // Amount to add, or multiplier when shouldMultiply is true
   shouldMultiply?: boolean; // If true, value += value * change (percentage increase)
   tooltip: Translatable;  // Description of the upgrade
-  exclusive?: boolean;     // When true, this upgrade cannot be borrowed by other harmonies
 }
 ```
 
@@ -132,14 +131,11 @@ harmonyStatStep('speedStep', 'Speed', 2, { step: 3, percent: true });
 
 #### harmonyStacksStep -- Stack Grant
 
-Add stacks to a buff maxStacks for every threshold quality tiers reached. Stack grants are exclusive by default -- a harmony cannot borrow another harmony stack upgrade.
+Add stacks to a buff maxStacks for every threshold quality tiers reached.
 
 ```typescript
 // "Increase Iron Blossom max stacks by 6 per 4 quality tiers"
 harmonyStacksStep('ironStacks', ironBlossom.name, 4, { step: 6 });
-
-// Non-exclusive variant
-harmonyStacksStep('razorStacks', razorBlossom.name, 4, { step: 6, exclusive: false });
 ```
 
 ### Defining upgradeHarmonies on an Item
@@ -153,14 +149,12 @@ export const eclipsePetalMantleS: ClothingItem = {
   kind: 'clothing',
   // ... other fields
   upgradeHarmonies: {
-    forge: [harmonyStacksStep('ironStacks', ironBlossom.name, 6)],
-    resonance: [harmonyStatStep('stats_blossomBoost', 'Blossom Boost', 7, { step: 10, percent: true })],
-    alchemical: [
-      harmonyStatStep('stats_celestialBoost', 'Celestial Boost', 7, { step: 10, percent: true }),
-    ],
-    inscription: [harmonyStacksStep('razorStacks', razorBlossom.name, 6)],
-    eccentricDecree: [harmonyStatUpgrade('stats_maxbarrier', 'Max Barrier')],
-    enhancingEcho: [harmonyStatUpgrade('stats_charisma', 'Charisma')],
+    forge: harmonyStacksStep('ironStacks', ironBlossom.name, 6),
+    resonance: harmonyStatStep('stats_blossomBoost', 'Blossom Boost', 7, { step: 10, percent: true }),
+    alchemical: harmonyStatStep('stats_celestialBoost', 'Celestial Boost', 7, { step: 10, percent: true }),
+    inscription: harmonyStacksStep('razorStacks', razorBlossom.name, 6),
+    eccentricDecree: harmonyStatUpgrade('stats_maxbarrier', 'Max Barrier'),
+    enhancingEcho: harmonyStatUpgrade('stats_charisma', 'Charisma'),
   },
 };
 ```
