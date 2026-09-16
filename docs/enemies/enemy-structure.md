@@ -180,6 +180,22 @@ interface RandomStance {
 }
 ```
 
+### Defensive Power Scaling
+
+The game applies a separate **defensive power multiplier** (`defensivePowerMultiplier`) to enemies as they scale toward higher realms. This multiplier is derived from the enemy's realm and progresses from the enemy's natural power toward the player's power at a rate of 30% of the vitality gap per realm tier. This makes enemies progressively harder to kill without making them deal exponentially more damage.
+
+The `defensivePowerMultiplier` is automatically computed for all `Enemy` entities by `createEnemyCombatEntity` based on realm and realm progress. It is accessible as a combat variable for use in buff conditions and scaling expressions.
+
+```typescript
+// CombatEntity fields (set automatically for enemies)
+{
+  vitalityMultiplier?: number;           // Enemy HP scaling vs player (set at combat start)
+  defensivePowerMultiplier?: number;     // Enemy damage scaling vs player (set at combat start)
+}
+```
+
+> Note: `defensivePowerMultiplier` is automatically managed by the game. You do not set it directly on `EnemyEntity`. Use `statMultipliers.power` to apply additional manual damage scaling on top of the game's built-in values.
+
 ### Character Flag
 
 ```typescript

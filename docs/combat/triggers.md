@@ -364,6 +364,7 @@ Buff conditions and stance rule expressions have access to a set of named variab
 | `barrier` | number | Current barrier of the entity |
 | `power` | number | Current power stat |
 | `{buffName}` | number | Stack count of the named buff (use the actual buff name) |
+| `triggeringStacks` | number | Stack count of the **triggering buff** -- the buff whose hook is currently executing. Only set inside `triggeredBuffEffects` or timing-effect hooks when the trigger fires. Useful for effects that scale with the stacks of the buff that triggered them (e.g. a `defer` effect that reads how many stacks the original `onStackGainEffects` fired with). Unset (undefined) when no triggering buff context exists. |
 
 ---
 

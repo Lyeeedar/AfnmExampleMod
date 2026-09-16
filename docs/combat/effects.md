@@ -154,12 +154,14 @@ Grants a buff to yourself.
 {
   kind: 'buffSelf',
   amount: { value: 2, stat: undefined },
-  buff: targetBuff,
+  buff: targetBuff | { kind: 'triggerSource' },
   instances?: { value: number, stat?: string }, // Number of separate buff instances to create (supports Scaling)
   silent?: true, // Don't show application message
   hideBuff?: true // Don't show buff in tooltips
 }
 ```
+
+When `buff` is `{ kind: 'triggerSource' }`, the buff resolves to the triggering buff -- the buff whose `triggeredBuffEffects` or `onXxxEffects` hook is currently executing. This is only meaningful inside a deferred effect chain (see `defer` below), where the outer buff that was originally triggered is passed through as the `triggeringBuff`.
 
 ### `consumeSelf`
 
@@ -169,9 +171,11 @@ Removes a buff from yourself.
 {
   kind: 'consumeSelf',
   amount: { value: 1, stat: undefined },
-  buff: targetBuff // Can be Buff object or string name
+  buff: targetBuff | 'self' // Can be a Buff object, string name, or 'self' to reference the current buff
 }
 ```
+
+Using `'self'` as the buff name is shorthand for consuming the buff that is currently executing its effects.
 
 ### `buffTarget`
 
@@ -265,6 +269,34 @@ Removes all stacks of the current buff, deleting the buff entirely.
   kind: 'negate';
 }
 ```
+
+### `defer`
+
+Defers a list of effect resolutions until after the current effect-scope completes. Deferred effects run in FIFO order, after all currently queued effect resolutions finish. Effects that trigger inside a deferred scope are added to the same FIFO queue and run after the current entry.
+
+```typescript
+{
+  kind: 'defer',
+  effects: BuffEffect[]
+}
+```
+
+**Example -- delay a follow-up damage effect until the current buff application resolves:**
+
+```typescript
+{
+  kind: 'defer',
+  effects: [
+    {
+      kind: 'damage',
+      amount: { value: 0.5, stat: 'power' },
+      damageType: 'true'
+    }
+  ]
+}
+```
+
+**Use case**: Breaking circular trigger chains where buff A triggers buff B, but buff B triggering back to buff A would cause an infinite loop. Deferred effects run after the current resolution scope clears, so the recursion guard has already reset by the time the deferred effect fires. See also `triggeringBuff` in Triggers for passing the original trigger context through the deferred chain.
 
 ### `mergeSelf`
 
