@@ -84,13 +84,30 @@ These triggers are based on specific actions taken during combat.
 - **Examples:**
   - `use.damage` - When using techniques that deal damage
   - `use.heal` - When using techniques that heal
-  - `use.buffSelf` - When using techniques that apply buffs
+  - `use.buffSelf` - When using techniques that apply buffs to self
   - `use.buffTarget` - When using techniques that buff the target
+  - `use.damageSelf` - When using techniques that deal self-damage
 
 ### `use.artefact`
 - **When it triggers:** When an artefact activates during a technique
 - **Condition:** Triggered once per technique execution that causes an artefact to fire
 - **Usage:** Artefact synergy effects, bonuses that scale with artefact usage
+
+### `technique.use.{TechniqueEffectKind}`
+- **When it triggers:** When the buff owner's technique executes a specific effect kind during its resolution
+- **Condition:** Fires as each effect within the technique resolves, not when the technique is selected
+- **Usage:** Granular reactions to individual effect applications within a technique sequence
+- **TechniqueEffectKind values:** `damage`, `damageSelf`, `heal`, `barrier`, `temporaryHealth`, `buffSelf`, `consumeSelf`, `buffTarget`, `consumeTarget`, `negate`, `add`, `multiply`, `merge`, `trigger`, `cleanseToxicity`, `modifyBuffGroup`, `setState`, `convertSelf`, `repair`, `consumeInventoryItem`, `defer`, `mergeSelf`, `permanentStatChange`
+- **Examples:**
+  - `technique.use.damageSelf` - Fires when the technique deals self-damage (e.g. Blood Amplification)
+  - `technique.use.buffSelf` - Fires when the technique applies a buff to self
+  - `technique.use.barrier` - Fires when the technique grants barrier
+
+### `buff.use.{BuffEffectKind}`
+- **When it triggers:** When the buff owner's buff system fires a specific effect kind
+- **Condition:** Fires as buff effects resolve, distinct from `technique.use.*` which fires for technique effects
+- **Usage:** Reacting to specific buff effect applications
+- **BuffEffectKind values:** `damage`, `damageSelf`, `heal`, `barrier`, `temporaryHealth`, `buffSelf`, `consumeSelf`, `buffTarget`, `consumeTarget`, `negate`, `add`, `multiply`, `merge`, `trigger`, `cleanseToxicity`, `modifyBuffGroup`, `setState`, `convertSelf`, `repair`, `consumeInventoryItem`, `defer`
 
 ---
 
@@ -138,6 +155,10 @@ These triggers relate to taking or dealing damage and healing.
 - **Condition:** Triggered every time the entity deals damage to the opponents health (so not blocked by barrier or damage resistance)
 - **Usage:** Poison effects, leech mechanics
 
+### `damageHp-{damageSource}`
+- **Condition:** Triggered when the entity deals HP damage from a specific source. `damageSource` can be `normal` or a technique school (`weapon`, `blood`, `fist`, `celestial`, `cloud`, `blossom`, `none`)
+- **Usage:** Source-specific damage reactions
+
 ### `damageBlocked`
 - **Condition:** Triggered every time the entity fails to break through barrier or damage resistance, and does 0 damage
 - **Usage:** Recoil effects, powerup mechanics
@@ -173,6 +194,50 @@ These triggers relate to taking or dealing damage and healing.
 ### `critBarrier`
 - **Condition:** Triggered when a barrier application critically increases the entity's barrier
 - **Usage:** Barrier-crit bonuses, shield amplification effects
+
+### `fullTempHealth`
+- **Condition:** Triggered when the entity's temporary health is fully consumed or expires
+- **Usage:** Temporary health exhaustion effects
+
+### `overTempHealth`
+- **Condition:** Triggered when the entity gains temporary health while already holding the maximum
+- **Usage:** Over-tempHealth bonuses
+
+### `tempHealthAbsorbed`
+- **Condition:** Triggered when temporary health absorbs damage
+- **Usage:** Temporary health absorption reactions
+
+### `tempHealthBlocked`
+- **Condition:** Triggered when temporary health prevents a hit from reaching HP
+- **Usage:** Temp health block reactions
+
+### `tempHealthDepleted`
+- **Condition:** Triggered when temporary health reaches zero from damage absorption
+- **Usage:** Temp health depletion effects
+
+### `temporaryHealthGained`
+- **Condition:** Triggered when the entity gains temporary health from any source
+- **Usage:** Temporary health gain reactions
+
+### `critTempHealth`
+- **Condition:** Triggered when a temporary health application exceeds the current cap and creates overflow
+- **Usage:** Overflow temporary health effects
+
+### `barrierBroken`
+- **Condition:** Triggered when the entity's barrier is fully depleted
+- **Usage:** Barrier break reactions, debuffs on break
+
+### `barrierGained`
+- **Condition:** Triggered when the entity gains barrier from any source
+- **Usage:** Barrier gain reactions
+
+### `healthHealed`
+- **Condition:** Triggered when the entity is healed for any amount (including overheal)
+- **Usage:** Healing reactions, tracking
+
+### `afterTechnique`
+- **Condition:** Triggered after any technique resolves (both the caster's own technique and techniques used by other entities against them)
+- **Usage:** General post-technique reactions
 
 ---
 
@@ -314,6 +379,26 @@ These are specific custom triggers used by various systems in the game.
 - **Condition:** Equivalent to a `triggeredBuffEffects` entry with `trigger: 'guardianBroken.${name}'` on the guardian buff itself
 - **Usage:** Effects that fire when a guardian is destroyed
 
+### `spend.{buffName}`
+- **When it triggers:** When the entity spends a specific buff as a technique cost
+- **Condition:** Triggered when a technique cost removes the named buff
+- **Usage:** Spending-based bonuses, cost reduction effects
+
+### `createBuff.{buffName}`
+- **When it triggers:** When a buff with the specified name is applied to the entity
+- **Condition:** Fires whenever that buff is applied, including from non-technique sources
+- **Usage:** Reacting to specific buff applications from anywhere
+
+### `convert.{sourceBuff}.{targetBuff}`
+- **When it triggers:** When the entity converts the source buff into the target buff
+- **Condition:** Fires on buff conversion effects
+- **Usage:** Conversion-based reactions, tracking
+
+### `meteorMassBoost`
+- **When it triggers:** When the meteor mass boost system applies a multiplier
+- **Condition:** Fires during meteor-based combat effects
+- **Usage:** Meteor boost synergy effects
+
 ---
 
 ## Implementation Notes
@@ -321,7 +406,7 @@ These are specific custom triggers used by various systems in the game.
 ### Trigger Processing Order
 1. **Pre-Technique:** `beforeTechniqueEffects` are processed before technique execution
 2. **Technique Execution:** Main technique effects with embedded triggers
-3. **Post-Technique:** Various action-based triggers (`use.*`, `spend.*`)
+3. **Post-Technique:** Various action-based triggers (`use.*`, `spend.*`, `afterTechnique`)
 4. **Damage/Healing:** `takeDamage`, `damageSelf` triggers during damage processing
 5. **End of Round:** `onRoundEffects` at round conclusion
 6. **Start of Round:** `onRoundStartEffects` at round beginning
@@ -414,14 +499,6 @@ triggeredBuffEffects: [
     ]
   }
 ]
-```
-
-### Round-Based Effect
-```typescript
-condition: {
-  kind: 'condition',
-  condition: 'round >= 3', // Only activates from Round 3 onwards
-}
 ```
 
 ### Listen to Opponent
