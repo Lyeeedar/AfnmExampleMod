@@ -30,6 +30,9 @@ interface CombatPillItem extends BasePillItem {
   toxicity: number;                    // Toxicity cost
   effects: TechniqueEffect[];          // Combat effects
   tooltip?: string;
+  /** Opt into once-per-fight consumption gating. When set, only one pill with
+   *  this flag may be consumed per combat encounter regardless of variant. */
+  oncePerFight?: boolean;
 }
 ```
 
@@ -61,11 +64,11 @@ interface ConsumablePillItem extends BasePillItem {
   rawStats?: Partial<Record<CombatStatistic | CraftingStatistic, Scaling>>; // Permanent combat/crafting stat bonuses
   consumptionGroup?: string;           // Optional shared consumption group name
   groupCap?: number;                   // Lifetime cap for the entire consumption group
-  flagEffect?: {                       // Optional: iterate a flag value on consumption
-    flag: string;                      // Flag key to modify
-    amount: number;                    // Value to add (or subtract if negative)
+  flagEffect?: {                      // Optional: iterate a flag value on consumption
+    flag: string;                     // Flag key to modify
+    amount: number;                   // Value to add (or subtract if negative)
   };
-  tooltip?: string;                    // Optional tooltip shown in the consumption dialogue
+  tooltip?: string;                   // Optional tooltip shown in the consumption dialogue
   toxicity?: undefined;
 }
 ```
@@ -78,7 +81,7 @@ interface Scaling {
   stat?: CombatStatistic | CraftingStatistic | PhysicalStatistic | SocialStatistic | TechniqueElement;
                           // Optional stat to scale the base value against
   scaling?: string;       // Buff name or 'stacks'/'consumed' to multiply the result
-  eqn?: string;           // Expression multiplied onto the result (e.g. '1 + (power * 0.01)')
+  eqn?: string;           // Expression multiplied onto the result (e.g. '1 + (itemEffectiveness * 0.01)')
 }
 ```
 
@@ -108,6 +111,20 @@ export const healingPill: CombatPillItem = {
   effects: [{
     kind: 'heal',
     amount: { value: 50, stat: undefined, eqn: '1 + (itemEffectiveness * 0.01)' },
+  }],
+  // ... base properties
+};
+
+// Combat pill limited to once per fight
+export const bloomPhoenixPillV: CombatPillItem = {
+  pillKind: 'combat',
+  kind: 'pill',
+  name: 'Bloom Phoenix Pill V',
+  toxicity: 5,
+  oncePerFight: true,
+  effects: [{
+    kind: 'buffSelf',
+    buff: { name: 'Bloom Phoenix Pill V', /* ... */ },
   }],
   // ... base properties
 };
