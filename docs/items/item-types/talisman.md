@@ -44,6 +44,10 @@ export const powerTalisman: TalismanItem = {
 };
 ```
 
+## Balance Note
+
+The `buffStacks` value in a talisman's `Scaling` is capped at a maximum of **5 stacks** per unique buff, regardless of the `value` set. For example, a talisman granting `Alchemic Synergy` with `buffStacks: { value: 10, stat: 0 }` will apply at most 5 stacks. This cap applies uniformly to all talismans, including base-game ones. If you are creating custom talismans that grant stacking buffs, keep this cap in mind when designing balance.
+
 ## Enchantments
 
 Talismans can be enchanted to modify their properties:

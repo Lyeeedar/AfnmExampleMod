@@ -58,12 +58,12 @@ When you set a flag, the `value` field is evaluated as a mathematical expression
 value: '1'; // Stores: 1
 value: 'month'; // Stores: current month (e.g., 15)
 value: 'existingFlag + 1'; // Stores: previous value + 1
-value: 'power * 2'; // Stores: player's power × 2
+value: 'power * 2'; // Stores: player's power x 2
 ```
 
 ### Reading Flags in Conditions
 
-Use flags in `condition` strings to control event flow:
+Use flags in `condition` strings to control event flow. Expressions are evaluated with `evalExp`, which returns the numeric result directly:
 
 ```typescript
 // Simple boolean check
@@ -78,6 +78,8 @@ condition: 'playerLevel >= 10 && hasWeapon == 1';
 // Mathematical operations
 condition: 'totalScore >= requiredScore * 2';
 ```
+
+**Important:** `evalExp` returns the numeric result of the expression. Write conditions so they evaluate to `0` for false and non-zero for true. For example, `condition: 'myFlag'` evaluates to `true` when `myFlag` is non-zero.
 
 ## Practical Examples
 
@@ -214,7 +216,7 @@ flag('Greater Spirit Grass'); // becomes: 'Greater_Spirit_Grass'
 flag('Corrupt Void Key (III)'); // becomes: 'Corrupt_Void_Key__III_'
 
 // Use in conditions
-condition: `${flag(itemName)} >= 5`;
+condition: `${flag(itemName)} != 0`;  // True when player has the item
 condition: `storage_${flag(itemName)} > 0`;
 ```
 
@@ -267,4 +269,4 @@ condition: 'month >= 6 && completedPreQuest == 1';
 condition: 'money >= 1000 && power >= 50';
 ```
 
-The flags system is incredibly flexible and powerful. Master it, and you'll be able to create dynamic, responsive content that adapts to each player's unique journey through your mod.
+The flags system is incredibly flexible and powerful. Master it, and you will be able to create dynamic, responsive content that adapts to each player's unique journey through your mod.
