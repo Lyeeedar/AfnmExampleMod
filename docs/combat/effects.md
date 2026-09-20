@@ -421,6 +421,42 @@ Removes or adds toxicity.
 }
 ```
 
+### `restoreDroplets`
+
+Restores qi droplets to the entity, up to a per-combat limit and the entity's maximum. The effect is suppressed if `dropletsDisabled` is set in the variable scope (see the [Flags](../concepts/flags) docs).
+
+```typescript
+{
+  kind: 'restoreDroplets',
+  amount: { value: 3, stat: undefined },
+  perCombatLimit: 3  // Total droplets this entity may recover per combat
+}
+```
+
+**Parameters:**
+
+- **`amount`** — Number of droplets to restore. Capped by `perCombatLimit` minus droplets already restored this combat, and by the gap between current and maximum qi droplets.
+- **`perCombatLimit`** — Total droplets this entity may recover through all `restoreDroplets` effects combined, per combat. The counter is shared across buffs and techniques that both use this effect.
+
+**Example — restore 3 droplets at the start of a round, only if none were spent that round:**
+
+```typescript
+{
+  kind: 'restoreDroplets',
+  condition: {
+    kind: 'condition',
+    condition: 'dormant == 1 && qiDroplets == 0',
+  },
+  amount: { value: 3, stat: undefined },
+  perCombatLimit: 3,
+  cantUpgrade: true,
+}
+```
+
+This pattern uses a state variable (`dormant`) set on round start to detect a no-spend round, and the `condition` gate ensures the effect only fires when the entity ended the round with zero droplets. Because `perCombatLimit` is shared, multiple restoration effects in the same combat accumulate against the same counter.
+
+**Use case**: Recovery mechanics that reward not spending qi droplets, or techniques that replenish the droplet resource for depleted cultivators. Set `dropletsDisabled: 1` in a flag or condition to suppress all droplet restoration on an entity.
+
 ### `modifyBuffGroup`
 
 Modifies all buffs of a specific group.
@@ -660,5 +696,3 @@ Only affects barrier, not health.
   }
 }
 ```
-
-
