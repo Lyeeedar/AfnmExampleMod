@@ -617,6 +617,40 @@ Ignores defense but not barrier.
 
 Only affects barrier, not health.
 
+### `restoreDroplets`
+
+Restores Qi Droplets to the entity, capped by the entity's missing droplets and optionally by a per-combat limit shared with other restoration sources.
+
+\`\`\`typescript
+{
+  kind: 'restoreDroplets',
+  amount: { value: 3, stat: undefined },
+  perCombatLimit?: number,
+}
+\`\`\`
+
+**Parameters:**
+
+- **`amount`** — Number of droplets to restore. Capped by `maxqiDroplets - stats.qiDroplets`.
+- **`perCombatLimit`** — Optional total droplets this entity may recover per combat through restoration effects. Multiple `restoreDroplets` effects share a `restoredQiDroplets` counter on the entity; the cap is enforced by subtracting the counter from the limit. When omitted, no per-combat cap applies.
+
+**Example:**
+
+\`\`\`typescript
+// Restore up to 3 droplets per combat (shared cap)
+{
+  kind: 'restoreDroplets',
+  amount: { value: 3, stat: undefined },
+  perCombatLimit: 3,
+}
+// Unlimited restoration per combat
+{
+  kind: 'restoreDroplets',
+  amount: { value: 1, stat: undefined },
+  // perCombatLimit omitted
+}
+\`\`\`
+
 ## Condition Examples
 
 ### Multiple Hits with Scaling

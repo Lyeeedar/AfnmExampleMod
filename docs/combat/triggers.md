@@ -312,25 +312,65 @@ damageInterceptorEffects: [
 
 ### `techniqueAmplifierEffects`
 - **When it triggers:** Before outgoing damage, barrier, heal, or temporary health effects are applied
-- **Usage:** Amplifying the entity's own outgoing effects (e.g., increase all damage by 50%)
+- **Usage:** Amplifying the entity's own outgoing effects (e.g., increase all damage by 50%), or gating effects based on accumulated values from the triggering technique's buff state
 - **Properties:**
-  - `trigger?: TechniqueCondition` - Optional condition
+  - `trigger?: TechniqueCondition` - Optional condition gating when the amplifier fires. When the `trigger` references `internalState` keys from the triggering technique's buff, those values are drawn from the buff whose `techniqueAmplifierEffects` are currently resolving.
   - `amplifier: { kind: 'multiply', value: number, cantUpgrade?: boolean }` - Multiplier to apply
-  - `effects?: BuffEffect[]` - Effects to run when amplifying (e.g., consume stacks of the amplifier buff)
+  - `effects?: BuffEffect[]` - Effects to run at amplification time (e.g., consume stacks of the amplifier buff). These run as part of the amplification step, not at technique end.
   - `appliesTo: ('damage' | 'barrier' | 'heal' | 'tempHealth')[]` - Which effect kinds to amplify
 
-**Example:**
+**Amplifier with trigger and stack consumption:**
 
 ```typescript
 techniqueAmplifierEffects: [
   {
-    amplifier: { kind: 'multiply', value: 1.5 }, // +50% to all outgoing damage
+    trigger: {
+      kind: 'condition',
+      condition: 'noDroplet == 1',
+    },
+    amplifier: { kind: 'multiply', value: 2 }, // Double outgoing damage
     appliesTo: ['damage'],
     effects: [
-      { kind: 'consumeSelf', amount: { value: 1, stat: undefined }, buff: empoweredBuff }
+      // Runs at amplification time: consume the amplifier buff stack
+      { kind: 'consumeSelf', amount: { value: 1, stat: undefined }, buff: empoweredBuff },
     ]
   }
 ]
+```
+
+**Threshold-gated amplifier with state tracking:** Buffs that use `techniqueAmplifierEffects` can accumulate values into `internalState` (e.g., `damageDealt`) during amplification via `setState` effects. The `trigger` condition can then reference those same state keys to gate when amplification stops. When paired with `afterTechniqueEffects` using a `negate` condition keyed to the accumulated state, this creates a natural "once threshold is reached, disable the technique" pattern:
+
+```typescript
+// In the buff that applies the amplifier:
+techniqueAmplifierEffects: [
+  {
+    trigger: {
+      kind: 'condition',
+      condition: 'damageDealt < damageThreshold',
+    },
+    amplifier: { kind: 'multiply', value: 1.5 }, // +50% damage while under threshold
+    appliesTo: ['damage'],
+    effects: [
+      // Accumulate the modified damage amount into state
+      {
+        kind: 'setState',
+        key: 'damageDealt',
+        mode: 'add',
+        value: { value: 1, stat: undefined, eqn: 'modifiedAmount' },
+        cantUpgrade: true,
+      },
+    ],
+  },
+],
+afterTechniqueEffects: [
+  {
+    kind: 'negate',
+    condition: {
+      kind: 'condition',
+      condition: 'damageDealt >= damageThreshold',
+    },
+  },
+],
 ```
 
 ### `buffAmplifierEffects`
