@@ -181,6 +181,7 @@ The game automatically provides numerous flags representing the current game sta
 - `qi`, `maxqi`, `qiDroplets` - Qi management
 - `realm`, `realmProgress` - Cultivation level
 - `money`, `spiritstones`, `favour` - Resources
+- `dropletsDisabled` - Set to `1` to suppress all `restoreDroplets` effects on the current entity for the remainder of the combat
 
 ### Time and Calendar
 
