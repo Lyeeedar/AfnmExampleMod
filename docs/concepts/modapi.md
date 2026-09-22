@@ -133,6 +133,10 @@ window.modAPI.actions.addTeenBackground(background: Background)
 
 ```typescript
 window.modAPI.actions.addBreakthrough(realm: Realm, breakthrough: Breakthrough)
+// Throws for 'qiCondensation': breakthroughs for that realm are auto-generated
+// from each Condensation Art via createCondensationBreakthrough. To customise
+// them, register a Condensation Art with addItem (kind: 'condensation_art')
+// and the matching breakthrough will be regenerated for you.
 window.modAPI.actions.addTechnique(technique: Technique)
 window.modAPI.actions.addManual(manual: ManualItem)
 window.modAPI.actions.addCraftingTechnique(technique: CraftingTechnique)
