@@ -457,6 +457,18 @@ Each `StoredStance` can declare a `stanceRule` to control when it fires:
 { kind: 'conditionalRotation', position: 2, condition: TechniqueCondition }
 ```
 
+### Condition Keys
+
+Stance rules that use `kind: 'condition'` can reference these keys in the condition expression:
+
+| Key | Evaluates to | Notes |
+|-----|--------------|-------|
+| `Power` | Current Power stat | Post-weakness value; can be negative |
+| `Enemy Count` | Number of enemies still standing | Defaults to 1 (solo boss); higher for multi-enemy fights |
+| `Round` | Current combat round | 1-based |
+
+Other keys (buff names, `hp`, `barrier`) are also available depending on the entity's state.
+
 ### Conditional Stance Counters
 
 For combatants using the unified stance selector (players, manifested figments, evoked figments), the `enemyStanceData` field tracks per-stance usage so `ConditionalStoredRule.maxCount` is enforced:
