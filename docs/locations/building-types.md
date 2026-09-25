@@ -214,7 +214,7 @@ Shop for purchasing item enchantments:
 
 ### Mission Hall
 
-Sect missions with rewards:
+Sect missions with rewards and crafting commissions:
 
 ```typescript
 {
@@ -222,7 +222,7 @@ Sect missions with rewards:
 }
 ```
 
-Missions defined at location level:
+Missions and crafting commissions are defined at location level:
 ```typescript
 missions: [
   {
@@ -234,27 +234,7 @@ missions: [
 ]
 ```
 
-### Crafting Hall
-
-Crafting-focused missions:
-
-```typescript
-{
-  kind: 'craftingHall'
-}
-```
-
-Crafting missions defined at location level:
-```typescript
-crafting: [
-  {
-    realm: 'meridianOpening',
-    rarity: 'qitouched',
-    quest: 'pill_delivery',
-    condition: 'craftingSkill >= 50'
-  }
-]
-```
+To offer crafting commissions at a location, set `offersCraftingMissions: true` on the mission building and use `addCraftingMissionsToLocation` from the mod API. Crafting commissions require the player to craft an item to a quality threshold, appraised by an NPC who delivers separate outcome event steps for sublime, perfect, basic, and failure results.
 
 ### Request Board
 

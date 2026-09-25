@@ -53,7 +53,7 @@ type QuestCategory =
   | 'main'
   | 'side'
   | 'missionHall'
-  | 'craftingHall'
+  | 'craftingMission'
   | 'requestBoard'
   | 'guild';
 ```
@@ -79,11 +79,11 @@ type QuestCategory =
 - Combat and exploration focus
 - Reputation building
 
-#### Crafting Hall Quests
+#### Crafting Mission Quests
 
-- Artisan skill development
-- Technique acquisition
-- Master-apprentice relationships
+- Crafting commissions at the Mission Hall
+- Commissioned by NPCs who appraise the craft
+- Separate outcome steps for each quality tier (sublime, perfect, basic, failure)
 - Crafting system integration
 
 #### Request Board Quests
@@ -111,7 +111,7 @@ guild: 'ShadowMoonSect' // Must match guild identifier
 
 ### Cost System
 
-Optional upfront payment required to accept the quest. Only used by the Crafting Hall at this time:
+Optional upfront payment required to accept the quest. Used by crafting mission commissions:
 
 ```typescript
 cost: 500; // Player pays 500 sect favour to start quest
