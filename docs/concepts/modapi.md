@@ -65,9 +65,14 @@ Access existing game content through `window.modAPI.gameData`:
   - `child: Background[]`
   - `teen: Background[]`
 - **`craftingTechniques`** - `Record<string, CraftingTechnique>` - All crafting techniques
-- **`techniqueBuffs`** - School-specific technique buffs:
-  - `blood`, `blossom`, `celestial`, `cloud`, `fist`, `weapon`
-- **`buffs`** - `Record<string, Buff>` - A flat registry of every combat `Buff` in the game, keyed by buff name, regardless of where it is defined. Buffs are gathered from combat techniques, items (corruption debuffs, pill effects, clothing/talisman/artefact/formation buffs), monster definitions, enchantments, and more. This is the general counterpart to `techniqueBuffs` (which only exposes a hand-picked set of the main school buffs): it lists buffs the same way `techniques` lists techniques. When two buffs share a name the first one wins. Read this to look up any buff definition at runtime:
+- **`techniqueBuffs`** - School-specific technique buffs exposing named child buffs for each school:
+  - `blood`: `bloodCorruption`, `bloodReinforcement`, `lifeforceCorruption`, `bloodReservoir`, `bloodEcho`
+  - `blossom`: `fragrantBlossom`, `fatalFlora*` (8 variants), `rot`, `razorBlossom`, `ironBlossom`, `radiantBlossom`, `toxicBlossom`, `witheringBlossom`
+  - `celestial`: `sunlight`, `moonlight`, `moonchill`, `sunfury`, `lunarAttunement`, `solarAttunement`, `moonScorched`
+  - `cloud`: `clouds`, `thunderAspect`, `galeAspect`, `mistAspect`, `monsoonAspect`, `blizzardAspect`
+  - `fist`: `flow`, `deadlyFocus`, `rippleForce`, `transcendentFocus`, `goldenAura`
+  - `weapon`: `metalShard`, `metalFragment`, `magnetizedMetal`
+- **`buffs`** - `Record<string, Buff>` - A flat registry of every combat `Buff` in the game, keyed by buff name, regardless of where it is defined. Buffs are gathered from combat techniques, items (combat pills, concoctions, consumables, talismans, artefacts, clothing, and mounts), and monsters, but **not** from enchantments. This is the general counterpart to `techniqueBuffs`: it lists buffs the same way `techniques` lists techniques. When two buffs share a name the first one reached wins. Read this to look up any buff definition at runtime:
 
   ```typescript
   const rot = window.modAPI.gameData.buffs['Rot'];
@@ -90,8 +95,8 @@ Access existing game content through `window.modAPI.gameData`:
 - **`recipeConditionEffects`** - `RecipeConditionEffect[]` - All crafting condition effects
 - **`harmonyConfigs`** - `Record<RecipeHarmonyType, HarmonyTypeConfig>` - Harmony type configurations
 - **`tutorials`** - Tutorial system data:
-  - `newGameTutorials: Tutorial[]` — Base game tutorials played during a new game
-  - `tutorialTriggers: TriggeredEvent[]` — Triggered events forming the opening sequence
+  - `newGameTutorials: Tutorial[]` - Base game tutorials played during a new game
+  - `tutorialTriggers: TriggeredEvent[]` - Triggered events forming the opening sequence
 
 ## Content Registration
 
@@ -108,9 +113,9 @@ window.modAPI.actions.addItemToFallenStar(item, realm)
 window.modAPI.actions.addToSectShop(item, stacks, realm, valueModifier?, reputation?)
 ```
 
-- **`addItemToGuild`** — Add an item to a guild's rank shop. `guild` is the guild name, `rank` is the minimum rank required to purchase.
-- **`addItemToFallenStar`** — Add an item to the drop table for fallen stars of a given realm.
-- **`addToSectShop`** — Add an item to the Nine Mountain Sect's Favour Exchange shop at the specified realm tier. Optionally apply a price multiplier and gate the item behind a reputation tier. Items without a reputation tier go into `itemPool[realm]`; items with a tier go into `reputationPool[realm]`.
+- **`addItemToGuild`** - Add an item to a guild's rank shop. `guild` is the guild name, `rank` is the minimum rank required to purchase.
+- **`addItemToFallenStar`** - Add an item to the drop table for fallen stars of a given realm.
+- **`addToSectShop`** - Add an item to the Nine Mountain Sect's Favour Exchange shop at the specified realm tier. Optionally apply a price multiplier and gate the item behind a reputation tier. Items without a reputation tier go into `itemPool[realm]`; items with a tier go into `reputationPool[realm]`.
 
 ```typescript
 // Add item to sect shop at qiCondensation tier
@@ -170,7 +175,7 @@ window.modAPI.actions.registerRootLocation('Ancient Ruins', 'foundAncientMap == 
 
 Start a game event programmatically at runtime. Returns `true` if the event started, or `false` if an event was already active.
 
-**Important:** If an event is already in progress, `startEvent` silently returns `false` — it will not interrupt or overwrite the running event. Use the return value to guard side-effects (such as quest consumption or item removal) that should only happen when the event actually begins.
+**Important:** If an event is already in progress, `startEvent` silently returns `false` - it will not interrupt or overwrite the running event. Use the return value to guard side-effects (such as quest consumption or item removal) that should only happen when the event actually begins.
 
 ```typescript
 window.modAPI.actions.startEvent({
@@ -183,10 +188,10 @@ window.modAPI.actions.startEvent({
 // Always check the return value when your mod's logic depends on the event firing
 const started = window.modAPI.actions.startEvent(myEvent);
 if (started) {
-  // Quest consumed here — safe, because the event actually started
+  // Quest consumed here - safe, because the event actually started
   dispatch(removeQuest('myQuest'));
 } else {
-  // Event was blocked — do not consume quest items, flags, etc.
+  // Event was blocked - do not consume quest items, flags, etc.
 }
 ```
 
@@ -236,11 +241,11 @@ window.modAPI.actions.addQuestToRequestBoard(
 )
 ```
 
-- **`quest`** — The quest definition. If the quest is not already registered, it is automatically added to the quest registry.
-- **`realm`** — The realm tier this quest appears under on the request board (e.g. `'qiCondensation'`).
-- **`rarity`** — Controls the display tier of the request. Valid values: `'mundane'`, `'qitouched'`, `'empowered'`, `'resplendent'`, `'incandescent'`, `'transcendent'`.
-- **`condition`** — Flag expression that must be true for the quest to appear (e.g. `'1'` for always available, `'myMod_unlocked == 1'` for conditional).
-- **`location`** — The location key. The location must have a `requestBoard` building, an error is thrown if the location does not exist or has no request board.
+- **`quest`** - The quest definition. If the quest is not already registered, it is automatically added to the quest registry.
+- **`realm`** - The realm tier this quest appears under on the request board (e.g. `'qiCondensation'`).
+- **`rarity`** - Controls the display tier of the request. Valid values: `'mundane'`, `'qitouched'`, `'empowered'`, `'resplendent'`, `'incandescent'`, `'transcendent'`.
+- **`condition`** - Flag expression that must be true for the quest to appear (e.g. `'1'` for always available, `'myMod_unlocked == 1'` for conditional).
+- **`location`** - The location key. The location must have a `requestBoard` building, an error is thrown if the location does not exist or has no request board.
 
 ```typescript
 // Example: add a gathering quest to the Liang Tiao Village request board
@@ -267,8 +272,8 @@ window.modAPI.actions.addScreen({
 })
 ```
 
-- **`key`** — Use `setScreen('yourKey')` to navigate to this screen from other screens or button click handlers.
-- **`component`** — A `ModScreenFC` receiving `screenAPI: ModReduxAPI` as props. The screen API gives you hooks (`useSelector`, `useGameFlags`, `usePlaySfx`, `useKeybinding`), actions (`setScreen`, `setFlag`, `changeMoney`, `addItem`, `advanceDays`, etc.), and pre-styled components (`GameDialog`, `GameButton`, `GameIconButton`, `BackgroundImage`, `PlayerComponent`).
+- **`key`** - Use `setScreen('yourKey')` to navigate to this screen from other screens or button click handlers.
+- **`component`** - A `ModScreenFC` receiving `screenAPI: ModReduxAPI` as props. The screen API gives you hooks (`useSelector`, `useGameFlags`, `usePlaySfx`, `useKeybinding`), actions (`setScreen`, `setFlag`, `changeMoney`, `addItem`, `advanceDays`, etc.), and pre-styled components (`GameDialog`, `GameButton`, `GameIconButton`, `BackgroundImage`, `PlayerComponent`).
 - Custom screens cannot be navigated to from event steps. The built-in `changeScreen` event step only supports the game's own screen types. To navigate to a mod screen mid-event, use a completion hook (e.g. `onCompleteCombat`) that calls `window.modAPI.actions.setScreen()`.
 
 **Example screen:**
@@ -319,9 +324,9 @@ window.modAPI.injectUI(slotName: string, generator: (api: ModReduxAPI, inject: I
 inject(selector: string | HTMLElement, content: ReactNode, placement?: InjectPlacement)
 ```
 
-- **`selector`** — CSS selector scoped to the target slot, or an `HTMLElement`
-- **`content`** — React node to render
-- **`placement`** — Where to place content. For selector targets, `'after'` is the default. Other supported placements include `'before'`, `'appendChild'`, `'prependChild'`, `'overlay'`, replacement, and wrapping placements.
+- **`selector`** - CSS selector scoped to the target slot, or an `HTMLElement`
+- **`content`** - React node to render
+- **`placement`** - Where to place content. For selector targets, `'after'` is the default. Other supported placements include `'before'`, `'appendChild'`, `'prependChild'`, `'overlay'`, replacement, and wrapping placements.
 
 ```typescript
 window.modAPI.injectUI('combat-victory', (api, inject) => {
@@ -357,13 +362,13 @@ window.modAPI.actions.addSoulShardDelve(delve: SoulShardDelveConfig)
 window.modAPI.actions.addPlayerSprite(sprite: PlayerSprite)
 ```
 
-- **`addMysticalRegionBlessing`** — Register a new blessing for mystical regions.
-- **`addExpeditionTiles`** — Register tile definitions for an expedition so they can appear when the expedition is generated. If the expedition already exists in `gameData.expeditionTiles`, the provided tiles are appended to its existing tile pool. If the expedition name is new, a fresh pool is created and registered so subsequent generation calls can spawn tiles from it. Combine with a matching `addLocation` (or an existing expedition location) that uses an `expedition` building with `name: <expeditionName>` to expose the new expedition to players.
-- **`addMysticalRegionDefinition`** — Register a new moddable mystical region definition. Point a `MysticalKeyItem`'s `overrideRegion` field at the definition's `id` to redirect that key into the new region. Any field left undefined falls back to the key's own overrides (or realm defaults). The `eventSteps` map lets you inject event sequences at any combination of progress stages; when set for a stage, an event portal is shown before the default step and clicking it dispatches the supplied steps as a normal event.
-- **`addPuppetType`** — Register a new puppet type for the training ground.
-- **`addAlternativeStart`** — Register an alternative game start. Players select from available starts when creating a new game. The `AlternativeStart` defines the opening event, starting location, starting items, and starting money.
-- **`addSoulShardDelve`** — Register a new soul shard delve. Delves are randomised combat dungeons themed around a single memory shard. Each config supplies the mob / elite / boss monster pools, the boss room, threshold events, and intensity rewards earned as the delve progresses.
-- **`addPlayerSprite`** — Register a custom player sprite that appears in character creation alongside the defaults for the specified gender.
+- **`addMysticalRegionBlessing`** - Register a new blessing for mystical regions.
+- **`addExpeditionTiles`** - Register tile definitions for an expedition so they can appear when the expedition is generated. If the expedition already exists in `gameData.expeditionTiles`, the provided tiles are appended to its existing tile pool. If the expedition name is new, a fresh pool is created and registered so subsequent generation calls can spawn tiles from it. Combine with a matching `addLocation` (or an existing expedition location) that uses an `expedition` building with `name: <expeditionName>` to expose the new expedition to players.
+- **`addMysticalRegionDefinition`** - Register a new moddable mystical region definition. Point a `MysticalKeyItem`'s `overrideRegion` field at the definition's `id` to redirect that key into the new region. Any field left undefined falls back to the key's own overrides (or realm defaults). The `eventSteps` map lets you inject event sequences at any combination of progress stages; when set for a stage, an event portal is shown before the default step and clicking it dispatches the supplied steps as a normal event.
+- **`addPuppetType`** - Register a new puppet type for the training ground.
+- **`addAlternativeStart`** - Register an alternative game start. Players select from available starts when creating a new game. The `AlternativeStart` defines the opening event, starting location, starting items, and starting money.
+- **`addSoulShardDelve`** - Register a new soul shard delve. Delves are randomised combat dungeons themed around a single memory shard. Each config supplies the mob / elite / boss monster pools, the boss room, threshold events, and intensity rewards earned as the delve progresses.
+- **`addPlayerSprite`** - Register a custom player sprite that appears in character creation alongside the defaults for the specified gender.
 
 ```typescript
 interface PlayerSprite {
@@ -441,8 +446,8 @@ const npcAffinity = useSelector((state) => state.modData('myMod')?.customNPC_aff
 window.modAPI.actions.removeModData('myMod', 'customNPC_affinity');
 ```
 
-- **`setModData`** — Store any JSON-serializable data namespaced under your mod name. Persists with the save file. Use for quest state, NPC relationships, discovered secrets, or any other per-save data.
-- **`removeModData`** — Remove a specific key from your mod's save-paired data thereafter.
+- **`setModData`** - Store any JSON-serializable data namespaced under your mod name. Persists with the save file. Use for quest state, NPC relationships, discovered secrets, or any other per-save data.
+- **`removeModData`** - Remove a specific key from your mod's save-paired data thereafter.
 
 ### Mod Settings UI
 
@@ -564,10 +569,10 @@ window.modAPI.hooks.onCreatePlayerCombatEntity((player, combatEntity, breakthrou
 });
 ```
 
-- **`player`** — The `PlayerEntity` from the Redux store
-- **`combatEntity`** — The newly created `CombatEntity` for the player
-- **`breakthrough`** — The current `BreakthroughState` (realm and progress)
-- **`flags`** — Current game flags
+- **`player`** - The `PlayerEntity` from the Redux store
+- **`combatEntity`** - The newly created `CombatEntity` for the player
+- **`breakthrough`** - The current `BreakthroughState` (realm and progress)
+- **`flags`** - Current game flags
 
 #### `onCreatePlayerCraftingEntity`
 
@@ -582,11 +587,11 @@ window.modAPI.hooks.onCreatePlayerCraftingEntity((player, craftingEntity, breakt
 });
 ```
 
-- **`player`** — The `PlayerEntity`
-- **`craftingEntity`** — The newly created `CraftingEntity` for the player
-- **`breakthrough`** — The current `BreakthroughState`
-- **`characters`** — The `CharactersState` from Redux (may be undefined)
-- **`flags`** — Current game flags
+- **`player`** - The `PlayerEntity`
+- **`craftingEntity`** - The newly created `CraftingEntity` for the player
+- **`breakthrough`** - The current `BreakthroughState`
+- **`characters`** - The `CharactersState` from Redux (may be undefined)
+- **`flags`** - Current game flags
 
 ### Crafting Hooks
 
@@ -603,10 +608,10 @@ window.modAPI.hooks.onBeforeCraft((player, recipe, recipeStats, flags) => {
 });
 ```
 
-- **`player`** — The current `CraftingEntity`
-- **`recipe`** — The `RecipeItem` being crafted
-- **`recipeStats`** — The calculated `CraftingRecipeStats` (completion, perfection, stability thresholds)
-- **`flags`** — Current game flags
+- **`player`** - The current `CraftingEntity`
+- **`recipe`** - The `RecipeItem` being crafted
+- **`recipeStats`** - The calculated `CraftingRecipeStats` (completion, perfection, stability thresholds)
+- **`flags`** - Current game flags
 
 Return `{ recipe?: RecipeItem; recipeStats?: CraftingRecipeStats; player?: CraftingEntity }` to modify any of these, or `undefined` to leave them unchanged.
 
@@ -628,8 +633,8 @@ window.modAPI.hooks.onModifyRecipeIngredients((recipe, flags) => {
 });
 ```
 
-- **`recipe`** — The `RecipeItem` whose ingredients to modify
-- **`flags`** — Current game flags
+- **`recipe`** - The `RecipeItem` whose ingredients to modify
+- **`flags`** - Current game flags
 
 Return a modified `RecipeItem` to change the ingredients, or the original `recipe` to leave it unchanged.
 
@@ -662,7 +667,7 @@ window.modAPI.hooks.onNewGame((intent: NewGameIntent) => {
 });
 ```
 
-- **`intent`** — `NewGameIntent` containing `characterName`, `characterType`, `background`, `alternativeStart`, `difficulty`, `mods`, and `seed`. Use this to branch mod setup based on the selected character configuration.
+- **`intent`** - `NewGameIntent` containing `characterName`, `characterType`, `background`, `alternativeStart`, `difficulty`, `mods`, and `seed`. Use this to branch mod setup based on the selected character configuration.
 
 The `NewGameIntent` structure:
 
@@ -692,7 +697,7 @@ window.modAPI.hooks.onGameLoad((state: RootState) => {
 });
 ```
 
-- **`state`** — The complete `RootState` Redux snapshot of the loaded save, before the game begins rendering. Use `state.gameData.flags` for flag values, `state.player` for character data, and other slices as needed.
+- **`state`** - The complete `RootState` Redux snapshot of the loaded save, before the game begins rendering. Use `state.gameData.flags` for flag values, `state.player` for character data, and other slices as needed.
 
 #### `onDeleteCharacter`
 
@@ -704,7 +709,7 @@ window.modAPI.hooks.onDeleteCharacter((saveInfo: Save) => {
 });
 ```
 
-- **`saveInfo`** — A `Save` object containing metadata about the deleted save:
+- **`saveInfo`** - A `Save` object containing metadata about the deleted save:
 
 ```typescript
 interface Save {
@@ -1011,9 +1016,9 @@ window.modAPI.utils.getGameStateSnapshot(): RootState
 window.modAPI.utils.determineCurrentScreen(rootState: RootState): ScreenType
 ```
 
-- **`subscribe`** — Subscribe to any Redux state change. The callback is called after every dispatched action. Returns an unsubscribe function. Prefer this over direct store access.
-- **`getGameStateSnapshot`** — Returns a read-only snapshot of the complete game state. When no save is loaded, the default base state is returned.
-- **`determineCurrentScreen`** — Determines the current screen type from the Redux root state. Useful in custom screens or hooks to branch behavior based on where the player is.
+- **`subscribe`** - Subscribe to any Redux state change. The callback is called after every dispatched action. Returns an unsubscribe function. Prefer this over direct store access.
+- **`getGameStateSnapshot`** - Returns a read-only snapshot of the complete game state. When no save is loaded, the default base state is returned.
+- **`determineCurrentScreen`** - Determines the current screen type from the Redux root state. Useful in custom screens or hooks to branch behavior based on where the player is.
 
 ```typescript
 // Rate-limited reactive updates
@@ -1067,11 +1072,11 @@ window.modAPI.utils.createFetchQuest(title, description, srcLocation, srcHint, s
 window.modAPI.utils.createCraftingMission(recipe, cost, location, appraiser, description, introSteps, sublimeSteps, perfectSteps, basicSteps, failureSteps, favour)
 ```
 
-- **`createDeliveryMission`** — Simple delivery quest (favour reward only).
-- **`createPackQuest`** — Hunt quest targeting a group of the same monster type.
-- **`createDeliveryQuest`** — Full delivery quest with spirit stone and reputation rewards.
-- **`createFetchQuest`** — Two-location fetch quest with source and destination events.
-- **`createCraftingMission`** — Crafting hall commission with separate outcome steps for each quality tier (sublime, perfect, basic, failure).
+- **`createDeliveryMission`** - Simple delivery quest (favour reward only).
+- **`createPackQuest`** - Hunt quest targeting a group of the same monster type.
+- **`createDeliveryQuest`** - Full delivery quest with spirit stone and reputation rewards.
+- **`createFetchQuest`** - Two-location fetch quest with source and destination events.
+- **`createCraftingMission`** - Crafting hall commission with separate outcome steps for each quality tier (sublime, perfect, basic, failure).
 
 ### Balance Calculations
 
@@ -1095,14 +1100,14 @@ window.modAPI.utils.getMaxCompletion(recipe: RecipeItem, recipeStats: CraftingRe
 window.modAPI.utils.getMaxPerfection(recipe: RecipeItem, recipeStats: CraftingRecipeStats, realm: Realm, maxStepsBoost?: number): { flat: number; percentage: number }
 ```
 
-- **`getExpectedBarrier`** — Expected max barrier for a player in the given realm.
-- **`getExpectedToxicity`** — Expected toxicity resistance.
-- **`getExpectedPool`** — Expected crafting qi pool size.
-- **`getExpectedIntensity`** — Expected crafting intensity.
-- **`getExpectedControl`** — Expected crafting control.
-- **`getExpectedArtefactPower`** — Expected artefact power stat.
-- **`getBreakthroughQi`** — Qi cost for a breakthrough at the given realm and progress.
-- **`getPillRealmMultiplier`** — Multiplier applied to pill effectiveness based on realm. Use when computing flat consumable values.
+- **`getExpectedBarrier`** - Expected max barrier for a player in the given realm.
+- **`getExpectedToxicity`** - Expected toxicity resistance.
+- **`getExpectedPool`** - Expected crafting qi pool size.
+- **`getExpectedIntensity`** - Expected crafting intensity.
+- **`getExpectedControl`** - Expected crafting control.
+- **`getExpectedArtefactPower`** - Expected artefact power stat.
+- **`getBreakthroughQi`** - Qi cost for a breakthrough at the given realm and progress.
+- **`getPillRealmMultiplier`** - Multiplier applied to pill effectiveness based on realm. Use when computing flat consumable values.
 
 ### Crafting Quality Cap Utilities
 
@@ -1113,9 +1118,9 @@ window.modAPI.utils.getMaxCompletion(recipe: RecipeItem, recipeStats: CraftingRe
 window.modAPI.utils.getMaxPerfection(recipe: RecipeItem, recipeStats: CraftingRecipeStats, realm: Realm, maxStepsBoost?: number): { flat: number; percentage: number }
 ```
 
-- **`getMaxCompletion`** — Returns the completion cap as a `{ flat, percentage }` pair. The `flat` value is the raw threshold step the player must reach. The `percentage` is the normalised progress bar value. Pass `maxStepsBoost` from `getMaxStepsBoost` (see below) when computing against a live crafting entity that carries `bonusMaximumQuality` buffs.
+- **`getMaxCompletion`** - Returns the completion cap as a `{ flat, percentage }` pair. The `flat` value is the raw threshold step the player must reach. The `percentage` is the normalised progress bar value. Pass `maxStepsBoost` from `getMaxStepsBoost` (see below) when computing against a live crafting entity that carries `bonusMaximumQuality` buffs.
 
-- **`getMaxPerfection`** — Same shape as `getMaxCompletion`, but for the perfection cap. Both functions compose additively with `canOvercraft` and `sublimeItem`, and both floor at one step so a recipe with neither still has a reachable cap.
+- **`getMaxPerfection`** - Same shape as `getMaxCompletion`, but for the perfection cap. Both functions compose additively with `canOvercraft` and `sublimeItem`, and both floor at one step so a recipe with neither still has a reachable cap.
 
 **Computing `maxStepsBoost`:**
 
@@ -1168,9 +1173,9 @@ window.modAPI.utils.defaultProgressState: ProgressState
 window.modAPI.utils.completionBonusBuffName: string
 ```
 
-- **`defaultRecipeStats`** — Default `CraftingRecipeStats` for a recipe with no bonuses applied. Useful as a fallback when rendering `CraftingBuff` tooltips outside an active crafting session.
-- **`defaultProgressState`** — Default `ProgressState` for a fresh craft. Similarly useful for tooltip rendering without an active session.
-- **`completionBonusBuffName`** — Stable non-localized identifier for the Completion Bonus buff. Use when filtering or inspecting entity buffs so your mod is not coupled to a raw string literal:
+- **`defaultRecipeStats`** - Default `CraftingRecipeStats` for a recipe with no bonuses applied. Useful as a fallback when rendering `CraftingBuff` tooltips outside an active crafting session.
+- **`defaultProgressState`** - Default `ProgressState` for a fresh craft. Similarly useful for tooltip rendering without an active session.
+- **`completionBonusBuffName`** - Stable non-localized identifier for the Completion Bonus buff. Use when filtering or inspecting entity buffs so your mod is not coupled to a raw string literal:
 
 ```typescript
 const bonusStacks = entity.buffs.find(
@@ -1186,9 +1191,9 @@ window.modAPI.utils.getLocationAltarReward(locationName: string): CompressionAlt
 window.modAPI.utils.getCoreFormationAltarStats(breakthrough: BreakthroughState): CoreFormationAltarStats
 ```
 
-- **`getLocationAltarReward`** — Returns the breakthrough reward granted by the altar at a specific location, or `undefined` if the location has no altar reward. Reflects mod-added or modified altars once the mod has finished loading.
+- **`getLocationAltarReward`** - Returns the breakthrough reward granted by the altar at a specific location, or `undefined` if the location has no altar reward. Reflects mod-added or modified altars once the mod has finished loading.
 
-- **`getCoreFormationAltarStats`** — Aggregate every altar the player has beaten in `breakthrough.coreFormation` into a single `CoreFormationAltarStats` (combat/crafting Scalings plus the per-altar breakdown). Modded golden-core breakthroughs must call this from their `dynamicStats` to pick up altar buffs in the same way the basegame `gemCore`/`flaringPearlCore`/etc. breakthroughs do.
+- **`getCoreFormationAltarStats`** - Aggregate every altar the player has beaten in `breakthrough.coreFormation` into a single `CoreFormationAltarStats` (combat/crafting Scalings plus the per-altar breakdown). Modded golden-core breakthroughs must call this from their `dynamicStats` to pick up altar buffs in the same way the basegame `gemCore`/`flaringPearlCore`/etc. breakthroughs do.
 
 ```typescript
 // Example: custom golden-core breakthrough using altar stats
@@ -1242,8 +1247,8 @@ window.modAPI.utils.evaluateScaling(scaling: Scaling, variables: Record<string, 
 window.modAPI.utils.generateSkipTutorialFlags(tutorials: Tutorial[], triggers: TriggeredEvent[])
 ```
 
-- **`evaluateScaling`** — Evaluate a `Scaling` object against a variables map. Applies base value, stat multipliers, equations, custom scaling, and max constraints. Useful when computing item or technique values in code.
-- **`generateSkipTutorialFlags`** — Generate the flags needed to skip tutorials for an alternative start. For each tutorial, sets `{name}`, `{name}Started`, `{name}Completed`; for each trigger, sets `{name}` and `{name}Started`.
+- **`evaluateScaling`** - Evaluate a `Scaling` object against a variables map. Applies base value, stat multipliers, equations, custom scaling, and max constraints. Useful when computing item or technique values in code.
+- **`generateSkipTutorialFlags`** - Generate the flags needed to skip tutorials for an alternative start. For each tutorial, sets `{name}`, `{name}Started`, `{name}Completed`; for each trigger, sets `{name}` and `{name}Started`.
 
 ### Tooltip Utilities
 
@@ -1255,9 +1260,9 @@ window.modAPI.utils.expandTooltipTemplate(template: string, templateValues: Map<
 window.modAPI.utils.expandTooltipTags(template: string): string
 ```
 
-- **`parseTooltipLine`** — Parse a tooltip string and return a React node with styled formatting. Handles colour tags, element tags, buff/item references, and numbers.
-- **`expandTooltipTemplate`** — Expand a template string by replacing {% raw %}`{{key}}`{% endraw %} placeholders with values from the map. Optionally appends a period.
-- **`expandTooltipTags`** — Expand `<tag>` syntax in a template string to their display equivalents.
+- **`parseTooltipLine`** - Parse a tooltip string and return a React node with styled formatting. Handles colour tags, element tags, buff/item references, and numbers.
+- **`expandTooltipTemplate`** - Expand a template string by replacing {% raw %}`{{key}}`{% endraw %} placeholders with values from the map. Optionally appends a period.
+- **`expandTooltipTags`** - Expand `<tag>` syntax in a template string to their display equivalents.
 
 These utilities use the same formatting system as the game's built-in tooltips, ensuring consistent styling when you render custom tooltips in mod UI.
 
@@ -1309,9 +1314,9 @@ window.modAPI.utils.createPlayerCraftingEntity(player: PlayerEntity, breakthroug
 
 Create full player entities for tooltips, calculations, and custom mechanics. Both functions apply breakthrough stats, scaling, destinies, and mod hooks.
 
-- **`createPlayerCombatEntity`** — Create a combat entity for damage calculations, tooltips, or custom combat mechanics. Returns a `CombatEntity` with all stats computed from the player's current breakthrough state.
+- **`createPlayerCombatEntity`** - Create a combat entity for damage calculations, tooltips, or custom combat mechanics. Returns a `CombatEntity` with all stats computed from the player's current breakthrough state.
 
-- **`createPlayerCraftingEntity`** — Create a crafting entity for crafting tooltips, preview calculations, or custom crafting mechanics. Takes optional `characters` state for companion bonuses, and `options.noCompanionBuff` to skip those bonuses.
+- **`createPlayerCraftingEntity`** - Create a crafting entity for crafting tooltips, preview calculations, or custom crafting mechanics. Takes optional `characters` state for companion bonuses, and `options.noCompanionBuff` to skip those bonuses.
 
 ```typescript
 // Create a combat entity for tooltip display
@@ -1335,7 +1340,7 @@ The `ModReduxAPI.components` object provides pre-styled UI components for use in
 // Core layout and base components
 const { ItemComponent, GameDialog, GameButton, GameIconButton, BackgroundImage, PlayerComponent } = api.components;
 
-// Game tooltip variants — use these instead of re-implementing from GameTooltip primitives
+// Game tooltip variants - use these instead of re-implementing from GameTooltip primitives
 const tooltips = api.components.tooltips;
 // tooltips.ItemTooltip, tooltips.ItemTooltipWithLocation, tooltips.ItemHeaderComponent,
 // tooltips.BuffTooltip, tooltips.ArtefactTooltip, tooltips.CondensationArtTooltip,
@@ -1358,7 +1363,7 @@ const tooltips = api.components.tooltips;
 // tooltips.AuctionAbilityTooltip, tooltips.AuctionResourceTooltip,
 // tooltips.RecipeConditionEffectTooltip
 
-// Recipe display components — render the full crafting recipe UI in mod screens
+// Recipe display components - render the full crafting recipe UI in mod screens
 const recipes = api.components.recipes;
 // recipes.RecipesComponent, recipes.RecipeRow, recipes.RecipeDetails,
 // recipes.RecipeIngredients, recipes.RecipeCraftingBuffs, recipes.RecipeResultColumns,
