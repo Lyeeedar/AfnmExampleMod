@@ -41,6 +41,9 @@ interface RecipeItem {
 
   // Optional custom quality threshold
   customThreshold?: CraftCustomThreshold; // A named quality mark shown as its own bar above Completion
+
+  /** Fixed starting stability for recipes with a restricted crafting window. */
+  startingStability?: number;
 }
 ```
 
@@ -111,6 +114,31 @@ const myThreshold: CraftCustomThreshold = {
   threshold: 3,
   tooltip: tr('You need <num>{needed}</num> quality tiers to earn the Masterwork designation.'),
 };
+```
+
+**Requires Sublime:** Set `requiresSublime: true` on `CraftingStepCustomThreshold` to also require the Sublime quality tier in addition to the custom threshold:
+
+```typescript
+{
+  kind: 'crafting',
+  recipe: vaultSlipRecipe,
+  customThreshold: {
+    name: tr('Vault Quality'),
+    threshold: 2,
+    requiresSublime: true,
+    steps: [
+      { kind: 'text', text: 'The vault slip resonance resonates...' },
+    ],
+  },
+}
+```
+
+## Starting Stability
+
+Set `startingStability` on a `RecipeItem` to override the default starting stability for recipes with a restricted crafting window. The game calculates a default based on difficulty and realm, but fixed recipes may need a specific value.
+
+```typescript
+startingStability: 0.5,
 ```
 
 ## Registering Recipes via the Mod API
