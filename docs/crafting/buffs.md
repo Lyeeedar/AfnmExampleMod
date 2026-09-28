@@ -485,6 +485,41 @@ onSupport: [
 ];
 ```
 
+### Triggered Effects
+
+`triggeredEffects` runs buff effects the moment a crafting event fires, as opposed to once per action alongside the `effects` block. Each entry pairs a trigger name with the effects to run. The trigger fires after the change it describes has already been applied, so a listener reacting to `poolSpent` reads the post-spend pool value.
+
+```typescript
+triggeredEffects: [
+  {
+    trigger: 'poolSpent',
+    effects: [
+      {
+        kind: 'stability',
+        amount: { value: 1, stat: undefined },
+      },
+    ],
+  },
+];
+```
+
+Available triggers:
+
+| Trigger | Fires when |
+| - | - |
+| `poolSpent` | Qi is spent on an action |
+| `poolRestored` | Qi is restored (e.g. by a support technique) |
+| `stabilitySpent` | Stability is lost |
+| `stabilityRestored` | Stability is restored |
+| `completionGained` | Completion increases |
+| `perfectionGained` | Perfection increases |
+| `stackGained.{buffName}` | A specific buff gains stacks |
+| `stackLost.{buffName}` | A specific buff loses stacks |
+
+Every trigger exposes an `amount` variable holding the magnitude of the change (always positive). For `completionGained` and `perfectionGained`, an additional `percentGained` variable is available: the share of the recipe that this one gain was worth, with the 1.3x-per-threshold cost inflation already priced in. Use `percentGained` instead of `amount / maxcompletion` for proportional calculations.
+
+Triggered effects cannot cause recursion. A `poolSpent` listener that spends Qi does not re-trigger the `poolSpent` event.
+
 ## Stack Management
 
 Buffs can lose or gain stacks through their effects:
@@ -609,7 +644,7 @@ const interceptionMastery: CraftingBuff = {
   stacks: 1,
   displayLocation: 'completionLeft',
   // Intercept perfection effects when crafting difficult recipes
-  interceptors: [{
+  craftingEffectInterceptors: [{
     techniqueTypes: ['refine'],
     modifier: { kind: 'multiply', value: 1.25 }, // +25% perfection on refine
     appliesTo: ['perfection'],
