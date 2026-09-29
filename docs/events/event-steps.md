@@ -96,6 +96,23 @@ steps: [
 ];
 ```
 
+### Message Grouping
+
+Wrap a sequence of steps in `startGroup` / `endGroup` to display their messages as a single grouped block rather than individually:
+
+```typescript
+const steps: EventStep[] = [
+  { kind: 'text', text: 'You enter the ancient chamber...' },
+  { kind: 'startGroup' },
+  { kind: 'text', text: 'Dust swirls in the stale air.' },
+  { kind: 'text', text: 'Strange symbols line the walls.' },
+  { kind: 'endGroup' },
+  { kind: 'text', text: 'A presence stirs in the darkness.' },
+];
+```
+
+`startGroup` and `endGroup` carry no fields — they purely gate whether their enclosed messages render as one cohesive paragraph. Nesting groups is not supported.
+
 ### Branching with Choices
 
 Choice steps create **branches** - different execution paths through the event:

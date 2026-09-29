@@ -27,6 +27,8 @@ interface Buff {
 
   // Visual properties
   colour?: string; // Optional background color for buff icon
+  /** UI grouping/outline override for effects whose source does not identify their polarity. */
+  displayCategory?: 'static' | 'dynamic' | 'affliction';
   effectHint?: string; // Brief description when tooltip is not sufficient
   tooltip?: string; // Custom tooltip with dynamic placeholders (see below)
   additionalTooltip?: string; // Extra tooltip lines appended after the main one
