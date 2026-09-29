@@ -465,6 +465,7 @@ Stance rules that use `kind: 'condition'` can reference these keys in the condit
 |-----|--------------|-------|
 | `Power` | Current Power stat | Post-weakness value; can be negative |
 | `Enemy Count` | Number of enemies still standing | Defaults to 1 (solo boss); higher for multi-enemy fights |
+| `Enemy Realm` | Realm tier of the enemy combatant | Numeric value; use `enemyRealm >= realmIndex('coreFormation')` in conditions |
 | `Round` | Current combat round | 1-based |
 
 Other keys (buff names, `hp`, `barrier`) are also available depending on the entity's state.
