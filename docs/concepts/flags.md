@@ -58,7 +58,7 @@ When you set a flag, the `value` field is evaluated as a mathematical expression
 value: '1'; // Stores: 1
 value: 'month'; // Stores: current month (e.g., 15)
 value: 'existingFlag + 1'; // Stores: previous value + 1
-value: 'power * 2'; // Stores: player's power × 2
+value: 'power * 2'; // Stores: player's power x 2
 ```
 
 ### Reading Flags in Conditions
@@ -173,33 +173,71 @@ condition: 'totalScore >= requiredScore * 2';
 
 ## Built-in Game Flags
 
-The game automatically provides numerous flags representing the current game state:
+The game automatically provides numerous flags representing the current game state. These are available in all `condition` strings and `value` expressions.
 
 ### Player Stats
 
-- `power`, `defense`, `barrier`, `control`, `intensity` - Combat and crafting stats
-- `qi`, `maxqi`, `qiDroplets` - Qi management
-- `realm`, `realmProgress` - Cultivation level
-- `money`, `spiritstones`, `favour` - Resources
-- `dropletsDisabled` - Set to `1` to suppress all `restoreDroplets` effects on the current entity for the remainder of the combat
+Combat and crafting stats, each backed by the player's current entity values:
+
+- `power`, `defense`, `barrier` - Combat stats
+- `control`, `intensity` - Crafting stats
+- `qi` - Current Qi
+- `maxqi` - Maximum Qi (breakthrough-scaled)
+- `realmqi` - Qi required for the next realm milestone
+- `qiDroplets` - Current Qi Droplets
+- `realm` - Realm index (`mundane` = 0, `bodyForging` = 1, ..., `soulAscension` = 9)
+- `realmProgress` - Realm progress index (Foundation = 0, Establishment = 1, etc.)
+- `money`, `spiritstones` - Both point to the same inventory gold field; `spiritstones` is the conventional name in conditions
+- `favour` - Current faction favour
 
 ### Time and Calendar
 
 - `year`, `month`, `yearMonth`, `day` - Current game time
 - `month` - Total game months elapsed (increments by 1 each month; use for time-difference calculations)
-- `yearMonth` - The current month in the year, 1 -> 12
-
-### Inventory and Equipment
-
-- Item names as flags (with proper conversion)
-- `storage_` + item flag - Storage quantities
-- `equipped_` + item flag - Equipment status
-- `recipe_` + item flag - Known recipes
+- `yearMonth` - The current month in the year, 1 to 12
 
 ### Character State
 
-- `age`, `lifespan`, `injured` - Character condition
+- `age`, `lifespan` - Character age and remaining lifespan in years
+- `injured` - `1` when HP is critically low or the character has no stances
+- `charisma` - Current charisma value
+
+### Affinities and Ranks
+
 - Affinity levels: `fist`, `weapon`, `blossom`, `celestial`, `cloud`, `blood`
+- Sect rank helpers: `innerDisciple`, `coreDisciple`, `elder` - each `1` when at or above that rank
+
+### Inventory and Equipment
+
+- Item names as flags, set to the stack count in inventory
+- `storage_` + item flag - Storage quantities
+- `equipped_` + item flag - `1` when the item is equipped
+- `recipe_` + item flag - `1` when the recipe is known
+
+### Buff Stacks
+
+Active buff stacks are exposed as `buff_<flagName>` for use in conditions:
+
+```typescript
+condition: 'buff_Flow >= 5'; // Check Flow buff stack count
+```
+
+### Expedition and Combat
+
+- `expeditionAlone` - `1` when the player entered the expedition without party members
+- `activeFallenStars` - Number of currently active fallen star sites
+
+### Realm and Rarity Indices
+
+All realm and rarity names are exposed as their index values, useful for comparisons:
+
+```typescript
+condition: 'realm >= 5'; // Core Formation or above
+```
+
+Realms: `mundane` = 0, `bodyForging` = 1, `meridianOpening` = 2, `qiCondensation` = 3, `coreFormation` = 4, `pillarCreation` = 5, `lifeFlourishing` = 6, `worldShaping` = 7, `innerGenesis` = 8, `soulAscension` = 9
+
+Rarities: `mundane` = 0, `qitouched` = 1, `empowered` = 2, `resplendent` = 3, `incandescent` = 4, `transcendent` = 5
 
 ## Advanced Techniques
 
@@ -268,4 +306,4 @@ condition: 'month >= 6 && completedPreQuest == 1';
 condition: 'money >= 1000 && power >= 50';
 ```
 
-The flags system is incredibly flexible and powerful. Master it, and you'll be able to create dynamic, responsive content that adapts to each player's unique journey through your mod.
+The flags system is incredibly flexible and powerful. Master it, and you will be able to create dynamic, responsive content that adapts to each player's unique journey through your mod.
