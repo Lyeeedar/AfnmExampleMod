@@ -198,7 +198,6 @@ Combat and crafting stats, each backed by the player's current entity values:
 
 ### Character State
 
-- `age`, `lifespan` - Character age and remaining lifespan in years
 - `injured` - `1` when HP is critically low or the character has no stances
 - `charisma` - Current charisma value
 
@@ -238,6 +237,44 @@ condition: 'realm >= 5'; // Core Formation or above
 Realms: `mundane` = 0, `bodyForging` = 1, `meridianOpening` = 2, `qiCondensation` = 3, `coreFormation` = 4, `pillarCreation` = 5, `lifeFlourishing` = 6, `worldShaping` = 7, `innerGenesis` = 8, `soulAscension` = 9
 
 Rarities: `mundane` = 0, `qitouched` = 1, `empowered` = 2, `resplendent` = 3, `incandescent` = 4, `transcendent` = 5
+
+### Game Mode
+
+- `hardmode` - `1` when hardmode is active; currently always `0` (reserved for future hardmode content that is currently hidden). Mods can gate content behind `hardmode == 1` to future-proof for when hardmode becomes available
+- `devMode` - `1` when running a development build
+- `patreon` - `1` when running a Patreon-enabled build
+
+### Guild Standing
+
+Guild rank and approval are exposed as flags for use in conditions:
+
+- `guildRank_<GuildName>` - Player's rank in the named guild (0 = unjoined). Guild names are converted to flag format, e.g. `guildRank_Star_Observers`
+- `guildApproval_<GuildName>` - Player's approval value in the named guild
+
+```typescript
+condition: 'guildRank_Star_Observers >= 2'; // Check if player is at rank 2 or higher in Star Observers
+condition: 'guildApproval_Merchant_Alliance > 50'; // Check guild approval threshold
+```
+
+### Sect Rank
+
+- `sectRank` - Player's current sect rank as an index (outerDisciple = 0, innerDisciple = 1, coreDisciple = 2, elder = 3)
+- `sectRank_<rankName>` - `1` when the player holds that exact rank, e.g. `sectRank_innerDisciple`
+- `innerDisciple`, `coreDisciple`, `elder` - `1` when the player is at or above that rank (for backwards compatibility)
+- `currentEventCharacterSectRank` - The resolved sect rank of the character currently speaking in an event (`-1` if no character or rank cannot be resolved)
+- `currentEventCharacterSectRankAvailable` - `1` when `currentEventCharacterSectRank` is valid
+- `currentEventCharacter_<characterName>` - `1` when the named character is currently displayed in an event (useful for pose-variant conditions)
+- `sectRankRelation` - Player rank relative to the current event speaker (`-1` = below, `0` = same, `1` = above)
+- `sectRankBelowSpeaker`, `sectRankEqualSpeaker`, `sectRankSameAsSpeaker`, `sectRankAboveSpeaker` - `1` when the player is below, equal to, or above the current event speaker's rank
+
+### Breakthrough Progress
+
+- `numCompressions` - Number of compressions the player has performed at compression altars
+- `monthsSincePreviousBreakthrough` - Months elapsed since the last realm breakthrough (or total months if no breakthrough has occurred)
+
+### Content Realm Override
+
+- `contentRealmOverride` - When a location or content uses `contentRealmOverride` to force a specific realm tier, this flag holds that realm index; otherwise `-1`. Primarily used by modders who want content to scale to a fixed realm regardless of the player's actual progression
 
 ## Advanced Techniques
 

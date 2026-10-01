@@ -354,6 +354,36 @@ Player housing:
 }
 ```
 
+### Rumour Trader
+
+A trader who sells whispered secrets about hidden locations. Each rumour has a cost and a revealed hint that points toward a discovery opportunity.
+
+```typescript
+{
+  kind: 'rumours',
+  traderName: 'Old Huo the Altar-Mapper',
+  rumours: [
+    {
+      key: 'myRumour_key',
+      title: 'The Secret Chamber',
+      cost: 2000,
+      costRealm: 'coreFormation',
+      hint: 'Deep beneath the ancient ruins lies a hidden chamber...',
+      // Optional: only show this rumour when the condition is true
+      condition?: 'secretFound == 0',
+      // Optional: marks the rumour as 'Found' once the player has discovered the secret
+      foundCondition?: 'altar_MySecretChamber == 1'
+    }
+  ]
+}
+```
+
+**`condition`**: Optional. When set, the rumour is hidden unless the condition evaluates to true. Use this to gate rumours behind prerequisites or to hide hardmode-only secrets.
+
+**`foundCondition`**: Optional. An expression evaluated to determine whether the player has already acted on this rumour. Drives the 'Found' status badge on the trader card so players can see at a glance which secrets they have already discovered. Typical values are the same flag the discovery event sets (e.g. `'ancestralAltarFound == 1'`) or an item-presence check.
+
+**Per-rumour state**: The game tracks which rumours the player has purchased in `RumoursBuildingState.purchased` (a list of rumour keys). Use this to prevent a rumour from appearing again after purchase, or to show different dialogue when returning to the trader.
+
 ### Compression Altar
 
 Core compression service. Grants a temporary buff on use and a permanent `breakthroughReward` on the first compression at each altar.
