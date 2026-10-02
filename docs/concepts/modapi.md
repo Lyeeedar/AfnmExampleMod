@@ -371,26 +371,58 @@ window.modAPI.actions.addPlayerSprite(sprite: PlayerSprite)
 - **`addPlayerSprite`** - Register a custom player sprite that appears in character creation alongside the defaults for the specified gender.
 
 ```typescript
-interface PlayerSprite {
-  id: string;
-  name: string;
-  gender: Sex | 'both';
-  sprites: PlayerSpriteImages;
+interface ImageOffset {
+  x: number;
+  y: number;
 }
 
-interface PlayerSpriteImages {
-  base: string;
-  aggressive: string;
-  defensive: string;
-  hit: string;
-  offensive: string;
-  support: string;
-  utility: string;
+interface ImagePack {
+  title?: string;
+  condition?: string;
+  idle?: string;
+  idleScale?: number;
+  idleOffset?: ImageOffset;
+  hit?: string;
+  hitScale?: number;
+  hitOffset?: ImageOffset;
+  support?: string;
+  supportScale?: number;
+  supportOffset?: ImageOffset;
+  defensive?: string;
+  defensiveScale?: number;
+  defensiveOffset?: ImageOffset;
+  utility?: string;
+  utilityScale?: number;
+  utilityOffset?: ImageOffset;
+  offensive?: string;
+  offensiveScale?: number;
+  offensiveOffset?: ImageOffset;
+  aggressive?: string;
+  aggressiveScale?: number;
+  aggressiveOffset?: ImageOffset;
   craftingSupport?: string;
   craftingStabilize?: string;
   craftingRefine?: string;
   craftingFusion?: string;
 }
+
+interface EntityImage extends ImagePack {
+  variants?: ImagePack[];
+}
+
+interface PlayerSprite {
+  id: string;
+  name: string;
+  gender: Sex | 'both';
+  /** The preferred format; provides sprite imagery plus conditional variants */
+  image?: EntityImage;
+  /** @deprecated Provide `image` instead */
+  sprites?: PlayerSpriteImages;
+  /** @deprecated Use `image.variants` instead */
+  variants?: PlayerSpriteVariant[];
+}
+```
+
 ```
 
 ### Crafting System
