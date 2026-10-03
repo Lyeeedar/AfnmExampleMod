@@ -67,7 +67,7 @@ Access existing game content through `window.modAPI.gameData`:
 - **`craftingTechniques`** - `Record<string, CraftingTechnique>` - All crafting techniques
 - **`techniqueBuffs`** - School-specific technique buffs exposing named child buffs for each school:
   - `blood`: `bloodCorruption`, `bloodReinforcement`, `lifeforceCorruption`, `bloodReservoir`, `bloodEcho`
-  - `blossom`: `fragrantBlossom`, `fatalFlora*` (8 variants), `rot`, `razorBlossom`, `ironBlossom`, `radiantBlossom`, `toxicBlossom`, `witheringBlossom`
+  - `blossom`: `fragrantBlossom`, `fatalFlora*` (6 variants), `rot`, `razorBlossom`, `ironBlossom`, `radiantBlossom`, `toxicBlossom`, `witheringBlossom`
   - `celestial`: `sunlight`, `moonlight`, `moonchill`, `sunfury`, `lunarAttunement`, `solarAttunement`, `moonScorched`
   - `cloud`: `clouds`, `thunderAspect`, `galeAspect`, `mistAspect`, `monsoonAspect`, `blizzardAspect`
   - `fist`: `flow`, `deadlyFocus`, `rippleForce`, `transcendentFocus`, `goldenAura`
