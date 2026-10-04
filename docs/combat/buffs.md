@@ -314,16 +314,16 @@ stats: {
 
 This is distinct from `max`, which caps the final computed result.
 
-### `removeEqnForTooltip`
+### `keepEqnForTooltip`
 
-When `true`, the `eqn` is ignored for tooltip display so the shown amount is the base `value * stat` instead of the current state-scaled value (which can be 0):
+By default, the `eqn` is excluded from tooltip display so the shown amount is the base `value * stat` (which is often 0 outside combat). Set `keepEqnForTooltip: true` to include the `eqn` in the displayed value:
 
 ```typescript
 {
   value: 1,
   stat: 'power',
   eqn: 'someCondition ? 100 : 0',
-  removeEqnForTooltip: true,  // tooltip shows base value, not conditional result
+  keepEqnForTooltip: true,  // tooltip shows the full scaled value, not just base
 }
 ```
 

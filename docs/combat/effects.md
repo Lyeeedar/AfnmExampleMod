@@ -59,6 +59,12 @@ Deals damage to yourself.
 }
 ```
 
+The `damageType` field affects both gameplay and tooltip display:
+
+- **`damageType: 'true'`** -- True Damage. Bypasses barrier and defense. Tooltip shows "lose X% health as True Damage".
+- **`damageType: 'corrupt'` or `'disruption'`** -- Special damage type. Tooltip shows "take [Type] Damage equal to X% of max health".
+- **No `damageType`** -- Normal damage (physical). Reduced by barrier/defense. Tooltip shows "take Damage equal to X% of max health".
+
 **Example from Profane Exchange:**
 
 ```typescript
