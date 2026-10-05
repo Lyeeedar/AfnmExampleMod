@@ -601,8 +601,8 @@ Modify the recipe or recipe stats before crafting begins. Also allows modifying 
 
 ```typescript
 window.modAPI.hooks.onBeforeCraft((player, recipe, recipeStats, flags) => {
-  if (flags.sharp_tools && recipeStats.difficulty > 100) {
-    return { recipeStats: { ...recipeStats, difficulty: recipeStats.difficulty * 0.9 } };
+  if (flags.master_craftsman) {
+    return { recipeStats: { ...recipeStats, completion: recipeStats.completion * 1.1 } };
   }
   return undefined;
 });
