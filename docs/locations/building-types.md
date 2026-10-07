@@ -85,7 +85,7 @@ Portal to special cultivation areas:
 
 ### Expedition
 
-Portal to expedition dungeons. Expedition buildings require a `name` matching an existing expedition tile pool (registered by the base game or via `modAPI.actions.addExpeditionTiles`).
+Portal to expedition dungeons. Expedition buildings require a name matching an existing expedition tile pool (registered by the base game or via modAPI.actions.addExpeditionTiles).
 
 ```typescript
 {
@@ -97,7 +97,7 @@ Portal to expedition dungeons. Expedition buildings require a `name` matching an
 }
 ```
 
-**Example:**
+Example:
 
 ```typescript
 {
@@ -109,7 +109,7 @@ Portal to expedition dungeons. Expedition buildings require a `name` matching an
 }
 ```
 
-The `name` field is the expedition identifier. It must match the `expeditionName` passed to `api.actions.addExpeditionTiles(expeditionName, tiles)` so that the tile pool is correctly associated with this building. See Expedition Tiles below for how to register tiles for a custom expedition.
+The name field is the expedition identifier. It must match the expeditionName passed to api.actions.addExpeditionTiles(expeditionName, tiles) so that the tile pool is correctly associated with this building. See Expedition Tiles below for how to register tiles for a custom expedition.
 
 ### Training Ground
 
@@ -234,7 +234,7 @@ missions: [
 ]
 ```
 
-To offer crafting commissions at a location, set `offersCraftingMissions: true` on the mission building and use `addCraftingMissionsToLocation` from the mod API. Crafting commissions require the player to craft an item to a quality threshold, appraised by an NPC who delivers separate outcome event steps for sublime, perfect, basic, and failure results.
+To offer crafting commissions at a location, set offersCraftingMissions: true on the mission building and use addCraftingMissionsToLocation from the mod API. Crafting commissions require the player to craft an item to a quality threshold, appraised by an NPC who delivers separate outcome event steps for sublime, perfect, basic, and failure results.
 
 ### Request Board
 
@@ -378,15 +378,15 @@ A trader who sells whispered secrets about hidden locations. Each rumour has a c
 }
 ```
 
-**`condition`**: Optional. When set, the rumour is hidden unless the condition evaluates to true. Use this to gate rumours behind prerequisites or to hide hardmode-only secrets.
+condition: Optional. When set, the rumour is hidden unless the condition evaluates to true. Use this to gate rumours behind prerequisites or to hide hardmode-only secrets.
 
-**`foundCondition`**: Optional. An expression evaluated to determine whether the player has already acted on this rumour. Drives the 'Found' status badge on the trader card so players can see at a glance which secrets they have already discovered. Typical values are the same flag the discovery event sets (e.g. `'ancestralAltarFound == 1'`) or an item-presence check.
+foundCondition: Optional. An expression evaluated to determine whether the player has already acted on this rumour. Drives the 'Found' status badge on the trader card so players can see at a glance which secrets they have already discovered. Typical values are the same flag the discovery event sets (for example ancestralAltarFound == 1) or an item-presence check.
 
-**Per-rumour state**: The game tracks which rumours the player has purchased in `RumoursBuildingState.purchased` (a list of rumour keys). Use this to prevent a rumour from appearing again after purchase, or to show different dialogue when returning to the trader.
+Per-rumour state: The game tracks which rumours the player has purchased in RumoursBuildingState.purchased (a list of rumour keys). Use this to prevent a rumour from appearing again after purchase, or to show different dialogue when returning to the trader.
 
 ### Compression Altar
 
-Core compression service. Grants a temporary buff on use and a permanent `breakthroughReward` on the first compression at each altar.
+Core compression service. Grants a temporary buff on use and a permanent breakthroughReward on the first compression at each altar.
 
 ```typescript
 {
@@ -407,20 +407,20 @@ Core compression service. Grants a temporary buff on use and a permanent `breakt
   // Optional: permanent stat rewards granted once per altar on first compression.
   // These rewards persist through Core Formation breakthrough.
   breakthroughReward?: {
-    // Combat stat increments — flat values or percentage of a stat.
-    // Example: { value: 0.03, stat: 'power' } = +3% of current power.
+    // Combat stat increments, flat values or percentage of a stat.
+    // Example: { value: 0.03, stat: 'power' } = plus 3 percent of current power.
     combatStats?: Partial<{ [key in CombatStatistic]: Scaling }>;
-    // Crafting stat increments — e.g. poolCostPercentage reduces qi costs.
+    // Crafting stat increments, for example poolCostPercentage reduces qi costs.
     craftingStats?: Partial<{ [key in CraftingStatistic]: Scaling }>;
   };
 }
 ```
 
-**`breakthroughReward`** is optional. If omitted, compressing at the altar grants no permanent bonus. Each unique altar (identified by location name or house name) can grant its `breakthroughReward` once per playthrough. The same altar visited again provides only the temporary buff.
+breakthroughReward is optional. If omitted, compressing at the altar grants no permanent bonus. Each unique altar (identified by location name or house name) can grant its breakthroughReward once per playthrough. The same altar visited again provides only the temporary buff.
 
-**Available `CombatStatistic` keys** include `power`, `protection`, `critchance`, `critmult`, `speed`, `dr` (damage resistance), `accuracy`, `evasion`, `maxhp`, `barrierMitigation`, `barrierStrength`, `startingBarrier`, `weakness`, `armour`, and `block`. Percentage scaling (e.g. `+10%` of current `power`) uses `{ value: 0.1, stat: 'power' }`. Flat values use `{ value: 5, stat: undefined }`.
+Available CombatStatistic keys include power, protection, critchance, critmult, speed, dr (damage resistance), accuracy, evasion, maxhp, barrierMitigation, barrierStrength, startingBarrier, weakness, armour, and block. Percentage scaling (for example plus 10 percent of current power) uses { value: 0.1, stat: 'power' }. Flat values use { value: 5, stat: undefined }.
 
-**Available `CraftingStatistic` keys** include `control`, `流派强度` (technique intensity), `critchance`, `critmult`, `successChanceBonus`, `poolCostPercentage`, `qualityBonus`, and `speed`. `poolCostPercentage` with value `0.95` reduces qi pool costs to `95%` of normal.
+Available CraftingStatistic keys include control, critchance, critmult, successChanceBonus, poolCostPercentage, qualityBonus, and speed. poolCostPercentage with value 0.95 reduces qi pool costs to 95 percent of normal.
 
 ### Guild
 
@@ -433,12 +433,12 @@ Guild headquarters:
   position: 'topleft',
   condition?: 'guildUnlocked == 1',
   /** Token currency for this guild's shop. When set, the shop uses tokens instead
-   *  of spirit stones and every rankShop item must declare a `tokenCost`. */
+   *  of spirit stones and every rankShop item must declare a tokenCost. */
   token?: Item,
 }
 ```
 
-Items sold in a token-based guild's rank shop declare a fixed token price:
+Items sold in a token-based guild rank shop declare a fixed token price:
 
 ```typescript
 {
@@ -448,7 +448,7 @@ Items sold in a token-based guild's rank shop declare a fixed token price:
 }
 ```
 
-> **Important:** When a guild declares `token`, every item in its `rankShop` must declare `tokenCost`. Items without it would be charged in spirit stones instead.
+Important: When a guild declares token, every item in its rankShop must declare tokenCost. Items without it would be charged in spirit stones instead.
 
 ### Custom Building
 
@@ -486,16 +486,16 @@ Fully customizable building with event steps:
 ```
 
 Position options for custom buildings:
-- `'top'`, `'topleft'`, `'topright'`
-- `'belowtop'`, `'belowtopleft'`, `'belowtopright'`
-- `'middleleft'`, `'middle'`, `'middleright'`
-- `'bottom'`, `'bottomleft'`, `'bottomright'`
+- 'top', 'topleft', 'topright'
+- 'belowtop', 'belowtopleft', 'belowtopright'
+- 'middleleft', 'middle', 'middleright'
+- 'bottom', 'bottomleft', 'bottomright'
 
 ## Mod-Specific Buildings
 
 ### Mod Building
 
-A custom building that navigates to a registered mod screen. Use `modBuilding` alongside `api.addScreen()` to integrate fully custom UI into a location.
+A custom building that navigates to a registered mod screen. Use modBuilding alongside api.addScreen() to integrate fully custom UI into a location.
 
 ```typescript
 {
@@ -510,7 +510,7 @@ A custom building that navigates to a registered mod screen. Use `modBuilding` a
 }
 ```
 
-The `screen` field must match the `key` used when registering the screen with `api.addScreen()`. See [Adding Screens](../advanced-mods/adding-screens) for how to create and register mod screens.
+The screen field must match the key used when registering the screen with api.addScreen(). See Adding Screens for how to create and register mod screens.
 
 ```typescript
 // Register the screen
@@ -543,7 +543,7 @@ All buildings support these optional fields:
   kind: BuildingType,      // Required building type
   condition?: string,       // When building is available
   disabled?: string,        // When building is disabled
-  offset?: {               // Position adjustment
+  position?: {            // Normalized position in location scene artwork
     x: number,
     y: number
   }
@@ -653,11 +653,11 @@ export const myLocation: GameLocation = {
 
 ## Expedition Tiles
 
-Expeditions use a tile-based dungeon generation system. Each tile has a `kind` (entrance, exit, combat, treasure, etc.) and defines connections to neighbouring tiles.
+Expeditions use a tile-based dungeon generation system. Each tile has a kind (entrance, exit, combat, treasure, etc.) and defines connections to neighbouring tiles.
 
-Tiles are registered via `api.actions.addExpeditionTiles(expeditionName, tiles)` and are keyed by the same expedition identifier used in the `expedition` building's `name` field. An expedition building without any tiles registered will use the default game tiles.
+Tiles are registered via api.actions.addExpeditionTiles(expeditionName, tiles) and are keyed by the same expedition identifier used in the expedition building name field. An expedition building without any tiles registered will use the default game tiles.
 
-**Reading existing tiles:**
+Reading existing tiles:
 
 ```typescript
 // Inspect the tile pool for an existing expedition
@@ -665,7 +665,7 @@ const tilePool = window.modAPI.gameData.expeditionTiles['Tai Kong'];
 const treasureTiles = tilePool.filter((t) => t.kind === 'treasure');
 ```
 
-**Registering tiles for a custom expedition:**
+Registering tiles for a custom expedition:
 
 ```typescript
 // Register a new expedition with a custom treasure tile
@@ -706,25 +706,25 @@ interface BaseTile {
 }
 ```
 
-**`entrance`** - Starting tile. Exactly one per expedition.
+entrance - Starting tile. Exactly one per expedition.
 
 ```typescript
 { kind: 'entrance', /* ...BaseTile */ }
 ```
 
-**`exit`** - Goal tile. Reaching this tile completes the expedition.
+exit - Goal tile. Reaching this tile completes the expedition.
 
 ```typescript
 { kind: 'exit', /* ...BaseTile */ }
 ```
 
-**`extract`** - Grants extraction rewards (materials, items).
+extract - Grants extraction rewards (materials, items).
 
 ```typescript
 { kind: 'extract', extractCount: 3, /* ...BaseTile */ }
 ```
 
-**`combat`** - Triggers a combat encounter.
+combat - Triggers a combat encounter.
 
 ```typescript
 {
@@ -736,19 +736,19 @@ interface BaseTile {
 }
 ```
 
-**`rest`** - Restores team health and removes debuffs.
+rest - Restores team health and removes debuffs.
 
 ```typescript
 { kind: 'rest', baseRestore: 50, /* ...BaseTile */ }
 ```
 
-**`treasure`** - Grants treasure room loot.
+treasure - Grants treasure room loot.
 
 ```typescript
 { kind: 'treasure', /* ...BaseTile */ }
 ```
 
-**`boss`** - Triggers a boss fight with scaled rewards.
+boss - Triggers a boss fight with scaled rewards.
 
 ```typescript
 {
@@ -759,19 +759,19 @@ interface BaseTile {
 }
 ```
 
-**`buff`** - Applies a positive buff to the team.
+buff - Applies a positive buff to the team.
 
 ```typescript
 { kind: 'buff', /* ...BaseTile */ }
 ```
 
-**`debuff`** - Applies a negative debuff to the team.
+debuff - Applies a negative debuff to the team.
 
 ```typescript
 { kind: 'debuff', /* ...BaseTile */ }
 ```
 
-**`challenge`** - High-difficulty combat with extra rewards.
+challenge - High-difficulty combat with extra rewards.
 
 ```typescript
 {
@@ -782,13 +782,13 @@ interface BaseTile {
 }
 ```
 
-**`puzzle`** - A puzzle encounter, optionally with enemies.
+puzzle - A puzzle encounter, optionally with enemies.
 
 ```typescript
 { kind: 'puzzle', enemies?: boolean, /* ...BaseTile */ }
 ```
 
-**`boonBane`** - Random beneficial or harmful effect.
+boonBane - Random beneficial or harmful effect.
 
 ```typescript
 { kind: 'boonBane', /* ...BaseTile */ }

@@ -7,7 +7,7 @@ nav_order: 1
 
 # Location Structure
 
-The `GameLocation` interface defines all properties available for creating locations in the game world.
+The GameLocation interface defines all properties available for creating locations in the game world.
 
 ## Required Fields
 
@@ -21,7 +21,7 @@ displayName?: string; // Optional display name (defaults to name)
 description: string;  // Narrative description shown to players
 ```
 
-The `name` field serves as the location's unique identifier throughout the game. Use the `displayName` field when you want to show a different name to players.
+The name field serves as the location unique identifier throughout the game. Use the displayName field when you want to show a different name to players.
 
 ### Visual Properties
 
@@ -29,17 +29,20 @@ The `name` field serves as the location's unique identifier throughout the game.
 image: string;                    // Background image path
 icon: string;                     // Map icon image path
 screenEffect: ScreenEffectType;   // Visual atmosphere effect
+locationArt?: string;             // Isometric scene image path (generated art)
 ```
 
 Available screen effects:
-- `'none'` - No effect
-- `'sun'` - Bright sunlight
-- `'rain'` - Falling rain
-- `'snow'` - Snowfall
-- `'smoke'` - Smoky atmosphere
-- `'dust'` - Dusty particles
-- `'driftingLeaves'` - Floating leaves
-- `'flyingPetals'` - Cherry blossoms or similar
+- 'none' - No effect
+- 'sun' - Bright sunlight
+- 'rain' - Falling rain
+- 'snow' - Snowfall
+- 'smoke' - Smoky atmosphere
+- 'dust' - Dusty particles
+- 'driftingLeaves' - Floating leaves
+- 'flyingPetals' - Cherry blossoms or similar
+
+locationArt points to an isometric scene image for this location. When set, the location screen renders the scene artwork instead of the standard background image. The value should be a path to a generated scene image (for example nineMountainSectSceneImage).
 
 ### Audio Properties
 
@@ -65,7 +68,7 @@ Position coordinates determine where the location appears on the world map. Size
 unlocks: (ConditionalLink | ExplorationLink)[];  // Connected locations
 ```
 
-Every location must define its connections to other locations, even if the array is empty. See [Connecting Locations](connecting-locations) for details.
+Every location must define its connections to other locations, even if the array is empty. See Connecting Locations for details.
 
 ## Optional Fields
 
@@ -88,7 +91,7 @@ realmProgress: 'Middle',
 buildings?: LocationBuilding[];  // Interactive structures
 ```
 
-Buildings provide services and interactions. See [Building Types](building-types) for all available options.
+Buildings provide services and interactions. See Building Types for all available options.
 
 ### Combat Content
 
@@ -113,7 +116,7 @@ enemies: [
 ]
 ```
 
-**Enemy Integration**: Enemies must be defined as `EnemyEntity` objects before being added to locations. See the [Enemy Entities](../enemies/) documentation for complete enemy design and implementation guidance, including stance systems, behavior patterns, and combat mechanics.
+Enemy Integration: Enemies must be defined as EnemyEntity objects before being added to locations. See the Enemy Entities documentation for complete enemy design and implementation guidance, including stance systems, behavior patterns, and combat mechanics.
 
 ### Events
 
@@ -143,13 +146,13 @@ events: [
 ]
 ```
 
-**`triggerChance`**: Overrides the rarity-based probability for this event.
+triggerChance: Overrides the rarity-based probability for this event.
 
-**`noCooldown`**: When `true`, this event bypasses the standard between-event cooldown, allowing it to fire on consecutive explorations.
+noCooldown: When true, this event bypasses the standard between-event cooldown, allowing it to fire on consecutive explorations.
 
-**`cooldown`**: Prevents an event from firing again for a random number of days in `[min, max]`. The `key` must be unique across your mod's events — it is stored as a flag to track the cooldown.
+cooldown: Prevents an event from firing again for a random number of days in min, max. The key must be unique across your mod events. It is stored as a flag to track the cooldown.
 
-**`pity`**: Marks the event as part of the global pity pool. All pity events share a counter (`globalSpecialEventPity`) that increments each exploration where at least one pity event was eligible but none fired. Any pity event firing resets the counter to zero. The event's effective rarity weight is multiplied by `min(1 + counter × 0.1, 5)` — reaching 5× after roughly 40 consecutive failed attempts. Each player also receives a fixed per-event multiplier (drawn from a shuffled odds list seeded by their name), so some events are naturally easier or harder to find for a given player. Setting `pity: true` on rare one-time discovery events ensures no player is permanently locked out of them.
+pity: Marks the event as part of the global pity pool. All pity events share a counter (globalSpecialEventPity) that increments each exploration where at least one pity event was eligible but none fired. Any pity event firing resets the counter to zero. The event effective rarity weight is multiplied by min(1 + counter times 0.1, 5), reaching 5 times after roughly 40 consecutive failed attempts. Each player also receives a fixed per-event multiplier (drawn from a shuffled odds list seeded by their name), so some events are naturally easier or harder to find for a given player. Setting pity: true on rare one-time discovery events ensures no player is permanently locked out of them.
 
 #### Exploration Events
 Special events that trigger during exploration:
@@ -185,7 +188,7 @@ mapEvents: [
 gatheringEvent?: LocationGatheringEvent;
 ```
 
-A special event that fires when the player visits a location that currently has multiple named characters present. Use it to create social or atmospheric scenes — moments that emerge naturally from character congregation rather than from exploration or time.
+A special event that fires when the player visits a location that currently has multiple named characters present. Use it to create social or atmospheric scenes, moments that emerge naturally from character congregation rather than from exploration or time.
 
 ```typescript
 gatheringEvent: {
@@ -196,13 +199,13 @@ gatheringEvent: {
     },
     // ...more event steps
   ],
-  triggerChance?: 0.3,              // Probability of firing (0–1, optional)
+  triggerChance?: 0.3,              // Probability of firing (0 to 1, optional)
   resetMonths?: { min: 2, max: 6 }, // Cooldown before it can fire again (optional)
   minCharacters?: 3                 // Minimum characters present to trigger (default: 3)
 }
 ```
 
-The gathering event respects both the global encounter cooldown and a per-location gathering cooldown. It will not fire if fewer than `minCharacters` named characters are currently at this location (the default threshold is 3).
+The gathering event respects both the global encounter cooldown and a per-location gathering cooldown. It will not fire if fewer than minCharacters named characters are currently at this location (the default threshold is 3).
 
 ### Missions
 
@@ -308,4 +311,4 @@ Add locations to your mod using the global mod API:
 window.modAPI.actions.addLocation(myCustomLocation);
 ```
 
-The mod API is globally available through `window.modAPI` and provides access to all game data and actions for modifying the game.
+The mod API is globally available through window.modAPI and provides access to all game data and actions for modifying the game.
