@@ -109,6 +109,13 @@ These triggers are based on specific actions taken during combat.
 - **Usage:** Reacting to specific buff effect applications
 - **BuffEffectKind values:** `damage`, `damageSelf`, `heal`, `barrier`, `temporaryHealth`, `buffSelf`, `consumeSelf`, `buffTarget`, `consumeTarget`, `negate`, `add`, `multiply`, `merge`, `trigger`, `cleanseToxicity`, `modifyBuffGroup`, `setState`, `convertSelf`, `repair`, `consumeInventoryItem`, `defer`
 
+### `actionFailed`
+- **When it triggers:** When the buff owner's technique fails to execute (e.g. due to insufficient resources or conditions not being met)
+- **Condition:** Automatically triggered when a technique attempt is aborted before any effects resolve
+- **Usage:** Tracking failed actions, triggering effects on technique failure, building "miss" or "fumble" mechanics
+- **Examples:** Nine Fates Flame gains a stack of Fate's Favor when its wielder fails to use an action
+
+
 ---
 
 ## Resource Management Triggers

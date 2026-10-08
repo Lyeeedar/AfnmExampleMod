@@ -106,6 +106,15 @@ Grants barrier (damage absorption).
 }
 ```
 
+**Parameters:**
+
+- **`hits.value`** — Number of barrier applications.
+- **`hits.stat`** — Stat to scale the number of hits from.
+- **`hits.increment`** — For multiple hits: each subsequent hit costs this many more stacks of the scaling buff. The first hit costs nothing extra, the second costs `increment`, the third costs `2 * increment`, etc. The scaling buff is consumed as hits are applied. Used by techniques like Zephyr Ward to make barrier stacks progressively more expensive.
+- **`hits.additiveEqn`** — Expression added to each hit's scaling value.
+- **`hits.scaling`** — Buff name to scale the number of hits from.
+- **`hits.buff`** — Buff reference for the scaling buff.
+
 **Example from Advancing Fist:**
 
 ```typescript
