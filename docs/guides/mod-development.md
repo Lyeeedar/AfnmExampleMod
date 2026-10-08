@@ -145,7 +145,7 @@ These are convenience functions that handle common tasks and help with game bala
 
 ## Your First Item - Step by Step
 
-Let's create your first mod content: a simple combat pill that restores health and provides a temporary power boost, similar to the healing pills already in the game.
+Let's create your first mod content: a simple combat pill whose healing scales with the player's power.
 
 ### Step 1: Prepare Your Assets
 
@@ -170,7 +170,7 @@ import pillIcon from '../assets/vigor-pill.png';
 const vigorPill: CombatPillItem = {
   name: 'Vigor Pill',
   description:
-    'A carefully refined pill that restores health and grants temporary strength. Popular among cultivators entering combat.',
+    'A carefully refined pill that restores health. Popular among cultivators entering combat.',
   icon: pillIcon,
   rarity: 'mundane', // Valid rarities: 'mundane', 'qitouched', 'empowered', 'resplendent', 'incandescent', 'transcendent'
   kind: 'pill',
@@ -182,8 +182,9 @@ const vigorPill: CombatPillItem = {
     {
       kind: 'heal', // Direct healing effect
       amount: {
-        value: 50, // Restores 50 health when consumed
-        stat: undefined,
+        value: 0.5, // Healing multiplier applied to the player's power
+        stat: 'power',
+        isItem: true, // Also scales with item effectiveness
       },
     },
   ],
@@ -232,6 +233,10 @@ const vigorPill: CombatPillItem = {
 - `toxicity`: How much toxicity consuming this pill costs
 - `realm`: What cultivation realm the pill is designed for
 - `effects`: What happens when used (see **[Techniques](../combat/techniques)**)
+
+**Healing Scaling:**
+
+The healing amount uses `value: 0.5` as a multiplier and `stat: 'power'` to grow with the player's power. Setting `isItem: true` also applies the player's item effectiveness bonus. This avoids a fixed 50 HP heal becoming negligible as the player progresses. See the **[Scaling System](../concepts/scaling)** for details and for realm-based flat values when an item should remain useful only within its intended realm.
 
 **Registration:**
 
@@ -342,8 +347,9 @@ export function initializeItems() {
       {
         kind: 'heal',
         amount: {
-          value: 50,
-          stat: undefined,
+          value: 0.5,
+          stat: 'power',
+          isItem: true,
         },
       },
     ],
