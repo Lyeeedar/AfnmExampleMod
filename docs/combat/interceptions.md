@@ -1,11 +1,3 @@
----
-layout: default
-title: Buff Interceptions
-parent: Combat System
-nav_order: 3
-description: 'How buffs can intercept and modify other buffs'
----
-
 # Buff Interceptions
 
 The buff system includes a powerful interception mechanism that allows buffs to intercept, modify, or cancel the application of other buffs.
@@ -55,8 +47,8 @@ interceptBuffEffects?: {
 ```
 
 **Migration from the old `cancelApplication` field:**
-- `cancelApplication: true` → set `blockAmount: { value: 9999 }` (blocks all stacks; effects fire once with `intercepted = incoming`)
-- `cancelApplication: false` → omit `blockAmount` entirely (effects fire as a pure listener without consuming any stacks)
+- `cancelApplication: true` -> set `blockAmount: { value: 9999 }` (blocks all stacks; effects fire once with `intercepted = incoming`)
+- `cancelApplication: false` -> omit `blockAmount` entirely (effects fire as a pure listener without consuming any stacks)
 
 ## Real Example - Profane Exchange
 
@@ -90,7 +82,7 @@ export const profaneExchangeBuff: Buff = {
           damageType: 'true',
         },
       ],
-      blockAmount: { value: 9999 }, // Block all incoming stacks — cancels the application
+      blockAmount: { value: 9999 }, // Block all incoming stacks - cancels the application
     },
   ],
 
@@ -99,11 +91,7 @@ export const profaneExchangeBuff: Buff = {
 };
 ```
 
-This intercept completely transforms how Blood Corruption works:
-
-- **Normal behavior:** Gain Blood Corruption stacks
-- **With Profane Exchange:** Take 3% max HP as true damage instead
-- **Result:** Blood techniques become high-risk, high-reward
+This intercept completely transforms how Blood Corruption works. Normal behaviour grants Blood Corruption stacks. With Profane Exchange the character takes 3% max HP as true damage instead. Blood techniques become high-risk, high-reward as a result.
 
 ## Interception Mechanics
 
@@ -123,12 +111,12 @@ interceptBuffEffects: [
   {
     buff: firstBuff,
     effects: [/* effects for first buff */],
-    blockAmount: { value: 9999 }, // Block all — cancels the application
+    blockAmount: { value: 9999 }, // Block all - cancels the application
   },
   {
     buff: secondBuff,
     effects: [/* effects for second buff */],
-    // blockAmount omitted — pure listener, original buff still applies
+    // blockAmount omitted - pure listener, original buff still applies
   },
 ];
 ```
@@ -146,11 +134,11 @@ When `blockAmount` is omitted, the interceptor is a pure listener: the original 
       amount: { value: 0.1, stat: 'power' }
     }
   ],
-  // blockAmount omitted — original buff applies + bonus healing fires as a listener
+  // blockAmount omitted - original buff applies + bonus healing fires as a listener
 }
 ```
 
-### Stat Filter — Category-Wide Interception
+### Stat Filter - Category-Wide Interception
 
 Use `statFilter` to intercept any buff that grants a specific stat, without listing every buff by name:
 
@@ -171,7 +159,7 @@ interceptBuffEffects: [
 ];
 ```
 
-Combine `buff` and `statFilter` to broaden matching — a buff is intercepted when it matches **either** criterion:
+Combine `buff` and `statFilter` to broaden matching - a buff is intercepted when it matches **either** criterion:
 
 ```typescript
 interceptBuffEffects: [
@@ -192,9 +180,9 @@ When a buff declares `guardianIntercept`, it acts as a damage shield that absorb
 ```typescript
 guardianIntercept?: {
   percent: Scaling;     // Percentage of incoming damage redirected to guardian HP
-  maxHp: Scaling;        // Maximum HP for the guardian, evaluated at buff creation
+  maxHp: Scaling;      // Maximum HP for the guardian, evaluated at buff creation
   refreshMode?: 'refresh' | 'extend';  // How re-application combines with existing HP
-  target?: 'all' | 'healthOnly';        // Which damage portion the guardian intercepts
+  target?: 'all' | 'healthOnly';       // Which damage portion the guardian intercepts
   canUpgrade?: boolean;
   onDestroyed?: BuffEffect[];  // Effects fired on the owner when the guardian is destroyed
 };
@@ -204,7 +192,7 @@ guardianIntercept?: {
 
 The `target` field controls which portion of incoming damage the guardian intercepts:
 
-- **`'all'`** (default): Intercepts the configured percent of total incoming damage at the pre-barrier location. This is the legacy behavior. Damage is intercepted before barrier absorption, so the guardian absorbs raw damage that would otherwise be reduced by the owner's barrier.
+- **`'all'`** (default): Intercepts the configured percent of total incoming damage at the pre-barrier location. This is the legacy behaviour. Damage is intercepted before barrier absorption, so the guardian absorbs raw damage that would otherwise be reduced by the owner's barrier.
 
 - **`'healthOnly'`**: Skips the pre-barrier interception entirely. The guardian instead absorbs a percent of the damage that would actually reach HP, after all other reductions (barrier, other interceptors, damage reduction, temporary health) have been applied. This lets mods build guardians that do not interfere with barrier-gated effects.
 

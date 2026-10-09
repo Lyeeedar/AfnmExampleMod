@@ -224,6 +224,50 @@ Triggers at the end of each round, after all techniques have been used.
 - **`buffAmplifierEffects`** - Modifies stack count when buffs are created on self
 - **`priority`** - Controls execution order (lower numbers execute first). Buffs whose `beforeTechniqueEffects` contain a `{ kind: 'damage', damageType: 'disruption' }` effect receive an automatic priority offset of -100, so they always execute before other buffs at the same `priority` value.
 
+## Technique Amplifier Effects
+
+`techniqueAmplifierEffects` lets a buff amplify outgoing damage, barrier, heal, or temporary health effects before they are applied. Each amplifier declares which effect kinds it applies to and a multiplier:
+
+```typescript
+techniqueAmplifierEffects?: {
+  /** Optional condition that gates whether the amplifier fires. */
+  trigger?: TechniqueCondition;
+  /**
+   * When true, the amplifier also applies to fixed, stored, and health-based
+   * outgoing damage effects. Without this flag, amplifiers only affect effects
+   * that scale off the caster's power stat.
+   */
+  includeUnscaledDamage?: boolean;
+  /** Multiplier evaluated against the holder, including stacks, internal state and amount. */
+  amplifier: Scaling;
+  /** Optional effects that run when the amplifier activates (e.g. consume stacks). */
+  effects?: BuffEffect[];
+  /** Which outgoing effect kinds this amplifier applies to. */
+  appliesTo: ('damage' | 'barrier' | 'heal' | 'tempHealth')[];
+}[];
+```
+
+### Example - Sanguine Amplification
+
+```typescript
+const sanguineAmplificationBuff: Buff = {
+  name: 'Sanguine Amplification',
+  icon: sanguineAmplificationIcon,
+  canStack: true,
+  // ...
+  techniqueAmplifierEffects: [
+    {
+      amplifier: { value: 1.15, stat: undefined },
+      appliesTo: ['damage'],
+      includeUnscaledDamage: true,  // Also amplify fixed and health-based damage
+    },
+  ],
+  // ...
+};
+```
+
+By default, amplifiers only affect effects whose `amount` uses a power-based stat (`power` or `artefactpower`). Set `includeUnscaledDamage: true` to also amplify effects that deal fixed damage, stored damage, or health-based damage (e.g. `{ value: 0.05, stat: 'maxhp' }`).
+
 ## Scaling Fields
 
 The `stats` field on a buff uses `Scaling` objects to define stat bonuses. Beyond basic `value` and `stat`, the following fields control how those bonuses are modified:
@@ -329,7 +373,7 @@ When `true`, the `eqn` is ignored for tooltip display so the shown amount is the
 
 ## Auxiliary Tooltip Suppression
 
-The `hideAuxTooltip` field lets a buff suppress its own auxiliary ("aux") tooltips — the generic mechanic explanations that appear for barrier, temporary health, and referenced buffs. This is useful when the buff's own `tooltip` already explains the mechanic, or when the context makes it self-evident.
+The `hideAuxTooltip` field lets a buff suppress its own auxiliary ("aux") tooltips - the generic mechanic explanations that appear for barrier, temporary health, and referenced buffs. This is useful when the buff's own `tooltip` already explains the mechanic, or when the context makes it self-evident.
 
 The field accepts an expression string evaluated against the same buff-aware scope as `childBuffs.condition` (exposes `stacks`, `internalState`, `storedValues`). When the expression evaluates truthy, aux tooltips are hidden.
 
@@ -489,10 +533,10 @@ In horde battles (where multiple enemies fight the player sequentially), buffs w
 ```
 
 State that transfers:
-- `stacks` — current stack count
-- `internalState` — any tracked counters or flags
-- `storedValues` — values captured at creation time
-- `guardianHp` / `guardianMaxHp` — guardian sub-entity state
+- `stacks` - current stack count
+- `internalState` - any tracked counters or flags
+- `storedValues` - values captured at creation time
+- `guardianHp` / `guardianMaxHp` - guardian sub-entity state
 
 Buffs without this flag are discarded when the enemy dies, matching the previous behaviour.
 

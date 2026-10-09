@@ -21,6 +21,8 @@ interface ClothingItem extends ItemBase {
   stats: Partial<CombatStatsMap>;
   buffs?: { buff: Buff; buffStacks: Scaling }[];
   upgradeHarmonies?: Partial<Record<RecipeHarmonyType, ItemHarmonyUpgrade[]>>;
+  /** Equipment set bonus granted when multiple set pieces are equipped simultaneously. */
+  setBonus?: EquipmentSetBonus;
 }
 ```
 
@@ -32,6 +34,7 @@ interface ClothingItem extends ItemBase {
 - **masteryPoints**: Optional bonus points when mastering techniques / actions
 - **buffs**: Buffs to give at the start of each combat
 - **upgradeHarmonies**: Harmony upgrade mappings that let the item's secondary effects scale with crafting quality. See the Harmony Upgrades section below for full details.
+- **setBonus**: Optional equipment set bonus. When defined, this item is part of a set. The set bonus activates when multiple set pieces are equipped.
 
 ## Examples
 
@@ -106,6 +109,69 @@ export const fistMastersRegalia: ClothingItem = {
   realm: 'pillarCreation',
 };
 ```
+
+## Equipment Set Bonuses
+
+Multiple clothing, talisman, and artefact items can belong to the same set. When enough distinct set pieces are equipped simultaneously, a set bonus activates. Set bonuses are defined using the `EquipmentSetBonus` interface:
+
+```typescript
+interface EquipmentSetBonus {
+  /** Display name for the set. */
+  name: string;
+  /** Item IDs that belong to this set. Distinct equipped items count toward the cumulative reward thresholds. */
+  requiredItems: string[];
+  /** Cumulative bonuses keyed by number of equipped set pieces. The buff activates once that threshold is reached. */
+  bonuses: { pieces: number; buff: Buff }[];
+}
+```
+
+### How Set Bonuses Work
+
+- Each entry in `bonuses` specifies a `pieces` threshold and a `buff` to grant when that threshold is met
+- Distinct item IDs count toward the threshold - if two equipped items have the same ID, only one counts
+- When the threshold is reached, the associated `buff` is applied to the character
+- Set bonuses apply in addition to any per-item buffs or stats
+
+### Example - Mountain Warden's Regalia
+
+```typescript
+import { EquipmentSetBonus } from 'afnm-types';
+
+const mountainWardensSetBonus: EquipmentSetBonus = {
+  name: "Mountain Warden's Regalia",
+  requiredItems: [
+    'mountainWardensStaff',
+    'mountainWardensRobe',
+    'mountainWardensSeal',
+  ],
+  bonuses: [
+    {
+      pieces: 2,
+      buff: {
+        name: "Mountain Warden's Presence",
+        // ... buff definition
+      },
+    },
+    {
+      pieces: 3,
+      buff: {
+        name: "Mountain Warden's Arc",
+        // ... buff definition
+      },
+    },
+  ],
+};
+
+// Each set piece references the same setBonus
+export const mountainWardensRobe: ClothingItem = {
+  kind: 'clothing',
+  name: "Mountain Warden's Robe",
+  setBonus: mountainWardensSetBonus,
+  // ...other fields
+};
+```
+
+Note: The same `EquipmentSetBonus` object should be assigned to every item in the set. The game uses reference equality to group items.
 
 ## Harmony Upgrades
 
@@ -189,7 +255,7 @@ For custom phrasing such as a reduction ("Reduce Flow cost by 1") or a non-defau
 
 ### exclusive and the fallback resolver
 
-When an `upgradeHarmonies` entry is marked `exclusive`, the game's fallback harmony resolver will not borrow that mapping for other harmony types. Always mark stack-granting upgrades (`harmonyStacksStep`) as exclusive, since they are unique effects. Mark stat upgrades as exclusive when the item already has four authored harmony entries and borrowing would create an undesirable imbalance.
+When an `upgradeHarmonies` entry is marked `exclusive`, the game's fallback harmony resolver will not borrow this mapping for other harmony types. Always mark stack-granting upgrades (`harmonyStacksStep`) as exclusive, since they are unique effects. Mark stat upgrades as exclusive when the item already has four authored harmony entries and borrowing would create an undesirable imbalance.
 
 ### Complete example: clothing with harmony-upgraded secondary effect
 
