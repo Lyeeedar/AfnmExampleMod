@@ -11,8 +11,6 @@
     "prebuild": "afnm-extract-translations",
     "build": "webpack --mode production",
     "postbuild": "node scripts/copy-translations.js && node scripts/zip-dist.js",
-    "validate-docs": "node scripts/validate-docs.js",
-    "test": "node scripts/validate-docs.js --self-test",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {

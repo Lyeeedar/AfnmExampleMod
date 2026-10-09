@@ -91,6 +91,7 @@ export function initializeTeaQuestEvents() {
 
 ```typescript
 import { initializeTeaItems } from './items/teaItems';
+import { initializeTeaCrops } from './crops/teaCrops';
 import { initializeTeaCharacters } from './characters/teaMasters';
 import { initializeTeaBrewery } from './locations/teaBrewery';
 import { initializeTeaQuests } from './quests/teaQuests';
@@ -101,6 +102,7 @@ function initializeMysticalTeaGarden() {
 
   // Foundation systems first
   initializeTeaItems();
+  initializeTeaCrops();
   initializeTeaCharacters();
   initializeTeaBrewery();
 

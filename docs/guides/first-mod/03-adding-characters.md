@@ -204,15 +204,17 @@ All characters must be registered with the [ModAPI](../../concepts/modapi.md#cha
 
 ```typescript
 import { initializeTeaItems } from './items/teaItems';
+import { initializeTeaCrops } from './crops/teaCrops';
 import { initializeTeaCharacters } from './characters/teaMasters';
 
 function initializeMysticalTeaGarden() {
   console.log('🍵 Initializing Mystical Tea Garden Mod...');
 
-  // Items first - characters reference them in shops
+  // Items first - crops and characters reference them
   initializeTeaItems();
+  initializeTeaCrops();
 
-  // Characters second - locations will reference them
+  // Characters next - locations will reference them
   initializeTeaCharacters();
 
   console.log('✅ Mystical Tea Garden Mod loaded successfully!');

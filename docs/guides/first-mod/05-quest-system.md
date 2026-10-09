@@ -192,6 +192,7 @@ export function initializeTeaQuests() {
 
 ```typescript
 import { initializeTeaItems } from './items/teaItems';
+import { initializeTeaCrops } from './crops/teaCrops';
 import { initializeTeaCharacters } from './characters/teaMasters';
 import { initializeTeaBrewery } from './locations/teaBrewery';
 import { initializeTeaQuests } from './quests/teaQuests';
@@ -199,8 +200,9 @@ import { initializeTeaQuests } from './quests/teaQuests';
 function initializeMysticalTeaGarden() {
   console.log('🍵 Initializing Mystical Tea Garden Mod...');
 
-  // Dependencies first - items, characters, locations
+  // Dependencies first - items, crops, characters, locations
   initializeTeaItems();
+  initializeTeaCrops();
   initializeTeaCharacters();
   initializeTeaBrewery();
 

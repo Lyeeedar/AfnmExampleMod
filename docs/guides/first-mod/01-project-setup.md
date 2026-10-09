@@ -64,16 +64,21 @@ Here's the pattern we'll follow:
 ```typescript
 // Import all initialization functions
 import { initializeTeaItems } from './items/teaItems';
+import { initializeTeaCrops } from './crops/teaCrops';
 import { initializeTeaCharacters } from './characters/teaMasters';
+import { initializeTeaBrewery } from './locations/teaBrewery';
 import { initializeTeaQuests } from './quests/teaQuests';
-// ... etc
+import { initializeTeaQuestEvents } from './events/teaQuestEvents';
 
 function initializeMod() {
   console.log('🍵 Initializing Tea House Mod...');
 
   initializeTeaItems();
+  initializeTeaCrops();
   initializeTeaCharacters();
+  initializeTeaBrewery();
   initializeTeaQuests();
+  initializeTeaQuestEvents();
 
   console.log('✅ Tea House Mod loaded successfully!');
 }

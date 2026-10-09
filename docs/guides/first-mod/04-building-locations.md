@@ -190,6 +190,7 @@ The `initializeTeaBrewery` function is already included at the bottom of `src/mo
 
 ```typescript
 import { initializeTeaItems } from './items/teaItems';
+import { initializeTeaCrops } from './crops/teaCrops';
 import { initializeTeaCharacters } from './characters/teaMasters';
 import { initializeTeaBrewery } from './locations/teaBrewery';
 
@@ -198,11 +199,14 @@ function initializeMysticalTeaGarden() {
 
   // Order is critical for dependencies
   initializeTeaItems(); // Items first
-  initializeTeaCharacters(); // Characters second (reference items)
-  initializeTeaBrewery(); // Locations third (reference items & characters)
+  initializeTeaCrops(); // Crops reference items
+  initializeTeaCharacters(); // Characters reference items
+  initializeTeaBrewery(); // Locations reference items & characters
 
   console.log('✅ Mystical Tea Garden Mod loaded successfully!');
 }
+
+initializeMysticalTeaGarden();
 ```
 
 Buildings must be added after items and characters since they reference both through the [ModAPI](../../concepts/modapi.md#game-data-access).
