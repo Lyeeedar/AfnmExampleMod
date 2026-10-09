@@ -98,15 +98,24 @@ const msg = api.utils.tPlural(items, '{count} item found in {location}', '{count
 Creates a `TranslatableString` object that is resolved at render time, not at module load time. Use this when building data objects (items, techniques, event descriptions) so translations work correctly regardless of load order.
 
 ```typescript
-const myItem: ItemDesc = {
+const myItem: CraftingItem = {
+  kind: 'material',
+  icon: 'assets/spirit-core.png',
+  stacks: 1,
+  rarity: 'empowered',
+  realm: 'qiCondensation',
   name: 'Spirit Core',
   description: api.utils.tr('A dense crystallisation of pure qi.'),
 };
 
 // With variable substitution resolved at render time
 const myBuff: Buff = {
-  name: api.utils.tr('Enhanced Meridians'),
-  description: api.utils.tr('Increases qi capacity by {amount}%', { amount: 25 }),
+  name: 'Enhanced Meridians',
+  icon: 'assets/meridians.png',
+  canStack: false,
+  stats: {},
+  stacks: 1,
+  tooltip: api.utils.tr('Increases qi capacity by {amount}%', { amount: 25 }),
 };
 ```
 

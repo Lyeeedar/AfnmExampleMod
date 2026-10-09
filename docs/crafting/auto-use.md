@@ -25,21 +25,23 @@ interface PlayerEntity {
 
 ## Loadout Structure
 
-An `AutoUseLoadout` contains ordered slots for each item category:
+An `AutoUseLoadout` stores its ordered item rules in a single `slots` array:
 
 ```typescript
 interface AutoUseLoadout {
   id: string;
   name: string;
-  reagentSlots: AutoUseItem[]; // Fire only at step 0
-  pillSlots: AutoUseItem[];    // Fire every crafting step
+  autoName?: boolean;
+  slots: AutoUseItem[]; // Reagent or pill slots for this loadout
 }
 ```
 
 ### Reagents vs Pills
 
-- **Reagent slots** (`reagentSlots`): Applied only at the first step of crafting (step 0). Use these for setup buffs that should not reapply mid-craft.
-- **Pill slots** (`pillSlots`): Applied after every technique, each step of the craft. Use these for ongoing sustain or adaptive buffs.
+- **Reagents**: Applied only at the first step of crafting (step 0). Use these for setup buffs that should not reapply mid-craft.
+- **Pills**: Applied after every technique, each step of the craft. Use these for ongoing sustain or adaptive buffs.
+
+Both categories use entries in `slots`; the registered item's kind determines how it is used.
 
 Items eligible for auto-use are `CraftingPillItem` (pills with `pillKind === 'crafting'`) and `CraftingReagentItem`.
 
@@ -50,7 +52,7 @@ Each `AutoUseItem` in a slot defines an item to use and the conditions under whi
 ```typescript
 interface AutoUseItem {
   item?: string;       // Item name (as registered in game data)
-  blocks: RuleBlocks;  // Two-level condition structure; empty = always fire
+  blocks?: RuleBlock[];  // Two-level condition structure; empty = always fire
   maxCount?: number;   // Maximum uses per craft (default: unlimited)
 }
 ```
@@ -144,8 +146,8 @@ The `flag()` helper converts names to valid identifier-safe keys for the express
 
 The crafting auto-use dialog (`ManageCraftingAutoUseItemsDialog`) presents two sections:
 
-1. **Reagents** -- drag-to-reorder list of `reagentSlots`. Only fire at step 0.
-2. **Pills** -- drag-to-reorder list of `pillSlots`. Fire every step after techniques resolve.
+1. **Reagents** -- reagent entries from `slots`. Only fire at step 0.
+2. **Pills** -- pill entries from `slots`. Fire every step after techniques resolve.
 
 Each row exposes:
 - An item picker (filtered to crafting pills and reagents, grouped by realm)

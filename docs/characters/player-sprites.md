@@ -29,7 +29,7 @@ interface PlayerSprite {
   /** Which gender this sprite is available for: 'male', 'female', or 'both' */
   gender: Sex | 'both';
   /** The sprite images for different poses and situations */
-  sprites: PlayerSpriteImages;
+  sprites?: PlayerSpriteImages;
 }
 ```
 

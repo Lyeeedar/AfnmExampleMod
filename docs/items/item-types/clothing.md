@@ -20,7 +20,7 @@ interface ClothingItem extends ItemBase {
   masteryPoints?: number;
   stats: Partial<CombatStatsMap>;
   buffs?: { buff: Buff; buffStacks: Scaling }[];
-  upgradeHarmonies?: Partial<Record<RecipeHarmonyType, ItemHarmonyUpgrade[]>>;
+  upgradeHarmonies?: Partial<Record<RecipeHarmonyType, ItemHarmonyUpgrade>>;
 }
 ```
 
@@ -42,7 +42,7 @@ export const sectDiscipleGarb: ClothingItem = {
   charisma: window.modAPI.utils.getClothingCharisma('bodyForging', 0.7),
   stats: {
     defense: window.modAPI.utils.getClothingDefense('bodyForging', 0.85),
-    maxbarrier: Math.floor(window.modAPI.utils.getExpectedHealth() * 0.1),
+    maxbarrier: Math.floor(window.modAPI.utils.getExpectedHealth('bodyForging', 'Early') * 0.1),
   },
   name: 'Nine Mountain Disciple Garb (I)',
   description: 'Clothing emblazoned with the markings of the Nine Mountain Sect.',
@@ -58,7 +58,7 @@ export const shadowPlate: ClothingItem = {
   charisma: window.modAPI.utils.getClothingCharisma('qiCondensation', 0.3),
   stats: {
     defense: window.modAPI.utils.getClothingDefense('qiCondensation', 1),
-    power: Math.floor(window.modAPI.utils.getExpectedPower() * 0.2),
+    power: Math.floor(window.modAPI.utils.getExpectedPower('qiCondensation', 'Early') * 0.2),
     critchance: 2.5,
     barrierMitigation: 3,
   },
@@ -81,7 +81,7 @@ export const fistMastersRegalia: ClothingItem = {
   stats: {
     defense: window.modAPI.utils.getClothingDefense('pillarCreation', 0.7),
     fistBoost: 10,
-    critdam: 20,
+    critmultiplier: 20,
   },
   buffs: [{
     buff: {
@@ -128,7 +128,7 @@ buffs: [{
         stat: undefined,
         upgradeKey: 'conduitBarrierMit',   // marks this field as harmonizable
         eqn: `${flag(aspectType)} * 0.1`,
-        max: { value: 30 },
+        max: { value: 30, stat: undefined },
       },
     },
   },
@@ -140,84 +140,61 @@ Valid fields that can carry `upgradeKey` on a `Scaling` object include any numer
 
 ### 2. Map harmony types to upgrade keys with upgradeHarmonies
 
-On the item itself, add an `upgradeHarmonies` map. Each entry pairs a harmony type with one or more `ItemHarmonyUpgrade` objects that describe how the tagged field scales with quality:
+On the item itself, add an `upgradeHarmonies` map. Each entry pairs a harmony type with one `ItemHarmonyUpgrade` object that describes how the tagged field scales with quality:
 
 ```typescript
 upgradeHarmonies: {
-  resonance: [
-    harmonyStatStep('conduitBarrierMit', 'Barrier Effectiveness', 5, { step: 0.5 }),
-  ],
-  inscription: [
-    harmonyStatStep('conduitCrit', 'Critical Chance', 5, { step: 0.5 }),
-  ],
-  forge: [
-    harmonyStacksStep('conduitCloudScale', 'Cloud Boost', 5, { exclusive: true }),
-  ],
-  enhancingEcho: [
-    harmonyStatStep('conduitPower', 'Power', 5, { step: 0.01 }),
-  ],
+  resonance: harmonyStatStep('conduitBarrierMit', 'Barrier Effectiveness', 5, { step: 0.5 }),
+  inscription: harmonyStatStep('conduitCrit', 'Critical Chance', 5, { step: 0.5 }),
+  forge: harmonyStacksStep('conduitCloudScale', 'Cloud Boost', 5),
+  enhancingEcho: harmonyStatStep('conduitPower', 'Power', 5, { step: 0.01 }),
 },
 ```
 
-The helpers available from `'afnm-types'` are:
+Copy the local helpers from [Item Structure](../item-structure.md#helper-functions) into your mod:
 
 | Helper | Effect | Default threshold |
 |--------|--------|-----------------|
 | `harmonyStatUpgrade(upgradeKey, stat, options?)` | Multiplies the tagged field by +N% per quality tier | threshold 4, +20% |
 | `harmonyStatStep(upgradeKey, stat, threshold, options?)` | Adds a fixed step per threshold quality tiers | step 1 |
-| `harmonyStacksStep(upgradeKey, buffName, threshold, options?)` | Adds step to a buff's grant stacks per threshold tiers | step 1, exclusive |
-| `harmonyCustom(upgrade)` | Fully hand-written upgrade object | none |
+| `harmonyStacksStep(upgradeKey, buffName, threshold, options?)` | Adds step to a buff's grant stacks per threshold tiers | step 1 |
 
-All helpers accept an optional `options` object with:
-- `threshold?: number` - quality tiers per step (default varies per helper)
-- `step?: number` - fixed additive step for `harmonyStatStep` or `harmonyStacksStep`
-- `percent?: number` - percentage for `harmonyStatUpgrade`
-- `exclusive?: boolean` - when true, the fallback harmony resolver will not borrow this mapping for other harmony types
-- `tooltip?: Translatable` - override the auto-generated tooltip text
+`harmonyStatUpgrade` accepts `threshold` and `percent`. `harmonyStatStep` accepts `step` and a boolean `percent` for its label. `harmonyStacksStep` accepts `step`. For a custom tooltip, change the returned object's `tooltip` field.
 
 ### Harmony upgrade tooltips and the {change} placeholder
 
-Tooltips for harmony upgrades use placeholders that are substituted at render time:
-- `{change}` - the amount shown to the player (percentage points for multiply upgrades, the raw step for additive)
-- `{stat}` / `{buff}` - the targeted stat or buff name
-- `{threshold}` - the quality tier threshold
-- `{step}` - the step value
-
-For example, `harmonyStatStep('conduitBarrierMit', 'Barrier Effectiveness', 5, { step: 0.5 })` generates the tooltip "Increase Barrier Effectiveness by 0.5" and a dialog subtitle "Per 5 stars".
-
-For custom phrasing such as a reduction ("Reduce Flow cost by 1") or a non-default percentage, pass the `tooltip` option with the desired `Translatable` string.
-
-### exclusive and the fallback resolver
-
-When an `upgradeHarmonies` entry is marked `exclusive`, the game's fallback harmony resolver will not borrow that mapping for other harmony types. Always mark stack-granting upgrades (`harmonyStacksStep`) as exclusive, since they are unique effects. Mark stat upgrades as exclusive when the item already has four authored harmony entries and borrowing would create an undesirable imbalance.
+The local helpers use `{change}` in their tooltips for the amount supplied by the game. The stat or buff label is included directly in the string. For custom phrasing, set `tooltip` on the returned upgrade object.
 
 ### Complete example: clothing with harmony-upgraded secondary effect
 
 ```typescript
-import { harmonyStatStep, harmonyStacksStep } from 'afnm-types';
+// Copy the local harmony helper functions from the Item Structure guide.
+// They are mod utilities, rather than exports from afnm-types.
 import { aspectType } from '../../techniques/cloud/cloud';
 import { flag } from '../../../util/flag';
 
 export const crystallineConduitS: ClothingItem = {
   kind: 'clothing',
   name: 'Crystalline Conduit (S)',
+  charisma: 0,
+  stats: {},
+  description: 'A conduit robe that channels cloud qi.',
+  icon: 'assets/conduit.png',
+  stacks: 1,
+  rarity: 'transcendent',
+  realm: 'qiCondensation',
   // ...
   upgradeHarmonies: {
-    resonance: [
-      harmonyStatStep('conduitBarrierMit', 'Barrier Effectiveness', 5, { step: 0.5 }),
-    ],
-    inscription: [
-      harmonyStatStep('conduitCrit', 'Critical Chance', 5, { step: 0.5 }),
-    ],
-    forge: [
-      harmonyStacksStep('conduitCloudScale', 'Cloud Boost', 5, { exclusive: true }),
-    ],
-    enhancingEcho: [
-      harmonyStatStep('conduitPower', 'Power', 5, { step: 0.01 }),
-    ],
+    resonance: harmonyStatStep('conduitBarrierMit', 'Barrier Effectiveness', 5, { step: 0.5 }),
+    inscription: harmonyStatStep('conduitCrit', 'Critical Chance', 5, { step: 0.5 }),
+    forge: harmonyStacksStep('conduitCloudScale', 'Cloud Boost', 5),
+    enhancingEcho: harmonyStatStep('conduitPower', 'Power', 5, { step: 0.01 }),
   },
   buffs: [{
     buff: {
+      icon: 'assets/example.png',
+      canStack: false,
+      stacks: 1,
       name: 'Crystalline Conduit',
       // ...
       stats: {
@@ -226,28 +203,28 @@ export const crystallineConduitS: ClothingItem = {
           stat: undefined,
           upgradeKey: 'conduitBarrierMit',
           eqn: `${flag(aspectType)} * 0.1`,
-          max: { value: 30 },
+          max: { value: 30, stat: undefined },
         },
         critchance: {
           value: 1.5,
           stat: undefined,
           upgradeKey: 'conduitCrit',
           eqn: `${flag(aspectType)} * 0.1`,
-          max: { value: 30 },
+          max: { value: 30, stat: undefined },
         },
         cloudBoost: {
           value: 0.1,
           stat: undefined,
           upgradeKey: 'conduitCloudScale',
           eqn: `${flag(aspectType)} * 0.1`,
-          max: { value: 3 },
+          max: { value: 3, stat: undefined },
         },
         power: {
           value: 0.03,
           stat: 'power',
           upgradeKey: 'conduitPower',
           eqn: `${flag(aspectType)} * 0.1`,
-          max: { value: 0.6 },
+          max: { value: 0.6, stat: undefined },
         },
       },
     },

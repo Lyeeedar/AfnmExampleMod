@@ -32,6 +32,6 @@ interface UnlockAltarStep {
 
 ```typescript
 {
-  kind: 'unlockAltar';
+  kind: 'unlockAltar',
 }
 ```

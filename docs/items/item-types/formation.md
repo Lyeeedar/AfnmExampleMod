@@ -64,7 +64,7 @@ export const empoweringDensityFormation: QiDensityFormationItem = {
     icon: empoweringIcon,
     canStack: true,
     stats: {
-      power: { value: Math.ceil(window.modAPI.utils.getExpectedPower() * 0.1), stat: undefined },
+      power: { value: Math.ceil(window.modAPI.utils.getExpectedPower('bodyForging', 'Early') * 0.1), stat: undefined },
     },
     onRoundEffects: [],
     stacks: 3,

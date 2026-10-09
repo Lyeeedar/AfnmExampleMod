@@ -14,36 +14,30 @@ Crafting techniques are active abilities used during the crafting process to man
 
 ```typescript
 interface CraftingTechnique {
-  id: string;
-  name: Translatable;
-  description: Translatable;
-  icon: SvgIconType | CustomSvgIcon;
+  name: string;
+  displayName?: Translatable;
+  icon: string;
+  realm: Realm;
 
   type: CraftingTechniqueType; // 'fusion' | 'refine' | 'support' | 'stabilize'
 
   // Resource costs
-  stabilityCost?: number;       // Stability removed from current when used
-  maxStabilityCost?: number;     // Stability removed from max when used
-  poolCost?: number;             // Qi drawn from pool when used
+  stabilityCost: number;       // Stability removed from current when used
+  poolCost: number;             // Qi drawn from pool when used
 
   // Effects
-  effects: CraftingEffect[];     // What happens when technique is used
+  effects: CraftingTechniqueEffect[]; // What happens when technique is used
 
   // Triggered effects (walked for tooltip substitution — see Tooltip Templates below)
-  triggeredEffects?: { trigger: string; effects: CraftingEffect[] }[];
+  triggeredEffects?: { trigger: string; effects: CraftingTechniqueEffect[] }[];
 
   // Mastery upgrades
   upgradeMasteries?: { [key: string]: CraftingTechniqueMasteryRarityMap };
-  masteryKindPools?: CraftingEffectKind[];
-
-  // Visual
-  colour?: string;               // CSS colour for the technique's effect particles
-  particleIcon?: string;         // Override particle image
-
-  // UI
-  isItem?: boolean;              // Technique is granted by an item (e.g. pills)
-  successChance?: number;        // 0-1 chance of success; defaults to 1
-  critThreshold?: number;         // Threshold for perfection/crit success; defaults to 0.9
+  masteryKindPools?: CraftingTechniqueEffectKind[];
+  tooltip?: string;
+  successChance: number;        // 0-1 probability (1 always succeeds)
+  cooldown: number;
+  currentCooldown: number;
 }
 ```
 
@@ -87,9 +81,9 @@ Applies helpful **buffs** to the crafter or the craft itself. Does not directly 
 type: 'support',
 effects: [
   {
-    kind: 'buffSelf',
+    kind: 'createBuff',
     buff: swiftHands,
-    amount: { value: 1, stat: undefined, upgradeKey: 'stacks' },
+    stacks: { value: 1, stat: undefined, upgradeKey: 'stacks' },
   }
 ]
 ```
@@ -139,7 +133,7 @@ Advances the completion meter:
 ```typescript
 {
   kind: 'completion',
-  amount: Scaling,
+  amount: { value: 1, stat: undefined },
 }
 ```
 
@@ -148,9 +142,10 @@ Advances the completion meter:
 Advances the perfection meter:
 
 ```typescript
-{
-  kind: 'perfection',
-  amount: Scaling,
+interface PerfectionEffect {
+  kind: "perfection";
+  amount: Scaling;
+  condition?: CraftingTechniqueCondition;
 }
 ```
 
@@ -159,10 +154,10 @@ Advances the perfection meter:
 Restores current stability:
 
 ```typescript
-{
+const restoreStability: CraftingTechniqueEffect = {
   kind: 'stability',
-  amount: Scaling,
-}
+  amount: { value: 1, stat: 'control' },
+};
 ```
 
 ### Buff Effects
@@ -170,34 +165,11 @@ Restores current stability:
 Apply or consume crafting buffs:
 
 ```typescript
-// Apply a crafting buff to the crafter
-{
-  kind: 'buffSelf',
-  buff: craftingBuff,
-  amount: Scaling,
-}
-
-// Apply a crafting buff to the craft
-{
-  kind: 'buffCraft',
-  buff: craftBuff,
-  amount: Scaling,
-}
-
-// Consume stacks of a crafting buff
-{
-  kind: 'consumeSelf',
-  buff: craftingBuff,
-  amount: Scaling,
-}
-
-// Modify all buffs in a group
-{
-  kind: 'modifyBuffGroup',
-  group: 'buffGroupName',
-  amount: { value: 1, stat: undefined },
-  mode?: 'all' | 'highest' | 'lowest' | 'random'
-}
+const buffEffects: CraftingTechniqueEffect[] = [
+  { kind: 'createBuff', buff: craftingBuff, stacks: { value: 1, stat: undefined } },
+  { kind: 'consumeBuff', buff: craftingBuff, stacks: { value: 1, stat: undefined } },
+  { kind: 'modifyBuffGroup', group: 'buffGroupName', amount: { value: 1, stat: undefined }, mode: 'all' },
+];
 ```
 
 **`mode`** — Controls which matching buffs are affected:
@@ -244,10 +216,12 @@ Use `addCraftingTechnique` to register a technique with the game:
 
 ```typescript
 window.modAPI.actions.addCraftingTechnique({
-  id: 'my_custom_technique',
   name: 'Custom Fusion',
-  description: 'A powerful completion technique.',
-  icon: MyCustomIcon,
+  icon: 'assets/custom-fusion.png',
+  realm: 'bodyForging',
+  successChance: 1,
+  cooldown: 0,
+  currentCooldown: 0,
   type: 'fusion',
   stabilityCost: 10,
   poolCost: 15,
@@ -351,11 +325,11 @@ Increase the maximum amount of a stepped value:
 
 ```typescript
 upgradeMasteries: {
-  maxStacks: window.modAPI.utils.createCraftingMaxIncreaseUpgradeMap('maxStacks', 'resplendent', 3),
+  maxStacks: window.modAPI.utils.createCraftingMaxIncreaseUpgradeMap('maxStacks', 'resplendent', 'Max Stacks', 3),
 }
 ```
 
-`createCraftingMaxIncreaseUpgradeMap(key, startRarity, maxChange)` — useful for techniques that cap at a certain amount.
+`createCraftingMaxIncreaseUpgradeMap(key, startRarity, buffName, maxChange)` — useful for techniques that cap at a certain amount.
 
 #### Success Improvements
 
@@ -420,7 +394,7 @@ The `tooltip` field on a crafting technique supports dynamic placeholders that r
 
 ```typescript
 // In a crafting technique:
-tooltip: 'When you gain {createBuff.buff} gain {createBuff.amount} extra stacks.',
+tooltip: 'When you gain {createBuff.buff} gain {createBuff.stacks} extra stacks.',
 effects: [
   {
     kind: 'createBuff',
@@ -435,7 +409,7 @@ triggeredEffects: [
       {
         kind: 'createBuff',
         buff: someCraftingBuff,
-        amount: { value: 1, stat: undefined },  // can use {createBuff.amount} in tooltip
+        stacks: { value: 1, stat: undefined },  // can use {createBuff.stacks} in tooltip
       },
     ],
   },

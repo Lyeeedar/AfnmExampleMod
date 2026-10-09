@@ -16,10 +16,11 @@ Buildings provide interactive services and content within locations. Each buildi
 Provides healing services to restore health and remove injuries:
 
 ```typescript
-{
-  kind: 'healer',
-  condition?: 'realm >= meridianOpening',  // Optional availability
-  disabled?: 'injured == 0'  // Optional disable condition
+interface HealerBuilding {
+  kind: "healer";
+  condition?: string;
+  disabled?: string;
+  offset?: { x: number; y: number; };
 }
 ```
 
@@ -59,7 +60,9 @@ Banking and storage services:
 
 ```typescript
 {
-  kind: 'vault'
+  kind: 'vault',
+  slips: vaultSlips, // Record<Realm, TokenItem> defined by your mod
+  itemPool: vaultOfferings // Record<Realm, VaultOffering[]>
 }
 ```
 
@@ -88,12 +91,15 @@ Portal to special cultivation areas:
 Portal to expedition dungeons. Expedition buildings require a name matching an existing expedition tile pool (registered by the base game or via modAPI.actions.addExpeditionTiles).
 
 ```typescript
-{
-  kind: 'expedition';
-  name: string;              // Expedition identifier (e.g. 'Tai Kong')
-  displayName?: Translatable; // Optional custom display name
-  teamCount: number;         // Number of team members required
-  realm: Realm;              // Realm tier for the expedition
+interface ExpeditionBuilding {
+  kind: "expedition";
+  name: string;
+  displayName?: Translatable;
+  teamCount: number;
+  realm: Realm;
+  condition?: string;
+  disabled?: string;
+  offset?: { x: number; y: number; };
 }
 ```
 
@@ -102,10 +108,10 @@ Example:
 ```typescript
 {
   kind: 'expedition',
-  name: 'Tai Kong',       // Expedition identifier - must match the key used in addExpeditionTiles
-  displayName?: 'Tai Kong Expedition',
-  teamCount: 3,           // Number of team member slots
-  realm: 'qiCondensation' // Minimum realm required to enter
+  name: 'Tai Kong',
+  displayName: 'Tai Kong Expedition',
+  teamCount: 3,
+  realm: 'qiCondensation',
 }
 ```
 
@@ -158,29 +164,17 @@ Advanced alchemy furnace for high-tier crafting:
 General marketplace with realm-specific inventory:
 
 ```typescript
-{
-  kind: 'market',
-  itemPool: {
-    bodyForging: [
-      { name: 'Small Claw', stacks: 5 },
-      { name: 'Healing Pill I', stacks: 3 },
-      { name: 'Speed Room I', stacks: 1 }
-    ],
-    meridianOpening: [...],
-    // ...other realms
-  },
-  reputationPool?: {  // Optional reputation items
-    bodyForging: [
-      {
-        name: 'Spirit Core I',
-        stacks: 1,
-        reputation: 'respected',  // Required reputation
-        valueModifier: 15         // Price multiplier
-      }
-    ]
-  },
-  costMultiplier: 1.5,   // Base price multiplier
-  refreshMonths: 3        // Inventory refresh period
+interface MarketBuilding {
+  kind: "market";
+  tokenCurrency?: MarketTokenCurrency;
+  displayName?: Translatable;
+  itemPool: Record<Realm, ShopItem[]>;
+  reputationPool?: Record<Realm, ShopItem[]>;
+  costMultiplier: number;
+  refreshMonths: number;
+  condition?: string;
+  disabled?: string;
+  offset?: { x: number; y: number; };
 }
 ```
 
@@ -191,7 +185,7 @@ Special shop using favour currency:
 ```typescript
 {
   kind: 'favourExchange',
-  itemPool: { ... },      // Same as market
+  itemPool: emptyShopPool,      // Same as market
   costMultiplier: 2.0,
   refreshMonths: 1
 }
@@ -244,6 +238,14 @@ Player-requested tasks:
 {
   kind: 'requestBoard',
   requests: {
+    mundane: [],
+    qiCondensation: [],
+    coreFormation: [],
+    pillarCreation: [],
+    lifeFlourishing: [],
+    worldShaping: [],
+    innerGenesis: [],
+    soulAscension: [],
     bodyForging: [
       {
         quest: 'herb_collection',
@@ -251,7 +253,7 @@ Player-requested tasks:
         rarity: 'mundane'
       }
     ],
-    meridianOpening: [...],
+    meridianOpening: [],
     // ...other realms
   }
 }
@@ -264,10 +266,7 @@ Player-requested tasks:
 Herb gathering location:
 
 ```typescript
-{
-  kind: 'herbField',
-  condition?: 'farmingUnlocked == 1'
-}
+{ kind: 'herbField', condition: 'farmingUnlocked == 1' }
 ```
 
 ### Yinying Mine
@@ -275,10 +274,7 @@ Herb gathering location:
 Mining for ores and gems:
 
 ```typescript
-{
-  kind: 'mine',
-  condition?: 'miningUnlocked == 1'
-}
+{ kind: 'mine', mineId: 'myModMine', condition: 'miningUnlocked == 1' }
 ```
 
 ## Special Buildings
@@ -291,12 +287,20 @@ Access to crafting recipes:
 {
   kind: 'recipe',
   recipePool: {
+    mundane: [],
+    qiCondensation: [],
+    coreFormation: [],
+    pillarCreation: [],
+    lifeFlourishing: [],
+    worldShaping: [],
+    innerGenesis: [],
+    soulAscension: [],
     bodyForging: [
       'recuperation_pill_recipe',
       'iron_skin_pill_recipe',
       'clothing_blank_recipe'
     ],
-    meridianOpening: [...],
+    meridianOpening: [],
     // ...other realms
   }
 }
@@ -308,27 +312,11 @@ Books and lore:
 
 ```typescript
 {
-  kind: 'library',
-  title: 'Ancient Archives',
-  categories: [
-    {
-      name: 'History',
-      condition: '1',
-      books: [
-        {
-          title: 'Rise of the Nine Mountains',
-          author: 'Elder Shou',
-          condition?: 'historyInterest == 1',
-          contents: 'Long ago, when the heavens...'
-        }
-      ]
-    },
-    {
-      name: 'Cultivation Theory',
-      condition: 'realm >= meridianOpening',
-      books: [...]
-    }
-  ]
+  kind: 'library', title: 'Ancient Archives',
+  categories: [{
+    name: 'History', condition: '1',
+    books: [{ title: 'Rise of the Nine Mountains', author: 'Elder Shou', condition: 'historyInterest == 1', contents: 'Long ago, when the heavens...' }],
+  }],
 }
 ```
 
@@ -346,7 +334,7 @@ Player housing:
     screenEffect: 'dust',
     qiDensity: 1000,
     fixedRooms: [],
-    freeRooms: 3,
+    freeRooms: '3',
     transportSeal: liangTiaoSeal
   },
   unlockCondition: 'houseRepaired == 1',
@@ -360,21 +348,12 @@ A trader who sells whispered secrets about hidden locations. Each rumour has a c
 
 ```typescript
 {
-  kind: 'rumours',
-  traderName: 'Old Huo the Altar-Mapper',
-  rumours: [
-    {
-      key: 'myRumour_key',
-      title: 'The Secret Chamber',
-      cost: 2000,
-      costRealm: 'coreFormation',
-      hint: 'Deep beneath the ancient ruins lies a hidden chamber...',
-      // Optional: only show this rumour when the condition is true
-      condition?: 'secretFound == 0',
-      // Optional: marks the rumour as 'Found' once the player has discovered the secret
-      foundCondition?: 'altar_MySecretChamber == 1'
-    }
-  ]
+  kind: 'rumours', traderName: 'Old Huo the Altar-Mapper',
+  rumours: [{
+    key: 'myRumour_key', title: 'The Secret Chamber', cost: 2000, costRealm: 'coreFormation',
+    hint: 'Deep beneath the ancient ruins lies a hidden chamber...',
+    condition: 'secretFound == 0', foundCondition: 'altar_MySecretChamber == 1',
+  }],
 }
 ```
 
@@ -392,60 +371,46 @@ Core compression service. Grants a temporary buff on use and a permanent breakth
 {
   kind: 'altar',
   buff: {
-    name: 'Meditative Surge',
-    description: 'Your core has been compressed...',
-    canStack: true,
-    stats: {
-      power: {
-        value: 0.2,
-        stat: 'power',
-        scaling: 'stacks',
-      },
-    },
-    // ...other buff properties
+    name: 'Meditative Surge', icon: 'assets/meditative-surge.png',
+    tooltip: 'Your core has been compressed.', canStack: true, stacks: 1,
+    stats: { power: { value: 0.2, stat: 'power', scaling: 'stacks' } },
   },
-  // Optional: permanent stat rewards granted once per altar on first compression.
-  // These rewards persist through Core Formation breakthrough.
-  breakthroughReward?: {
-    // Combat stat increments, flat values or percentage of a stat.
-    // Example: { value: 0.03, stat: 'power' } = plus 3 percent of current power.
-    combatStats?: Partial<{ [key in CombatStatistic]: Scaling }>;
-    // Crafting stat increments, for example poolCostPercentage reduces qi costs.
-    craftingStats?: Partial<{ [key in CraftingStatistic]: Scaling }>;
-  };
+  breakthroughReward: {
+    combatStats: { power: { value: 0.03, stat: 'power' } },
+    craftingStats: { poolCostPercentage: { value: -3, stat: undefined } },
+  },
 }
 ```
 
 breakthroughReward is optional. If omitted, compressing at the altar grants no permanent bonus. Each unique altar (identified by location name or house name) can grant its breakthroughReward once per playthrough. The same altar visited again provides only the temporary buff.
 
-Available CombatStatistic keys include power, protection, critchance, critmult, speed, dr (damage resistance), accuracy, evasion, maxhp, barrierMitigation, barrierStrength, startingBarrier, weakness, armour, and block. Percentage scaling (for example plus 10 percent of current power) uses { value: 0.1, stat: 'power' }. Flat values use { value: 5, stat: undefined }.
+Available CombatStatistic keys include power, protection, critchance, critmultiplier, resistance, and dr.
 
-Available CraftingStatistic keys include control, critchance, critmult, successChanceBonus, poolCostPercentage, qualityBonus, and speed. poolCostPercentage with value 0.95 reduces qi pool costs to 95 percent of normal.
+Available CraftingStatistic keys include control, intensity, critchance, critmultiplier, successChanceBonus, and poolCostPercentage. A poolCostPercentage bonus of -3 reduces Qi Pool costs by 3 percentage points.
 
 ### Guild
 
 Guild headquarters:
 
 ```typescript
-{
-  kind: 'guild',
-  guild: 'Merchant Alliance',
-  position: 'topleft',
-  condition?: 'guildUnlocked == 1',
-  /** Token currency for this guild's shop. When set, the shop uses tokens instead
-   *  of spirit stones and every rankShop item must declare a tokenCost. */
-  token?: Item,
+interface GuildBuilding {
+  kind: "guild";
+  condition?: string;
+  guild: string;
+  position: CustomBuildingPosition;
+  disabled?: string;
+  offset?: { x: number; y: number; };
 }
 ```
 
 Items sold in a token-based guild rank shop declare a fixed token price:
 
 ```typescript
-{
-  kind: 'rankShop',
+const rankShopItem: ShopItem = {
+  name: myItem.name,
+  stacks: 1,
   tokenCost: 3, // Fixed price in the guild's token currency
-  // ...
-}
+};
 ```
 
 Important: When a guild declares token, every item in its rankShop must declare tokenCost. Items without it would be charged in spirit stones instead.
@@ -471,7 +436,7 @@ Fully customizable building with event steps:
       choices: [
         {
           text: 'Browse wares',
-          children: [...]
+          children: []
         },
         {
           text: 'Leave',
@@ -495,32 +460,27 @@ Position options for custom buildings:
 
 ### Mod Building
 
-A custom building that navigates to a registered mod screen. Use modBuilding alongside api.addScreen() to integrate fully custom UI into a location.
+A custom building that navigates to a registered mod screen. Use modBuilding alongside window.modAPI.actions.addScreen() to integrate fully custom UI into a location.
 
 ```typescript
 {
-  kind: 'modBuilding',
-  name: 'Mysterious Device',          // Internal name (used as icon seed)
-  displayName?: 'Mysterious Device',  // Optional display name (supports translation)
-  icon: myCustomIcon,                 // Building icon image
-  screen: 'myModScreen',              // Key of screen registered via api.addScreen()
-  position: 'middleleft',             // Position on the location screen
-  condition?: 'deviceUnlocked == 1',  // Optional: when to show the building
-  disabled?: 'deviceBusy == 1'        // Optional: when to disable the button
+  kind: 'modBuilding', name: 'Mysterious Device', displayName: 'Mysterious Device',
+  icon: myCustomIcon, screen: 'myModScreen', position: 'middleleft',
+  condition: 'deviceUnlocked == 1', disabled: 'deviceBusy == 1',
 }
 ```
 
-The screen field must match the key used when registering the screen with api.addScreen(). See Adding Screens for how to create and register mod screens.
+The screen field must match the key used when registering the screen with window.modAPI.actions.addScreen(). See Adding Screens for how to create and register mod screens.
 
 ```typescript
 // Register the screen
-api.addScreen({
+window.modAPI.actions.addScreen({
   key: 'myModScreen',
   component: MyModScreenComponent,
 });
 
 // Add the building to a location
-window.modAPI.actions.addBuildings('Liang Tiao Village', [
+window.modAPI.actions.addBuildingsToLocation('Liang Tiao Village', [
   {
     kind: 'modBuilding',
     name: 'Ancient Device',
@@ -558,6 +518,9 @@ Control when buildings appear:
 {
   kind: 'market',
   condition: 'marketBuilt == 1 && realm >= meridianOpening',
+  itemPool: emptyShopPool,
+  costMultiplier: 1,
+  refreshMonths: 1,
   // ...other properties
 }
 ```
@@ -577,7 +540,7 @@ Temporarily disable buildings:
 
 ```typescript
 export const myLocation: GameLocation = {
-  // ...basic properties
+  ...baseLocation, // A complete GameLocation defined by your mod
 
   buildings: [
     // Basic services
@@ -588,12 +551,30 @@ export const myLocation: GameLocation = {
     {
       kind: 'market',
       itemPool: {
+        meridianOpening: [],
+        mundane: [],
+        qiCondensation: [],
+        coreFormation: [],
+        pillarCreation: [],
+        lifeFlourishing: [],
+        worldShaping: [],
+        innerGenesis: [],
+        soulAscension: [],
         bodyForging: [
           { name: 'Healing Pill I', stacks: 5 },
           { name: 'Small Claw', stacks: 10 }
         ]
       },
       reputationPool: {
+        mundane: [],
+        meridianOpening: [],
+        qiCondensation: [],
+        coreFormation: [],
+        pillarCreation: [],
+        lifeFlourishing: [],
+        worldShaping: [],
+        innerGenesis: [],
+        soulAscension: [],
         bodyForging: [
           {
             name: 'Rare Manual',
@@ -633,7 +614,7 @@ export const myLocation: GameLocation = {
         {
           name: 'Local History',
           condition: '1',
-          books: [...]
+          books: []
         }
       ]
     },
@@ -652,6 +633,21 @@ export const myLocation: GameLocation = {
 ```
 
 ## Expedition Tiles
+
+For the small tile examples below, define shared base properties once:
+
+```typescript
+const baseTile: Omit<EntranceTile, 'kind'> = {
+  name: 'Frozen Reach Tile',
+  icon: 'assets/tile.png',
+  bg: 'assets/frozen-reach.png',
+  description: 'A chamber in the Frozen Reach.',
+  rarity: 'mundane',
+  intro: [],
+};
+```
+
+Give each registered tile a unique name when building your tile pool.
 
 Expeditions use a tile-based dungeon generation system. Each tile has a kind (entrance, exit, combat, treasure, etc.) and defines connections to neighbouring tiles.
 
@@ -678,10 +674,6 @@ window.modAPI.actions.addExpeditionTiles('Frozen Reach', [
     description: 'A cache pulsing with cold qi.',
     rarity: 'resplendent',
     intro: [{ kind: 'text', text: 'You uncover a cache of frozen treasures.' }],
-    expeditionTiles: [],
-    edges: { left: [], right: [], top: [], bottom: [] },
-    tileConnections: [],
-    edgeConnections: [],
   },
 ]);
 ```
@@ -698,98 +690,117 @@ interface BaseTile {
   description: Translatable; // Shown when the tile is revealed
   rarity: Rarity;            // 'mundane' | 'qitouched' | 'empowered' | 'resplendent' | 'incandescent' | 'transcendent'
   intro: EventStep[];        // Event steps shown when entering this tile
-  // Tile graph fields (required for generation)
-  expeditionTiles: ExpeditionTilePoint[];  // Named points inside this tile
-  edges: Record<ExpeditionDirection, ExpeditionTilePoint[]>;  // Connections per direction
-  tileConnections: { src: string; dst: string }[];           // Named point links
-  edgeConnections: { tile: string; edge: string; direction: ExpeditionDirection }[];
 }
 ```
 
 entrance - Starting tile. Exactly one per expedition.
 
 ```typescript
-{ kind: 'entrance', /* ...BaseTile */ }
+{ ...baseTile, kind: 'entrance' }
 ```
 
 exit - Goal tile. Reaching this tile completes the expedition.
 
 ```typescript
-{ kind: 'exit', /* ...BaseTile */ }
+{ ...baseTile, kind: 'exit' }
 ```
 
 extract - Grants extraction rewards (materials, items).
 
 ```typescript
-{ kind: 'extract', extractCount: 3, /* ...BaseTile */ }
+{ ...baseTile, kind: 'extract', extractCount: 3 }
 ```
 
 combat - Triggers a combat encounter.
 
 ```typescript
-{
-  kind: 'combat',
-  modifier?: number,       // Difficulty multiplier (default 1)
-  enemyCount?: number,    // Number of enemies spawned
-  items?: { item: ItemDesc; count: number }[],  // Guaranteed drops
-  /* ...BaseTile */
+interface CombatTile {
+  kind: "combat";
+  modifier?: number;
+  enemyCount?: number;
+  items?: { item: ItemDesc; count: number; }[];
+  name: string;
+  icon: string;
+  bg: string;
+  description: Translatable;
+  rarity: Rarity;
+  intro: EventStep[];
 }
 ```
 
 rest - Restores team health and removes debuffs.
 
 ```typescript
-{ kind: 'rest', baseRestore: 50, /* ...BaseTile */ }
+{ ...baseTile, kind: 'rest', baseRestore: 50 }
 ```
 
 treasure - Grants treasure room loot.
 
 ```typescript
-{ kind: 'treasure', /* ...BaseTile */ }
+{ ...baseTile, kind: 'treasure' }
 ```
 
 boss - Triggers a boss fight with scaled rewards.
 
 ```typescript
-{
-  kind: 'boss',
-  modifier?: number,            // Difficulty multiplier
-  items?: { item: ItemDesc; count: number }[],  // Guaranteed drops
-  /* ...BaseTile */
+interface BossTile {
+  kind: "boss";
+  modifier?: number;
+  items?: { item: ItemDesc; count: number; }[];
+  name: string;
+  icon: string;
+  bg: string;
+  description: Translatable;
+  rarity: Rarity;
+  intro: EventStep[];
 }
 ```
 
 buff - Applies a positive buff to the team.
 
 ```typescript
-{ kind: 'buff', /* ...BaseTile */ }
+{ ...baseTile, kind: 'buff' }
 ```
 
 debuff - Applies a negative debuff to the team.
 
 ```typescript
-{ kind: 'debuff', /* ...BaseTile */ }
+{ ...baseTile, kind: 'debuff' }
 ```
 
 challenge - High-difficulty combat with extra rewards.
 
 ```typescript
-{
-  kind: 'challenge',
-  modifier?: number,
-  items?: { item: ItemDesc; count: number }[],
-  /* ...BaseTile */
+interface ChallengeTile {
+  kind: "challenge";
+  modifier?: number;
+  items?: { item: ItemDesc; count: number; }[];
+  name: string;
+  icon: string;
+  bg: string;
+  description: Translatable;
+  rarity: Rarity;
+  intro: EventStep[];
 }
 ```
 
 puzzle - A puzzle encounter, optionally with enemies.
 
 ```typescript
-{ kind: 'puzzle', enemies?: boolean, /* ...BaseTile */ }
+interface PuzzleTile {
+  kind: "puzzle";
+  enemies?: boolean;
+  name: string;
+  icon: string;
+  bg: string;
+  description: Translatable;
+  rarity: Rarity;
+  intro: EventStep[];
+}
 ```
 
 boonBane - Random beneficial or harmful effect.
 
 ```typescript
-{ kind: 'boonBane', /* ...BaseTile */ }
+{ ...baseTile, kind: 'boonBane' }
 ```

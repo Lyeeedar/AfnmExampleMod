@@ -36,12 +36,12 @@ Enemies cycle through predefined stances, each containing a sequence of techniqu
 Deterministic stance selection:
 
 ```typescript
-{
-  kind: 'single',
-  stance: 'aggressive',      // Stance to activate
-  condition?: 'hp < 0.5 * maxhp', // Optional trigger
-  repeatable?: false,        // Can trigger multiple times?
-  alternatives?: [...]       // Fallback options
+interface SingleStance {
+  kind: "single";
+  condition?: string;
+  stance: string;
+  repeatable?: boolean;
+  alternatives?: StanceRule[];
 }
 ```
 
@@ -50,13 +50,12 @@ Deterministic stance selection:
 Non-deterministic selection from pool:
 
 ```typescript
-{
+const randomRotation: StanceRule = {
   kind: 'random',
   stances: ['attack_a', 'attack_b', 'attack_c'],
-  condition?: 'hp < 0.8 * maxhp',   // When to use this pool
-  repeatable?: true,
-  alternatives?: [...]
-}
+  condition: 'hp < 0.8 * maxhp',   // When to use this pool
+  repeatable: true,
+};
 ```
 
 ### Rotation Overrides

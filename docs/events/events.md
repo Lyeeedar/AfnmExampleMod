@@ -63,7 +63,9 @@ const myEvent: GameEvent = {
     { kind: 'text', text: 'Dust motes dance in the filtered sunlight...' },    // Step 1
     { kind: 'text', text: 'You approach the ancient tome...' },               // Step 2
     { kind: 'speech', character: 'Librarian', text: 'Careful with that!' },   // Step 3
-    { kind: 'choice', choices: [...] }                                        // Step 4
+    { kind: 'choice', choices: [{ text: 'Put the book down', children: [
+      { kind: 'text', text: 'You return the book to its shelf.' }
+    ] }] }                                                                // Step 4
   ]
 };
 ```
@@ -189,7 +191,7 @@ const mysteriousTome: GameEvent = {
       choices: [
         {
           text: 'Open the tome carefully',
-          condition: 'control >= 50',
+          showCondition: 'control >= 50',
           children: [
             { kind: 'text', text: 'Your careful approach pays off...' },
             { kind: 'addItem', item: { name: 'Ancient Wisdom Scroll' }, amount: '1' },
@@ -303,7 +305,7 @@ const storyProgression: GameEvent = {
               kind: 'text',
               text: 'Wanted posters with your face are posted along the path.',
             },
-            { kind: 'flag', flag: 'reputation', value: 'reputation - 10' },
+            { kind: 'flag', flag: 'reputation', value: 'reputation - 10', global: true },
           ],
         },
       ],

@@ -14,10 +14,7 @@ Techniques are active combat abilities that players use to deal damage, apply bu
 
 ```typescript
 import {
-  Technique,
   TechniqueEffect,
-  TechniqueCost,
-  TechniqueRequirement,
   RealTechniqueElement,
 } from 'afnm-types';
 
@@ -30,12 +27,12 @@ interface Technique {
   tooltip?: string; // Custom description (auto-generated if omitted)
 
   // Resource costs (consumed when used)
-  costs?: TechniqueCost[]; // Buff stacks to consume
+  costs?: { buff: Buff; amount: number; upgradeKey?: string }[]; // Buff stacks to consume
   toxicityCost?: number; // Toxicity granted when used
   dropletCost?: number; // Special resource cost
 
   // Requirements (must be met but not consumed)
-  requirements?: TechniqueRequirement[]; // Conditions for usage
+  requirements?: { buff: Buff; amount: number; mode?: 'more' | 'less' | 'equal'; upgradeKey?: string }[]; // Conditions for usage
 
   // Usage restrictions
   maxInstances?: number; // Uses per stance (default: 3)
@@ -310,7 +307,17 @@ export const restoringFragrance: Technique = {
     {
       kind: 'buffSelf',
       buff: {
-        // Buff implementation...
+        name: 'Restoring Fragrance',
+        icon,
+        canStack: true,
+        stats: undefined,
+        stacks: 1,
+        afterTechniqueEffects: [{
+          kind: 'heal', amount: { value: 0.25, stat: 'power' }
+        }],
+        onRoundEffects: [{
+          kind: 'add', amount: { value: -1, stat: undefined }
+        }],
       },
       amount: { value: 1, stat: undefined, upgradeKey: 'stacks' },
     },
@@ -332,6 +339,11 @@ import { Technique, Buff } from 'afnm-types';
 import icon from '../assets/techniques/profane-exchange.png';
 
 const profaneExchangeBuff: Buff = {
+  name: 'Profane Exchange',
+  icon: 'assets/example.png',
+  canStack: false,
+  stats: {},
+  stacks: 1,
   // Buff implementation...
 }
 
@@ -439,22 +451,10 @@ interface StoredStance {
 Each `StoredStance` can declare a `stanceRule` to control when it fires:
 
 ```typescript
-// Fires as the first technique of the combat
-{ kind: 'opener', position: 0 }
-
-// Fires in rotation at a fixed position
-{ kind: 'rotation', position: 2 }
-
-// Fires only when a condition is true; keeps firing while the condition remains true
-{
-  kind: 'conditional',
-  position: 1,
-  condition: TechniqueCondition,
-  maxCount?: number, // Maximum times this stance fires across the whole combat
+interface OpenerStoredRule {
+  kind: "opener";
+  position: number;
 }
-
-// Fires in rotation at a fixed position, but only while a condition is true
-{ kind: 'conditionalRotation', position: 2, condition: TechniqueCondition }
 ```
 
 ### Condition Keys

@@ -40,6 +40,12 @@ To use this step, the target character must define `relationshipPaths` alongside
 
 ```typescript
 const myCompanion: Character = {
+  allegiance: undefined,
+  condition: '1',
+  gender: 'neutral',
+  definitions: [],
+  portrait: 'assets/portrait.png',
+  image: 'assets/example.png',
   name: 'Mei Xing',
   // ...
   relationshipPaths: {

@@ -53,7 +53,9 @@ const steps: EventStep[] = [
   { kind: 'text', text: 'You approach the ancient door...' },      // Step 1
   { kind: 'text', text: 'Mystical runes glow as you near...' },    // Step 2
   { kind: 'speech', character: 'Guardian', text: `"State your purpose!"` }, // Step 3
-  { kind: 'choice', choices: [...] }                               // Step 4
+  { kind: 'choice', choices: [{ text: 'Request entry', children: [
+    { kind: 'text', text: 'The guardian opens the door.' }
+  ] }] }                                                      // Step 4
 ];
 ```
 
@@ -130,7 +132,7 @@ Choice steps create **branches** - different execution paths through the event:
     },
     {
       text: 'Stand proudly and assert your strength',
-      condition: 'muscles >= 15',  // Only available if strong enough
+      condition: { kind: 'physicalStatistic', stat: 'muscles', amount: 15 },
       children: [
         { kind: 'text', text: 'Your power commands immediate attention.' },
         { kind: 'flag', flag: 'dominance', value: 'dominance + 1', global: true }
@@ -201,21 +203,21 @@ Use step sequences that adapt to player state:
     {
       condition: 'fist >= weapon && fist >= blossom',
       children: [
-        { kind: 'addItem', item: 'Fist Technique Manual', amount: 1 },
+        { kind: 'addItem', item: { name: 'Fist Technique Manual' }, amount: '1' },
         { kind: 'text', text: 'The manual resonates with your fist cultivation.' }
       ]
     },
     {
       condition: 'weapon >= blossom',
       children: [
-        { kind: 'addItem', item: 'Weapon Crafting Guide', amount: 1 },
+        { kind: 'addItem', item: { name: 'Weapon Crafting Guide' }, amount: '1' },
         { kind: 'text', text: 'The guide enhances your weapon mastery.' }
       ]
     },
     {
       condition: '1',  // Default to blossom
       children: [
-        { kind: 'addItem', item: 'Nature Harmony Scroll', amount: 1 },
+        { kind: 'addItem', item: { name: 'Nature Harmony Scroll' }, amount: '1' },
         { kind: 'text', text: 'The scroll deepens your connection to nature.' }
       ]
     }

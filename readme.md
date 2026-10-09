@@ -30,3 +30,9 @@ For comprehensive guides on modding AFNM, visit our **[complete documentation si
 4. **Start coding** in `src/modContent/index.ts`
 5. **Build your mod**: `npm run build`
 6. **Test** by placing the zip in the game's `mods/` folder
+
+## Documentation checks
+
+Run `npm test` before changing the guides or upgrading `afnm-types`. It scans every TypeScript fence under `docs/`, checks complete object examples and documented interface fields against the installed types, verifies ModAPI paths, and compiles the assembled Tea House tutorial. Regression checks ensure missing character gender, invalid nested scaling, and removed API actions are rejected. `npm run validate-docs` runs the documentation checks without the regression fixtures; `npm run typecheck` checks the template source.
+
+Field-only snippets and API signature listings are illustrative fragments. References to mod-specific assets and content are treated as external inputs; use an in-game test to verify those resources and runtime behavior.

@@ -29,6 +29,8 @@ We're designing Master Chen as a **neutral character** because:
 
 **Educational role** - His dialogue will teach players about your mod's tea system and benefits
 
+`Character.gender` is required. It controls grammatical gender and relationship filtering. Master Chen uses `'male'`; his definition's `kind: 'neutral'` controls his NPC role independently. Use `'neutral'` explicitly for a character with neutral grammatical gender.
+
 ## Creating Master Chen
 
 📁 **File to create:** `src/modContent/characters/teaMasters.ts`
@@ -45,6 +47,7 @@ import {
 } from '../items/teaItems';
 
 export const masterChen: Character = {
+  gender: 'male',
   name: 'Master Chen',
   displayName: 'Master Chen',
   allegiance: undefined, // Neutral - available to all players

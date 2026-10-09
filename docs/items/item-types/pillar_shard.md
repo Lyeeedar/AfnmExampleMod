@@ -15,7 +15,7 @@ Crystalline fragments for soul pillar construction in Pillar Creation realm.
 ```typescript
 export interface PillarShardItem extends ItemBase {
   kind: 'pillar_shard';
-  tooltip: Translatable;        // Functional description
+  tooltip?: Translatable;        // Functional description
   maxInstances?: number;        // Maximum allowed in pillar
   stability?: number;           // Modifies pillar stability when placed (negative = unstable)
 
@@ -67,6 +67,11 @@ Portal shards route qither between non-adjacent positions on the pillar. Each en
 ```typescript
 // Portal entrance — absorbs from bottom, routes to matching exits
 export const portalEntrance: PillarShardItem = {
+  description: 'Routes incoming qither to a matching portal exit.',
+  icon: 'assets/example.png',
+  stacks: 1,
+  rarity: 'mundane',
+  realm: 'meridianOpening',
   kind: 'pillar_shard',
   portal: { type: 'entrance' },
   tooltip: 'Absorbs qither from below and sends it to matching Portal Exit shards.',
@@ -81,6 +86,11 @@ export const portalEntrance: PillarShardItem = {
 
 // Portal exit — emits the received qither upwards
 export const portalExit: PillarShardItem = {
+  description: 'Receives qither from a matching portal entrance.',
+  icon: 'assets/example.png',
+  stacks: 1,
+  rarity: 'mundane',
+  realm: 'meridianOpening',
   kind: 'pillar_shard',
   portal: { type: 'exit' },
   tooltip: 'Emits qither received from matching Portal Entrance shards.',

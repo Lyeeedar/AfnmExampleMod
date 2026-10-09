@@ -82,8 +82,7 @@ const talkInteraction: TalkCharacterInteraction = {
               text: 'Excellent! Here is your reward.'
             },
             {
-              kind: 'item',
-              item: { name: 'Spirit Stone' },
+              kind: 'addItem', item: { name: 'Spirit Stone' },
               amount: '100'
             }
           ]
@@ -126,6 +125,13 @@ interface ShopCharacterInteraction extends BaseCharacterInteraction {
 const shopInteraction: ShopCharacterInteraction = {
   condition: '1',
   stock: {
+    mundane: [],
+    coreFormation: [],
+    pillarCreation: [],
+    lifeFlourishing: [],
+    worldShaping: [],
+    innerGenesis: [],
+    soulAscension: [],
     bodyForging: [
       healingPillI,
       spiritStoneI,
@@ -516,8 +522,7 @@ const patrolInteraction: PatrolCharacterInteraction = {
       text: 'Excellent work! The sect will hear of our success.'
     },
     {
-      kind: 'item',
-      item: { name: 'Sect Contribution Token' },
+      kind: 'addItem', item: { name: 'Sect Contribution Token' },
       amount: '5'
     }
   ],
@@ -641,6 +646,8 @@ const aidBreakthroughInteraction: AidBreakthroughCharacterInteraction = {
 Fully customizable interaction blocks for unique mechanics.
 
 ```typescript
+import type { SvgIconComponent } from '@mui/icons-material';
+
 interface CustomCharacterInteractionBlock {
   condition: string;         // When block appears
   name: string;             // UI label

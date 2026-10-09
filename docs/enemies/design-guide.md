@@ -43,6 +43,7 @@ const strengthened: Buff = {
 
 ```typescript
 const soulmass: Buff = {
+  stats: {},
   name: 'Soulmass',
   icon: soulmassIcon,
   canStack: true,
@@ -96,6 +97,8 @@ const pressureAdaptation: Buff = {
 
 ```typescript
 const drainingTouch: Technique = {
+  icon: 'assets/example.png',
+  type: 'fist',
   name: 'Draining Touch',
   effects: [
     {
@@ -126,6 +129,8 @@ const drainingTouch: Technique = {
 
 ```typescript
 const rendingClaws: Technique = {
+  icon: 'assets/example.png',
+  type: 'fist',
   name: 'Rending Claws',
   effects: [
     {
@@ -154,6 +159,8 @@ const rendingClaws: Technique = {
 
 ```typescript
 const voidSoulmass: Technique = {
+  icon: 'assets/example.png',
+  type: 'fist',
   name: 'Void Soulmass',
   effects: [
     {
@@ -327,9 +334,12 @@ Simple equipment for non-tournament enemies:
 ```typescript
 // Technique that weakens enemy and strengthens self
 const drainingTouch: Technique = {
+  name: 'Draining Touch',
+  icon: 'assets/example.png',
+  type: 'fist',
   effects: [
-    { kind: 'buffTarget', buff: drainedDebuff },    // -2% power per stack
-    { kind: 'buffSelf', buff: strengthenedBuff },   // +7.5% power per stack
+    { kind: 'buffTarget', buff: drainedDebuff, amount: { value: 1, stat: undefined } },    // -2% power per stack
+    { kind: 'buffSelf', buff: strengthenedBuff, amount: { value: 1, stat: undefined } },   // +7.5% power per stack
     { kind: 'damage', amount: { value: 0.4, stat: 'power' } }
   ]
 };
@@ -354,6 +364,9 @@ stances: [
 ```typescript
 // Creates stacking minions that add damage
 const tentacle: Buff = {
+  icon: 'assets/example.png',
+  stats: {},
+  stacks: 1,
   name: 'Tentacle',
   canStack: true,
   beforeTechniqueEffects: [
@@ -415,6 +428,11 @@ stanceRotation: [
 ```typescript
 // Builds up consumable resource (soulmass) then spends it
 const soulmass: Buff = {
+  name: 'Soulmass',
+  icon: soulmassIcon,
+  canStack: true,
+  stats: {},
+  stacks: 1,
   beforeTechniqueEffects: [
     { kind: 'damage', amount: { value: 0.75, stat: 'power' } },
     { kind: 'add', amount: { value: -1, stat: undefined } }  // Self-consuming
@@ -470,6 +488,13 @@ export const basicBeast: EnemyEntity = {
 
 ```typescript
 export const stackingEnemy: EnemyEntity = {
+  image: 'assets/example.png',
+  imageScale: 1,
+  realm: 'meridianOpening',
+  realmProgress: 'Early',
+  difficulty: 'medium',
+  battleLength: 'medium',
+  drops: [],
   name: 'Stacking Enemy',
   // ... basic properties
 
@@ -501,6 +526,13 @@ export const stackingEnemy: EnemyEntity = {
 
 ```typescript
 export const tournamentFighter: EnemyEntity = {
+  image: 'assets/example.png',
+  imageScale: 1,
+  realm: 'meridianOpening',
+  realmProgress: 'Early',
+  difficulty: 'medium',
+  battleLength: 'medium',
+  drops: [],
   name: 'Cultivator Name',
   // ... basic properties
   isCharacter: true,

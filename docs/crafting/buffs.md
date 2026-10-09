@@ -93,7 +93,7 @@ interface CraftingBuff {
 The `tooltip` and `statsTooltip` fields accept a `Translatable` value, either a plain string or a `TranslatableString` created with `tr()`. Use `tr()` for deferred translation so the text is resolved at render time rather than module load time:
 
 ```typescript
-import { tr } from 'afnm-types';
+const tr = window.modAPI.utils.tr;
 
 // Plain string (translated as-is)
 tooltip: 'Grants bonus stability on each fusion.',
@@ -142,6 +142,13 @@ Lifts the perfection and completion caps by additional threshold steps. Each ste
 ```typescript
 // A flame that raises the cap by 1 step at base tier and 2 steps at upgraded tier
 const myFlame: FlameItem = {
+  stats: {},
+  name: 'Limit-Breaking Flame',
+  description: 'Raises the completion and perfection caps.',
+  icon: 'assets/example.png',
+  stacks: 1,
+  rarity: 'mundane',
+  realm: 'meridianOpening',
   kind: 'flame',
   buffs: [{
     buff: {
@@ -352,11 +359,12 @@ Modifies toxicity levels:
 Adds or removes stacks from every buff sharing a `buffType` or name, letting a single effect act on a family of buffs without listing each one individually:
 
 ```typescript
-{
-  kind: 'modifyBuffGroup',
-  group: 'buffTypeName', // or a specific buff name
-  amount: { value: 1, stat: undefined },
-  mode?: 'all' | 'highest' | 'lowest' | 'random'
+interface ModifyBuffGroupEffect {
+  kind: "modifyBuffGroup";
+  group: string;
+  amount: Scaling;
+  mode?: "random" | "all" | "highest" | "lowest";
+  condition?: CraftingTechniqueCondition;
 }
 ```
 
@@ -588,6 +596,7 @@ Some buffs work better together:
 ```typescript
 // Focus buff enhances other techniques
 export const focus: CraftingBuff = {
+  displayLocation: 'none',
   name: 'Focus',
   icon: focusIcon,
   canStack: true,

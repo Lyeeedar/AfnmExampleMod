@@ -121,6 +121,8 @@ const myThreshold: CraftCustomThreshold = {
 ```typescript
 {
   kind: 'crafting',
+  basicCraftSkill: 1, perfectCraftSkill: 2,
+  basic: [], perfect: [], failed: [],
   recipe: vaultSlipRecipe,
   customThreshold: {
     name: tr('Vault Quality'),

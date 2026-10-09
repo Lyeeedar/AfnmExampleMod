@@ -524,7 +524,7 @@ triggeredBuffEffects: [
     trigger: 'spend.Qi Vial',
     effects: [
       {
-        kind: 'buff',
+        kind: 'buffSelf',
         buff: strengthBuff,
         amount: { value: 1, stat: undefined }
       }

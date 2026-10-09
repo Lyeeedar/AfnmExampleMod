@@ -20,7 +20,7 @@ interface CombatStep {
   kind: 'combat';
   condition?: string;
   enemies: EnemyEntity[];
-  enemyBuilders?: EnemyBuilderData[];
+  enemyBuilders?: RandomPhaseEnemyBuilder[];
   playerBuffs?: Buff[];
   numEnemies?: number;
   isSpar?: boolean;

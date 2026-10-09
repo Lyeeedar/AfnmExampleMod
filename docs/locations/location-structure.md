@@ -131,7 +131,7 @@ Random events that can trigger when visiting:
 ```typescript
 events: [
   {
-    event: [...],           // Event steps
+    event: [],           // Event steps
     rarity: 'mundane',      // Spawn frequency
     triggerChance: 0.1,     // Override rarity (optional)
     noCooldown: true,       // Skip the between-event cooldown (optional)
@@ -159,7 +159,7 @@ Special events that trigger during exploration:
 ```typescript
 explorationEvent: [
   {
-    event: [...],
+    event: [],
     rarity: 'mundane',
     condition: 'exploreWarning == 0'
   }
@@ -177,7 +177,7 @@ mapEvents: [
     image: beastIcon,
     persist: 2,              // Days visible
     cooldown: { min: 5, max: 16 }, // Days between spawns
-    event: [...]
+    event: []
   }
 ]
 ```
@@ -274,7 +274,7 @@ export const liangTiaoVillage: GameLocation = {
     { kind: 'crafting' },
     {
       kind: 'market',
-      itemPool: { ... },
+      itemPool: emptyShopPool,
       costMultiplier: 1.7,
       refreshMonths: 3
     }

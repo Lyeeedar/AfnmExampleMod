@@ -19,7 +19,7 @@ interface Quest {
   name: string; // Internal identifier used in code references
   displayName?: Translatable; // Optional player-facing name (falls back to name)
   description: Translatable; // Quest summary in quest log
-  category: QuestCategory; // Determines where quest appears
+  category: 'main' | 'side' | 'missionHall' | 'craftingMission' | 'requestBoard' | 'guild'; // Determines where quest appears
   guild?: string; // Required for guild category quests
   steps: QuestStep[]; // Sequential objectives
   rewards: QuestReward[]; // Benefits upon completion
@@ -188,11 +188,11 @@ Grant sect favour points:
 Modify standing with specific factions:
 
 ```typescript
-{
-  kind: 'reputation',
-  amount: 25, // Reputation change
-  name: 'NineMountainSect', // Faction identifier
-  max?: 100 // Optional maximum reputation
+interface ReputationQuestReward {
+  kind: "reputation";
+  amount: number;
+  name: string;
+  max?: number;
 }
 ```
 

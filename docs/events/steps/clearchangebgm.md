@@ -46,6 +46,6 @@ interface ClearChangeBGMStep {
 
 ```typescript
 {
-  kind: 'clearChangeBGM';
+  kind: 'clearChangeBGM',
 }
 ```

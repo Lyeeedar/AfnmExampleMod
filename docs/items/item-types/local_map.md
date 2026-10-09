@@ -53,11 +53,7 @@ export interface LocalMapModifier {
 
 ## Built-in Modifiers
 
-The game ships five modifiers in `src/util/localMapModifiers.ts` that you can import in your mod:
-
-```typescript
-import { bulwarkModifier, frenziedModifier, ancientModifier, twistedModifier, realmbreakerModifier } from 'afnm/util/localMapModifiers';
-```
+The game ships five modifiers, described below. They are internal game data and are not exported by `afnm-types`; define a `LocalMapModifier` in your mod to create a similar challenge.
 
 - **bulwarkModifier** — Fortified beasts with high defense, barrier generation, and school resistances. Good for defensive challenge maps.
 - **frenziedModifier** — Aggressive beasts with high power and offensive buffs. Good for high-risk, high-reward maps.
@@ -82,7 +78,7 @@ Once registered, distribute it through shops, auctions, or event steps as you wo
 ### Standard scout map (no modifier)
 
 ```typescript
-import { LocalMapItem } from 'afnm/types';
+import { LocalMapItem } from 'afnm-types';
 import mapIcon from './assets/my-map.png';
 
 export const thornwoodScoutMap: LocalMapItem = {
@@ -100,7 +96,7 @@ export const thornwoodScoutMap: LocalMapItem = {
 ### Modified map using a custom modifier
 
 ```typescript
-import { LocalMapItem, LocalMapModifier } from 'afnm/types';
+import { LocalMapItem, LocalMapModifier } from 'afnm-types';
 import { myCustomBuff } from './buffs';
 import mapIcon from './assets/cursed-map.png';
 
@@ -127,10 +123,15 @@ export const cursedGroveMap: LocalMapItem = {
 };
 ```
 
-### Using a built-in modifier
+### Creating a defensive modifier
 
 ```typescript
-import { bulwarkModifier } from 'afnm/util/localMapModifiers';
+import type { LocalMapItem, LocalMapModifier } from 'afnm-types';
+
+const bulwarkModifier: LocalMapModifier = {
+  name: 'Mod Bulwark', yieldMult: 1.5, hpBonus: 2, powerBonus: 0,
+  buffPool: [], minBuffs: 0, maxBuffs: 0,
+};
 import mapIcon from './assets/bulwark-map.png';
 
 export const fortressMap: LocalMapItem = {

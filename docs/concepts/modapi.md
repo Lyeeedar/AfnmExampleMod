@@ -15,21 +15,12 @@ The ModAPI provides access to game data, content registration functions, and uti
 The ModAPI is available globally as `window.modAPI` with five main sections:
 
 ```typescript
-interface ModAPI {
-  gameData: {
-    /* Access to all game content */
-  };
-  actions: {
-    /* Functions to add new content */
-  };
-  utils: {
-    /* Helper functions for mod development */
-  };
-  hooks: {
-    /* Interceptors for game behavior */
-  };
-  components: ModReduxAPI['components'];
-}
+const api = window.modAPI;
+api.gameData;   // Existing game content
+api.actions;    // Content registration
+api.utils;      // Modding helpers
+api.hooks;      // Gameplay interceptors
+api.components; // Game UI components
 ```
 
 The `components` field exposes the same pre-styled React components available through `api.components` inside mod screens (GameDialog, GameButton, GameIconButton, BackgroundImage, PlayerComponent, ItemComponent, GameTooltip, GameTooltipBox, TooltipLine, every tooltip variant under `tooltips`, and every recipe component under `recipes`). Unlike `api.components`, which is only available inside a mod screen's render function, `window.modAPI.components` is accessible from **any** mod code, including helper functions, exported mod scripts, and options UI. The shape is identical: `window.modAPI.components.GameButton` works the same as `api.components.GameButton` inside a screen.
@@ -98,6 +89,8 @@ Access existing game content through `window.modAPI.gameData`:
   - `newGameTutorials: Tutorial[]` - Base game tutorials played during a new game
   - `tutorialTriggers: TriggeredEvent[]` - Triggered events forming the opening sequence
 
+Code using `api.actions.startEvent`, `startCombat`, `setModData`, or `removeModData` runs inside a screen, options component, or UI callback supplied with a `ModReduxAPI`. These runtime actions are separate from content registration on `window.modAPI.actions`. Call `api.useGameSettings()` inside a React component to read player preferences.
+
 ## Content Registration
 
 Add new content through `window.modAPI.actions`:
@@ -122,7 +115,7 @@ window.modAPI.actions.addToSectShop(item, stacks, realm, valueModifier?, reputat
 window.modAPI.actions.addToSectShop(myItem, 3, 'qiCondensation');
 
 // With price multiplier and reputation gate
-window.modAPI.actions.addToSectShop(myRareItem, 1, 'coreFormation', 2.0, 'Honored');
+window.modAPI.actions.addToSectShop(myRareItem, 1, 'coreFormation', 2.0, 'honoured');
 ```
 
 ### Characters and Backgrounds
@@ -155,8 +148,8 @@ window.modAPI.actions.registerRootLocation(locationName: string, condition: stri
 window.modAPI.actions.addQuest(quest: Quest)
 window.modAPI.actions.addCalendarEvent(event: CalendarEvent)
 window.modAPI.actions.addTriggeredEvent(event: TriggeredEvent)
-window.modAPI.actions.startEvent(event: GameEvent): boolean
-window.modAPI.actions.startCombat(enemies: EnemyEntity[], playerBuffs: Buff[], locationBackgroundOverride?: { backgroundImage: string, screenEffect: ScreenEffectType }): void
+api.actions.startEvent(event: GameEvent): boolean
+api.actions.startCombat(enemies: EnemyEntity[], playerBuffs: Buff[], locationBackgroundOverride?: { backgroundImage: string, screenEffect: ScreenEffectType }): void
 ```
 
 #### `registerRootLocation`
@@ -178,7 +171,7 @@ Start a game event programmatically at runtime. Returns `true` if the event star
 **Important:** If an event is already in progress, `startEvent` silently returns `false` - it will not interrupt or overwrite the running event. Use the return value to guard side-effects (such as quest consumption or item removal) that should only happen when the event actually begins.
 
 ```typescript
-window.modAPI.actions.startEvent({
+api.actions.startEvent({
   location: 'Liang Tiao Village',
   steps: [{ kind: 'text', text: 'A stranger approaches you.' }],
 });
@@ -186,7 +179,7 @@ window.modAPI.actions.startEvent({
 
 ```typescript
 // Always check the return value when your mod's logic depends on the event firing
-const started = window.modAPI.actions.startEvent(myEvent);
+const started = api.actions.startEvent(myEvent);
 if (started) {
   // Quest consumed here - safe, because the event actually started
   dispatch(removeQuest('myQuest'));
@@ -201,10 +194,10 @@ Initiate a combat encounter programmatically:
 
 ```typescript
 // Basic combat
-window.modAPI.actions.startCombat([ratascar], []);
+api.actions.startCombat([ratascar], []);
 
 // Combat with player buffs and custom background
-window.modAPI.actions.startCombat(
+api.actions.startCombat(
   [bossEnemy],
   [strengthBuff],
   { backgroundImage: 'boss_arena.png', screenEffect: 'mist' },
@@ -263,13 +256,9 @@ window.modAPI.actions.addQuestToRequestBoard(
 Register a full-page screen that players can navigate to:
 
 ```typescript
-window.modAPI.actions.addScreen({
-  key: string;          // Screen identifier for navigation
-  component: ModScreenFC; // Your React functional component
-  music?: string;        // Optional music track name
-  ambience?: string;    // Optional ambient sound
-  priority?: number;    // Optional priority for screen resolution
-})
+type ScreenRegistration = Parameters<ModAPI['actions']['addScreen']>[0];
+// Supply a unique key and your ModScreenFC component.
+window.modAPI.actions.addScreen({ key: 'myScreen', component: MyScreen });
 ```
 
 - **`key`** - Use `setScreen('yourKey')` to navigate to this screen from other screens or button click handlers.
@@ -286,7 +275,7 @@ const MyScreen: ModScreenFC = ({ screenAPI }) => {
 
   return (
     <Box position="relative" flexGrow={1} display="flex" flexDirection="column">
-      <BackgroundImage image="town.png" />
+      <BackgroundImage image="town.png" screenEffect="mist" />
       <GameDialog id="my-screen" title="My Screen" onClose={() => actions.setScreen('location')}>
         <Typography>Hello, {player.forename}!</Typography>
         <GameButton onClick={() => actions.changeMoney(100)}>Get Stones</GameButton>
@@ -352,7 +341,7 @@ window.modAPI.actions.addGuild(guild: Guild)
 window.modAPI.actions.addDualCultivationTechnique(technique: IntimateTechnique)
 window.modAPI.actions.addEnchantment(enchantment: Enchantment)
 window.modAPI.actions.addFallenStar(fallenStar: FallenStar)
-window.modAPI.actions.addRoom(room: Room)
+window.modAPI.gameData.rooms.push(room)
 window.modAPI.actions.addMysticalRegionBlessing(blessing: Blessing)
 window.modAPI.actions.addExpeditionTiles(expeditionName: string, tiles: ExpeditionTiles[])
 window.modAPI.actions.addMysticalRegionDefinition(definition: MysticalRegionDefinition)
@@ -433,7 +422,6 @@ window.modAPI.actions.addRecipeToResearch(baseItem: Item, recipe: RecipeItem)
 window.modAPI.actions.addResearchableRecipe(baseItem: string, recipe: RecipeItem)
 window.modAPI.actions.addUncutStone(realm: Realm, uncutStone: Item)
 window.modAPI.actions.addHarmonyType(harmonyType: RecipeHarmonyType, config: HarmonyTypeConfig)
-window.modAPI.actions.overrideItemTypeToHarmonyType(mapping: Partial<Record<ItemKind, RecipeHarmonyType>>)
 ```
 
 ### Global Flags
@@ -461,21 +449,21 @@ const highScore = flags['myMod_highScore'] ?? 0;
 Mod-specific data that persists with the save file:
 
 ```typescript
-window.modAPI.actions.setModData(modName: string, key: string, data: unknown)
-window.modAPI.actions.removeModData(modName: string, key: string)
+api.actions.setModData(modName: string, key: string, data: unknown)
+api.actions.removeModData(modName: string, key: string)
 ```
 
 Save-paired data lives in the Redux store alongside the save file. Unlike global flags, save-paired data is tied to a specific save and is not shared across saves.
 
 ```typescript
 // Store custom per-save data
-window.modAPI.actions.setModData('myMod', 'customNPC_affinity', { npcId: 'elder_li', value: 75 });
+api.actions.setModData('myMod', 'customNPC_affinity', { npcId: 'elder_li', value: 75 });
 
 // Read it back via useSelector
 const npcAffinity = useSelector((state) => state.modData('myMod')?.customNPC_affinity);
 
 // Remove a key when no longer needed
-window.modAPI.actions.removeModData('myMod', 'customNPC_affinity');
+api.actions.removeModData('myMod', 'customNPC_affinity');
 ```
 
 - **`setModData`** - Store any JSON-serializable data namespaced under your mod name. Persists with the save file. Use for quest state, NPC relationships, discovered secrets, or any other per-save data.
@@ -495,13 +483,13 @@ Global flags are numeric, so store booleans as `0` / `1` and normalize any legac
 
 ```typescript
 const MyModOptions: ModOptionsFC = ({ api }) => {
-  const flags = api.actions.getGlobalFlags();
+  const flags = window.modAPI.actions.getGlobalFlags();
   const enabled = (flags['myMod.enabled'] ?? 1) === 1;
   const GameButton = api.components.GameButton ?? 'button';
 
   return (
     <GameButton
-      onClick={() => api.actions.setGlobalFlag('myMod.enabled', enabled ? 0 : 1)}
+      onClick={() => window.modAPI.actions.setGlobalFlag('myMod.enabled', enabled ? 0 : 1)}
     >
       {enabled ? 'Disable Mod' : 'Enable Mod'}
     </GameButton>
@@ -521,13 +509,13 @@ const MyModOptions: ModOptionsFC = ({ api }) => {
   if (!ReactRuntime?.createElement) return null;
 
   const createElement = ReactRuntime.createElement.bind(ReactRuntime);
-  const flags = api.actions.getGlobalFlags();
+  const flags = window.modAPI.actions.getGlobalFlags();
   const enabled = (flags['myMod.enabled'] ?? 1) === 1;
   const GameButton = api.components.GameButton ?? 'button';
 
   return createElement(
     GameButton,
-    { onClick: () => api.actions.setGlobalFlag('myMod.enabled', enabled ? 0 : 1) },
+    { onClick: () => window.modAPI.actions.setGlobalFlag('myMod.enabled', enabled ? 0 : 1) },
     enabled ? 'Disable Mod' : 'Enable Mod',
   );
 };
@@ -550,7 +538,7 @@ Note: When adding audio files the compiler will not know they exist at first, so
 Access the player's current game settings at runtime via `useGameSettings`:
 
 ```typescript
-window.modAPI.utils.useGameSettings(): GameSettingsProps;
+api.useGameSettings(): GameSettingsProps;
 ```
 
 Returns the full `GameSettingsProps` object containing all player preferences. Reading these values in your mod lets you adjust behaviour to match the player's chosen settings.
@@ -575,7 +563,7 @@ Returns the full `GameSettingsProps` object containing all player preferences. R
 **Example:**
 
 ```typescript
-const settings = window.modAPI.utils.useGameSettings();
+const settings = api.useGameSettings();
 if (settings.combatZoom < 1.0) {
   // Player prefers a zoomed-out combat view
   myModEffect.intensity *= settings.combatZoom;
@@ -657,7 +645,7 @@ window.modAPI.hooks.onModifyRecipeIngredients((recipe, flags) => {
     const modified = { ...recipe };
     modified.ingredients = recipe.ingredients.map(ing => ({
       ...ing,
-      count: Math.max(1, Math.floor(ing.count * 0.5)),
+      quantity: Math.max(1, Math.floor(ing.quantity * 0.5)),
     }));
     return modified;
   }
@@ -688,44 +676,46 @@ window.modAPI.hooks.onDeriveRecipeDifficulty((recipe, recipeStats, flags) => {
 
 #### `onNewGame`
 
-Fires when a new game is started, before any data is loaded. Use to set up initial mod state, global flags, or start events for a new playthrough.
+Fires after character creation and before the new game state is committed. Modify the starting content and per-save flags, then return the updated intent.
 
 ```typescript
 window.modAPI.hooks.onNewGame((intent: NewGameIntent) => {
-  // Initialize global flags for new game
-  window.modAPI.actions.setGlobalFlag('myMod.initialized', 1);
-  // Start a custom intro event
-  window.modAPI.actions.startEvent(myIntroEvent);
+  intent.flags.myMod_initialized = 1;
+  return intent;
 });
 ```
 
-- **`intent`** - `NewGameIntent` containing `characterName`, `characterType`, `background`, `alternativeStart`, `difficulty`, `mods`, and `seed`. Use this to branch mod setup based on the selected character configuration.
+- **`intent`** - Mutable starting items, techniques, recipes, destinies, quests, money, favour, flags, player, and crafting actions. Return the updated intent.
 
 The `NewGameIntent` structure:
 
 ```typescript
 interface NewGameIntent {
-  characterName: string;
-  characterType: 'npc' | 'normal';
-  background?: Background;       // Selected background, or undefined for 'normal' character type
-  alternativeStart?: AlternativeStart;  // Alternative start data if one was selected
-  difficulty: string;
-  mods: string[];
-  seed: number;
+  items: ItemDesc[];
+  techniques: string[];
+  recipes: string[];
+  destinies: string[];
+  quests: string[];
+  money: number;
+  favour: number;
+  flags: Record<string, number>;
+  player: PlayerEntity;
+  craftingActions: string[];
 }
 ```
 
 #### `onGameLoad`
 
-Fires after a saved game is fully loaded. Use to restore per-save mod state, validate global flags, or trigger post-load events.
+Receives a loaded save before its state is committed. Return the state after applying per-save migrations.
 
 ```typescript
 window.modAPI.hooks.onGameLoad((state: RootState) => {
   // Validate or migrate mod flags on load
   const flags = state.gameData.flags;
   if (flags.myMod_version === undefined) {
-    window.modAPI.actions.setModData('myMod', 'needsMigration', true);
+    state.gameData.flags.myMod_needsMigration = 1;
   }
+  return state;
 });
 ```
 
@@ -757,7 +747,7 @@ interface Save {
   lastPlayed?: number;     // Unix timestamp (ms)
   playtime: number;        // Seconds played
   version: string;         // Game version at save time
-  mods: string[];          // Mods active when save was created
+  mods: SaveMod[];          // Mods active when save was created
   location?: string;       // Last location
   screen?: string;         // Last screen type
 }
@@ -786,7 +776,7 @@ Modify the enemy list and player state before combat starts. Return modified cop
 ```typescript
 window.modAPI.hooks.onBeforeCombat((enemies, playerState, flags) => {
   if (flags.hard_mode) {
-    const scaled = enemies.map(e => ({ ...e, stats: { ...e.stats, hp: e.stats.hp * 2 } }));
+    const scaled = enemies.map(e => ({ ...e, statMultipliers: { ...e.statMultipliers, hp: (e.statMultipliers?.hp ?? 1) * 2 } }));
     return { enemies: scaled, playerState };
   }
   return { enemies, playerState };
@@ -1000,7 +990,7 @@ window.modAPI.hooks.onAdvanceDay((days, flags) => {
 
 window.modAPI.hooks.onAdvanceMonth((month, year, flags) => {
   if (month === 3) {
-    window.modAPI.actions.startEvent(mySpringFestival);
+    console.log('Spring festival month:', year);
   }
 });
 ```
@@ -1043,8 +1033,8 @@ Helper functions through `window.modAPI.utils`:
 ### State Access
 
 ```typescript
-window.modAPI.utils.subscribe(callback: () => void): () => void
-window.modAPI.utils.getGameStateSnapshot(): RootState
+window.modAPI.subscribe(callback: () => void): () => void
+window.modAPI.getGameStateSnapshot(): RootState
 window.modAPI.utils.determineCurrentScreen(rootState: RootState): ScreenType
 ```
 
@@ -1055,11 +1045,11 @@ window.modAPI.utils.determineCurrentScreen(rootState: RootState): ScreenType
 ```typescript
 // Rate-limited reactive updates
 let lastUpdate = 0;
-window.modAPI.utils.subscribe(() => {
+window.modAPI.subscribe(() => {
   const now = Date.now();
   if (now - lastUpdate < 250) return;
   lastUpdate = now;
-  const snap = window.modAPI.utils.getGameStateSnapshot();
+  const snap = window.modAPI.getGameStateSnapshot();
   refreshMyPanel(snap);
 });
 
@@ -1219,8 +1209,8 @@ const bonusStacks = entity.buffs.find(
 ### Altar Utilities
 
 ```typescript
-window.modAPI.utils.getLocationAltarReward(locationName: string): CompressionAltarBuilding['breakthroughReward'] | undefined
-window.modAPI.utils.getCoreFormationAltarStats(breakthrough: BreakthroughState): CoreFormationAltarStats
+window.modAPI.actions.getLocationAltarReward(locationName: string): CompressionAltarBuilding['breakthroughReward'] | undefined
+window.modAPI.actions.getCoreFormationAltarStats(breakthrough: BreakthroughState): CoreFormationAltarStats
 ```
 
 - **`getLocationAltarReward`** - Returns the breakthrough reward granted by the altar at a specific location, or `undefined` if the location has no altar reward. Reflects mod-added or modified altars once the mod has finished loading.
@@ -1232,8 +1222,8 @@ window.modAPI.utils.getCoreFormationAltarStats(breakthrough: BreakthroughState):
 dynamicStats: (args) => ({
   physicalStats: {},
   socialStats: {},
-  combatStats: window.modAPI.utils.getCoreFormationAltarStats(args.breakthrough).combatStats,
-  craftingStats: window.modAPI.utils.getCoreFormationAltarStats(args.breakthrough).craftingStats,
+  combatStats: window.modAPI.actions.getCoreFormationAltarStats(args.breakthrough).combatStats,
+  craftingStats: window.modAPI.actions.getCoreFormationAltarStats(args.breakthrough).craftingStats,
 })
 ```
 
@@ -1352,8 +1342,8 @@ Create full player entities for tooltips, calculations, and custom mechanics. Bo
 
 ```typescript
 // Create a combat entity for tooltip display
-const player = window.modAPI.utils.getGameStateSnapshot().player.player;
-const breakthrough = window.modAPI.utils.getGameStateSnapshot().player.breakthrough;
+const player = window.modAPI.getGameStateSnapshot().player.player;
+const breakthrough = window.modAPI.getGameStateSnapshot().breakthrough;
 if (player && breakthrough) {
   const combatEntity = window.modAPI.utils.createPlayerCombatEntity(player, breakthrough, flags);
   // Use for damage calculations, technique effect previews, etc.
@@ -1519,7 +1509,9 @@ All tooltip components accept the same props as their game-internal counterparts
 ```typescript
 // Render a buff tooltip in mod UI
 const BuffTooltip = api.components.tooltips.BuffTooltip;
-const entity = window.modAPI.utils.createPlayerCombatEntity();
+const player = api.useSelector(state => state.player.player);
+const breakthrough = api.useSelector(state => state.breakthrough);
+const entity = window.modAPI.utils.createPlayerCombatEntity(player, breakthrough, api.useGameFlags());
 <BuffTooltip buff={myBuff} entity={entity} alreadyCreated={new Set()} />
 
 // Render an item tooltip

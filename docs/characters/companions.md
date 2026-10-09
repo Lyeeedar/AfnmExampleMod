@@ -93,7 +93,7 @@ interface CharacterRelationshipDefinition {
   followCharacter?: FollowCharacterDefinition; // Party mechanics
   dualCultivation?: DualCultivationDefinition; // Intimate only
 
-  progressionEvent: {
+  progressionEvent?: {
     // Event to advance relationship
     name: string;
     tooltip: Translatable;
@@ -113,6 +113,11 @@ Companions advance through cultivation realms alongside the player. Create multi
 
 ```typescript
 const companion: Character = {
+  allegiance: undefined,
+  condition: '1',
+  gender: 'neutral',
+  portrait: 'assets/portrait.png',
+  image: 'assets/example.png',
   name: 'Li Wei',
   // ...other properties
 
@@ -159,6 +164,8 @@ const qiCondensationMidDef: CompanionCharacterDefinition = {
     {
       condition: '1',
       stats: {
+        stanceRotation: [],
+        rotationOverrides: [],
         difficulty: 'mediumhard',
         battleLength: 'long',
         stances: [
@@ -518,6 +525,7 @@ const dualCultivation: DualCultivationDefinition = {
 
 ```typescript
 const fullCompanion: Character = {
+  gender: 'female',
   name: 'Mei Ling',
   displayName: 'Senior Sister Mei',
   allegiance: 'Nine Mountains',
@@ -542,6 +550,8 @@ const fullCompanion: Character = {
         {
           condition: '1',
           stats: {
+            stanceRotation: [],
+            rotationOverrides: [],
             difficulty: 'easy',
             battleLength: 'medium',
             stances: [
@@ -624,6 +634,9 @@ const fullCompanion: Character = {
         ],
         duration: 2,
         buff: {
+          stats: {},
+          canStack: false,
+          stacks: 1,
           /* combat bonuses */
         },
         cooldown: 5,
@@ -648,9 +661,14 @@ const fullCompanion: Character = {
       tooltip: 'Your bond grows stronger.',
 
       followCharacter: {
+        formParty: [],
+        dissolveParty: [],
         // Improved party benefits
         duration: 4,
         buff: {
+          stats: {},
+          canStack: false,
+          stacks: 1,
           /* better bonuses */
         },
         cooldown: 3,
@@ -676,8 +694,13 @@ const fullCompanion: Character = {
       tooltip: 'Your hearts are as one.',
 
       followCharacter: {
+        formParty: [],
+        dissolveParty: [],
         duration: 7,
         buff: {
+          stats: {},
+          canStack: false,
+          stacks: 1,
           /* significant bonuses */
         },
         cooldown: 1,
@@ -716,8 +739,13 @@ const fullCompanion: Character = {
       tooltip: 'Bound for eternity.',
 
       followCharacter: {
+        formParty: [],
+        dissolveParty: [],
         duration: 10,
         buff: {
+          stats: {},
+          canStack: false,
+          stacks: 1,
           /* maximum bonuses */
         },
         cooldown: 0, // No cooldown
@@ -944,7 +972,7 @@ export const createGiftInteraction = (
     ...(craftingBonus
       ? [
           {
-            kind: 'flag',
+            kind: 'flag' as const,
             flag: craftingFlag!,
             value: `${craftingFlag} + ${craftingBonus}`,
             global: true,
@@ -1009,10 +1037,19 @@ export const gifts3: GiftCharacterInteraction[] = [
 export const companionShopI: ShopCharacterInteraction = {
   condition: `${companionShopUnlocked} == 1`,
   stock: {
+    meridianOpening: [],
+    mundane: [],
+    qiCondensation: [],
+    coreFormation: [],
+    pillarCreation: [],
+    lifeFlourishing: [],
+    worldShaping: [],
+    innerGenesis: [],
+    soulAscension: [],
     bodyForging: [
       ...companionCraftingActions
-        .filter((action) => action.realm === 'bodyForging')
-        .map((action) => ({ ...action, stacks: 1 })),
+        .filter((action: CraftingTechniqueItem) => action.realm === 'bodyForging')
+        .map((action: CraftingTechniqueItem) => ({ ...action, stacks: 1 })),
     ],
     // Other realms empty initially
   },
@@ -1089,6 +1126,7 @@ import { friend } from './relationship/friend';
 // ... all relationships
 
 export const companion: Character = {
+  gender: 'neutral',
   name: companionName,
   allegiance: 'Nine Mountains',
   bio: 'A detailed character background...',

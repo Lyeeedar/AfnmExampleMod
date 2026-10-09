@@ -10,10 +10,16 @@ description: 'Core concepts and mechanics of the AFNM buff system'
 
 Buffs are the core of AFNM's combat system. They represent temporary effects, enhancements, debuffs, and resource pools that drive combat mechanics. Understanding buffs is essential because techniques primarily work by creating and manipulating buffs.
 
-## Complete Buff Interface
+## Buff Interface Reference
+
+The excerpt below shows the main fields. Import `Buff` from `afnm-types` when authoring a buff. `BuffCombatImage` is an internal helper type; its variants are described in [Combat Images](images.md).
 
 ```typescript
-import { Buff, BuffEffect, Scaling, RealTechniqueElement } from 'afnm-types';
+import type {
+  BuffEffect, Scaling, RealTechniqueElement, CombatStatistic,
+  TechniqueElement, TechniqueCondition, DamageModifier, InterceptorPhase,
+  DamageType, CombatEntity, BuffPersistence, Translatable,
+} from 'afnm-types';
 
 interface Buff {
   // Identity
@@ -29,18 +35,18 @@ interface Buff {
   colour?: string; // Optional background color for buff icon
   /** UI grouping/outline override for effects whose source does not identify their polarity. */
   displayCategory?: 'static' | 'dynamic' | 'affliction';
-  effectHint?: string; // Brief description when tooltip is not sufficient
-  tooltip?: string; // Custom tooltip with dynamic placeholders (see below)
-  additionalTooltip?: string; // Extra tooltip lines appended after the main one
-  combatImage?: CombatImage; // Visual effects during combat
+  effectHint?: Translatable; // Brief description when tooltip is not sufficient
+  tooltip?: Translatable; // Custom tooltip with dynamic placeholders (see below)
+  additionalTooltip?: Translatable; // Extra tooltip lines appended after the main one
+  combatImage?: BuffCombatImage; // Visual effects during combat
 
   // Combat properties
-  stats?: { [key in CombatStatistic]?: Scaling }; // Passive stat modifications
+  stats: Partial<Record<CombatStatistic, Scaling>> | undefined; // Passive stat modifications
   type?: 'origin' | TechniqueElement | RealTechniqueElement[]; // Element type for enhancement/affinity (single school, array for hybrid, or origin)
   noneType?: string; // Subtype for techniques with no element
   buffType?: string; // Grouping for modifyBuffGroup effects
   flag?: string; // Marker string for flag-based lookups
-  priority?: number; // Execution order (lower = earlier)
+  priority?: number; // Execution order (higher = earlier)
 
   // Effect timing
   onCombatStartEffects?: BuffEffect[]; // Once when combat begins
@@ -61,14 +67,39 @@ interface Buff {
     /** Blocks this many incoming stacks. Omit for a pure listener (effects fire but the buff still applies). */
     blockAmount?: Scaling;
   }[]; // Intercept other buff applications
-  triggeredBuffEffects?: TriggeredEffect[]; // Respond to custom triggers
-  blockTriggerEffects?: BlockTriggerEffect[]; // Block specific triggers
-  damageInterceptorEffects?: DamageInterceptorEffect[]; // Modify incoming damage
-  techniqueAmplifierEffects?: TechniqueAmplifierEffect[]; // Amplify outgoing effects
-  buffAmplifierEffects?: BuffAmplifierEffect[]; // Modify buff creation on self
+  triggeredBuffEffects?: {
+    trigger: string;
+    effects: BuffEffect[];
+    listenToSelf?: boolean;
+    listenToOpponent?: boolean;
+    triggerOnSelfTick?: boolean;
+  }[]; // Respond to custom triggers
+  blockTriggerEffects?: {
+    trigger: string;
+    condition?: TechniqueCondition;
+    effects: BuffEffect[];
+  }[]; // Block specific triggers
+  damageInterceptorEffects?: {
+    trigger?: TechniqueCondition;
+    damageModifier: DamageModifier;
+    effects?: BuffEffect[];
+    phase?: InterceptorPhase;
+    damageTypes?: (DamageType | 'normal')[];
+  }[]; // Modify incoming damage
+  techniqueAmplifierEffects?: {
+    trigger?: TechniqueCondition;
+    amplifier: Scaling;
+    effects?: BuffEffect[];
+    appliesTo: ('damage' | 'barrier' | 'heal' | 'tempHealth')[];
+  }[]; // Amplify outgoing effects
+  buffAmplifierEffects?: {
+    trigger?: TechniqueCondition;
+    target: string;
+    modifier: { kind: 'add' | 'multiply'; value: number; cantUpgrade?: boolean };
+    effects?: BuffEffect[];
+  }[]; // Modify buff creation on self
   condition?: TechniqueCondition; // When buff effects are active (see TechniqueCondition types for buff:'self' support)
   removeOnConditionFailed?: boolean; // Remove buff if condition stops being met
-  allowTriggers?: boolean; // On TechniqueCondition: let triggers fire even when condition fails
   /** Mastery upgrade key -- scales the condition's count by the active technique mastery. */
   upgradeKey?: string;
 
@@ -90,7 +121,6 @@ interface Buff {
 
   // System properties
   cantUpgrade?: boolean; // Prevent mastery upgrades
-  hidden?: boolean; // Hide from buff list and tooltips
   deweight?: boolean; // Hide from combat buff row (for passive mastery markers)
   charisma?: number; // NPC relationship modifier
   masteryPoints?: number; // Technique mastery points granted
@@ -108,29 +138,18 @@ interface Buff {
 
   // Guardian (sub-entity HP pool)
   guardianIntercept?: {
+    percent: Scaling;
     maxHp: Scaling;
-    onDestroyed?: BuffEffect[]; // Fires when guardian HP reaches 0
+    refreshMode?: 'refresh' | 'extend';
+    target?: 'all' | 'healthOnly';
+    canUpgrade?: boolean;
+    onDestroyed?: BuffEffect[];
   };
   guardianHp?: number; // Runtime current HP of the guardian
   guardianMaxHp?: number; // Runtime max HP of the guardian
 
   // Persistence
   persistence?: BuffPersistence; // Controls behaviour outside combat
-
-  // Auxiliary tooltip suppression (issue #8943)
-  /**
-   * Optional expression evaluated against the same buff-aware scope as `childBuffs.condition`
-   * (exposes `stacks`, `internalState`, `storedValues`). When truthy, the auxiliary
-   * tooltips that this buff would normally surface are suppressed:
-   *  - barrier effects: hides the "Barrier" mechanic aux tooltip
-   *  - temporaryHealth effects: hides the "Temporary Health" mechanic aux tooltip
-   *  - effects that reference another buff (buffSelf/buffTarget/consumeSelf/consumeTarget/
-   *    convertSelf/merge/repair/modifyBuffGroup): hides the referenced buff's aux tooltip
-   * Use to hide the generic explanation when the player is already familiar with the
-   * mechanic in this specific context, or when the buff is sourced from a tooltip fragment
-   * that already explains it.
-   */
-  hideAuxTooltip?: string;
 
   // Horde battle transfer (issue #8941)
   /**
@@ -165,7 +184,7 @@ When a buff is applied to a character, the system:
 
 During combat, buffs execute their effects based on timing:
 
-- **Priority order**: Lower `priority` values execute first
+- **Priority order**: Higher `priority` values execute first
 - **Timing triggers**: Each timing type executes at its designated moment
 - **Condition checks**: Effects only execute if conditions are met (unless `allowTriggers: true` on the condition)
 

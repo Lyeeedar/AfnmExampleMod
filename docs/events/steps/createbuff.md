@@ -42,7 +42,7 @@ interface CreateBuffStep {
 ```typescript
 {
   kind: 'createBuff',
-  buff: 'meditation_focus',
+  buff: window.modAPI.gameData.buffs['meditation_focus'],
   amount: '1'
 }
 ```
@@ -50,7 +50,7 @@ interface CreateBuffStep {
 ```typescript
 {
   kind: 'createBuff',
-  buff: 'blessed_cultivation',
+  buff: window.modAPI.gameData.buffs['blessed_cultivation'],
   amount: 'playerRealm * 5',
   persistBeyondEvent: true
 }

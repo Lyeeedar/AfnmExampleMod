@@ -30,6 +30,10 @@ window.modAPI.actions.addItemToShop(
 
 ```typescript
 const enhancedSword: ArtefactItem = {
+  techniques: [],
+  stacks: 1,
+  rarity: 'mundane',
+  realm: 'meridianOpening',
   kind: 'artefact',
   name: 'Thunder Cleaver',
   description: 'A blade crackling with elemental power.',
@@ -77,6 +81,12 @@ window.modAPI.actions.addItemToAuction(
 
 ```typescript
 const rarePill: PillItem = {
+  pillKind: "combat",
+  toxicity: 0,
+  effects: [],
+  stacks: 1,
+  rarity: 'mundane',
+  realm: 'meridianOpening',
   kind: 'pill',
   name: 'Void Essence Pill',
   description: 'Enhances cultivation of void techniques.',
@@ -120,6 +130,7 @@ window.modAPI.actions.addUncutStone(
 
 ```typescript
 const mysticalGem: MaterialItem = {
+  stacks: 1,
   kind: 'material',
   name: 'Celestial Jade Fragment',
   description: 'Raw celestial energy crystallized into jade.',
@@ -149,6 +160,8 @@ Uncut stones are obtained from mystical region exploration:
 ```typescript
 // Create a valuable artefact
 const powerfulWeapon: ArtefactItem = {
+  techniques: [],
+  stacks: 1,
   kind: 'artefact',
   name: 'Starfall Spear',
   description: 'A spear forged from fallen star metal, radiating cosmic power.',
@@ -186,6 +199,11 @@ window.modAPI.actions.addItemToAuction(
 ```typescript
 // Create a series of realm-appropriate items
 const basicTalisman: TalismanItem = {
+  buffs: [],
+  description: 'An iron pendant carrying a defensive ward.',
+  icon: 'assets/example.png',
+  stacks: 1,
+  rarity: 'mundane',
   kind: 'talisman',
   name: 'Iron Ward Pendant',
   // ... basic stats
@@ -193,6 +211,11 @@ const basicTalisman: TalismanItem = {
 };
 
 const advancedTalisman: TalismanItem = {
+  buffs: [],
+  description: 'A pendant carrying a stronger stellar ward.',
+  icon: 'assets/example.png',
+  stacks: 1,
+  rarity: 'mundane',
   kind: 'talisman',
   name: 'Stellar Ward Pendant',
   // ... enhanced stats
@@ -226,7 +249,7 @@ interface Crop {
   yield: number; // Quantity produced per harvest
   growthDays: number; // Days required to mature
   cost?: string; // Soil condition consumed (optional)
-  change?: string; // Soil condition produced (optional)
+  change: string; // Soil condition produced (use '0' for no change)
 }
 ```
 
@@ -325,6 +348,7 @@ window.modAPI.actions.addCrop('qiCondensation', mysticHerbCrop);
 ```typescript
 // 1. First create your item
 const mysticHerb: CraftingItem = {
+  stacks: 1,
   kind: 'material',
   name: 'Mystic Herb',
   description: 'A shimmering herb infused with spiritual energy.',

@@ -111,6 +111,16 @@ Override the default 3 explorations per discovery:
 
 ```typescript
 const myLocation: GameLocation = {
+  name: 'Hidden Valley',
+  description: 'A valley discovered through exploration.',
+  image: 'assets/example.png',
+  icon: 'assets/example.png',
+  screenEffect: 'mist',
+  music: 'Forest',
+  ambience: 'Forest',
+  position: { x: 0, y: 0 },
+  size: 'normal',
+  unlocks: [],
   // ...other properties
   explorationCountOverride: 5,  // Requires 5 explorations per unlock
 }
@@ -169,17 +179,39 @@ Connections must be defined from both locations:
 ```typescript
 // In location A
 export const locationA: GameLocation = {
-  unlocks: [
-    { location: locationB, distance: 3, condition: '1' }
-  ]
+  name: 'Village Square',
+  description: 'The village meeting place.',
+  image: 'assets/example.png',
+  icon: 'assets/example.png',
+  screenEffect: 'mist',
+  music: 'Forest',
+  ambience: 'Forest',
+  position: { x: 0, y: 0 },
+  size: 'normal',
+  unlocks: []
 };
 
 // In location B
 export const locationB: GameLocation = {
+  name: 'Mountain Trail',
+  description: 'A trail leading out of the village.',
+  image: 'assets/example.png',
+  icon: 'assets/example.png',
+  screenEffect: 'mist',
+  music: 'Forest',
+  ambience: 'Forest',
+  position: { x: 0, y: 0 },
+  size: 'normal',
   unlocks: [
     { location: locationA, distance: 3, condition: '1' }
   ]
 };
+```
+
+Add the reverse connection after both location objects exist to avoid reading `locationB` before initialization:
+
+```typescript
+locationA.unlocks.push({ location: locationB, distance: 3, condition: '1' });
 ```
 
 ## Adding Connections to Existing Locations
@@ -240,7 +272,7 @@ unlocks: [
     exploration: 1,
     location: beginnerArea,
     distance: 2,
-    event: [...]
+    event: []
   },
   // Mid-game discovery
   {
@@ -248,7 +280,7 @@ unlocks: [
     location: intermediateArea,
     distance: 5,
     condition: 'realm >= meridianOpening',
-    event: [...]
+    event: []
   },
   // Late-game discovery
   {
@@ -256,7 +288,7 @@ unlocks: [
     location: advancedArea,
     distance: 10,
     condition: 'realm >= coreFormation',
-    event: [...]
+    event: []
   }
 ]
 ```

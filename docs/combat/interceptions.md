@@ -42,7 +42,7 @@ interceptBuffEffects?: {
    * How many of the incoming stacks this interceptor blocks before the buff is
    * applied. Evaluated once per application (NOT per stack) with `incoming` (the
    * remaining incoming stack count) available. The blocked stacks are removed
-   * from the application, so `{ value: 9999 }` blocks all of them. Omit to block
+   * from the application, so `{ value: 9999, stat: undefined }` blocks all of them. Omit to block
    * nothing (a pure listener that reacts without consuming any stacks).
    *
    * Either way the `effects` run exactly ONCE, with `intercepted` set to the
@@ -55,7 +55,7 @@ interceptBuffEffects?: {
 ```
 
 **Migration from the old `cancelApplication` field:**
-- `cancelApplication: true` → set `blockAmount: { value: 9999 }` (blocks all stacks; effects fire once with `intercepted = incoming`)
+- `cancelApplication: true` → set `blockAmount: { value: 9999, stat: undefined }` (blocks all stacks; effects fire once with `intercepted = incoming`)
 - `cancelApplication: false` → omit `blockAmount` entirely (effects fire as a pure listener without consuming any stacks)
 
 ## Real Example - Profane Exchange
@@ -90,7 +90,7 @@ export const profaneExchangeBuff: Buff = {
           damageType: 'true',
         },
       ],
-      blockAmount: { value: 9999 }, // Block all incoming stacks — cancels the application
+      blockAmount: { value: 9999, stat: undefined }, // Block all incoming stacks — cancels the application
     },
   ],
 
@@ -123,7 +123,7 @@ interceptBuffEffects: [
   {
     buff: firstBuff,
     effects: [/* effects for first buff */],
-    blockAmount: { value: 9999 }, // Block all — cancels the application
+    blockAmount: { value: 9999, stat: undefined }, // Block all — cancels the application
   },
   {
     buff: secondBuff,
@@ -166,7 +166,7 @@ interceptBuffEffects: [
         amount: { value: 1, stat: undefined },
       },
     ],
-    blockAmount: { value: 9999 }, // Block the incoming buff entirely
+    blockAmount: { value: 9999, stat: undefined }, // Block the incoming buff entirely
   },
 ];
 ```
@@ -215,7 +215,7 @@ The `target` field controls which portion of incoming damage the guardian interc
   icon: wardIcon,
   canStack: false,
   guardianIntercept: {
-    percent: { value: 0.50 },
+    percent: { value: 0.50, stat: undefined },
     maxHp: { value: 0.20, stat: 'maxhp' },
     target: 'healthOnly',  // Absorbs damage that reaches HP, not raw pre-barrier damage
   },
@@ -237,7 +237,7 @@ The effects execute with:
   icon: shieldIcon,
   canStack: false,
   guardianIntercept: {
-    percent: { value: 0.50 },  // Absorb 50% of incoming damage
+    percent: { value: 0.50, stat: undefined },  // Absorb 50% of incoming damage
     maxHp: { value: 0.30, stat: 'maxhp' },  // Guardian HP = 30% of max HP
     onDestroyed: [
       {
@@ -273,7 +273,7 @@ interceptBuffEffects: [
         amount: { value: 2, stat: undefined }, // 1 incoming = 2 different
       },
     ],
-    blockAmount: { value: 9999 }, // Block the original application
+    blockAmount: { value: 9999, stat: undefined }, // Block the original application
   },
 ];
 ```
@@ -297,7 +297,7 @@ interceptBuffEffects: [
         },
       },
     ],
-    blockAmount: { value: 9999 },
+    blockAmount: { value: 9999, stat: undefined },
   },
 ];
 ```
@@ -321,7 +321,7 @@ interceptBuffEffects: [
         amount: { value: 0.05, stat: 'maxhp' },
       },
     ],
-    blockAmount: { value: 9999 },
+    blockAmount: { value: 9999, stat: undefined },
   },
 ];
 ```

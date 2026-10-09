@@ -33,7 +33,9 @@ export const cultivationRoomBlueprint: BlueprintItem = {
   description: 'The complex formation in this chamber allows better sensing of qi flows.',
   icon: blueprintIcon,
   room: {
-    kind: 'cultivation',
+    kind: 'buff',
+    buffs: [],
+    moneyCost: 100,
     name: 'Cultivation Chamber',
     description: 'The complex formation in this chamber is designed to allow the occupier to focus in on themselves, better sensing the flows of Qi within their body and the world around them.',
     icon: Spa,
@@ -60,7 +62,7 @@ export const craftControlRoomBlueprint: BlueprintItem = {
       icon: craftIcon,
       canStack: false,
       stats: {
-        control: { value: window.modAPI.utils.getCraftingEquipmentStats('bodyForging', 'Late', { pool: 0, control: 0.4, intensity: 0 }, 'cauldron').control, stat: undefined },
+        control: { value: window.modAPI.utils.getCraftingEquipmentStats('bodyForging', 'Late', { pool: 0, control: 0.4, intensity: 0 }, 'cauldron').control ?? 0, stat: undefined },
       },
       effects: [],
       onFusion: [],
@@ -95,7 +97,7 @@ export const barrierRoomBlueprint: BlueprintItem = {
       icon: energyIcon,
       canStack: true,
       stats: {
-        maxbarrier: { value: window.modAPI.utils.getExpectedBarrier(), stat: undefined },
+        maxbarrier: { value: window.modAPI.utils.getExpectedBarrier('bodyForging', 'Early'), stat: undefined },
         barrierMitigation: { value: 4, stat: undefined },
       },
       onRoundEffects: [],
@@ -129,7 +131,7 @@ export const powerRoomBlueprint: BlueprintItem = {
       icon: practiseIcon,
       canStack: true,
       stats: {
-        power: { value: Math.floor(window.modAPI.utils.getExpectedPower() * 0.1), stat: undefined },
+        power: { value: Math.floor(window.modAPI.utils.getExpectedPower('bodyForging', 'Early') * 0.1), stat: undefined },
       },
       onRoundEffects: [],
       stacks: 2,

@@ -40,6 +40,8 @@ interface CraftSkillStep {
 
 ```typescript
 {
+  realm: 'meridianOpening',
+  realmProgress: 'Early',
   kind: 'craftSkill',
   amount: '3'
 }

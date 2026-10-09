@@ -84,7 +84,7 @@ interface ReplaceItemStep {
   source: { name: 'Ancient Ring' },
   target: {
     name: 'Ancient Ring',
-    qualityTier: 2
+    dropQuality: 2
   }
 }
 ```
@@ -96,11 +96,11 @@ interface ReplaceItemStep {
   kind: 'replaceItem',
   source: {
     name: 'Cultivation Blade',
-    qualityTier: 1
+    dropQuality: 1
   },
   target: {
     name: 'Cultivation Blade',
-    qualityTier: 2
+    dropQuality: 2
   },
   condition: 'metalsmithingLevel >= 3'
 }

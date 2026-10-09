@@ -218,6 +218,16 @@ This tells the build system to include your image file and gives you a reference
 
 ```typescript
 const vigorPill: CombatPillItem = {
+  pillKind: "combat",
+  toxicity: 0,
+  effects: [{ kind: 'heal', amount: { value: 0.5, stat: 'power', isItem: true } }],
+  kind: 'pill',
+  name: 'Vigor Pill',
+  description: 'Restores health during combat.',
+  icon: pillIcon,
+  stacks: 1,
+  rarity: 'mundane',
+  realm: 'meridianOpening',
   //...
 };
 ```
@@ -228,7 +238,7 @@ const vigorPill: CombatPillItem = {
 - `description`: Flavour text shown to players
 - `icon`: Reference to your image
 - `rarity`: Affects text color and power ('mundane', 'qitouched', 'empowered', 'resplendent', 'incandescent', 'transcendent')
-- `kind`: Type of item ('pill', 'weapon', 'armour', 'artefact', etc.)
+- `kind`: Type of item ('pill', 'clothing', 'artefact', etc.)
 - `pillKind`: For pills only - 'combat', 'crafting', etc.
 - `toxicity`: How much toxicity consuming this pill costs
 - `realm`: What cultivation realm the pill is designed for
@@ -249,7 +259,7 @@ This tells the game "this item exists now."
 **Shop Integration:**
 
 ```typescript
-window.modAPI.actions.addItemToShop(...)
+window.modAPI.actions.addItemToShop(vigorPill, 5, 'Liang Tiao Village', 'bodyForging');
 ```
 
 This makes your item purchasable in the specified location.

@@ -57,6 +57,9 @@ Fields that support upgradeKey are scaled when the item is crafted with a matchi
   ```typescript
   // In a Buff stat definition
   const myBuff: Buff = {
+    icon: 'assets/example.png',
+    canStack: false,
+    stacks: 1,
     name: 'My Buff',
     stats: {
       power: {
@@ -85,6 +88,8 @@ Fields that support upgradeKey are scaled when the item is crafted with a matchi
 
   ```typescript
   const stackingBuff: Buff = {
+    icon: 'assets/example.png',
+    stats: {},
     name: 'Stacking Buff',
     canStack: true,
     maxStacks: 5,
@@ -95,14 +100,23 @@ Fields that support upgradeKey are scaled when the item is crafted with a matchi
 
 ### Helper Functions
 
-The game provides three helpers (imported from `harmonyUpgradeHelpers`) to generate `ItemHarmonyUpgrade` objects:
+These local helpers generate `ItemHarmonyUpgrade` objects. Copy them into your mod; they are not exports of `afnm-types`.
 
 ```typescript
-import {
-  harmonyStatUpgrade,  // Multiply a stat by +X% per threshold tier
-  harmonyStatStep,     // Add a fixed step to a stat per threshold tier
-  harmonyStacksStep,   // Add stacks to a buff per threshold tier
-} from 'harmonyUpgradeHelpers';
+import type { ItemHarmonyUpgrade } from 'afnm-types';
+
+export function harmonyStatUpgrade(key: string, label: string, options: { threshold?: number; percent?: number } = {}): ItemHarmonyUpgrade {
+  const { threshold = 4, percent = 20 } = options;
+  return { upgradeKey: key, threshold, change: percent / 100, shouldMultiply: true, tooltip: label + ' +{change}%' };
+}
+
+export function harmonyStatStep(key: string, label: string, threshold: number, options: { step?: number; percent?: boolean } = {}): ItemHarmonyUpgrade {
+  return { upgradeKey: key, threshold, change: options.step ?? 1, tooltip: label + ' +{change}' + (options.percent ? '%' : '') };
+}
+
+export function harmonyStacksStep(key: string, label: string, threshold: number, options: { step?: number } = {}): ItemHarmonyUpgrade {
+  return harmonyStatStep(key, label + ' max stacks', threshold, options);
+}
 ```
 
 #### harmonyStatUpgrade -- Percentage Multiplier
@@ -143,9 +157,17 @@ harmonyStacksStep('ironStacks', ironBlossom.name, 4, { step: 6 });
 Attach upgradeHarmonies to any equipment item:
 
 ```typescript
-import { harmonyStacksStep, harmonyStatStep, harmonyStatUpgrade } from 'harmonyUpgradeHelpers';
+import { harmonyStacksStep, harmonyStatStep, harmonyStatUpgrade } from './harmonyUpgradeHelpers';
 
 export const eclipsePetalMantleS: ClothingItem = {
+  charisma: 0,
+  stats: {},
+  name: 'Eclipse Petal Mantle (S)',
+  description: 'A mantle whose secondary effects improve with harmony.',
+  icon: 'assets/example.png',
+  stacks: 1,
+  rarity: 'mundane',
+  realm: 'meridianOpening',
   kind: 'clothing',
   // ... other fields
   upgradeHarmonies: {
@@ -163,9 +185,10 @@ export const eclipsePetalMantleS: ClothingItem = {
 
 ```typescript
 export const eclipsePetalMantleUV: ClothingItem = {
-  kind: 'clothing',
+  ...eclipsePetalMantleS,
+  name: 'Eclipse Petal Mantle (UV)',
   upgradedFrom: eclipsePetalMantleS,
-  upgradeHarmonies: eclipsePetalMantleS.upgradeHarmonies, // Inherit from base tier
+  upgradeHarmonies: eclipsePetalMantleS.upgradeHarmonies,
 };
 ```
 
@@ -350,11 +373,12 @@ Items are added to enemy loot through character/location definitions:
 Items can be quest objectives or rewards:
 ```typescript
 // Quest step reward
-{
+const gatheringStep: QuestStep = {
   kind: 'collect',
   item: 'My Custom Material',
   amount: 5,
-}
+  hint: 'Gather five materials.',
+};
 
 // Quest completion reward
 {
@@ -437,7 +461,16 @@ window.modAPI.actions.addItemToAuction(powerfulSword, 0.05, 'realm >= 4');
 window.modAPI.actions.addItemToShop(rawMaterial, 10, 'Material Shop', 'bodyForging');
 
 // Processed material requires recipe
-const processingRecipe = {
+const processingRecipe: RecipeItem = {
+  perfectItem: processedMaterial,
+  realmProgress: 'Early',
+  difficulty: 'medium',
+  name: 'Material Processing Recipe',
+  description: 'Refines raw materials into crafting ingredients.',
+  icon: 'assets/example.png',
+  stacks: 1,
+  rarity: 'mundane',
+  realm: 'meridianOpening',
   kind: 'recipe',
   ingredients: [{ item: rawMaterial, quantity: 3 }],
   baseItem: processedMaterial,
@@ -445,7 +478,16 @@ const processingRecipe = {
 };
 
 // Final item uses processed material
-const finalItemRecipe = {
+const finalItemRecipe: RecipeItem = {
+  perfectItem: finalItem,
+  realmProgress: 'Early',
+  difficulty: 'medium',
+  name: 'Final Assembly Recipe',
+  description: 'Crafts the finished item from processed materials.',
+  icon: 'assets/example.png',
+  stacks: 1,
+  rarity: 'mundane',
+  realm: 'meridianOpening',
   kind: 'recipe',
   ingredients: [{ item: processedMaterial, quantity: 2 }],
   baseItem: finalItem,

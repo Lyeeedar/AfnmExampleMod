@@ -68,11 +68,16 @@ You can override automatic generation with a custom `tooltip`:
 ```typescript
 export const profaneExchangeBuff: Buff = {
   name: 'Profane Exchange',
+  icon: 'assets/profane-exchange.png',
+  canStack: false,
+  stats: {},
+  stacks: 1,
   // ...
   tooltip:
     'You no longer gain {buff}. Instead, lose <num>3%</num> health as <name>True Damage</name> per stack you would have gained.',
   interceptBuffEffects: [
     {
+      effects: [],
       buff: bloodCorruption,
       // ...
     },
@@ -191,6 +196,10 @@ Use `tooltipFragments` to append conditional text after the normal tooltip. Each
 
 ```typescript
 const myBuff: Buff = {
+  icon: 'assets/example.png',
+  canStack: false,
+  stats: {},
+  stacks: 1,
   name: 'Empowering Mark',
   tooltipFragments: {
     fragments: [
@@ -212,6 +221,10 @@ const myBuff: Buff = {
 
 ```typescript
 const myBuff: Buff = {
+  icon: 'assets/example.png',
+  canStack: false,
+  stats: {},
+  stacks: 1,
   name: 'Ritual Circle',
   childTooltips: [
     {

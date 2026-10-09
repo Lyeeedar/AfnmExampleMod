@@ -49,7 +49,7 @@ Wholesale changes to game balance — enemy stats, crafting difficulty, damage f
 
 Player sprites, alternative starts, new backgrounds, custom rooms, new music or sound effects.
 
-**Default stack:** `actions.addPlayerSprite()`, `actions.addAlternativeStart()`, `actions.addBirthBackground()`, `actions.addRoom()`, `actions.addMusic()`, `actions.addSfx()`, `utils.generateSkipTutorialFlags()`.
+**Default stack:** `actions.addPlayerSprite()`, `actions.addAlternativeStart()`, `actions.addBirthBackground()`, `gameData.rooms.push(room)`, `actions.addMusic()`, `actions.addSfx()`, `utils.generateSkipTutorialFlags()`.
 
 ### Read-Only Advisor / Overlay
 
@@ -178,6 +178,10 @@ const debugApi = {
   },
 };
 
+declare global {
+  interface Window { __myModDebug?: Record<string, typeof debugApi> }
+}
+
 window.__myModDebug ??= {};
 window.__myModDebug['my-mod-name'] = debugApi;
 ```
@@ -201,7 +205,7 @@ const MyOptions: ModOptionsFC = ({ api }) => {
   if (!ReactRuntime?.createElement) return null;
 
   const createElement = ReactRuntime.createElement.bind(ReactRuntime);
-  const flags = api.actions.getGlobalFlags();
+  const flags = window.modAPI.actions.getGlobalFlags();
   const enabled = (flags['myMod.enabled'] ?? 1) === 1;
   const GameButton = api.components.GameButton ?? 'button';
 
@@ -209,7 +213,7 @@ const MyOptions: ModOptionsFC = ({ api }) => {
     createElement('div', { key: 'title', style: { fontWeight: 700 } }, 'My Mod Settings'),
     createElement(
       GameButton,
-      { key: 'toggle', onClick: () => api.actions.setGlobalFlag('myMod.enabled', enabled ? 0 : 1) },
+      { key: 'toggle', onClick: () => window.modAPI.actions.setGlobalFlag('myMod.enabled', enabled ? 0 : 1) },
       enabled ? 'Disable' : 'Enable',
     ),
   ]);

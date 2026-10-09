@@ -124,6 +124,7 @@ export interface LifeEssenceItem extends ItemBase {
 **Example**:
 ```typescript
 export const myEssence: LifeEssenceItem = {
+  color: '#ffffff',
   kind: 'life_essence',
   name: 'Ember Essence',
   description: 'A concentrated fragment of living flame, warm to the touch.',

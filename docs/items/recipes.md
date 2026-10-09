@@ -69,6 +69,11 @@ Recipes produce different quality outputs based on crafting success:
 ```typescript
 // Healing Pill Recipe progression
 export const healingPillRecipeIV: RecipeItem = {
+  kind: "recipe",
+  description: 'Teaches how to craft Core Formation healing pills.',
+  icon: 'assets/example.png',
+  stacks: 1,
+  rarity: 'mundane',
   name: 'Healing Pill (IV) Recipe',
   realm: 'coreFormation',
 

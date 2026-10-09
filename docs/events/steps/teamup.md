@@ -50,6 +50,8 @@ interface TeamUpStep {
   kind: 'teamUp',
   character: 'Sect Disciple',
   fallbackBuff: {
+    canStack: false,
+    stacks: 1,
     stats: {
       maxbarrier: { value: 0.1, stat: 'maxbarrier' }
     },

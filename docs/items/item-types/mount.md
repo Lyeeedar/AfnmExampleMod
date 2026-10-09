@@ -19,7 +19,7 @@ interface MountItem extends ItemBase {
   charisma?: number;
   masteryPoints?: number;
   qiAbsorption?: number;
-  buffs?: { buff: Buff; buffStacks: Scaling; condition?: Condition }[];
+  buffs?: { buff: Buff; buffStacks: Scaling }[];
 }
 ```
 

@@ -319,6 +319,8 @@ export const wanderingHerb3Quest: Quest = {
       kind: 'event',
       hint: 'Meet Hua Tong and Zhiwu at the Tomb of Lu Bu Lin.',
       event: {
+        location: 'Liang Tiao Village',
+        steps: [],
         // Complex transformation sequence
       },
     },
@@ -331,6 +333,8 @@ export const wanderingHerb3Quest: Quest = {
       kind: 'event',
       hint: 'Zhiwu is set to emerge from the Mystical Region. Go see how the experience has changed them.',
       event: {
+        location: 'Liang Tiao Village',
+        steps: [],
         // Resolution of the character arc
       },
     },

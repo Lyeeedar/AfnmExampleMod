@@ -434,7 +434,16 @@ window.modAPI.actions.addMysticalRegionDefinition({
 export const serpentTombKey: MysticalKeyItem = {
   kind: 'mystical_key',
   name: 'Serpent Tomb Key',
-  // ... other fields
+  description: 'Opens the Serpent Tomb.',
+  icon: 'assets/serpent-key.png',
+  stacks: 1,
+  rarity: 'empowered',
+  realm: 'qiCondensation',
+  difficulty: 'Early',
+  rewardRarities: ['mundane', 'qitouched'],
+  hasCorePedestal: false,
+  factionCurses: [],
+  rewardPools: [],
   contentType: 'cursed',
   overrideRegion: 'myMod_serpentTomb', // Points at the registered definition
 };

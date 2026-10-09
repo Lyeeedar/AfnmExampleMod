@@ -75,8 +75,8 @@ The `rawStats` field grants permanent bonuses to combat or crafting statistics. 
 ```typescript
 interface Scaling {
   value: number;          // Base value added
-  stat?: CombatStatistic | CraftingStatistic | PhysicalStatistic | SocialStatistic | TechniqueElement;
-                          // Optional stat to scale the base value against
+  stat: CombatStatistic | CraftingStatistic | PhysicalStatistic | SocialStatistic | TechniqueElement | undefined;
+                          // Supply undefined for a flat amount
   scaling?: string;       // Buff name or 'stacks'/'consumed' to multiply the result
   eqn?: string;           // Expression multiplied onto the result (e.g. '1 + (power * 0.01)')
 }
@@ -101,6 +101,11 @@ Appearance change pills let the player alter their character's appearance. They 
 ```typescript
 // Combat pill
 export const healingPill: CombatPillItem = {
+  description: 'Restores health during combat.',
+  icon: 'assets/example.png',
+  stacks: 1,
+  rarity: 'mundane',
+  realm: 'meridianOpening',
   pillKind: 'combat',
   kind: 'pill',
   name: 'Healing Pill',
@@ -114,6 +119,11 @@ export const healingPill: CombatPillItem = {
 
 // Permanent physical stat improvement
 export const strengthElixir: ConsumablePillItem = {
+  description: 'Permanently increases muscle strength.',
+  icon: 'assets/example.png',
+  stacks: 1,
+  rarity: 'mundane',
+  realm: 'meridianOpening',
   pillKind: 'consumable',
   kind: 'pill',
   name: 'Strength Elixir',
@@ -125,6 +135,11 @@ export const strengthElixir: ConsumablePillItem = {
 
 // Permanent combat stat improvement using rawStats
 export const powerElixir: ConsumablePillItem = {
+  description: 'Permanently increases combat power and critical chance.',
+  icon: 'assets/example.png',
+  stacks: 1,
+  rarity: 'mundane',
+  realm: 'meridianOpening',
   pillKind: 'consumable',
   kind: 'pill',
   name: 'Power Elixir',
@@ -140,6 +155,11 @@ export const powerElixir: ConsumablePillItem = {
 
 // Permanent crafting stat improvement using rawStats
 export const artisanElixir: ConsumablePillItem = {
+  description: 'Permanently improves crafting effectiveness and control.',
+  icon: 'assets/example.png',
+  stacks: 1,
+  rarity: 'mundane',
+  realm: 'meridianOpening',
   pillKind: 'consumable',
   kind: 'pill',
   name: 'Artisan Elixir',
@@ -156,6 +176,11 @@ export const artisanElixir: ConsumablePillItem = {
 // Shared consumption group: all pills with the same group share a combined cap
 // Players can only consume groupCap pills total across all pills in the group
 export const sharedFortitudePill: ConsumablePillItem = {
+  description: 'Increases strength and shares a consumption limit with other fortitude pills.',
+  icon: 'assets/example.png',
+  stacks: 1,
+  rarity: 'mundane',
+  realm: 'meridianOpening',
   pillKind: 'consumable',
   kind: 'pill',
   name: 'Minor Fortitude Pill',
@@ -170,6 +195,11 @@ export const sharedFortitudePill: ConsumablePillItem = {
 // Flag effect: iterate a flag when consumed
 // Useful for tracking cumulative pill bonuses or unlocking gated content
 export const jadeDroplet: ConsumablePillItem = {
+  description: 'Records consumption in a mod flag.',
+  icon: 'assets/example.png',
+  stacks: 1,
+  rarity: 'mundane',
+  realm: 'meridianOpening',
   pillKind: 'consumable',
   kind: 'pill',
   name: 'Jade Droplet',

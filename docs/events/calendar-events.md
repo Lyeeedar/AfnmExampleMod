@@ -71,8 +71,8 @@ const springFestival: CalendarEvent = {
               },
               {
                 kind: 'addItem',
-                item: 'festivalToken',
-                amount: 1,
+                item: { name: 'festivalToken' },
+                amount: '1',
               },
             ],
           },
@@ -85,7 +85,7 @@ const springFestival: CalendarEvent = {
               },
               {
                 kind: 'qi',
-                amount: 500,
+                amount: '500',
               },
             ],
           },
@@ -106,6 +106,7 @@ const beastWaveEvent: CalendarEvent = {
   condition: 'returningHomeComplete == 1', // Requires quest completion
   year: 1066,
   month: 11,
+  recurrenceYears: 1,
   realm: 'bodyForging', // Minimum realm
   event: {
     location: 'Liang Tiao Village',
@@ -116,7 +117,9 @@ const beastWaveEvent: CalendarEvent = {
       },
       {
         kind: 'combat',
-        enemy: 'corruptedBeastHorde',
+        enemies: [corruptedBeastHorde],
+        victory: [],
+        defeat: [],
       },
     ],
   },
@@ -149,10 +152,9 @@ const majorFestival: CalendarEvent = {
             children: [
               {
                 kind: 'tournament',
-                participants: ['bloodCultivator1', 'bloodCultivator2'],
-                rewards: {
-                  first: [{ item: 'bloodyArrowTrophy', amount: 1 }],
-                },
+                tournamentId: 'ruGongFestival', // Register this TournamentConfig first.
+                victory: [],
+                defeat: [],
               },
             ],
           },

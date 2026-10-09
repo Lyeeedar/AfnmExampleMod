@@ -33,6 +33,6 @@ interface ClearCharacterStep {
 
 ```typescript
 {
-  kind: 'clearCharacter';
+  kind: 'clearCharacter',
 }
 ```

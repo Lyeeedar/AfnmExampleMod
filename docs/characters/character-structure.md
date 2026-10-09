@@ -21,8 +21,8 @@ interface Character {
 
   condition: string; // When character appears
 
-  /** Gender used for sexuality filtering on romantic relationship progression events. */
-  gender?: 'male' | 'female' | 'neutral';
+  /** Required grammatical gender, used for localization and romantic relationship filtering. */
+  gender: 'male' | 'female' | 'neutral';
 
   definitions: CharacterDefinition[]; // Realm-based definitions
   relationship?: CharacterRelationshipDefinition[]; // Companion only
@@ -427,6 +427,7 @@ Example encounter:
 
 ```typescript
 const myCharacter: Character = {
+  gender: 'male',
   name: 'Scholar Wei',
   allegiance: 'Nine Mountains',
   bio: 'A dedicated researcher of ancient cultivation techniques...',
@@ -446,11 +447,13 @@ const myCharacter: Character = {
       stats: [{
         condition: '1',
         stats: {
+          stanceRotation: [],
+          rotationOverrides: [],
           difficulty: 'medium',
           battleLength: 'medium',
-          stances: [...],
+          stances: [],
           drops: [
-            { name: 'Spirit Stone', amount: 50 }
+            { item: window.modAPI.gameData.items['Spirit Stone'], amount: 50, chance: 1 }
           ],
           affinities: {
             celestial: 60
@@ -480,14 +483,23 @@ const myCharacter: Character = {
       shopInteraction: [{
         condition: '1',
         stock: {
+          mundane: [],
+          bodyForging: [],
+          qiCondensation: [],
+          coreFormation: [],
+          pillarCreation: [],
+          lifeFlourishing: [],
+          worldShaping: [],
+          innerGenesis: [],
+          soulAscension: [],
           meridianOpening: [
             manualItem1,
             manualItem2
           ]
         },
         costMultiplier: 1.5,
-        introSteps: [...],
-        exitSteps: [...]
+        introSteps: [],
+        exitSteps: []
       }]
     }
   ]

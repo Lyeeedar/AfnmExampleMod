@@ -38,7 +38,7 @@ interface ChangeLocationStep {
 
 ```typescript
 {
-  kind: 'changeLocation',
+  kind: 'location',
   location: 'Sect Grounds'
 }
 ```

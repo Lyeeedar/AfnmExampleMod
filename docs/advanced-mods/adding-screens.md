@@ -36,7 +36,7 @@ Every mod screen receives a `screenAPI` prop containing three main categories of
 
 ### Basic Screen Lifecycle
 
-1. Your screen component is registered with `api.addScreen()`
+1. Your screen component is registered with `window.modAPI.actions.addScreen()`
 2. When navigated to (via action or event), your component mounts
 3. Your component renders the UI and handles user interactions
 4. When the user navigates away, your component unmounts
@@ -154,7 +154,7 @@ export const SimpleWelcomeScreen: ModScreenFC = ({ screenAPI }) => {
 
   // Handle button click
   const handleGreeting = () => {
-    playSfx('Click'); // Play sound effect
+    playSfx('Select'); // Play sound effect
     actions.changeMoney(10); // Give player 10 spirit stones
   };
 
@@ -195,7 +195,7 @@ To make your screen available in the game, register it during mod initialization
 
 ```typescript
 export default function (api: ModAPI) {
-  api.addScreen({
+  api.actions.addScreen({
     key: 'welcomeScreen', // Screen identifier. Use `setScreen('welcomeScreen')` to navigate to it.
     component: SimpleWelcomeScreen, // Your component
     music: 'peaceful_theme', // Optional background music
@@ -413,7 +413,7 @@ export const GuildScreen: ModScreenFC = ({ screenAPI }) => {
 
   const isGuildMember = flags['joined_guild'] || 0;
   // Use social stats (numbers) for numeric comparisons, not player.realm (which is a string)
-  const meetsPrestigeRequirement = (player.socialStats.prestige ?? 0) >= 3;
+  const meetsCharismaRequirement = (player.socialStats.charisma ?? 0) >= 3;
 
   return (
     <GameDialog id="guild-screen" title="Cultivator Guild" onClose={() => actions.setScreen('location')}>
@@ -421,7 +421,7 @@ export const GuildScreen: ModScreenFC = ({ screenAPI }) => {
         // Not a member - show join option
         <Box>
           <Typography>Join the Cultivator Guild?</Typography>
-          {meetsPrestigeRequirement ? (
+          {meetsCharismaRequirement ? (
             <GameButton onClick={() => {
               actions.setFlag('joined_guild', 1);
               actions.startEvent({
@@ -436,7 +436,7 @@ export const GuildScreen: ModScreenFC = ({ screenAPI }) => {
             </GameButton>
           ) : (
             <Typography color="error">
-              Minimum prestige 3 required
+              Minimum charisma 3 required
             </Typography>
           )}
         </Box>

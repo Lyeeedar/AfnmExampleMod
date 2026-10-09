@@ -93,7 +93,7 @@ onBarChange?: (
 ```typescript
 onBarChange: (bar, harmonyData, progressState, entity, state) => {
   // Award +5 harmony each time the focused bar rises
-  const data = harmonyData.additionalData;
+  const data = harmonyData.additionalData as { focusedBar: 'completion' | 'perfection' };
   if (bar === data.focusedBar) {
     progressState.harmony += 5;
     state.craftingLog.push('Eccentric Decree: focused bar advanced. +5 harmony');
@@ -134,12 +134,34 @@ renderComponent: (harmonyData: HarmonyData) => ReactNode
 - Can draw custom assets to be rendered, by drawing them on a blank image using the base cauldron background (below) as a guide. Do not include the cauldron itself in your new asset, simply use it as a guide for the image size and positioning of your new asset.
 ![Cauldron Image](./cauldron.png)
 
+## Required display and progression fields
+
+Also supply `shortDescription`, `icon` (a Material UI SVG icon component), `iconColour`, `iconBorderColour`, `complexityMultiplier`, `unlockFlag`, and `statTable`. The unlock flag controls whether players can select the harmony; set it through your teaching quest. `statTable` contains optional generators for clothing, talisman, artefact, cauldron, and mount stats.
+
+`HarmonyData.additionalData` is `unknown`; narrow or cast it to your mod's data shape before reading its fields.
+
 ## Complete Example
 
 {% raw %}
-```typescript
-window.modAPI.actions.addHarmonyType('elemental', {
+```tsx
+import type { HarmonyData, RecipeHarmonyType } from 'afnm-types';
+import { Box, Typography } from '@mui/material';
+import LocalFireDepartment from '@mui/icons-material/LocalFireDepartment';
+
+// This example stores only numeric fire/water levels in additionalData.
+function elementData(harmonyData: HarmonyData): { fire: number; water: number } {
+  return (harmonyData.additionalData ??= { fire: 5, water: 5 }) as { fire: number; water: number };
+}
+
+window.modAPI.actions.addHarmonyType('elemental' as RecipeHarmonyType, {
   name: 'Elemental Balance',
+  shortDescription: 'Balance fire and water to gain harmony.',
+  icon: LocalFireDepartment,
+  iconColour: '#f44336',
+  iconBorderColour: '#2196f3',
+  complexityMultiplier: 1,
+  unlockFlag: 'elemental_harmony_unlocked',
+  statTable: { clothing: quality => ({ power: quality }) },
 
   description: `Balance fire and water elements to maintain <name>Harmony</name>.
     <br/>
@@ -160,25 +182,27 @@ window.modAPI.actions.addHarmonyType('elemental', {
       water: 5
     };
 
+    const data = elementData(harmonyData) as { fire: number; water: number };
+
     // Process technique effects
     if (technique.type === 'fusion') {
-      harmonyData.additionalData.fire = Math.min(10, harmonyData.additionalData.fire + 3);
-      state.craftingLog.push(`Fire element increased to ${harmonyData.additionalData.fire}`);
+      data.fire = Math.min(10, data.fire + 3);
+      state.craftingLog.push(`Fire element increased to ${data.fire}`);
     } else if (technique.type === 'refine') {
-      harmonyData.additionalData.water = Math.min(10, harmonyData.additionalData.water + 3);
-      state.craftingLog.push(`Water element increased to ${harmonyData.additionalData.water}`);
+      data.water = Math.min(10, data.water + 3);
+      state.craftingLog.push(`Water element increased to ${data.water}`);
     } else {
       // Support/Stabilize boost the lower element
-      if (harmonyData.additionalData.fire < harmonyData.additionalData.water) {
-        harmonyData.additionalData.fire += 1;
+      if (data.fire < data.water) {
+        data.fire += 1;
       } else {
-        harmonyData.additionalData.water += 1;
+        data.water += 1;
       }
     }
 
     // Calculate harmony based on balance
-    const diff = Math.abs(harmonyData.additionalData.fire - harmonyData.additionalData.water);
-    if (diff === 0 && harmonyData.additionalData.fire === 5) {
+    const diff = Math.abs(data.fire - data.water);
+    if (diff === 0 && data.fire === 5) {
       progressState.harmony += 15;
       state.craftingLog.push(`Perfect balance! +15 harmony`);
     } else {
@@ -187,7 +211,7 @@ window.modAPI.actions.addHarmonyType('elemental', {
     }
 
     // Apply buffs based on dominant element
-    if (harmonyData.additionalData.fire > harmonyData.additionalData.water) {
+    if (data.fire > data.water) {
       entity.buffs = [{
         name: 'Fire Dominance',
         icon: 'flame.png',
@@ -201,7 +225,7 @@ window.modAPI.actions.addHarmonyType('elemental', {
         stacks: 1,
         displayLocation: 'none'
       }, ...entity.buffs.filter(b => b.name !== 'Fire Dominance' && b.name !== 'Water Dominance')];
-    } else if (harmonyData.additionalData.water > harmonyData.additionalData.fire) {
+    } else if (data.water > data.fire) {
       entity.buffs = [{
         name: 'Water Dominance',
         icon: 'water.png',
@@ -218,9 +242,9 @@ window.modAPI.actions.addHarmonyType('elemental', {
     }
 
     // Recommend techniques to balance
-    if (harmonyData.additionalData.fire > harmonyData.additionalData.water + 2) {
+    if (data.fire > data.water + 2) {
       harmonyData.recommendedTechniqueTypes = ['refine'];
-    } else if (harmonyData.additionalData.water > harmonyData.additionalData.fire + 2) {
+    } else if (data.water > data.fire + 2) {
       harmonyData.recommendedTechniqueTypes = ['fusion'];
     } else {
       harmonyData.recommendedTechniqueTypes = ['support', 'stabilize'];
@@ -236,7 +260,7 @@ window.modAPI.actions.addHarmonyType('elemental', {
   },
 
   renderComponent: (harmonyData) => {
-    const { fire = 5, water = 5 } = harmonyData.additionalData || {};
+    const { fire, water } = elementData(harmonyData);
 
     return (
        <Box display="flex" mt={5.2} position="relative" justifyContent="center" id="elemental">
@@ -331,23 +355,13 @@ window.modAPI.actions.addHarmonyType('elemental', {
 ```
 {% endraw %}
 
-## Item Type Mapping
+## Assigning a Harmony Type
 
-To assign your harmony type to specific item types, use `overrideItemTypeToHarmonyType`:
-
-```typescript
-window.modAPI.actions.overrideItemTypeToHarmonyType({
-  'artefacts': 'elemental' as RecipeHarmonyType,
-  'cauldrons': 'elemental' as RecipeHarmonyType
-});
-```
-
-Or you can add it to specific recipes instead.
+Set `harmonyTypeOverride` on an individual recipe to use your registered harmony type. Define `baseRecipe` as a complete `RecipeItem` first.
 
 ```typescript
 const elementalRecipe: RecipeItem = {
-  kind: 'recipe',
-  //... recipe fields
+  ...baseRecipe, // A complete RecipeItem defined earlier; override its harmony below
   harmonyTypeOverride: 'elemental' as RecipeHarmonyType,
 }
 ```

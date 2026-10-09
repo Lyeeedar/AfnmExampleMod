@@ -43,6 +43,11 @@ interface LifespanFruitItem extends BaseSpiritFruitItem {
 ```typescript
 // Affinity fruit
 export const celestialFruit: AffinityFruitItem = {
+  description: 'Improves celestial affinity.',
+  icon: 'assets/example.png',
+  stacks: 1,
+  rarity: 'mundane',
+  realm: 'meridianOpening',
   kind: 'fruit',
   subKind: 'affinity',
   name: 'Celestial Spirit Fruit',
@@ -53,6 +58,11 @@ export const celestialFruit: AffinityFruitItem = {
 
 // Lifespan fruit
 export const longevityPeach: LifespanFruitItem = {
+  description: 'Extends the lifespan of the cultivator who eats it.',
+  icon: 'assets/example.png',
+  stacks: 1,
+  rarity: 'mundane',
+  realm: 'meridianOpening',
   kind: 'fruit',
   subKind: 'lifespan',
   name: 'Longevity Peach',

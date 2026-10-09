@@ -14,9 +14,9 @@ Complete, ready-to-use enemy implementations demonstrating various design patter
 A simple wolf enemy for early game encounters:
 
 ```typescript
-import { EnemyEntity } from '../types/entity';
-import { Technique } from '../types/technique';
-import { Buff } from '../types/buff';
+import { EnemyEntity } from 'afnm-types';
+import { Technique } from 'afnm-types';
+import { Buff } from 'afnm-types';
 
 import wolfImage from '../assets/monster/wolf.png';
 import biteIcon from '../assets/techniques/bite.png';
@@ -56,7 +56,8 @@ const howl: Technique = {
         stats: {
           power: { value: 2, stat: 'power' }
         },
-        duration: 3
+        canStack: false,
+        stacks: 1
       },
       amount: { value: 1, stat: undefined }
     }
@@ -71,7 +72,7 @@ export const wolf: EnemyEntity = {
   realmProgress: 'Early',
   difficulty: 'easy',
   battleLength: 'veryshort',
-  spawnRoar: 'WolfHowl',
+  spawnRoar: 'GrowlBark',
 
   stances: [
     {
@@ -99,7 +100,7 @@ export const wolf: EnemyEntity = {
 A human opponent that changes tactics based on player actions:
 
 ```typescript
-import { EnemyEntity } from '../types/entity';
+import { EnemyEntity } from 'afnm-types';
 import cultivatorImage from '../assets/npc/rivalCultivator.png';
 
 // Import techniques from game files
@@ -184,8 +185,8 @@ export const adaptiveCultivator: EnemyEntity = {
 A complex boss with distinct combat phases:
 
 ```typescript
-import { EnemyEntity } from '../types/entity';
-import { Buff } from '../types/buff';
+import { EnemyEntity } from 'afnm-types';
+import { Buff } from 'afnm-types';
 import bossImage from '../assets/monster/ancientGuardian.png';
 import phase2Image from '../assets/monster/ancientGuardianAwakened.png';
 
@@ -193,7 +194,7 @@ import phase2Image from '../assets/monster/ancientGuardianAwakened.png';
 const stoneFist: Technique = {
   name: 'Stone Fist',
   icon: stoneFistIcon,
-  type: 'earth',
+  type: 'none',
   effects: [
     {
       kind: 'damage',
@@ -205,7 +206,7 @@ const stoneFist: Technique = {
 const earthquake: Technique = {
   name: 'Earthquake',
   icon: earthquakeIcon,
-  type: 'earth',
+  type: 'none',
   effects: [
     {
       kind: 'damage',
@@ -217,9 +218,9 @@ const earthquake: Technique = {
         name: 'Unbalanced',
         icon: unbalancedIcon,
         stats: {
-          speed: { value: -3, stat: 'speed' }
+          damageBoost: { value: -3, stat: undefined }
         },
-        duration: 2
+        canStack: false, stacks: 1
       },
       amount: { value: 1, stat: undefined }
     }
@@ -228,24 +229,25 @@ const earthquake: Technique = {
 
 // Phase 2 exclusive
 const awakenedForm: Buff = {
+  stacks: 1,
   name: 'Awakened Guardian',
   icon: awakenedIcon,
   canStack: false,
   stats: {
     power: { value: 10, stat: 'power' },
     defense: { value: 15, stat: 'defense' },
-    speed: { value: 5, stat: 'speed' }
+    damageBoost: { value: 5, stat: undefined }
   },
   combatImage: {
-    image: phase2Image,
-    position: 'replace'  // Replace main sprite
+    position: 'transformation', // Replace the guardian's sprite while this buff is active
+    idle: { image: phase2Image }
   }
 };
 
 const ancientWrath: Technique = {
   name: 'Ancient Wrath',
   icon: wrathIcon,
-  type: 'earth',
+  type: 'none',
   effects: [
     {
       kind: 'damage',
@@ -262,7 +264,7 @@ export const ancientGuardian: EnemyEntity = {
   realmProgress: 'Late',
   difficulty: 'hard',
   battleLength: 'verylong',
-  spawnRoar: 'AncientRoar',
+  spawnRoar: 'GrowlDeep',
 
   stances: [
     // Phase 1 stances
@@ -354,7 +356,7 @@ export const ancientGuardian: EnemyEntity = {
 Multiple weak enemies that spawn together:
 
 ```typescript
-import { EnemyEntity } from '../types/entity';
+import { EnemyEntity } from 'afnm-types';
 import swarmImage from '../assets/monster/voidMite.png';
 
 const swarmBite: Technique = {
@@ -426,7 +428,7 @@ export const voidMiteSwarm: EnemyEntity = {
 An enemy that grows stronger as the fight progresses:
 
 ```typescript
-import { EnemyEntity } from '../types/entity';
+import { EnemyEntity } from 'afnm-types';
 import corruptedImage from '../assets/monster/corruptedMonk.png';
 
 const corruption: Buff = {
@@ -440,8 +442,7 @@ const corruption: Buff = {
   },
   onRoundEffects: [
     {
-      kind: 'buffSelf',
-      buff: 'Corruption',  // Self-stacking
+      kind: 'add', // Add a stack to this buff each round
       amount: { value: 1, stat: undefined }
     }
   ],
@@ -451,7 +452,7 @@ const corruption: Buff = {
 const darkPulse: Technique = {
   name: 'Dark Pulse',
   icon: darkPulseIcon,
-  type: 'dark',
+  type: 'blood',
   effects: [
     {
       kind: 'damage',
@@ -487,7 +488,7 @@ export const corruptedMonk: EnemyEntity = {
         {
           name: 'Embrace Corruption',
           icon: corruptionIcon,
-          type: 'dark',
+          type: 'blood',
           effects: [
             {
               kind: 'buffSelf',
@@ -539,7 +540,7 @@ export const corruptedMonk: EnemyEntity = {
 A fully equipped cultivator with complex tactics:
 
 ```typescript
-import { EnemyEntity } from '../types/entity';
+import { EnemyEntity } from 'afnm-types';
 import championImage from '../assets/npc/tournamentChampion.png';
 
 // Import full loadout
@@ -553,7 +554,7 @@ export const tournamentChampion: EnemyEntity = {
   image: championImage,
   imageScale: 1.0,
   realm: 'pillarCreation',
-  realmProgress: 'Peak',
+  realmProgress: 'Late',
   difficulty: 'veryhard',
   battleLength: 'verylong',
   isCharacter: true,
@@ -652,6 +653,8 @@ An enemy with special combat mechanics:
 ```typescript
 const mirrorImage: Buff = {
   name: 'Mirror Image',
+  stats: {},
+  stacks: 1,
   icon: mirrorIcon,
   canStack: true,
   maxStacks: 3,
@@ -669,11 +672,12 @@ const mirrorImage: Buff = {
   combatImage: {
     image: mirrorImageSprite,
     position: 'arc',
-    count: 'stacks'  // Visual copies
+    stacksScale: 0.1 // Scale visual copies with stacks
   }
 };
 
 export const illusionist: EnemyEntity = {
+  rotationOverrides: [],
   name: 'Shadow Illusionist',
   image: illusionistImage,
   imageScale: 1.0,
@@ -687,6 +691,7 @@ export const illusionist: EnemyEntity = {
       name: 'create_illusions',
       techniques: [
         {
+          type: 'fist',
           name: 'Split Shadow',
           icon: splitIcon,
           effects: [

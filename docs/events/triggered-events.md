@@ -235,8 +235,8 @@ const realmBreakthroughCelebration: GameEvent = {
     },
     {
       kind: 'addItem',
-      item: 'Core Formation Recognition Token',
-      amount: 1,
+      item: { name: 'Core Formation Recognition Token' },
+      amount: '1',
     },
   ],
 };
@@ -245,7 +245,7 @@ const breakthroughTrigger: TriggeredEvent = {
   event: realmBreakthroughCelebration,
   name: 'coreFormationCelebration',
   trigger: 'realm >= coreFormation && coreFormationCelebrated == 0', // Just reached Core Formation
-  screens: ['location', 'home'],
+  screens: ['location'],
   locations: ['Sect Grounds'],
 };
 ```

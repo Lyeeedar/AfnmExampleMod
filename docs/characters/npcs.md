@@ -77,6 +77,13 @@ Merchant NPCs with realm-based inventory:
 const shopInteraction: ShopCharacterInteraction = {
   condition: '1',
   stock: {
+    mundane: [],
+    coreFormation: [],
+    pillarCreation: [],
+    lifeFlourishing: [],
+    worldShaping: [],
+    innerGenesis: [],
+    soulAscension: [],
     bodyForging: [
       healingPillI,
       spiritStone
@@ -255,7 +262,7 @@ const respawningEnemy: EnemyCharacterDefinition = {
 
   attackEvent: [{
     condition: 'character_beaten == 0',  // First encounter
-    event: [...]
+    event: []
   }, {
     condition: 'character_beaten == 1',  // After respawn
     event: [
@@ -268,9 +275,9 @@ const respawningEnemy: EnemyCharacterDefinition = {
     ]
   }],
 
-  stats: [...],
-  locations: [...],
-  encounters: [...]
+  stats: [],
+  locations: [],
+  encounters: []
 };
 ```
 
@@ -280,6 +287,7 @@ const respawningEnemy: EnemyCharacterDefinition = {
 
 ```typescript
 const questGiver: Character = {
+  gender: 'neutral',
   name: 'Elder Zhang',
   allegiance: 'Nine Mountains',
   bio: 'A wise elder who guides young disciples.',
@@ -323,8 +331,7 @@ const questGiver: Character = {
           text: 'Well done! Here is your reward.'
         },
         {
-          kind: 'item',
-          item: { name: 'Spirit Stone' },
+          kind: 'addItem', item: { name: 'Spirit Stone' },
           amount: '100'
         }
       ]
@@ -339,6 +346,7 @@ const questGiver: Character = {
 
 ```typescript
 const wanderingMerchant: Character = {
+  gender: 'male',
   name: 'Trader Feng',
   allegiance: undefined,
   bio: 'A mysterious merchant with rare goods.',
@@ -355,6 +363,9 @@ const wanderingMerchant: Character = {
     stats: [{
       condition: '1',
       stats: {
+        stances: [],
+        stanceRotation: [],
+        rotationOverrides: [],
         difficulty: 'hard',
         battleLength: 'short',
         // Has good gear if attacked
@@ -376,6 +387,15 @@ const wanderingMerchant: Character = {
     shopInteraction: [{
       condition: '1',
       stock: {
+        mundane: [],
+        bodyForging: [],
+        qiCondensation: [],
+        coreFormation: [],
+        pillarCreation: [],
+        lifeFlourishing: [],
+        worldShaping: [],
+        innerGenesis: [],
+        soulAscension: [],
         meridianOpening: [
           rareManual,
           mysticalKey,
@@ -414,6 +434,7 @@ const wanderingMerchant: Character = {
 
 ```typescript
 const demonicCultivator: Character = {
+  gender: 'male',
   name: 'Corrupted Disciple',
   allegiance: 'Demonic Sect',
   bio: 'A cultivator who fell to demonic arts.',
@@ -432,10 +453,12 @@ const demonicCultivator: Character = {
       stats: {
         difficulty: 'hard',
         battleLength: 'long',
+        stanceRotation: [],
+        rotationOverrides: [],
         stances: [/* demonic techniques */],
         drops: [
-          { name: 'Corrupted Core', amount: 1 },
-          { name: 'Demonic Scripture', amount: 1, chance: 0.1 }
+          { item: window.modAPI.gameData.items['Corrupted Core'], amount: 1, chance: 1 },
+          { item: window.modAPI.gameData.items['Demonic Scripture'], amount: 1, chance: 0.1 }
         ],
         affinities: {
           blood: 80
@@ -465,8 +488,8 @@ const demonicCultivator: Character = {
           text: 'Your soul will feed my cultivation!'
         },
         {
-          kind: 'combat',
-          enemies: ['$character'],
+          kind: 'fightCharacter',
+          character: 'Corrupted Disciple',
           victory: [
             {
               kind: 'text',

@@ -24,10 +24,9 @@ interface CondensationArtItem extends ItemBase {
   patternBg: string;        // Background pattern image
   patternOpacity: number;   // Visual opacity
 
-  condenseCost: number;     // Qi cost to condense
-  hpCost?: number;         // Optional HP cost
-  moneyCost?: number;      // Optional spirit stone cost
-  producedDroplets: number; // Droplets created per use
+  artName: string; // Short name used in breakthrough text
+  statChange: Partial<Record<PhysicalStatistic, number>>;
+  restoredDroplets?: number; // Droplets restored by the art
   maxDroplets: number;     // Maximum droplet capacity
 }
 ```
@@ -35,9 +34,7 @@ interface CondensationArtItem extends ItemBase {
 ## Properties
 
 - **patternBg/patternOpacity**: Visual representation
-- **condenseCost**: Primary qi cost for condensation
-- **hpCost/moneyCost**: Optional additional costs
-- **producedDroplets**: Output per condensation
+- **artName/statChange**: Breakthrough name and permanent physical stat changes
 - **maxDroplets**: Storage capacity limit
 
 ## Example
@@ -50,12 +47,13 @@ export const basicCondensationArt: CondensationArtItem = {
   icon: condensationIcon,
   stacks: 1,
   rarity: 'mundane',
-  // realm and hideRealmTier are set automatically — do not override them
+  realm: 'qiCondensation',
+  hideRealmTier: true,
+  artName: 'Basic Qi Condensation',
+  statChange: {},
 
   patternBg: 'basic_pattern.png',
   patternOpacity: 0.7,
-  condenseCost: 10,
-  producedDroplets: 1,
   maxDroplets: 5
 };
 ```
@@ -66,6 +64,6 @@ export const basicCondensationArt: CondensationArtItem = {
 interface CondensationArtEnchantment extends Enchantment {
   itemKind: 'condensation_art';
   condenseEfficiency?: number;
-  producedDroplets?: number;
+  restoredDroplets?: number;
 }
 ```

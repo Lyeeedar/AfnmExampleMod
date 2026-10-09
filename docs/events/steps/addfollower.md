@@ -69,6 +69,7 @@ interface AddFollowerStep {
     ],
     duration: 7,
     buff: {
+      stacks: 1,
       canStack: false,
       stats: {
         maxbarrier: { value: 0.05, stat: 'maxbarrier' }

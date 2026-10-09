@@ -122,6 +122,8 @@ Event steps normally complete when their event finishes. The optional `completio
   hint: 'Confront Zhiwu at the Star Draped Peak',
   completionCondition: 'zhiwuDefeated == 1', // Must defeat Zhiwu
   event: {
+    location: 'Liang Tiao Village',
+    steps: [],
     // Event that might include combat
   }
 }
@@ -579,7 +581,7 @@ steps: [
 ```typescript
 // Later steps can reference earlier completion
 steps: [
-  { kind: 'event', hint: 'Meet the master' /* sets masterMet flag */ },
+  { kind: 'event', hint: 'Meet the master', event: { location: 'Liang Tiao Village', steps: [{ kind: 'flag', flag: 'masterMet', value: '1', global: true }] } },
   {
     kind: 'condition',
     hint: 'Wait for training',

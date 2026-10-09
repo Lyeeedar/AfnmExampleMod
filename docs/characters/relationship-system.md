@@ -61,7 +61,7 @@ interface CharacterRelationshipDefinition {
   followCharacter?: FollowCharacterDefinition; // Party mechanics
   dualCultivation?: DualCultivationDefinition; // Intimate interactions
 
-  progressionEvent: {
+  progressionEvent?: {
     // Event to reach next tier
     name: string; // Event title
     tooltip: Translatable; // Event description
@@ -170,8 +170,12 @@ const relationshipProgression: CharacterRelationshipDefinition[] = [
     tooltip: 'Your bond is unbreakable.',
 
     followCharacter: {
+      formParty: [],
+      dissolveParty: [],
       duration: 5, // Longer party duration
       buff: {
+        canStack: false,
+        stacks: 1,
         // Stronger buffs
         stats: {
           defense: { value: 2.5, stat: 'power' },
@@ -199,8 +203,12 @@ const relationshipProgression: CharacterRelationshipDefinition[] = [
     tooltip: 'Bound by oath and honor.',
 
     followCharacter: {
+      formParty: [],
+      dissolveParty: [],
       duration: 7,
       buff: {
+        canStack: false,
+        stacks: 1,
         stats: {
           defense: { value: 3, stat: 'power' },
           barrierMitigation: { value: 8, stat: undefined },
@@ -248,8 +256,12 @@ const relationshipProgression: CharacterRelationshipDefinition[] = [
     tooltip: 'Your hearts beat as one.',
 
     followCharacter: {
+      formParty: [],
+      dissolveParty: [],
       duration: 10,
       buff: {
+        canStack: false,
+        stacks: 1,
         // Maximum combat buffs
         stats: {
           defense: { value: 4, stat: 'power' },
@@ -320,14 +332,18 @@ const relationshipProgression: CharacterRelationshipDefinition[] = [
     tooltip: 'Your souls are forever intertwined.',
 
     followCharacter: {
+      formParty: [],
+      dissolveParty: [],
       duration: -1, // Unlimited
       buff: {
+        canStack: false,
+        stacks: 1,
         // Transcendent buffs
         stats: {
           defense: { value: 5, stat: 'power' },
           barrierMitigation: { value: 15, stat: undefined },
           power: { value: 1, stat: 'power' },
-          healthMax: { value: 0.5, stat: 'healthMax' },
+          maxhp: { value: 0.5, stat: 'maxhp' },
         },
         beforeTechniqueEffects: [
           {
@@ -338,7 +354,7 @@ const relationshipProgression: CharacterRelationshipDefinition[] = [
         onRoundEffects: [
           {
             kind: 'heal',
-            amount: { value: 0.05, stat: 'healthMax' },
+            amount: { value: 0.05, stat: 'maxhp' },
           },
         ],
       },
@@ -366,9 +382,10 @@ const relationshipProgression: CharacterRelationshipDefinition[] = [
           amount: '2',
         },
         {
-          kind: 'buff',
-          buff: 'Harmonized Souls', // Temporary combat buff
-          duration: 30,
+          kind: 'createBuff',
+          buff: window.modAPI.gameData.buffs['Harmonized Souls'],
+          amount: '30',
+          persistBeyondEvent: true,
         },
       ],
       failure: [], // Cannot fail at this level
@@ -422,11 +439,11 @@ buff: {
   stats: {
     defense: { value: 5, stat: 'power' },
     power: { value: 1, stat: 'power' },
-    healthMax: { value: 0.5, stat: 'healthMax' }
+    maxhp: { value: 0.5, stat: 'maxhp' }
   },
   onRoundEffects: [{
     kind: 'heal',
-    amount: { value: 0.05, stat: 'healthMax' }
+    amount: { value: 0.05, stat: 'maxhp' }
   }]
 }
 ```
@@ -471,22 +488,19 @@ interface DualCultivationDefinition {
 Success in dual cultivation depends on matching traits:
 
 ```typescript
-// Import trait objects from the game's intimateTraits module
-import {
-  lovesRough,      // Prefers rough intimacy
-  lovesTender,     // Prefers tender intimacy
-  lovesPassionate, // Passionate lover
-  aggressiveLover, // Dislikes tender approaches (tender/passionate penalty)
-  hardToPlease,    // High satisfaction threshold
-  hairTrigger,     // Lower satisfaction threshold — quick to finish
-  energetic,       // Extra starting energy
-  lowStamina,      // Reduced starting energy
-  painTolerant,    // Higher pain threshold
-  sensitive,       // Lower pain threshold
-} from 'afnm-types/data/dualCultivation/intimateTraits';
+import type { IntimateTrait } from 'afnm-types';
+
+const lovesTender: IntimateTrait = {
+  name: 'Loves Tenderness', description: 'Prefers tender intimacy.',
+  stats: {}, typeMultiplier: { tender: 1.2 },
+};
+const lovesPassionate: IntimateTrait = {
+  name: 'Loves Passion', description: 'Prefers passionate intimacy.',
+  stats: {}, typeMultiplier: { passionate: 1.2 },
+};
 ```
 
-Traits are `IntimateTrait` objects, not string literals. Import them from the game package and pass them directly in the `traits` array:
+Traits are `IntimateTrait` objects, not string literals. Define them in your mod and pass them directly in the `traits` array:
 
 ```typescript
 dualCultivation: {
@@ -524,9 +538,10 @@ success: [
     amount: '2',
   },
   {
-    kind: 'buff',
-    buff: 'Harmonized Cultivation',
-    duration: 7, // Week-long buff
+    kind: 'createBuff',
+    buff: harmonizedCultivationBuff, // A Buff object defined by your mod
+    amount: '7',
+    persistBeyondEvent: true
   },
 ];
 ```
@@ -682,6 +697,12 @@ Add a `relationshipPaths` field to the character definition alongside (or instea
 
 ```typescript
 const myCompanion: Character = {
+  allegiance: undefined,
+  condition: '1',
+  gender: 'neutral',
+  definitions: [],
+  portrait: 'assets/portrait.png',
+  image: 'assets/example.png',
   name: 'Mei Xing',
   relationship: defaultRelationshipTiers, // Used if no path is selected
   relationshipPaths: {
@@ -748,6 +769,12 @@ const rivalPath: CharacterRelationshipDefinition[] = [
 ];
 
 const meiXing: Character = {
+  allegiance: undefined,
+  condition: '1',
+  gender: 'neutral',
+  definitions: [],
+  portrait: 'assets/portrait.png',
+  image: 'assets/example.png',
   name: 'Mei Xing',
   relationship: defaultPath, // fallback if the branching event never fires
   relationshipPaths: {
@@ -788,6 +815,9 @@ const companionRelationships: CharacterRelationshipDefinition[] = [
       ],
       duration: 3,
       buff: {
+        stats: {},
+        canStack: false,
+        stacks: 1,
         /* combat bonuses */
       },
       cooldown: 5,
@@ -813,8 +843,13 @@ const companionRelationships: CharacterRelationshipDefinition[] = [
     name: 'Lover',
     tooltip: 'Your hearts are intertwined.',
     followCharacter: {
+      formParty: [],
+      dissolveParty: [],
       duration: 7,
       buff: {
+        stats: {},
+        canStack: false,
+        stacks: 1,
         /* enhanced bonuses */
       },
       cooldown: 1,
@@ -849,6 +884,12 @@ const companionRelationships: CharacterRelationshipDefinition[] = [
 
 // Attach to character
 const myCompanion: Character = {
+  allegiance: undefined,
+  condition: '1',
+  gender: 'neutral',
+  definitions: [],
+  portrait: 'assets/portrait.png',
+  image: 'assets/example.png',
   name: 'Companion Name',
   relationship: companionRelationships,
   // ...other properties

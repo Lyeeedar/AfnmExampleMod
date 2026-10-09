@@ -23,7 +23,7 @@ interface Scaling {
   value: number;          // Base multiplier
   /** When false, this stat remains active but is omitted from buff tooltips. */
   tooltipCondition?: string;
-  stat?:                   // Stat to scale off. Normally 'power' or undefined
+  stat:                   // Stat to scale off. Normally 'power' or undefined
     | PhysicalStatistic
     | SocialStatistic
     | CombatStatistic
@@ -286,7 +286,7 @@ amount: {
 {
   value: 10,
   scaling: 'stacks',
-  max: { value: 100 }   // Never exceeds 100
+  max: { value: 100, stat: undefined }   // Never exceeds 100
 }
 ```
 
@@ -422,7 +422,7 @@ Externally controlled / powered items like artefacts and formation parts should 
 {
   kind: 'buffSelf',
   buff: flow,
-  amount: { value: 1 }  // Always 1 stack
+  amount: { value: 1, stat: undefined }  // Always 1 stack
 }
 
 // Convert Flow to damage

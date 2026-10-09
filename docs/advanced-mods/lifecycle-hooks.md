@@ -90,7 +90,7 @@ Fires before combat is initialized. Allows modifying the enemy list and the play
 ```typescript
 window.modAPI.hooks.onBeforeCombat((enemies, playerState, gameFlags) => {
   if (gameFlags.hard_mode) {
-    const scaled = enemies.map(e => ({ ...e, stats: { ...e.stats, hp: e.stats.hp * 2 } }));
+    const scaled = enemies.map(e => ({ ...e, statMultipliers: { ...e.statMultipliers, hp: (e.statMultipliers?.hp ?? 1) * 2 } }));
     return { enemies: scaled, playerState };
   }
   return { enemies, playerState };
@@ -150,7 +150,7 @@ window.modAPI.hooks.onModifyRecipeIngredients((recipe, gameFlags) => {
     const modified = { ...recipe };
     modified.ingredients = recipe.ingredients.map(ing => ({
       ...ing,
-      count: Math.max(1, Math.floor(ing.count * 0.5)),
+      quantity: Math.max(1, Math.floor(ing.quantity * 0.5)),
     }));
     return modified;
   }
@@ -188,7 +188,7 @@ window.modAPI.hooks.onCompleteCombat((eventStep, victory, playerCombatState, fou
     events.push({ kind: 'changeSocialStat', stat: 'lifespan', amount: '-lifespan' });
   }
 
-  if (victory && playerCombatState.stats.hp === playerCombatState.stats.maxHp) {
+  if (victory && playerCombatState.stats.hp === playerCombatState.stats.maxhp) {
     events.push({ kind: 'addItem', item: { name: 'Flawless Victory Token' }, amount: '1' });
   }
 
@@ -265,8 +265,8 @@ Triggers after crafting attempts, successful or failed.
 window.modAPI.hooks.onCompleteCrafting((eventStep, item, gameFlags) => {
   const events: EventStep[] = [];
 
-  if (item && item.quality >= 4) {
-    events.push({ kind: 'reputation', name: 'Celadon Flame Brewers', amount: '' + (item.quality * 5) });
+  if (item && (item.qualityTiers ?? 0) >= 4) {
+    events.push({ kind: 'reputation', name: 'Celadon Flame Brewers', amount: '' + ((item.qualityTiers ?? 0) * 5) });
   }
 
   return events;
@@ -453,7 +453,7 @@ Fires once for each month rollover that occurs during a day advance. If the play
 ```typescript
 window.modAPI.hooks.onAdvanceMonth((month, year, gameFlags) => {
   if (month === 3) {
-    window.modAPI.actions.startEvent(mySpringFestivalEvent);
+    console.log('Spring festival month:', year);
   }
 });
 ```
@@ -479,7 +479,7 @@ Fires when the player starts a new game (including after the optional tutorial).
   - `player: PlayerEntity` - the player entity after backgrounds are applied
   - `craftingActions: string[]` - crafting action IDs granted at game start
 
-**Returns:** `NewGameIntent` - modified intent (all fields are optional; return only what you changed)
+**Returns:** `NewGameIntent` - modified intent (spread the original intent to preserve all required fields)
 
 **Example:**
 ```typescript
@@ -511,7 +511,7 @@ Fires when a saved game is loaded, allowing mods to mutate the initial state. Th
 ```typescript
 window.modAPI.hooks.onGameLoad((state) => ({
   ...state,
-  player: { ...state.player, flags: { ...state.player.flags, my_mod_flag: 1 } },
+  gameData: { ...state.gameData, flags: { ...state.gameData.flags, my_mod_flag: 1 } },
 }));
 ```
 
@@ -653,7 +653,7 @@ Called after the reforge completes, before the result dialog is shown. Allows mo
 window.modAPI.hooks.onCompleteEquipmentReforge((baseItem, costItems, resultItem, gameFlags) => {
   return {
     costItems,
-    resultItem: { ...resultItem, damage: (resultItem.damage ?? 0) + 5 },
+    resultItem: resultItem ? { ...resultItem, valueTier: (resultItem.valueTier ?? 0) + 1 } : undefined,
   };
 });
 ```

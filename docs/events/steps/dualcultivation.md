@@ -48,7 +48,10 @@ interface DualCultivationStep {
 {
   kind: 'dualCultivation',
   character: 'Pi Lip',
-  traits: ['passionate', 'focused'],
+  traits: [
+    { name: 'Passionate', description: 'Prefers passionate techniques.', stats: {}, typeMultiplier: { passionate: 1.2 } },
+    { name: 'Focused', description: 'Has greater energy for cultivation.', stats: { energy: 10 }, typeMultiplier: {} },
+  ],
   success: [
     { kind: 'text', text: 'Your cultivation energies harmonize perfectly.' },
     { kind: 'qi', amount: '100' }

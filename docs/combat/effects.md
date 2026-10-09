@@ -27,13 +27,7 @@ Optional key used for triggered effects system.
 Deals damage to the enemy.
 
 ```typescript
-{
-  kind: 'damage',
-  amount: { value: 1.0, stat: 'power' },
-  hits?: { value: 3, stat: undefined }, // Optional multiple hits
-  damageType?: 'true' | 'corrupt' | 'disruption', // Optional special damage
-  scalesCrit?: boolean // Opt into crit roll independently of power scaling
-}
+{ kind: 'damage', amount: { value: 1, stat: 'power' }, hits: { value: 3, stat: undefined }, damageType: 'true', scalesCrit: true }
 ```
 
 **Example from game:**
@@ -52,11 +46,7 @@ Deals damage to the enemy.
 Deals damage to yourself.
 
 ```typescript
-{
-  kind: 'damageSelf',
-  amount: { value: 0.03, stat: 'maxhp' },
-  damageType?: 'true' | 'corrupt' | 'disruption'
-}
+{ kind: 'damageSelf', amount: { value: 0.03, stat: 'maxhp' }, damageType: 'true' }
 ```
 
 **Example from Profane Exchange:**
@@ -77,11 +67,7 @@ Deals damage to yourself.
 Restores health.
 
 ```typescript
-{
-  kind: 'heal',
-  amount: { value: 0.25, stat: 'power' },
-  hits?: { value: 2, stat: undefined } // Optional multiple heals
-}
+{ kind: 'heal', amount: { value: 0.25, stat: 'power' }, hits: { value: 2, stat: undefined } }
 ```
 
 **Example from Restoring Fragrance:**
@@ -99,11 +85,7 @@ Restores health.
 Grants barrier (damage absorption).
 
 ```typescript
-{
-  kind: 'barrier',
-  amount: { value: 0.9, stat: 'power' },
-  hits?: { value: 1, stat: undefined }
-}
+{ kind: 'barrier', amount: { value: 0.9, stat: 'power' }, hits: { value: 1, stat: undefined } }
 ```
 
 **Parameters:**
@@ -160,14 +142,7 @@ Restores health to barrier-type buffs that have taken damage.
 Grants a buff to yourself.
 
 ```typescript
-{
-  kind: 'buffSelf',
-  amount: { value: 2, stat: undefined },
-  buff: targetBuff | { kind: 'triggerSource' },
-  instances?: { value: number, stat?: string }, // Number of separate buff instances to create (supports Scaling)
-  silent?: true, // Don't show application message
-  hideBuff?: true // Don't show buff in tooltips
-}
+{ kind: 'buffSelf', amount: { value: 2, stat: undefined }, buff: targetBuff, silent: true, hideBuff: true }
 ```
 
 When `buff` is `{ kind: 'triggerSource' }`, the buff resolves to the triggering buff -- the buff whose `triggeredBuffEffects` or `onXxxEffects` hook is currently executing. This is only meaningful inside a deferred effect chain (see `defer` below), where the outer buff that was originally triggered is passed through as the `triggeringBuff`.
@@ -180,7 +155,7 @@ Removes a buff from yourself.
 {
   kind: 'consumeSelf',
   amount: { value: 1, stat: undefined },
-  buff: targetBuff | 'self' // Can be a Buff object, string name, or 'self' to reference the current buff
+  buff: 'self' // Can be a Buff object, string name, or 'self' to reference the current buff
 }
 ```
 
@@ -256,7 +231,7 @@ Multiplies the current stack count by the given amount. The result is floored to
 ```typescript
 {
   kind: 'multiply',
-  amount: { value: 2 } // Double stacks (multiply by 2)
+  amount: { value: 2, stat: undefined } // Double stacks (multiply by 2)
 }
 ```
 
@@ -265,7 +240,7 @@ Multiplies the current stack count by the given amount. The result is floored to
 ```typescript
 {
   kind: 'multiply',
-  amount: { value: -0.5 } // Halve stacks; floored so 1 → 0 rather than removing the buff
+  amount: { value: -0.5, stat: undefined } // Halve stacks; floored so 1 → 0 rather than removing the buff
 }
 ```
 
@@ -275,7 +250,7 @@ Removes all stacks of the current buff, deleting the buff entirely.
 
 ```typescript
 {
-  kind: 'negate';
+  kind: 'negate',
 }
 ```
 
@@ -286,7 +261,7 @@ Defers a list of effect resolutions until after the current effect-scope complet
 ```typescript
 {
   kind: 'defer',
-  effects: BuffEffect[]
+  effects: []
 }
 ```
 
@@ -307,14 +282,14 @@ Defers a list of effect resolutions until after the current effect-scope complet
 
 **Use case**: Breaking circular trigger chains where buff A triggers buff B, but buff B triggering back to buff A would cause an infinite loop. Deferred effects run after the current resolution scope clears, so the recursion guard has already reset by the time the deferred effect fires. See also `triggeringBuff` in Triggers for passing the original trigger context through the deferred chain.
 
-### `mergeSelf`
+### `mergeSelf` (technique effect)
 
 Combines multiple stacks from one buff into fewer stacks of another buff. Unlike `convertSelf` which transfers stacks one-for-one, `mergeSelf` condenses a ratio of source stacks into target stacks.
 
 ```typescript
 {
   kind: 'mergeSelf',
-  source?: sourceBuff, // If omitted, uses the current buff
+  source: sourceBuff, // Buff whose stacks are consumed
   sourceStacks: { value: 2, stat: undefined },
   target: targetBuff,
   targetStacks: { value: 1, stat: undefined }
@@ -326,6 +301,7 @@ Combines multiple stacks from one buff into fewer stacks of another buff. Unlike
 ```typescript
 {
   kind: 'mergeSelf',
+  source: sourceBuff,
   sourceStacks: { value: 2, stat: undefined },
   target: condensingBuff,
   targetStacks: { value: 1, stat: undefined }
@@ -367,12 +343,7 @@ Converts stacks of one buff into stacks of another buff, one-for-one. Unlike `me
 Sets or increments a named state variable that persists for the duration of combat. State variables can be read in conditions using their key name.
 
 ```typescript
-{
-  kind: 'setState',
-  key: 'variableName',      // Arbitrary string key
-  value: { value: 1, stat: undefined },
-  mode?: 'set' | 'add'      // 'set' overwrites, 'add' increments (default: 'set')
-}
+{ kind: 'setState', key: 'variableName', value: { value: 1, stat: undefined }, mode: 'add' }
 ```
 
 **Example — counting triggers this technique:**
@@ -411,12 +382,7 @@ condition: {
 Triggers custom events for other systems.
 
 ```typescript
-{
-  kind: 'trigger',
-  triggerKey: 'customEvent',
-  amount: { value: 1, stat: undefined },
-  triggerTooltip?: 'Explanation of what this trigger does'
-}
+{ kind: 'trigger', triggerKey: 'customEvent', amount: { value: 1, stat: undefined }, triggerTooltip: 'Explanation of what this trigger does' }
 ```
 
 ### `cleanseToxicity`
@@ -471,12 +437,7 @@ This pattern uses a state variable (`dormant`) set on round start to detect a no
 Modifies all buffs of a specific group.
 
 ```typescript
-{
-  kind: 'modifyBuffGroup',
-  group: 'celestial',
-  amount: { value: 1, stat: undefined },
-  mode?: 'all' | 'highest' | 'lowest' | 'random'
-}
+{ kind: 'modifyBuffGroup', group: 'celestial', amount: { value: 1, stat: undefined }, mode: 'all' }
 ```
 
 **`mode`** — Controls which matching buffs are affected:
@@ -572,7 +533,7 @@ All effects use the **[Scaling](../concepts/scaling)** interface for amount calc
 ```typescript
 interface Scaling {
   value: number; // Base value
-  stat?: CombatStatistic; // Stat to scale from
+  stat: CombatStatistic | undefined; // Supply undefined for a flat amount
   scaling?: string; // Custom scaling variable (e.g. 'stacks', a buff name)
   eqn?: string; // Expression multiplied onto the result
   additiveEqn?: string; // Expression added to the result (after eqn multiplication)
@@ -706,6 +667,7 @@ Restores Qi Droplets to the entity, capped by the entity's missing droplets and 
   amount: { value: 0.3, stat: 'power' },
   hits: {
     value: 0.5, // 1 hit per 2 stacks
+    stat: undefined,
     scaling: 'bloodCorruption',
     max: { value: 3, stat: undefined } // Max 3 hits
   }
