@@ -27,12 +27,7 @@ Optional key used for triggered effects system.
 Deals damage to the enemy.
 
 ```typescript
-{
-  kind: 'damage',
-  amount: { value: 1.0, stat: 'power' },
-  hits?: { value: 3, stat: undefined }, // Optional multiple hits
-  damageType?: 'true' | 'corrupt' | 'disruption' // Optional special damage
-}
+{ kind: 'damage', amount: { value: 1, stat: 'power' }, hits: { value: 3, stat: undefined }, damageType: 'true', scalesCrit: true }
 ```
 
 **Example from game:**
@@ -51,11 +46,7 @@ Deals damage to the enemy.
 Deals damage to yourself.
 
 ```typescript
-{
-  kind: 'damageSelf',
-  amount: { value: 0.03, stat: 'maxhp' },
-  damageType?: 'true' | 'corrupt' | 'disruption'
-}
+{ kind: 'damageSelf', amount: { value: 0.03, stat: 'maxhp' }, damageType: 'true' }
 ```
 
 **Example from Profane Exchange:**
@@ -76,11 +67,7 @@ Deals damage to yourself.
 Restores health.
 
 ```typescript
-{
-  kind: 'heal',
-  amount: { value: 0.25, stat: 'power' },
-  hits?: { value: 2, stat: undefined } // Optional multiple heals
-}
+{ kind: 'heal', amount: { value: 0.25, stat: 'power' }, hits: { value: 2, stat: undefined } }
 ```
 
 **Example from Restoring Fragrance:**
@@ -98,12 +85,17 @@ Restores health.
 Grants barrier (damage absorption).
 
 ```typescript
-{
-  kind: 'barrier',
-  amount: { value: 0.9, stat: 'power' },
-  hits?: { value: 1, stat: undefined }
-}
+{ kind: 'barrier', amount: { value: 0.9, stat: 'power' }, hits: { value: 1, stat: undefined } }
 ```
+
+**Parameters:**
+
+- **`hits.value`** — Number of barrier applications.
+- **`hits.stat`** — Stat to scale the number of hits from.
+- **`hits.increment`** — For multiple hits: each subsequent hit costs this many more stacks of the scaling buff. The first hit costs nothing extra, the second costs `increment`, the third costs `2 * increment`, etc. The scaling buff is consumed as hits are applied. Used by techniques like Zephyr Ward to make barrier stacks progressively more expensive.
+- **`hits.additiveEqn`** — Expression added to each hit's scaling value.
+- **`hits.scaling`** — Buff name to scale the number of hits from.
+- **`hits.buff`** — Buff reference for the scaling buff.
 
 **Example from Advancing Fist:**
 
@@ -114,6 +106,35 @@ Grants barrier (damage absorption).
 }
 ```
 
+### `repair`
+
+Restores health to barrier-type buffs that have taken damage.
+
+```typescript
+{
+  kind: 'repair',
+  amount: { value: 0.5, stat: 'power' },
+  group: 'shield',
+  rule: 'lowestHealth'
+}
+```
+
+**Parameters:**
+
+- **`group`** — Selects which buffs to repair. Matched against the buff's `name`, `buffType`, or any flag set on it (same matching rules as `modifyBuffGroup`).
+- **`rule`** — `'all'` repairs every matching buff; `'lowestHealth'` targets the most damaged one; `'highestHealth'` targets the least damaged.
+
+**Example — repair the most damaged shield buff:**
+
+```typescript
+{
+  kind: 'repair',
+  amount: { value: 0.3, stat: 'power' },
+  group: 'shield',
+  rule: 'lowestHealth'
+}
+```
+
 ## Buff Management
 
 ### `buffSelf`
@@ -121,14 +142,22 @@ Grants barrier (damage absorption).
 Grants a buff to yourself.
 
 ```typescript
+{ kind: 'buffSelf', amount: { value: 2, stat: undefined }, buff: targetBuff, silent: true, hideBuff: true, instant?: true }
+```
+
+**`instant`** - When `true`, applies buff stacks directly without triggering `use.*` triggers, amplifiers, or buff interceptors. Use this to avoid circular trigger chains or unwanted side-effects when stacking resources.
+
+```typescript
+// Apply Rot without firing any use.* triggers or amplifiers
 {
   kind: 'buffSelf',
-  amount: { value: 2, stat: undefined },
-  buff: targetBuff,
-  silent?: true, // Don't show application message
-  hideBuff?: true // Don't show buff in tooltips
+  buff: rot,
+  amount: { value: 1, stat: undefined },
+  instant: true,
 }
 ```
+
+When `buff` is `{ kind: 'triggerSource' }`, the buff resolves to the triggering buff -- the buff whose `triggeredBuffEffects` or `onXxxEffects` hook is currently executing. This is only meaningful inside a deferred effect chain (see `defer` below), where the outer buff that was originally triggered is passed through as the `triggeringBuff`.
 
 ### `consumeSelf`
 
@@ -138,9 +167,24 @@ Removes a buff from yourself.
 {
   kind: 'consumeSelf',
   amount: { value: 1, stat: undefined },
-  buff: targetBuff // Can be Buff object or string name
+  buff: 'self', // Can be a Buff object, string name, or 'self' to reference the current buff
+  instant?: true,
 }
 ```
+
+**`instant`** - When `true`, removes buff stacks directly without firing the buff's consumption triggers. Use this to consume resource stacks silently without triggering effects that depend on them.
+
+```typescript
+// Consume Flow without firing its onConsume triggers
+{
+  kind: 'consumeSelf',
+  buff: flow,
+  amount: { value: 1, stat: undefined },
+  instant: true,
+}
+```
+
+Using `'self'` as the buff name is shorthand for consuming the buff that is currently executing its effects.
 
 ### `buffTarget`
 
@@ -153,6 +197,22 @@ Gives a buff to the enemy.
   buff: debuffBuff
 }
 ```
+
+**`initialState`** — Seeds the created buff's `internalState` at application time. Each key is evaluated in the applier's variable scope, so apply-time values like absorbed damage can be captured into the debuff.
+
+```typescript
+// Seed the debuff with the applier's current power
+{
+  kind: 'buffTarget',
+  amount: { value: 1, stat: undefined },
+  buff: debuffBuff,
+  initialState: {
+    stored: { value: 1, stat: 'power' }  // evaluates in applier's scope
+  }
+}
+```
+
+This mirrors the `initialState` field already available on `buffSelf`.
 
 ### `consumeTarget`
 
@@ -191,44 +251,95 @@ Adds or removes stacks from the current buff.
 
 ### `multiply`
 
-Multiplies the current stack count.
+Multiplies the current stack count by the given amount. The result is floored to the nearest integer.
 
 ```typescript
 {
   kind: 'multiply',
-  amount: { value: 2 } // Double stacks (multiply by 2)
+  amount: { value: 2, stat: undefined } // Double stacks (multiply by 2)
+}
+```
+
+**Stack-decay use case:** A negative multiply amount floors the stacks in place, producing a gradual decay without removing the buff. For example, `amount: { value: -0.5 }` halves the stacks each trigger (4 → 2 → 1 → 0):
+
+```typescript
+{
+  kind: 'multiply',
+  amount: { value: -0.5, stat: undefined } // Halve stacks; floored so 1 → 0 rather than removing the buff
 }
 ```
 
 ### `negate`
 
-Removes all stacks of the current buff.
+Removes all stacks of the current buff, deleting the buff entirely.
 
 ```typescript
 {
-  kind: 'negate';
+  kind: 'negate',
 }
 ```
 
-## Advanced Effects
+### `defer`
 
-### `merge`
-
-Converts stacks from one buff to another.
+Defers a list of effect resolutions until after the current effect-scope completes. Deferred effects run in FIFO order, after all currently queued effect resolutions finish. Effects that trigger inside a deferred scope are added to the same FIFO queue and run after the current entry.
 
 ```typescript
 {
-  kind: 'merge',
-  sourceBuff?: sourceBuff, // If omitted, uses current buff
+  kind: 'defer',
+  effects: []
+}
+```
+
+**Example -- delay a follow-up damage effect until the current buff application resolves:**
+
+```typescript
+{
+  kind: 'defer',
+  effects: [
+    {
+      kind: 'damage',
+      amount: { value: 0.5, stat: 'power' },
+      damageType: 'true'
+    }
+  ]
+}
+```
+
+**Use case**: Breaking circular trigger chains where buff A triggers buff B, but buff B triggering back to buff A would cause an infinite loop. Deferred effects run after the current resolution scope clears, so the recursion guard has already reset by the time the deferred effect fires. See also `triggeringBuff` in Triggers for passing the original trigger context through the deferred chain.
+
+### `mergeSelf` (technique effect)
+
+Combines multiple stacks from one buff into fewer stacks of another buff. Unlike `convertSelf` which transfers stacks one-for-one, `mergeSelf` condenses a ratio of source stacks into target stacks.
+
+```typescript
+{
+  kind: 'mergeSelf',
+  source: sourceBuff, // Buff whose stacks are consumed
   sourceStacks: { value: 2, stat: undefined },
-  targetBuff: targetBuff,
+  target: targetBuff,
   targetStacks: { value: 1, stat: undefined }
 }
 ```
 
+**Example — condense 2 source stacks into 1 target stack:**
+
+```typescript
+{
+  kind: 'mergeSelf',
+  source: sourceBuff,
+  sourceStacks: { value: 2, stat: undefined },
+  target: condensingBuff,
+  targetStacks: { value: 1, stat: undefined }
+}
+```
+
+**Use case**: Efficiency mechanics where lower-tier resource buffs are consolidated into higher-tier forms. For example, a technique that generates multiple weak stacks which should be merged into a single stronger stack rather than accumulating separately.
+
+## Advanced Effects
+
 ### `convertSelf`
 
-Converts stacks of one buff into stacks of another buff, one-for-one. Unlike `merge`, this transfers all available stacks at the point of execution rather than merging by a ratio.
+Converts stacks of one buff into stacks of another buff, one-for-one. Unlike `mergeSelf`, this transfers all available stacks at the point of execution rather than merging by a ratio.
 
 ```typescript
 {
@@ -239,7 +350,7 @@ Converts stacks of one buff into stacks of another buff, one-for-one. Unlike `me
 }
 ```
 
-**Example -- inscription upgrade chain (used in `onRoundEffects`):**
+**Example — inscription upgrade chain (used in `onRoundEffects`):**
 
 ```typescript
 {
@@ -257,18 +368,13 @@ Converts stacks of one buff into stacks of another buff, one-for-one. Unlike `me
 Sets or increments a named state variable that persists for the duration of combat. State variables can be read in conditions using their key name.
 
 ```typescript
-{
-  kind: 'setState',
-  key: 'variableName',      // Arbitrary string key
-  value: { value: 1, stat: undefined },
-  mode?: 'set' | 'add'      // 'set' overwrites, 'add' increments (default: 'set')
-}
+{ kind: 'setState', key: 'variableName', value: { value: 1, stat: undefined }, mode: 'add' }
 ```
 
-**Example -- counting triggers this technique:**
+**Example — counting triggers this technique:**
 
 ```typescript
-// In triggeredBuffEffects -- increment counter each time a trigger fires
+// In triggeredBuffEffects — increment counter each time a trigger fires
 {
   kind: 'setState',
   key: 'triggersThisTechnique',
@@ -301,12 +407,7 @@ condition: {
 Triggers custom events for other systems.
 
 ```typescript
-{
-  kind: 'trigger',
-  triggerKey: 'customEvent',
-  amount: { value: 1, stat: undefined },
-  triggerTooltip?: 'Explanation of what this trigger does'
-}
+{ kind: 'trigger', triggerKey: 'customEvent', amount: { value: 1, stat: undefined }, triggerTooltip: 'Explanation of what this trigger does' }
 ```
 
 ### `cleanseToxicity`
@@ -320,17 +421,55 @@ Removes or adds toxicity.
 }
 ```
 
+### `restoreDroplets`
+
+Restores qi droplets to the entity, up to a per-combat limit and the entity's maximum. The effect is suppressed if `dropletsDisabled` is set in the variable scope (see the [Flags](../concepts/flags) docs).
+
+```typescript
+{
+  kind: 'restoreDroplets',
+  amount: { value: 3, stat: undefined },
+  perCombatLimit: 3  // Total droplets this entity may recover per combat
+}
+```
+
+**Parameters:**
+
+- **`amount`** — Number of droplets to restore. Capped by `perCombatLimit` minus droplets already restored this combat, and by the gap between current and maximum qi droplets.
+- **`perCombatLimit`** — Total droplets this entity may recover through all `restoreDroplets` effects combined, per combat. The counter is shared across buffs and techniques that both use this effect.
+
+**Example — restore 3 droplets at the start of a round, only if none were spent that round:**
+
+```typescript
+{
+  kind: 'restoreDroplets',
+  condition: {
+    kind: 'condition',
+    condition: 'dormant == 1 && qiDroplets == 0',
+  },
+  amount: { value: 3, stat: undefined },
+  perCombatLimit: 3,
+  cantUpgrade: true,
+}
+```
+
+This pattern uses a state variable (`dormant`) set on round start to detect a no-spend round, and the `condition` gate ensures the effect only fires when the entity ended the round with zero droplets. Because `perCombatLimit` is shared, multiple restoration effects in the same combat accumulate against the same counter.
+
+**Use case**: Recovery mechanics that reward not spending qi droplets, or techniques that replenish the droplet resource for depleted cultivators. Set `dropletsDisabled: 1` in a flag or condition to suppress all droplet restoration on an entity.
+
 ### `modifyBuffGroup`
 
 Modifies all buffs of a specific group.
 
 ```typescript
-{
-  kind: 'modifyBuffGroup',
-  group: 'celestial',
-  amount: { value: 1, stat: undefined }
-}
+{ kind: 'modifyBuffGroup', group: 'celestial', amount: { value: 1, stat: undefined }, mode: 'all' }
 ```
+
+**`mode`** — Controls which matching buffs are affected:
+- `'all'` (default): affects every matching buff
+- `'highest'`: affects the matching buff with the most stacks
+- `'lowest'`: affects the matching buff with the fewest stacks
+- `'random'`: affects one randomly chosen matching buff
 
 ### `consumeInventoryItem`
 
@@ -346,6 +485,72 @@ Consumes an item from the player's inventory. The effect silently does nothing i
 
 **Use case**: Equipment or mount effects that deplete consumable items as part of their activation (for example, a mount that burns a special pill each round to provide its bonus).
 
+### `permanentStatChange`
+
+Permanently modifies a physical or social statistic on the player. The change takes effect after combat ends. The amount is floored to an integer.
+
+Only applies when the technique is used by the player — enemy techniques with this effect kind are ignored.
+
+```typescript
+{
+  kind: 'permanentStatChange',
+  stat: 'muscles',            // Any PhysicalStatistic or SocialStatistic
+  amount: { value: 5, stat: undefined }
+}
+```
+
+**Valid `stat` values:**
+
+Physical statistics:
+- `'flesh'` — Max Health and Barrier Effectiveness
+- `'muscles'` — Power and Qi Intensity
+- `'meridians'` — Qi Control and Artefact Power
+- `'dantian'` — Max Barrier, Max Qi Pool, and Qi Absorption
+- `'digestion'` — Toxicity Resistance and Item Effectiveness
+- `'eyes'` — Critical Chance and Critical Multiplier
+
+Social statistics:
+- `'charisma'` — Presence and shop prices
+- `'battlesense'` — Stance count and stance-switch power bonus
+- `'craftskill'` — Qi Control and Qi Intensity bonus
+- `'artefactslots'` — Number of equippable artefacts
+- `'talismanslots'` — Number of equippable talismans
+- `'condenseEfficiency'` — Qi to Qi Droplet conversion rate
+- `'pillsPerRound'` — Items usable per combat round
+- `'age'` — Current age
+- `'lifespan'` — Maximum lifespan
+
+**Use case**: Combat consumables that permanently enhance the player's physical or social attributes when used during a fight.
+
+**Example — a pill that permanently boosts muscles by 1:**
+
+```typescript
+{
+  kind: 'permanentStatChange',
+  stat: 'muscles',
+  amount: { value: 1, stat: undefined }
+}
+```
+
+### `scalesCrit` — Crit Eligibility Without Power Scaling
+
+By default, a damage effect only rolls crit (and applies the buff's `statChanges.overcrit` re-roll chain) when `amount.stat` is `power` or `artefactpower`. The `scalesCrit` flag lets damage that uses a custom `eqn` opt into crit without reapplying power-scaled boosts that already affected the original hit.
+
+```typescript
+// Stored-damage release: full value already computed, opt into crit only
+{
+  kind: 'damage',
+  amount: {
+    value: 1,
+    stat: undefined,
+    eqn: 'storedDamage', // pre-computed; do not re-apply power scaling
+  },
+  scalesCrit: true, // roll crit using player's critChance/overcrit stats
+}
+```
+
+**Use case**: Effects like Sinew-Bound Wraps that store a portion of a hit's damage and release it later. The stored value is already the final damage — applying power-scaled boosts a second time would double-count them. Setting `scalesCrit: true` lets the stored damage still benefit from the player's crit investment without inflating the base amount.
+
 ## Scaling System
 
 All effects use the **[Scaling](../concepts/scaling)** interface for amount calculations:
@@ -353,12 +558,29 @@ All effects use the **[Scaling](../concepts/scaling)** interface for amount calc
 ```typescript
 interface Scaling {
   value: number; // Base value
-  stat?: CombatStatistic; // Stat to scale from
-  scaling?: string; // Custom scaling variable
+  stat: CombatStatistic | undefined; // Supply undefined for a flat amount
+  scaling?: string; // Custom scaling variable (e.g. 'stacks', a buff name)
+  eqn?: string; // Expression multiplied onto the result
+  additiveEqn?: string; // Expression added to the result (after eqn multiplication)
   max?: Scaling; // Maximum value cap
   upgradeKey?: string; // Reference for upgrades
 }
 ```
+
+The `eqn` field enables complex calculations within the scaling value itself. For example, the Meteor buff uses `eqn` to scale its damage with the meteor's current mass:
+
+```typescript
+{
+  kind: 'damage',
+  amount: {
+    value: 3,
+    stat: 'power',
+    eqn: '1 + (state.mass * 0.2)',  // Base 3x power, plus 20% per mass
+  },
+}
+```
+
+See the [Scaling](../concepts/scaling) docs for the full formula and all available scaling patterns.
 
 ### Common Scaling Patterns
 
@@ -391,21 +613,74 @@ amount: {
 }
 ```
 
+## Element Resistance and Amplification
+
+When a technique has one or more element types, the target's resistance for each element is checked. The highest resistance value (positive or negative) is selected and applied to the damage:
+
+- **Positive resistance** reduces incoming damage, capped at 90% reduction. For example, 50% resistance multiplies damage by 0.5.
+- **Negative resistance** amplifies incoming damage with no lower cap. For example, -20% resistance multiplies damage by 1.2.
+
+The system selects the single most impactful resistance value, so mixing positive and negative values picks whichever helps or hurts the target most.
+
+```typescript
+// Example: target has 30% Blossom resistance
+// A Blossom technique dealing 100 damage would deal 70 damage
+
+// Example: target has -15% Blood resistance (vulnerable to blood)
+// A Blood technique dealing 100 damage would deal 115 damage
+```
+
+This applies only when the technique has element types set. Techniques with no element type skip resistance checks entirely.
+
 ## Damage Types
 
 Special damage types bypass certain protections:
 
 ### `'true'`
 
-Ignores barrier, armour, and cultivator resistance.
+Ignores both barrier and defense.
 
 ### `'corrupt'`
 
-Ignores barrier and armour but not cultivator resistance.
+Ignores defense but not barrier.
 
 ### `'disruption'`
 
 Only affects barrier, not health.
+
+### `restoreDroplets`
+
+Restores Qi Droplets to the entity, capped by the entity's missing droplets and optionally by a per-combat limit shared with other restoration sources.
+
+\`\`\`typescript
+{
+  kind: 'restoreDroplets',
+  amount: { value: 3, stat: undefined },
+  perCombatLimit?: number,
+}
+\`\`\`
+
+**Parameters:**
+
+- **`amount`** — Number of droplets to restore. Capped by `maxqiDroplets - stats.qiDroplets`.
+- **`perCombatLimit`** — Optional total droplets this entity may recover per combat through restoration effects. Multiple `restoreDroplets` effects share a `restoredQiDroplets` counter on the entity; the cap is enforced by subtracting the counter from the limit. When omitted, no per-combat cap applies.
+
+**Example:**
+
+\`\`\`typescript
+// Restore up to 3 droplets per combat (shared cap)
+{
+  kind: 'restoreDroplets',
+  amount: { value: 3, stat: undefined },
+  perCombatLimit: 3,
+}
+// Unlimited restoration per combat
+{
+  kind: 'restoreDroplets',
+  amount: { value: 1, stat: undefined },
+  // perCombatLimit omitted
+}
+\`\`\`
 
 ## Condition Examples
 
@@ -417,6 +692,7 @@ Only affects barrier, not health.
   amount: { value: 0.3, stat: 'power' },
   hits: {
     value: 0.5, // 1 hit per 2 stacks
+    stat: undefined,
     scaling: 'bloodCorruption',
     max: { value: 3, stat: undefined } // Max 3 hits
   }
