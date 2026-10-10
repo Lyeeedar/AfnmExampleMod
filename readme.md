@@ -24,9 +24,12 @@ For comprehensive guides on modding AFNM, visit our **[complete documentation si
 
 ## Quick Start
 
+Use **Node.js 22 or newer**. This template targets **AFNM 0.7.16** with **React 19.3** and **Material UI 9.4**. Keep `afnm-types` and the UI packages compatible with the game version you are modding.
+
 1. **Clone/fork** this repository
 2. **Install dependencies**: `npm install`
 3. **Edit** `package.json` with your mod details
 4. **Start coding** in `src/modContent/index.ts`
-5. **Build your mod**: `npm run build`
-6. **Test** by placing the zip in the game's `mods/` folder
+5. **Check types**: `npm run typecheck`
+6. **Build your mod**: `npm run build`
+7. **Test** by placing the ZIP from `builds/` in the game's `mods/` folder

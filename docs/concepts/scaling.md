@@ -50,6 +50,8 @@ interface Scaling {
   increment?: number;     // For hit-based scaling: each subsequent hit costs this much more of the scaling buff
   cantUpgrade?: boolean;  // When true, this scaling value cannot be improved by technique mastery upgrades
   isItem?: boolean;       // When true, the result is additionally multiplied by (1 + itemEffectiveness * 0.01). Set on pills, concoctions, and formation parts.
+  roundToInteger?: boolean; // Round the final scaled result to a whole number
+  scalesWithRoomEffectiveness?: boolean; // Apply the source room bonus carried by a character buff
   /** When true, the result is additionally scaled by the Charisma multiplier in scope. */
   scalesWithCharisma?: boolean;
   /** Value that Charisma scales away from. Defaults to 0; inverse percentages use 100. */

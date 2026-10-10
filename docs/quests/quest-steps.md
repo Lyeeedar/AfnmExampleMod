@@ -15,14 +15,18 @@ Quest steps are the building blocks of quest progression. Each step represents a
 ```typescript
 type QuestStep =
   | EventQuestStep
+  | GuidanceQuestStep
+  | ExplorationEventQuestStep
   | ConditionQuestStep
   | CollectQuestStep
+  | SellQuestStep
   | MissionHallQuestStep
   | FlagValueQuestStep
   | SpeakToCharacterQuestStep
   | KillQuestStep
   | WaitQuestStep
-  | RaidQuestStep;
+  | RaidQuestStep
+  | ExpeditionQuestStep;
 ```
 
 All quest steps share a common base structure:
@@ -64,6 +68,7 @@ interface EventQuestStep {
   kind: 'event';
   hint: Translatable;
   event: GameEvent; // Full event definition
+  locations?: string[]; // Available locations; defaults to event.location
   completionCondition?: string; // Optional additional completion requirement
 }
 ```
@@ -169,6 +174,7 @@ interface ConditionQuestStep {
   kind: 'condition';
   hint: Translatable;
   completionCondition: string; // Expression that must evaluate to true
+  progressBar?: { flag: string; target: number }; // Live flag progress beneath the objective
 }
 ```
 
@@ -308,6 +314,7 @@ Requires completing sect missions:
 interface MissionHallQuestStep {
   kind: 'missionHall';
   hint: Translatable;
+  locations?: string[]; // Additional reward claim locations without a mission hall
   consume?: {
     item: string; // Item to consume
     amount: number; // Quantity to consume
@@ -555,6 +562,43 @@ When using event steps:
 - **Provide meaningful choices**: Don't include empty decision points
 - **Consider consequences**: Choices should feel impactful
 - **Maintain character voice**: NPCs should speak consistently
+
+## Additional Objective Types
+
+The current `QuestStep` union also includes the following objectives. Use `QuestStep` from `afnm-types` to check your definitions; not every individual variant has a public export.
+
+### Sell
+
+Tracks sales of a named item while the objective is active:
+
+```typescript
+const sellObjective: QuestStep = {
+  kind: 'sell',
+  hint: 'Sell five Spirit Herbs.',
+  item: 'Spirit Herb',
+  amount: 5,
+};
+```
+
+### Guidance
+
+Starts a disciple guidance objective at the specified location. `locations` optionally lists additional locations:
+
+```typescript
+const guidanceObjective: QuestStep = {
+  kind: 'guidance',
+  hint: 'Guide the disciple through their trial.',
+  location: 'Nine Mountain Sect',
+};
+```
+
+### Exploration Event
+
+`kind: 'explorationEvent'` requires `hint`, `event: GameEvent`, and `locations: string[]`. Optional `completionCondition: string` and `triggerChance: number` control completion and triggering. It presents the event during exploration rather than as a normal location event.
+
+### Expedition
+
+`kind: 'expedition'` requires `hint` and `amount: number`. Use `expedition?: string` to restrict the objective to an expedition, or omit it to accept any expedition. `requiredCompanions?: string[]` requires all named companions to be on the expedition team.
 
 ## Step Dependencies
 

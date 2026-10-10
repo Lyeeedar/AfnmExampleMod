@@ -14,7 +14,7 @@ In this guide, you'll set up a complete modding environment that lets you:
 
 - Write mod code with helpful auto-completion (IntelliSense)
 - Automatically build and package your mod
-- Test changes quickly without manual file copying
+- Build a ZIP you can copy into the game's `mods/` folder for testing
 
 Think of this as setting up a workshop with all the right tools before you start crafting.
 
@@ -28,7 +28,7 @@ Before we begin, you'll need to install a few tools. Don't worry - they're all f
 
 ### 1. Node.js (JavaScript Runtime)
 
-Node.js lets us run the build tools that compile and package your mod.
+Node.js lets us run the build tools that compile and package your mod. Install **Node.js 22 or newer**; Node.js 18 is too old for the current dependency stack.
 
 **Windows Installation:**
 
@@ -42,7 +42,7 @@ Node.js lets us run the build tools that compile and package your mod.
 ```bash
 # Open Command Prompt or PowerShell and run:
 node --version
-# Should show something like: v18.17.0
+# Should show v22.x or newer (for example, v24.x)
 ```
 
 ### 2. Code Editor (VS Code Recommended)
@@ -113,8 +113,9 @@ Dependencies are pre-built code libraries that your mod uses (like TypeScript co
 **What this downloads:**
 
 - TypeScript compiler and AFNM type definitions (for auto-completion)
-- Build tools (Vite, Rollup) that package your mod
-- Development utilities for testing and debugging
+- Webpack and ts-loader to compile and bundle your mod
+- React 19.3, React DOM 19.3, and Material UI 9.4 for custom interfaces
+- Translation extraction and ZIP packaging tools
 
 **This may take 1-2 minutes.** You'll see a progress indicator as packages download.
 
@@ -123,7 +124,24 @@ Dependencies are pre-built code libraries that your mod uses (like TypeScript co
 - No red error messages
 - A new `node_modules/` folder appears in your project
 - VS Code shows TypeScript IntelliSense when you open `.ts` files
-- Note: Warnings that may be shown (such as outdated packages) can be ignored
+- Resolve engine or peer-dependency warnings before continuing; they can indicate an incompatible Node.js or UI package version
+
+### Keeping Dependencies Compatible
+
+This template targets **AFNM 0.7.16** and pins `afnm-types` to that version. Its type definitions require `@mui/material` and `@mui/icons-material` **9.4.x or a compatible later 9.x release**. React, React DOM, and their type packages use **19.3.x**; the template uses TypeScript **6.0.3 or newer within 6.x**.
+
+When updating an existing mod to this template's versions, update the related packages together:
+
+```bash
+npm install @mui/material@^9.4.0 @mui/icons-material@^9.4.0 @reduxjs/toolkit@^2.13.0 react@^19.3.0 react-dom@^19.3.0
+npm install --save-dev afnm-types@0.7.16 @types/react@^19.3.0 @types/react-dom@^19.3.0 typescript@^6.0.3
+npm run typecheck
+npm run build
+```
+
+Commit both `package.json` and `package-lock.json` so collaborators install the same dependency versions. Use `npm ci` to install from an unchanged lockfile. Do not use `--force` or `--legacy-peer-deps` to bypass a version mismatch.
+
+Material UI 9 removes direct styling props such as `<Box display="flex" mt={2}>`. Move these into `sx`, as shown in [Adding Screens](../advanced-mods/adding-screens). For other component changes, see the [official MUI 9 migration guide](https://mui.com/material-ui/migration/upgrade-to-v9/).
 
 **Common Issues:**
 
@@ -140,7 +158,7 @@ Your mod needs a name, description, and author information. This appears in-game
 
 ```json
 {
-  "name": "my-game-mod",
+  "name": "my-afnm-mod",
   "version": "0.0.1",
   "description": "A mod for AFNM",
   "author": {
@@ -176,6 +194,9 @@ Let's verify everything is working correctly by building your mod:
 **In VS Code terminal, run:**
 
 ```bash
+# Check your code against the installed game types
+npm run typecheck
+
 # Build your mod package
 npm run build
 ```
@@ -236,6 +257,9 @@ Here are the commands you'll use regularly while developing your mod:
 ```bash
 # Install dependencies (run once after downloading template)
 npm install
+
+# Check TypeScript without generating files
+npm run typecheck
 
 # Build mod package for testing in-game
 npm run build

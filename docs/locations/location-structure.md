@@ -30,6 +30,7 @@ image: string;                    // Background image path
 icon: string;                     // Map icon image path
 screenEffect: ScreenEffectType;   // Visual atmosphere effect
 locationArt?: string;             // Isometric scene image path (generated art)
+locationArtOverride?: { condition: string; image: string }[]; // Conditional scene artwork
 ```
 
 Available screen effects:
@@ -71,6 +72,22 @@ unlocks: (ConditionalLink | ExplorationLink)[];  // Connected locations
 Every location must define its connections to other locations, even if the array is empty. See Connecting Locations for details.
 
 ## Optional Fields
+
+### Tutorial Context and Leaving
+
+`tutorialContext?: string` selects the tutorial surface used while the location screen is open.
+
+`leaveAction` replaces the location's leave action with a named event-step sequence:
+
+```typescript
+leaveAction?: {
+  name: Translatable;
+  alternateName?: { condition: string; name: Translatable };
+  icon: string;
+  coordinates?: { x: number; y: number };
+  steps: EventStep[];
+};
+```
 
 ### Realm Requirements
 

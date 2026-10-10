@@ -16,6 +16,7 @@ Every crafting buff follows the `CraftingBuff` interface:
 
 ```typescript
 interface CraftingBuff {
+  additionalVariables?: Record<string, number>; // Per-instance variables for effects and tooltips
   name: string; // Unique identifier
   displayName?: Translatable; // Optional translated display name
   /** Category used by effects that modify a family of buffs at once. */

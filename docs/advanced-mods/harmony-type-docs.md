@@ -7,7 +7,7 @@ nav_order: 2
 
 # Harmony Type
 
-Harmony is one of the core features of the crafting system. In the base game, there are 4 variants of this defined, but new ones can be added by mods to even further flesh out this system. This can be done through the `window.modAPI.actions.addHarmonyType` function.
+Harmony is one of the core features of the crafting system. Mods can add new harmony types through `window.modAPI.actions.addHarmonyType`. Use `RecipeHarmonyType` from `afnm-types` for the current built-in types.
 
 ```typescript
 window.modAPI.actions.addHarmonyType(harmonyType: RecipeHarmonyType, config: HarmonyTypeConfig)
@@ -23,8 +23,8 @@ The display name of your harmony type shown to players.
 
 **Example:** "Elemental Balance"
 
-### 2. `description` (string, required)
-HTML-formatted description explaining the harmony mechanics to players. Supports special formatting tags:
+### 2. `description` (Translatable, required)
+Description explaining the harmony mechanics to players. Accepts a plain string or a translatable value and supports special formatting tags:
 - `<name>text</name>` - Highlights important terms
 - `<num>number</num>` - Highlights numbers
 - `<li>item</li>` - Creates list items
@@ -50,7 +50,8 @@ processEffect: (
   technique: CraftingTechnique,
   progressState: ProgressState,
   entity: CraftingEntity,
-  state: CraftingState
+  state: CraftingState,
+  actionResolution?: CraftingActionResolution
 ) => void
 ```
 
@@ -60,6 +61,7 @@ processEffect: (
 - `progressState`: Current crafting progress (completion, perfection, harmony, etc.)
 - `entity`: The player's crafting entity with stats and buffs
 - `state`: Overall crafting state including the log
+- `actionResolution`: Optional details of the resolved crafting action; check for `undefined` before reading it
 
 **Common Operations:**
 - Initialize custom data in `harmonyData.additionalData`. e.g. `harmonyData.additionalData = { heat: 0, cold: 0 }`
@@ -140,13 +142,21 @@ Also supply `shortDescription`, `icon` (a Material UI SVG icon component), `icon
 
 `HarmonyData.additionalData` is `unknown`; narrow or cast it to your mod's data shape before reading its fields.
 
+## Optional cost and starting harmony overrides
+
+`qiCostMultiplier` and `stabilityCostMultiplier` receive `(technique: CraftingTechnique, harmonyData: HarmonyData)` and return a numeric multiplier for the action's live resource cost. For example, returning `0.5` halves the cost. These callbacks affect the displayed cost and the amount spent by the engine.
+
+`startingHarmony` sets the initial harmony value for this harmony type. Omit it to use the default starting value.
+
 ## Complete Example
+
+Save this JSX example in a `.tsx` file and import it from `src/modContent/index.ts`. The styles use MUI 9's `sx` prop, and the icon comes from the package root to use the game's shared icon runtime.
 
 {% raw %}
 ```tsx
 import type { HarmonyData, RecipeHarmonyType } from 'afnm-types';
 import { Box, Typography } from '@mui/material';
-import LocalFireDepartment from '@mui/icons-material/LocalFireDepartment';
+import { LocalFireDepartment } from '@mui/icons-material';
 
 // This example stores only numeric fire/water levels in additionalData.
 function elementData(harmonyData: HarmonyData): { fire: number; water: number } {
@@ -263,94 +273,108 @@ window.modAPI.actions.addHarmonyType('elemental' as RecipeHarmonyType, {
     const { fire, water } = elementData(harmonyData);
 
     return (
-       <Box display="flex" mt={5.2} position="relative" justifyContent="center" id="elemental">
+      <Box
+        id="elemental"
+        sx={{ display: 'flex', mt: 5.2, position: 'relative', justifyContent: 'center' }}
+      >
         {/* Fit to the bounds of the cauldron */}
         <Box
-          width="calc(min(35vw, 35vh))"
-          height="calc(min(35vw, 35vh))"
-          position="relative"
-          sx={{ overflow: 'visible' }}
+          sx={{
+            width: 'calc(min(35vw, 35vh))',
+            height: 'calc(min(35vw, 35vh))',
+            position: 'relative',
+            overflow: 'visible',
+          }}
         >
           <Box
-            display="flex"
-            position="absolute"
-            sx={{ zIndex: 21, top: 0, left: 0, width: '100%', height: '100%' }}
+            sx={{
+              display: 'flex',
+              position: 'absolute',
+              zIndex: 21,
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+            }}
           >
             {/* Fire meter */}
             <Box
-              flex={1}
-              display="flex"
-              flexDirection="column"
-              alignItems="center"
-              position="absolute"
-              sx={{ zIndex: 21, top: 0, left: 0, width: '100%', height: '100%' }}
+              sx={{
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                position: 'absolute',
+                zIndex: 21,
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+              }}
             >
-              <Typography color="red">Fire: {fire}</Typography>
+              <Typography sx={{ color: 'red' }}>Fire: {fire}</Typography>
               <Box
-                width="30px"
-                height="60px"
-                bgcolor="rgba(255,0,0,0.2)"
-                border="1px solid red"
-                position="relative"
+                sx={{
+                  width: '30px',
+                  height: '60px',
+                  bgcolor: 'rgba(255,0,0,0.2)',
+                  border: '1px solid red',
+                  position: 'relative',
+                }}
               >
                 <Box
-                  position="absolute"
-                  bottom={0}
-                  width="100%"
-                  height={`${fire * 10}%`}
-                  bgcolor="red"
+                  sx={{
+                    position: 'absolute',
+                    bottom: 0,
+                    width: '100%',
+                    height: `${fire * 10}%`,
+                    bgcolor: 'red',
+                  }}
                 />
               </Box>
             </Box>
 
             {/* Water meter */}
             <Box
-              flex={1}
-              display="flex"
-              flexDirection="column"
-              alignItems="center"
-              position="absolute"
-              sx={{ zIndex: 21, top: 0, right: 0, width: '100%', height: '100%' }}
+              sx={{
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                position: 'absolute',
+                zIndex: 21,
+                top: 0,
+                right: 0,
+                width: '100%',
+                height: '100%',
+              }}
             >
-              <Typography color="blue">Water: {water}</Typography>
+              <Typography sx={{ color: 'blue' }}>Water: {water}</Typography>
               <Box
-                width="30px"
-                height="60px"
-                bgcolor="rgba(0,0,255,0.2)"
-                border="1px solid blue"
-                position="relative"
+                sx={{
+                  width: '30px',
+                  height: '60px',
+                  bgcolor: 'rgba(0,0,255,0.2)',
+                  border: '1px solid blue',
+                  position: 'relative',
+                }}
               >
                 <Box
-                  position="absolute"
-                  bottom={0}
-                  width="100%"
-                  height={`${water * 10}%`}
-                  bgcolor="blue"
+                  sx={{
+                    position: 'absolute',
+                    bottom: 0,
+                    width: '100%',
+                    height: `${water * 10}%`,
+                    bgcolor: 'blue',
+                  }}
                 />
               </Box>
             </Box>
-
-            {/* Custom border image overlay */}
-            <Box
-              position="absolute"
-              width="128%"
-              height="122%"
-              top="-6.5%"
-              left="-14%"
-              sx={{
-                backgroundImage: `url(${safeUrlEncode(elementalImg)})`,
-                backgroundSize: 'contain',
-                backgroundRepeat: 'no-repeat',
-                backgroundPosition: 'center',
-                pointerEvents: 'none',
-                zIndex: 21,
-              }}
-            />
           </Box>
         </Box>
       </Box>
     );
-  }
+  },
 });
 ```
 {% endraw %}

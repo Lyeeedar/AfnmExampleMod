@@ -204,6 +204,20 @@ dropHarmonies: ['forge', 'alchemical'],
 dropHarmonies: [],
 ```
 
+## Equipment Set Bonuses
+
+Clothing, talismans, and artefacts accept an optional `setBonus: EquipmentSetBonus`. The set lists distinct equipped item names and cumulative buff rewards at piece-count thresholds:
+
+```typescript
+interface EquipmentSetBonus {
+  name: string;
+  requiredItems: string[];
+  bonuses: { pieces: number; buff: Buff }[];
+}
+```
+
+Use the same set definition on its member items. Multiple copies of the same item do not count as distinct pieces.
+
 ## Item Categories
 
 AFNM supports 35 distinct item categories:

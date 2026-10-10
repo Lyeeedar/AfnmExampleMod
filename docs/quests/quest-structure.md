@@ -23,6 +23,7 @@ interface Quest {
   guild?: string; // Required for guild category quests
   steps: QuestStep[]; // Sequential objectives
   rewards: QuestReward[]; // Benefits upon completion
+  acceptFlags?: Record<string, number>; // Flags set when the quest is accepted
   failureCondition?: string; // Optional failure trigger
   cost?: number; // Optional cost to accept quest
 }

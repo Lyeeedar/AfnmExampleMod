@@ -21,6 +21,8 @@ interface HealerBuilding {
   condition?: string;
   disabled?: string;
   offset?: { x: number; y: number; };
+  completionFlag?: string; // Set after recuperation
+  daysOverride?: number; // Override healing duration, including pill-assisted healing
 }
 ```
 
@@ -53,6 +55,8 @@ Alchemy and item crafting:
   kind: 'crafting'
 }
 ```
+
+Crafting buildings also accept `introduction?: { condition: string; steps: EventStep[] }` and `baseDaysOverride?: number` to add an introductory event or override the base crafting duration.
 
 ### Treasure Vault
 
@@ -397,7 +401,7 @@ interface GuildBuilding {
   kind: "guild";
   condition?: string;
   guild: string;
-  position: CustomBuildingPosition;
+  position?: { x: number; y: number; };
   disabled?: string;
   offset?: { x: number; y: number; };
 }
@@ -424,7 +428,7 @@ Fully customizable building with event steps:
   kind: 'custom',
   name: 'Mysterious Shop',
   icon: shopIcon,
-  position: 'middleright',  // Screen position
+  position: { x: 0.75, y: 0.5 }, // Normalized position in the location artwork
   condition: 'mysteryUnlocked == 1',
   eventSteps: [
     {
@@ -450,11 +454,9 @@ Fully customizable building with event steps:
 }
 ```
 
-Position options for custom buildings:
-- 'top', 'topleft', 'topright'
-- 'belowtop', 'belowtopleft', 'belowtopright'
-- 'middleleft', 'middle', 'middleright'
-- 'bottom', 'bottomleft', 'bottomright'
+In AFNM 0.7.16, building `position` is an optional `{ x, y }` object using normalized scene coordinates (0 to 1). The old string positions and `CustomBuildingPosition` type have been removed. Omit `position` to use automatic placement, or set `coordinates: { x, y }` for percentage coordinates. These fields apply to all building types.
+
+Custom buildings can also set `borderKind?: BuildingType` to use the border colour of a service category.
 
 ## Mod-Specific Buildings
 
@@ -465,7 +467,7 @@ A custom building that navigates to a registered mod screen. Use modBuilding alo
 ```typescript
 {
   kind: 'modBuilding', name: 'Mysterious Device', displayName: 'Mysterious Device',
-  icon: myCustomIcon, screen: 'myModScreen', position: 'middleleft',
+  icon: myCustomIcon, screen: 'myModScreen', position: { x: 0.25, y: 0.5 },
   condition: 'deviceUnlocked == 1', disabled: 'deviceBusy == 1',
 }
 ```
@@ -486,7 +488,7 @@ window.modAPI.actions.addBuildingsToLocation('Liang Tiao Village', [
     name: 'Ancient Device',
     icon: deviceIcon,
     screen: 'myModScreen',
-    position: 'top',
+    position: { x: 0.5, y: 0.1 },
     condition: '1',
   }
 ]);
@@ -506,7 +508,9 @@ All buildings support these optional fields:
   position?: {            // Normalized position in location scene artwork
     x: number,
     y: number
-  }
+  },
+  coordinates?: { x: number, y: number }, // Percentage coordinates; overrides automatic placement
+  offset?: { x: number, y: number }, // Additional position adjustment
 }
 ```
 
@@ -593,7 +597,7 @@ export const myLocation: GameLocation = {
       kind: 'custom',
       name: 'Elder\'s Residence',
       icon: elderIcon,
-      position: 'top',
+      position: { x: 0.5, y: 0.1 },
       condition: 'elderQuestComplete == 1',
       eventSteps: [
         {
@@ -625,7 +629,7 @@ export const myLocation: GameLocation = {
       name: 'Alchemist Workshop',
       icon: workshopIcon,
       screen: 'myAlchemistScreen',
-      position: 'middleright',
+      position: { x: 0.75, y: 0.5 },
       condition: 'workshopBuilt == 1',
     }
   ]

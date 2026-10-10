@@ -38,7 +38,9 @@ interface RecipeItem extends ItemBase {
 
   // Advanced options
   displayPerfect?: boolean;
+  displaySublime?: boolean; // Display the sublime result instead of perfect
   hideFromCompendium?: boolean;
+  disableInstantCraft?: boolean; // Require manual crafting even when instant crafting is unlocked
 }
 ```
 

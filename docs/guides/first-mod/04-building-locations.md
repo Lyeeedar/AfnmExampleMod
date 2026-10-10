@@ -136,7 +136,7 @@ export const teaHouseBuilding: CustomBuilding = {
   kind: 'custom',
   name: "Master Chen's Tea House",
   icon: 'https://placehold.co/256x256/transparent/d98d00?text=Tea House',
-  position: 'middleright',
+  position: { x: 0.75, y: 0.5 }, // Normalized scene coordinates
   condition: 'teaHouseUnlocked == 1',
   eventSteps: teaHouseSteps,
 };

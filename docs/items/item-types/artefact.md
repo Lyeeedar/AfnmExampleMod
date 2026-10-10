@@ -15,6 +15,7 @@ Powerful weapons that provide combat stats and unique techniques.
 ```typescript
 interface ArtefactItem extends ItemBase {
   kind: 'artefact';
+  setBonus?: EquipmentSetBonus;
   /** Additional equipment slots while this artefact is equipped. */
   extraArtefactSlots?: number;
   combatStats?: Partial<CombatStatsMap>;
@@ -26,6 +27,7 @@ interface ArtefactItem extends ItemBase {
 
 ## Properties
 
+- **setBonus**: Optional cumulative equipment set rewards. See [Equipment Set Bonuses](../item-structure#equipment-set-bonuses).
 - **extraArtefactSlots**: Additional equipment slots granted while this artefact is equipped. This lets artefacts function as slot extenders, giving the player more artefact slots beyond the default count.
 - **combatStats**: Combat bonuses (power, speed, etc.)
 - **charisma**: Optional social stat bonus

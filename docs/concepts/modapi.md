@@ -267,22 +267,26 @@ window.modAPI.actions.addScreen({ key: 'myScreen', component: MyScreen });
 
 **Example screen:**
 
-```typescript
+{% raw %}
+```tsx
+import type { ModScreenFC } from 'afnm-types';
+import { Box, Typography } from '@mui/material';
+
 const MyScreen: ModScreenFC = ({ screenAPI }) => {
   const { useSelector, actions, components } = screenAPI;
   const { GameDialog, GameButton, BackgroundImage, PlayerComponent } = components;
   const player = useSelector((state) => state.player.player);
 
   return (
-    <Box position="relative" flexGrow={1} display="flex" flexDirection="column">
+    <Box sx={{ position: "relative", flexGrow: 1, display: "flex", flexDirection: "column" }}>
       <BackgroundImage image="town.png" screenEffect="mist" />
       <GameDialog id="my-screen" title="My Screen" onClose={() => actions.setScreen('location')}>
         <Typography>Hello, {player.forename}!</Typography>
         <GameButton onClick={() => actions.changeMoney(100)}>Get Stones</GameButton>
       </GameDialog>
-      <Box position="absolute" width="100%" height="100%" display="flex" flexDirection="column">
-        <Box flexGrow={1} />
-        <Box display="flex">
+      <Box sx={{ position: "absolute", width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
+        <Box sx={{ flexGrow: 1 }} />
+        <Box sx={{ display: "flex" }}>
           <PlayerComponent />
         </Box>
       </Box>
@@ -292,6 +296,7 @@ const MyScreen: ModScreenFC = ({ screenAPI }) => {
 
 window.modAPI.actions.addScreen({ key: 'myScreen', component: MyScreen });
 ```
+{% endraw %}
 
 For full documentation on building screens, see [Adding Screens](../advanced-mods/adding-screens).
 
@@ -355,7 +360,9 @@ window.modAPI.actions.addPlayerSprite(sprite: PlayerSprite)
 - **`addExpeditionTiles`** - Register tile definitions for an expedition so they can appear when the expedition is generated. If the expedition already exists in `gameData.expeditionTiles`, the provided tiles are appended to its existing tile pool. If the expedition name is new, a fresh pool is created and registered so subsequent generation calls can spawn tiles from it. Combine with a matching `addLocation` (or an existing expedition location) that uses an `expedition` building with `name: <expeditionName>` to expose the new expedition to players.
 - **`addMysticalRegionDefinition`** - Register a new moddable mystical region definition. Point a `MysticalKeyItem`'s `overrideRegion` field at the definition's `id` to redirect that key into the new region. Any field left undefined falls back to the key's own overrides (or realm defaults). The `eventSteps` map lets you inject event sequences at any combination of progress stages; when set for a stage, an event portal is shown before the default step and clicking it dispatches the supplied steps as a normal event.
 - **`addPuppetType`** - Register a new puppet type for the training ground.
-- **`addAlternativeStart`** - Register an alternative game start. Players select from available starts when creating a new game. The `AlternativeStart` defines the opening event, starting location, starting items, and starting money.
+- **`addAlternativeStart`** - Register an alternative game start. Players select from available starts when creating a new game. The `AlternativeStart` defines the opening event, starting location, starting items, and starting money. Required fields are `name`, `displayName`, `description`, `rootEvent`, `skipOpeningSummary`, and `startLocation`. Use `skipOpeningEvent?: GameEvent` for an authored skip route and `startCalendar?: { year: number; month: number; day: number }` for a custom starting date.
+
+  In 0.7.16, `startFlags`, `tutorials`, `tutorialTriggers`, and `skipTutorialFlags` were removed from `AlternativeStart`, along with `utils.generateSkipTutorialFlags()`. Set story flags with `flag` event steps in your opening routes. Register explanatory tutorials separately with `actions.addTutorial()`; `Tutorial.contexts` and `autoStart` control where they appear.
 - **`addSoulShardDelve`** - Register a new soul shard delve. Delves are randomised combat dungeons themed around a single memory shard. Each config supplies the mob / elite / boss monster pools, the boss room, threshold events, and intensity rewards earned as the delve progresses.
 - **`addPlayerSprite`** - Register a custom player sprite that appears in character creation alongside the defaults for the specified gender.
 
@@ -479,9 +486,9 @@ Register a React settings component for your mod in the game's mod-loading dialo
 
 Global flags are numeric, so store booleans as `0` / `1` and normalize any legacy values yourself.
 
-**JSX example** (if your build pipeline supports JSX):
+**JSX example** (save in a `.tsx` file; this template already supports JSX):
 
-```typescript
+```tsx
 const MyModOptions: ModOptionsFC = ({ api }) => {
   const flags = window.modAPI.actions.getGlobalFlags();
   const enabled = (flags['myMod.enabled'] ?? 1) === 1;
@@ -501,14 +508,13 @@ window.modAPI.actions.registerOptionsUI(MyModOptions);
 
 **createElement alternative** (works regardless of build setup):
 
-If JSX is not available in your options panel context, use `window.React.createElement` directly. Both approaches produce the same result:
+If you prefer to avoid JSX, import `createElement` from React. Webpack maps this import to the game's shared React runtime. Both approaches produce the same result:
 
 ```typescript
-const MyModOptions: ModOptionsFC = ({ api }) => {
-  const ReactRuntime = window.React;
-  if (!ReactRuntime?.createElement) return null;
+import { createElement } from 'react';
+import type { ModOptionsFC } from 'afnm-types';
 
-  const createElement = ReactRuntime.createElement.bind(ReactRuntime);
+const MyModOptions: ModOptionsFC = ({ api }) => {
   const flags = window.modAPI.actions.getGlobalFlags();
   const enabled = (flags['myMod.enabled'] ?? 1) === 1;
   const GameButton = api.components.GameButton ?? 'button';
@@ -1266,11 +1272,9 @@ window.modAPI.utils.flag(flag: string) // Convert flag name to game flag format
 window.modAPI.utils.evalExp(exp: string, flags: Record<string, number>) // Evaluate an expression using the given flags, then floors the result
 window.modAPI.utils.evalExpNoFloor(exp: string, flags: Record<string, number>) // Evaluates without flooring
 window.modAPI.utils.evaluateScaling(scaling: Scaling, variables: Record<string, number>, stanceLength: number, preMaxTransform?: (value: number) => number)
-window.modAPI.utils.generateSkipTutorialFlags(tutorials: Tutorial[], triggers: TriggeredEvent[])
 ```
 
 - **`evaluateScaling`** - Evaluate a `Scaling` object against a variables map. Applies base value, stat multipliers, equations, custom scaling, and max constraints. Useful when computing item or technique values in code.
-- **`generateSkipTutorialFlags`** - Generate the flags needed to skip tutorials for an alternative start. For each tutorial, sets `{name}`, `{name}Started`, `{name}Completed`; for each trigger, sets `{name}` and `{name}Started`.
 
 ### Tooltip Utilities
 
@@ -1425,7 +1429,7 @@ All available props are defined in `src/types/components.ts` as `ItemComponentPr
 
 Main content container with built-in title and close button:
 
-```typescript
+```tsx
 <GameDialog
   id="my-dialog"  // Required. Unique identifier for this dialog
   title="Dialog Title"
@@ -1442,7 +1446,7 @@ Main content container with built-in title and close button:
 
 Styled button matching the game theme:
 
-```typescript
+```tsx
 <GameButton
   onClick={() => handleClick()}
   disabled={false}
@@ -1458,7 +1462,7 @@ Styled button matching the game theme:
 
 Button with an icon (expects an MUI icon component):
 
-```typescript
+```tsx
 <GameIconButton onClick={() => handleClick()}>
   <CloseIcon />
 </GameIconButton>

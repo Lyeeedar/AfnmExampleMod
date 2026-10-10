@@ -28,12 +28,24 @@ interface PlayerSprite {
   name: string;
   /** Which gender this sprite is available for: 'male', 'female', or 'both' */
   gender: Sex | 'both';
-  /** The sprite images for different poses and situations */
+  /** Preferred unified pose pack, with optional conditional variants */
+  image?: EntityImage;
+  /** @deprecated Use image instead */
   sprites?: PlayerSpriteImages;
+  /** @deprecated Use image.variants instead */
+  variants?: PlayerSpriteVariant[];
 }
 ```
 
-## PlayerSpriteImages Interface
+## Unified Image Packs
+
+For new sprites, use `image: EntityImage`. Its base pose key is `idle`, and all pose fields are optional. The pack also accepts per-pose scale/offset fields and `variants: ImagePack[]`.
+
+Variants are evaluated in order; the first non-zero or empty `condition` wins. Missing poses inherit from the base pack. Combat and crafting variants can use live variables such as `hp`, `maxhp`, `pool`, and `stability`, as well as game flags.
+
+## Legacy PlayerSpriteImages Interface
+
+`sprites` and the top-level `variants` field remain available for backwards compatibility. Use `image` and `image.variants` for new work.
 
 ```typescript
 interface PlayerSpriteImages {
@@ -73,8 +85,8 @@ const mySprite: PlayerSprite = {
   id: 'myCultivator',
   name: 'My Custom Cultivator',
   gender: 'male',
-  sprites: {
-    base: myBaseImage,
+  image: {
+    idle: myBaseImage,
     aggressive: myAggressiveImage,
     defensive: myDefensiveImage,
     hit: myHitImage,
@@ -85,6 +97,9 @@ const mySprite: PlayerSprite = {
     craftingStabilize: myCraftStabilizeImage,
     craftingRefine: myCraftRefineImage,
     craftingFusion: myCraftFusionImage,
+    variants: [
+      { title: 'Wounded', condition: 'hp < maxhp * 0.5', idle: myHitImage },
+    ],
   }
 };
 

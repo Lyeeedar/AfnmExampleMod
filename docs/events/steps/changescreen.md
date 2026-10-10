@@ -56,7 +56,7 @@ The following screens are available for navigation:
 | `'location'`      | Main location screen (default)      |
 | `'recipe'`        | Recipe crafting interface           |
 | `'mission'`       | Mission and quest management        |
-| `'craftingHall'`  | Crafting hall interface             |
+| `'vault'`         | Treasure vault                      |
 | `'manual'`        | Technique manual and skills         |
 | `'cultivation'`   | Cultivation and breakthrough screen |
 | `'map'`           | World map navigation                |
@@ -73,6 +73,9 @@ The following screens are available for navigation:
 | `'research'`      | Research facilities and experiments |
 | `'pillarGrid'`    | Formation and pillar arrangements   |
 | `'fallenStar'`    | Fallen star events and rewards      |
+| `'discipleGuidance'` | Disciple guidance trials          |
+
+This table lists common screens. Import `GameScreen` from `afnm-types` for the full current union. `craftingHall` is not a valid screen key; crafting recipes use `recipe`. Custom mod screens are opened through `actions.setScreen()` rather than this event step.
 
 ## Basic Examples
 

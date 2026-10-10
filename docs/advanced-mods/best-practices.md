@@ -49,7 +49,7 @@ Wholesale changes to game balance — enemy stats, crafting difficulty, damage f
 
 Player sprites, alternative starts, new backgrounds, custom rooms, new music or sound effects.
 
-**Default stack:** `actions.addPlayerSprite()`, `actions.addAlternativeStart()`, `actions.addBirthBackground()`, `gameData.rooms.push(room)`, `actions.addMusic()`, `actions.addSfx()`, `utils.generateSkipTutorialFlags()`.
+**Default stack:** `actions.addPlayerSprite()`, `actions.addAlternativeStart()`, `actions.addBirthBackground()`, `gameData.rooms.push(room)`, `actions.addMusic()`, `actions.addSfx()`. Use `AlternativeStart.skipOpeningEvent` to author a separate skip route.
 
 ### Read-Only Advisor / Overlay
 
@@ -197,14 +197,13 @@ window.__myModDebug['my-mod-name'].logState()
 
 ## Options UI: createElement vs JSX
 
-The `registerOptionsUI` component receives the game's React runtime, but JSX compilation depends on your build setup. If JSX is not available in the options panel context, use `window.React.createElement` directly:
+The `registerOptionsUI` component receives `api: ModReduxAPI`. The template supports JSX in `.tsx` files. If you prefer a `.ts` component, import `createElement` from React; Webpack uses the game's shared React runtime:
 
 ```typescript
-const MyOptions: ModOptionsFC = ({ api }) => {
-  const ReactRuntime = window.React;
-  if (!ReactRuntime?.createElement) return null;
+import { createElement } from 'react';
+import type { ModOptionsFC } from 'afnm-types';
 
-  const createElement = ReactRuntime.createElement.bind(ReactRuntime);
+const MyOptions: ModOptionsFC = ({ api }) => {
   const flags = window.modAPI.actions.getGlobalFlags();
   const enabled = (flags['myMod.enabled'] ?? 1) === 1;
   const GameButton = api.components.GameButton ?? 'button';

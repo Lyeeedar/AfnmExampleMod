@@ -286,7 +286,7 @@ These triggers are related to specific game systems and mechanics.
 **`InterceptorPhase` type:**
 
 ```typescript
-type InterceptorPhase = 'beforeGuardian' | 'preBarrier' | 'postBarrier';
+type InterceptorPhase = 'beforeGuardian' | 'preBarrier' | 'postBarrier' | 'postReduction';
 ```
 
 The damage pipeline executes interceptors in this order:
@@ -296,6 +296,7 @@ The damage pipeline executes interceptors in this order:
 | `'beforeGuardian'` | Very start of the pipeline, before guardian/puppet interception and every other mitigation | Full-negation effects (e.g. a Grace Period that zeroes a hit before puppets absorb it) |
 | `'preBarrier'` | After guardian/puppet interception, before barrier absorption | Default. Damage reduction, reflect effects |
 | `'postBarrier'` | After barrier absorption, before damage reduction | Effects that should see post-barrier net damage |
+| `'postReduction'` | After damage reduction and damage hooks, before temporary health | Effects that should see damage after reduction |
 
 - **`trigger?: TechniqueCondition`** - Condition that must be met for the interceptor to run
 - **`damageModifier: DamageModifier`** - How to modify the damage (`multiply`, `reduce`, or `expression`)
@@ -318,6 +319,8 @@ damageInterceptorEffects: [
 ```
 
 ### `techniqueAmplifierEffects`
+
+Set `includeUnscaledDamage: true` on an amplifier entry to also amplify fixed, stored, and health-based outgoing damage.
 - **When it triggers:** Before outgoing damage, barrier, heal, or temporary health effects are applied
 - **Usage:** Amplifying the entity's own outgoing effects (e.g., increase all damage by 50%), or gating effects based on accumulated values from the triggering technique's buff state
 - **Properties:**

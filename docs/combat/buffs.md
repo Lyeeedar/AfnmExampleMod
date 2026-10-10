@@ -88,6 +88,7 @@ interface Buff {
   }[]; // Modify incoming damage
   techniqueAmplifierEffects?: {
     trigger?: TechniqueCondition;
+    includeUnscaledDamage?: boolean; // Also amplify fixed, stored, and health-based damage
     amplifier: Scaling;
     effects?: BuffEffect[];
     appliesTo: ('damage' | 'barrier' | 'heal' | 'tempHealth')[];
@@ -111,6 +112,7 @@ interface Buff {
   storedVariables?: Record<string, string>; // Template expressions evaluated once at creation
   storedValues?: Record<string, number>; // Computed results from storedVariables
   internalState?: Record<string, number>; // Mutable runtime state (updated during combat)
+  additionalVariables?: Record<string, number>; // Per-instance variables for effects and tooltips
   initialState?: Record<string, string>; // Expressions evaluated to seed internalState
   stateTooltip?: string; // Template rendering internalState values in tooltips
   /** Override the value shown in the buff icon's stack badge. Evaluated against a scope exposing `internalState` and `stacks`. Defaults to `stacks`. Useful for non-stacking buffs that track a live value (e.g. a chain counter). */

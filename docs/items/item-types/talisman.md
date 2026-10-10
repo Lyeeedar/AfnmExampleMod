@@ -15,12 +15,14 @@ Combat accessories that provide buffs during battles.
 ```typescript
 interface TalismanItem extends ItemBase {
   kind: 'talisman';
+  setBonus?: EquipmentSetBonus;
   buffs: { buff: Buff; buffStacks: Scaling }[];
 }
 ```
 
 ## Properties
 
+- **setBonus**: Optional cumulative equipment set rewards. See [Equipment Set Bonuses](../item-structure#equipment-set-bonuses).
 - **buffs**: Array of buffs to apply during combat
 - **buffStacks**: Uses Scaling to determine how many stacks to apply
 

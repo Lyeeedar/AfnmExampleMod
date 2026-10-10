@@ -43,6 +43,33 @@ Every mod screen receives a `screenAPI` prop containing three main categories of
 
 ## Key Concepts
 
+### React and Material UI Versions
+
+The current template uses React **19.3** and Material UI **9.4**, matching AFNM 0.7.16. Write JSX components in **`.tsx` files**; the template already enables JSX compilation.
+
+Import components and icons from the package roots so Webpack uses the game's shared `React`, `MaterialUI`, and `MaterialUIIcons` runtimes:
+
+```tsx
+import type { ModScreenFC } from 'afnm-types';
+import { useState } from 'react';
+import { Box, Typography, TextField } from '@mui/material';
+import { Close as CloseIcon } from '@mui/icons-material';
+```
+
+The screen snippets below assume these imports are present.
+
+MUI 9 removes direct system styling props. Put layout, spacing, sizes, and colours inside `sx`:
+
+{% raw %}
+```tsx
+<Box sx={{ display: 'flex', mt: 2, width: '100%' }}>
+  <Typography sx={{ color: 'text.secondary' }}>Screen content</Typography>
+</Box>
+```
+{% endraw %}
+
+See the [MUI 9 migration guide](https://mui.com/material-ui/migration/upgrade-to-v9/) when adapting older screens.
+
 ### Hooks for Game State
 
 Hooks let you read current game state reactively - when the underlying data changes, your component automatically re-renders:
@@ -83,7 +110,7 @@ actions.advanceDays(1);
 
 The game provides pre-styled components that match the visual theme:
 
-```typescript
+```tsx
 const { components } = screenAPI;
 const { GameDialog, GameButton, BackgroundImage, PlayerComponent } = components;
 
@@ -96,7 +123,8 @@ const { GameDialog, GameButton, BackgroundImage, PlayerComponent } = components;
 
 Most screens follow this general structure:
 
-```typescript
+{% raw %}
+```tsx
 export const MyModScreen: ModScreenFC = ({ screenAPI }) => {
   // 1. Extract what you need from screenAPI
   const { useSelector, actions, components } = screenAPI;
@@ -107,7 +135,7 @@ export const MyModScreen: ModScreenFC = ({ screenAPI }) => {
 
   // 3. Return the screen layout
   return (
-    <Box position="relative" flexGrow={1} display="flex" flexDirection="column">
+    <Box sx={{ position: "relative", flexGrow: 1, display: "flex", flexDirection: "column" }}>
       {/* Background layer */}
       <BackgroundImage image="path/to/background.png" screenEffect="sun"  />
 
@@ -117,9 +145,9 @@ export const MyModScreen: ModScreenFC = ({ screenAPI }) => {
       </GameDialog>
 
       {/* Player component */}
-      <Box position="absolute" width="100%" height="100%" display="flex" flexDirection="column">
-        <Box flexGrow={1} />
-        <Box display="flex">
+      <Box sx={{ position: "absolute", width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
+        <Box sx={{ flexGrow: 1 }} />
+        <Box sx={{ display: "flex" }}>
           <PlayerComponent />
         </Box>
       </Box>
@@ -127,6 +155,7 @@ export const MyModScreen: ModScreenFC = ({ screenAPI }) => {
   );
 };
 ```
+{% endraw %}
 
 ### Why This Structure?
 
@@ -139,7 +168,8 @@ export const MyModScreen: ModScreenFC = ({ screenAPI }) => {
 
 Let's create a simple screen to demonstrate the concepts:
 
-```typescript
+{% raw %}
+```tsx
 import { ModScreenFC } from 'afnm-types';
 import { Box, Typography } from '@mui/material';
 
@@ -159,7 +189,7 @@ export const SimpleWelcomeScreen: ModScreenFC = ({ screenAPI }) => {
   };
 
   return (
-    <Box position="relative" flexGrow={1} display="flex" flexDirection="column">
+    <Box sx={{ position: "relative", flexGrow: 1, display: "flex", flexDirection: "column" }}>
       {/* Background */}
       <BackgroundImage image="town_square.png" screenEffect="sun" />
 
@@ -178,9 +208,9 @@ export const SimpleWelcomeScreen: ModScreenFC = ({ screenAPI }) => {
       </GameDialog>
 
       {/* Player component */}
-      <Box position="absolute" width="100%" height="100%" display="flex" flexDirection="column">
-        <Box flexGrow={1} />
-        <Box display="flex">
+      <Box sx={{ position: "absolute", width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
+        <Box sx={{ flexGrow: 1 }} />
+        <Box sx={{ display: "flex" }}>
           <PlayerComponent />
         </Box>
       </Box>
@@ -188,27 +218,27 @@ export const SimpleWelcomeScreen: ModScreenFC = ({ screenAPI }) => {
   );
 };
 ```
+{% endraw %}
 
 ### Registering Your Screen
 
 To make your screen available in the game, register it during mod initialization:
 
 ```typescript
-export default function (api: ModAPI) {
-  api.actions.addScreen({
-    key: 'welcomeScreen', // Screen identifier. Use `setScreen('welcomeScreen')` to navigate to it.
-    component: SimpleWelcomeScreen, // Your component
-    music: 'peaceful_theme', // Optional background music
-    ambience: 'nature_sounds', // Optional ambient sounds
-  });
-}
+// Import this module from src/modContent/index.ts to register it at load time.
+window.modAPI.actions.addScreen({
+  key: 'welcomeScreen', // Screen identifier. Use `setScreen('welcomeScreen')` to navigate to it.
+  component: SimpleWelcomeScreen, // Your component
+  music: 'peaceful_theme', // Optional background music
+  ambience: 'nature_sounds', // Optional ambient sounds
+});
 ```
 
 ### Navigating to Your Screen
 
 Once registered, you can navigate to your screen from other screens or button click handlers:
 
-```typescript
+```tsx
 // From another screen
 actions.setScreen('welcomeScreen');
 
@@ -296,7 +326,7 @@ Use these pre-styled components for consistency with the game's UI:
 
 The main container for your screen content:
 
-```typescript
+```tsx
 <GameDialog
   id="my-dialog"           // Required. Unique identifier for this dialog
   title="Dialog Title"
@@ -313,7 +343,7 @@ The main container for your screen content:
 
 Styled button matching the game theme:
 
-```typescript
+```tsx
 <GameButton
   onClick={() => handleClick()}
   disabled={false}
@@ -329,7 +359,7 @@ Styled button matching the game theme:
 
 Button with an icon:
 
-```typescript
+```tsx
 <GameIconButton onClick={() => handleClick()}>
   <CloseIcon />
 </GameIconButton>
@@ -362,19 +392,21 @@ Now that you understand the basics, let's explore more advanced patterns:
 
 Your screens can have their own state using standard React hooks:
 
-```typescript
+```tsx
+type ShopItem = { name: string; cost: number };
+
 export const ShopScreen: ModScreenFC = ({ screenAPI }) => {
   const { useSelector, actions, components } = screenAPI;
   const { GameDialog, GameButton } = components;
 
   // Local component state
-  const [selectedItem, setSelectedItem] = useState(null);
+  const [selectedItem, setSelectedItem] = useState<ShopItem | null>(null);
   const [showConfirmation, setShowConfirmation] = useState(false);
 
   // Game state
   const playerMoney = useSelector((state) => state.inventory.money);
 
-  const handlePurchase = (item) => {
+  const handlePurchase = (item: ShopItem) => {
     if (playerMoney >= item.cost) {
       actions.changeMoney(-item.cost);
       actions.addItem({ name: item.name, stacks: 1 });
@@ -386,7 +418,7 @@ export const ShopScreen: ModScreenFC = ({ screenAPI }) => {
   return (
     <GameDialog id="shop-screen" title="Shop" onClose={() => actions.setScreen('location')}>
       {/* Shop interface */}
-      {showConfirmation && (
+      {showConfirmation && selectedItem && (
         <Box>
           <Typography>Buy {selectedItem.name} for {selectedItem.cost}?</Typography>
           <GameButton onClick={() => handlePurchase(selectedItem)}>
@@ -403,7 +435,8 @@ export const ShopScreen: ModScreenFC = ({ screenAPI }) => {
 
 Show different content based on the player's progress:
 
-```typescript
+{% raw %}
+```tsx
 export const GuildScreen: ModScreenFC = ({ screenAPI }) => {
   const { useSelector, useGameFlags, actions, components } = screenAPI;
   const { GameDialog, GameButton } = components;
@@ -435,7 +468,7 @@ export const GuildScreen: ModScreenFC = ({ screenAPI }) => {
               Join Guild
             </GameButton>
           ) : (
-            <Typography color="error">
+            <Typography sx={{ color: "error.main" }}>
               Minimum charisma 3 required
             </Typography>
           )}
@@ -453,12 +486,13 @@ export const GuildScreen: ModScreenFC = ({ screenAPI }) => {
   );
 };
 ```
+{% endraw %}
 
 ### Handling User Input
 
 For screens that need text input or complex forms:
 
-```typescript
+```tsx
 export const NamingScreen: ModScreenFC = ({ screenAPI }) => {
   const { actions, components } = screenAPI;
   const { GameDialog, GameButton } = components;

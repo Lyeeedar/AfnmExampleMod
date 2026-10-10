@@ -15,6 +15,7 @@ Armor and robes providing combat stats and charisma.
 ```typescript
 interface ClothingItem extends ItemBase {
   kind: 'clothing';
+  setBonus?: EquipmentSetBonus;
   charisma: number;
   qiAbsorption?: number;
   masteryPoints?: number;
@@ -26,6 +27,7 @@ interface ClothingItem extends ItemBase {
 
 ## Properties
 
+- **setBonus**: Optional cumulative equipment set rewards. See [Equipment Set Bonuses](../item-structure#equipment-set-bonuses).
 - **stats**: Stats given by the clothing. Should always contain defense, but optionally can contain much more
 - **charisma**: Social stat bonus
 - **qiAbsorption**: Optional qi regeneration boost
