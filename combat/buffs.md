@@ -374,6 +374,53 @@ condition: {
 }
 ```
 
+
+## Guardian Intercepts
+
+Guardian intercept is a defensive mechanic that creates a secondary HP pool (the "guardian") which absorbs a portion of incoming damage before it reaches the character's main health pool.
+
+### Interface
+
+```typescript
+guardianIntercept?: {
+  percent: Scaling; // percentage of incoming damage redirected to the guardian
+  maxHp: Scaling; // maximum HP of the guardian pool
+  refreshMode?: 'refresh' | 'extend'; // how re-application combines with existing guardian HP
+  target?: 'all' | 'healthOnly'; // which damage portion is intercepted
+  canUpgrade?: boolean;
+  onDestroyed?: BuffEffect[]; // effects fired when guardian HP reaches 0
+};
+```
+
+### How It Works
+
+When a buff with `guardianIntercept` is applied, a secondary HP pool (the guardian) is created. Incoming damage is split between the guardian and the character based on `percent`. When the guardian's HP reaches zero, the buff is removed and `onDestroyed` effects fire on the owner.
+
+### `refreshMode`
+
+- **`'refresh'`** (default): When re-applied, the guardian's max HP becomes `max(old, new)` and its HP is fully restored.
+- **`'extend'`**: When re-applied, the guardian's HP increases by the new `maxHp` value and the max HP grows to accommodate. Use this for stacking effects like the Marrowbound Vestment.
+
+### `target`
+
+- **`'all'`** (default): The guardian intercepts the configured percent of total incoming damage at the pre-barrier location.
+- **`'healthOnly'`**: The guardian absorbs a percent of damage that reaches HP after all other reductions (barrier, interceptors, damage reduction, temporary health) have been applied.
+
+### Guardian HP Values
+
+The `maxHp` field sets the guardian's maximum HP. The game uses realm-appropriate fixed values internally. When defining guardian HP for equipment or buffs, use a fixed `value` with `stat: undefined` — the guardian pool is not tied to the wearer's current `maxhp`. Game equipment uses the following realm tiers as a guide:
+
+| Realm | Late-stage guardian HP reference |
+|---|---|
+| Body Forging | ~500 |
+| Meridian Opening | ~3,500 |
+| Qi Condensation | ~20,000 |
+| Core Formation | ~120,000 |
+| Pillar Creation | ~600,000 |
+| Life Flourishing | ~3,000,000 |
+
+These are approximate reference values derived from expected player health at each realm stage. Adjust based on the intended power level of the item or buff.
+
 ## Combat Stats Reference
 
 The following combat stats are available for use in buff `stats` definitions:
