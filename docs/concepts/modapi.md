@@ -1335,7 +1335,7 @@ Use these inside event `text` fields to produce consistent in-game styling:
 
 ```typescript
 window.modAPI.utils.createPlayerCombatEntity(player: PlayerEntity, breakthrough: BreakthroughState, gameFlags?: Record<string, number>): CombatEntity
-window.modAPI.utils.createPlayerCraftingEntity(player: PlayerEntity, breakthrough: BreakthroughState, characters?: CharactersState, options?: { noCompanionBuff?: boolean }, gameFlags?: Record<string, number>): CraftingEntity
+window.modAPI.utils.createPlayerCraftingEntity(player: PlayerEntity, breakthrough: BreakthroughState, characters?: CharactersState, options?: { noCompanionBuff?: boolean; includeEquipmentBuffsForPreview?: boolean }, gameFlags?: Record<string, number>): CraftingEntity
 ```
 
 Create full player entities for tooltips, calculations, and custom mechanics. Both functions apply breakthrough stats, scaling, destinies, and mod hooks.
