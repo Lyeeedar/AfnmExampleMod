@@ -52,6 +52,9 @@ interface Buff {
 
   // System properties
   cantUpgrade?: boolean; // Prevent mastery upgrades
+  isDroplet?: boolean; // Enables dropletBoost for this buff's eligible effects
+  isOpener?: boolean; // Enables openerBoost for this buff's eligible effects
+  isFinisher?: boolean; // Enables finisherBoost for this buff's eligible effects
 }
 ```
 

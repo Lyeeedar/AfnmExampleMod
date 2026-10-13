@@ -127,8 +127,9 @@ interface Buff {
   charisma?: number; // NPC relationship modifier
   masteryPoints?: number; // Technique mastery points granted
   speed?: number; // Turn order modifier
-  /** Marks this buff as a finisher for boost purposes. Effects gain <n>finisherBoost</n>. */
-  isFinisher?: boolean;
+  isDroplet?: boolean; // Enables dropletBoost for this buff's eligible effects
+  isOpener?: boolean; // Enables openerBoost for this buff's eligible effects
+  isFinisher?: boolean; // Enables finisherBoost for this buff's eligible effects
   /**
    * Strips the holder's barrier once combat has finished setting up, after the
    * Meridian barrier fill and every `onCombatStartEffects` have run. Use for buffs
@@ -167,6 +168,20 @@ interface Buff {
   _staticHash?: number;
 }
 ```
+
+## Technique Boost Flags
+
+Set these optional flags on the buff itself to enable the corresponding boost for its effects:
+
+| Buff flag          | Boost stat      |
+| ------------------ | --------------- |
+| `isDroplet: true`  | `dropletBoost`  |
+| `isOpener: true`   | `openerBoost`   |
+| `isFinisher: true` | `finisherBoost` |
+
+These boosts apply to power or artefact power scaled damage, healing, barrier, and temporary health effects. Buff effects use the buff's flags rather than inheriting the creating technique's droplet cost or stance position. The flags do not spend droplets or change when the buff executes.
+
+Multiple flags can be enabled together. Their percentage multipliers apply in droplet, opener, then finisher order, rounding down after each boost. Omitted flags behave as `false`.
 
 ## Buff Lifecycle
 
