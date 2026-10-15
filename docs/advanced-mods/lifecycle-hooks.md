@@ -255,7 +255,7 @@ Triggers after crafting attempts, successful or failed.
 
 **Parameters:**
 - `eventStep: CraftingStep` - The event step that triggered the crafting
-- `item: CraftingResult | undefined` - The crafted item (`undefined` if failed)
+- `item: CraftingResult | undefined` - The craft result. `undefined` if the craft failed before producing a result. The result's `state` field is `'failed'`, `'basic'`, `'perfect'`, or `'sublime'`. Replicated pills are in `replicatedPills`; refunded materials are in `refund` for failed crafts. `qualityTiers` holds the quality tier count.
 - `gameFlags: Record<string, number>` - Current game flags/state
 
 **Returns:** `EventStep[]` - Additional event steps to execute
@@ -265,8 +265,20 @@ Triggers after crafting attempts, successful or failed.
 window.modAPI.hooks.onCompleteCrafting((eventStep, item, gameFlags) => {
   const events: EventStep[] = [];
 
-  if (item && (item.qualityTiers ?? 0) >= 4) {
-    events.push({ kind: 'reputation', name: 'Celadon Flame Brewers', amount: '' + ((item.qualityTiers ?? 0) * 5) });
+  if (item && item.state !== 'failed') {
+    // Award favour for high-quality crafts
+    if ((item.qualityTiers ?? 0) >= 4) {
+      events.push({ kind: 'reputation', name: 'Celadon Flame Brewers', amount: '' + ((item.qualityTiers ?? 0) * 5) });
+    }
+    // Handle replicated pills - these are separate from the crafted item
+    item.replicatedPills?.forEach((pill) => {
+      events.push({ kind: 'addItem', item: pill, amount: '1' });
+    });
+  } else if (item) {
+    // Failed craft: check for refunded materials
+    item.refund?.forEach((mat) => {
+      events.push({ kind: 'addItem', item: mat, amount: '1' });
+    });
   }
 
   return events;
