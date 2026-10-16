@@ -26,6 +26,7 @@ interface Quest {
   acceptFlags?: Record<string, number>; // Flags set when the quest is accepted
   failureCondition?: string; // Optional failure trigger
   cost?: number; // Optional cost to accept quest
+  timeCostDays?: number; // Days consumed by completing the quest's current event
 }
 ```
 
@@ -136,6 +137,16 @@ failureCondition: 'realm > 3 || someQuestFlag == 1';
 All condition variables are numeric. Reputation values are stored as flat flags using the faction name with spaces replaced by underscores (e.g. `Nine_Mountain_Sect`). Item quantities use the item's flag name (e.g. `Spirit_Herb`). String comparisons are not supported.
 
 Note quests are also removed when all the steps in the quest are completed. This is simply a way to remove the quest early.
+
+### Time Cost
+
+The `timeCostDays` field indicates how many days are consumed when the quest's current event step resolves. This value is shown to the player so they know the time commitment before accepting:
+
+```typescript
+timeCostDays: 13;
+```
+
+Not all quests have a meaningful time cost; omit the field when the quest does not advance the calendar.
 
 ## Reward System
 
