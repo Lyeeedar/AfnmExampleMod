@@ -169,6 +169,58 @@ interface Buff {
 }
 ```
 
+## Element Boost Stats
+
+Element boost stats on a buff amplify damage, healing, barrier, and temporary health dealt by techniques whose element matches the buff's element. These are percentage multipliers added to the technique's power.
+
+The available element boost stats are:
+
+| Boost stat | Element |
+|---|---|
+| `bloodBoost` | `blood` |
+| `cloudBoost` | `cloud` |
+| `celestialBoost` | `celestial` |
+| `fistBoost` | `fist` |
+| `blossomBoost` | `blossom` |
+| `weaponBoost` | `weapon` |
+| `noneBoost` | `none` |
+
+**How element boosts apply to techniques:**
+
+- **Single-element techniques** -- The technique's element stat is checked. A technique with `type: 'celestial'` benefits from `celestialBoost` on active buffs. Multiple buffs with the same element boost stat stack additively.
+- **Hybrid techniques** -- Boosts from all constituent elements stack. A `['fist', 'celestial']` technique benefits from both `fistBoost` and `celestialBoost`.
+- **`'none'` techniques** -- Benefit from `noneBoost` on active buffs.
+- **Hybrid techniques containing `'none'`** -- Receive no element boost. A `['none', 'blood']` technique has its element boosts suppressed.
+
+**Example -- buff granting a celestial boost:**
+
+```typescript
+{
+  name: 'Celestial Attunement',
+  type: 'celestial',
+  stats: {
+    celestialBoost: {
+      value: 15,   // +15% damage/healing/barrier/tempHealth for celestial techniques
+      stat: undefined,
+    },
+  },
+}
+```
+
+**Example -- hybrid boost from multiple element stats:**
+
+```typescript
+{
+  name: 'Balanced Flow',
+  type: 'fist',
+  stats: {
+    fistBoost: { value: 10, stat: undefined },
+    celestialBoost: { value: 5, stat: undefined },
+  },
+}
+// A 'fist' technique gets +10%, a ['fist', 'celestial'] technique gets +15%
+```
+
 ## Technique Boost Flags
 
 Set these optional flags on the buff itself to enable the corresponding boost for its effects:
@@ -282,7 +334,7 @@ stats: {
 Can also reference another buff's name:
 
 ```typescript
-scaling: 'SomeOtherBuff',  // multiplies by SomeOtherBuff's stack count
+scaling: 'SomeOtherBuff',  // multiplies by SomeOtherBuff's current stack count
 ```
 
 ### `eqn`
@@ -365,7 +417,7 @@ When `true`, the `eqn` is ignored for tooltip display so the shown amount is the
 
 ## Auxiliary Tooltip Suppression
 
-The `hideAuxTooltip` field lets a buff suppress its own auxiliary ("aux") tooltips — the generic mechanic explanations that appear for barrier, temporary health, and referenced buffs. This is useful when the buff's own `tooltip` already explains the mechanic, or when the context makes it self-evident.
+The `hideAuxTooltip` field lets a buff suppress its own auxiliary ("aux") tooltips -- the generic mechanic explanations that appear for barrier, temporary health, and referenced buffs. This is useful when the buff's own `tooltip` already explains the mechanic, or when the context makes it self-evident.
 
 The field accepts an expression string evaluated against the same buff-aware scope as `childBuffs.condition` (exposes `stacks`, `internalState`, `storedValues`). When the expression evaluates truthy, aux tooltips are hidden.
 
@@ -525,10 +577,10 @@ In horde battles (where multiple enemies fight the player sequentially), buffs w
 ```
 
 State that transfers:
-- `stacks` — current stack count
-- `internalState` — any tracked counters or flags
-- `storedValues` — values captured at creation time
-- `guardianHp` / `guardianMaxHp` — guardian sub-entity state
+- `stacks` -- current stack count
+- `internalState` -- any tracked counters or flags
+- `storedValues` -- values captured at creation time
+- `guardianHp` / `guardianMaxHp` -- guardian sub-entity state
 
 Buffs without this flag are discarded when the enemy dies, matching the previous behaviour.
 
