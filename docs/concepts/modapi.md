@@ -23,7 +23,7 @@ api.hooks;      // Gameplay interceptors
 api.components; // Game UI components
 ```
 
-The `components` field exposes the same pre-styled React components available through `api.components` inside mod screens (GameDialog, GameButton, GameIconButton, BackgroundImage, PlayerComponent, ItemComponent, GameTooltip, GameTooltipBox, TooltipLine, every tooltip variant under `tooltips`, and every recipe component under `recipes`). Unlike `api.components`, which is only available inside a mod screen's render function, `window.modAPI.components` is accessible from **any** mod code, including helper functions, exported mod scripts, and options UI. The shape is identical: `window.modAPI.components.GameButton` works the same as `api.components.GameButton` inside a screen.
+The `components` field exposes the same pre-styled React components available through `api.components` inside mod screens (GameDialog, GameButton, GameIconButton, BackgroundImage, PlayerComponent, ItemComponent, GameTooltip, GameTooltipBox, TooltipLine, ChildhoodIcon, childhoodGlyphs, physicalStatToIcon, every tooltip variant under `tooltips`, and every recipe component under `recipes`). Unlike `api.components`, which is only available inside a mod screen's render function, `window.modAPI.components` is accessible from **any** mod code, including helper functions, exported mod scripts, and options UI. The shape is identical: `window.modAPI.components.GameButton` works the same as `api.components.GameButton` inside a screen.
 
 ## Game Data Access
 
@@ -123,7 +123,7 @@ window.modAPI.actions.addToSectShop(myRareItem, 1, 'coreFormation', 2.0, 'honour
 ```typescript
 window.modAPI.actions.addCharacter(character: Character)
 window.modAPI.actions.addBirthBackground(background: Background)
-window.modAPI.actions.addChildBackground(background: Background)
+window.modAPI.actions.addChildBackground(background: Background, glyph?: React.ReactNode)
 window.modAPI.actions.addTeenBackground(background: Background)
 ```
 

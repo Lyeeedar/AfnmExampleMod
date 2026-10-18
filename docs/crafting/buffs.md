@@ -122,8 +122,10 @@ Buffs modify these key statistics:
 - **Toxicity Resistance** (`resistance`) - Reduces toxicity accumulation; positive values are capped at 90% (additional resistance has no further effect)
 - **Crit Chance** (`critchance`) - Chance for enhanced effects
 - **Crit Multiplier** (`critmultiplier`) - Damage/effect multiplier on critical actions
-- **Pool Cost Multiplier** (`poolCostPercentage`) - Reduces qi costs (negative values reduce cost)
-- **Stability Cost Multiplier** (`stabilityCostPercentage`) - Reduces stability loss (negative values reduce cost)
+- **Qi Cost Reduction** (`qiCostReduction`) - Reduces qi cost of crafting actions. Multiple sources multiply together. Cost penalties apply separately.
+- **Qi Cost Penalty** (`qiCostPenalty`) - Increases qi cost of crafting actions. Multiple sources multiply together. Cost reductions apply separately.
+- **Stability Cost Reduction** (`stabilityCostReduction`) - Reduces stability cost of crafting actions. Multiple sources multiply together. Cost penalties apply separately.
+- **Stability Cost Penalty** (`stabilityCostPenalty`) - Increases stability cost of crafting actions. Multiple sources multiply together. Cost reductions apply separately.
 - **Action Success Chance** (`successChanceBonus`) - Improves technique success rate
 - **Pills Per Action** (`pillsPerRound`) - Number of pills usable per crafting action
 - **Item Effectiveness** (`itemEffectiveness`) - Effectiveness of consumables used during crafting
@@ -223,7 +225,7 @@ export const skillfulManipulation: CraftingBuff = {
   icon: skillIcon,
   canStack: true,
   stats: {
-    poolCostPercentage: { value: -0.2, stat: undefined },
+    qiCostReduction: { value: 0.2, stat: undefined },
   },
   effects: [
     {
