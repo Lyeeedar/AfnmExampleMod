@@ -198,7 +198,7 @@ Combat and crafting stats, each backed by the player's current entity values:
 
 ### Character State
 
-- `injured` - `1` when HP is critically low or the character has no stances
+- `injured` - `1` when the character's `playerEntity.injured` is true AND HP is at 1 or below, or when the character has no stances
 - `charisma` - Current charisma value
 
 ### Affinities and Ranks

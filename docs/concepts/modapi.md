@@ -894,8 +894,6 @@ if (modAPI.combat) {
 - **`modAPI.combat.getCombatLog()`** -- Returns the array of `CombatLogEntry` entries so far
 - **`modAPI.combat.isInCombat()`** -- Returns `true` if a combat is in progress
 
-To pause combat and show a custom screen, mods can call `window.modAPI.actions.setCombatPaused(true)` from a hook or UI injection. The `CombatScreen` returns `null` while paused, allowing a parent component to render custom UI instead. Call `window.modAPI.actions.setCombatPaused(false)` to resume.
-
 ### Completion Hooks
 
 These fire after specific activities complete and can inject additional event steps:
