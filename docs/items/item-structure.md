@@ -18,15 +18,26 @@ Every item implements the `ItemBase` interface:
 interface ItemBase {
   kind: ItemKind; // Item category/type
   name: string; // Display name
-  description: string; // Lore and description text
+  displayName?: Translatable; // Optional localised display name, overrides `name`
+  description: Translatable; // Lore and description text
+  actions?: ItemEventAction[]; // Extra inventory actions, shown alongside the item's normal controls
   icon: string; // Asset path for visual representation
   stacks: number; // Default quantity in inventory
   rarity: Rarity; // Quality tier
   realm: Realm | 'any'; // Cultivation requirement
+  hideRealmTier?: boolean; // Suppresses the realm numeral drawn in the item's top-left corner
+  acquiredAt?: number; // When the item was acquired
   valueTier?: number; // Economic worth modifier
+  enchantment?: Enchantment; // Enchantment applied to the item
   upgradedFrom?: Item; // Upgrade chain tracking
+  hiddenPotential?: number; // Hidden potential value
+  minimumPotential?: number; // Minimum potential required to use or upgrade the item
+  corruption?: ItemCorruption; // Corruption debuff applied once a threshold is reached
+  harmonyAugment?: HarmonyAugment; // Chosen harmony and craft quality for a sublime item
   upgradeHarmonies?: Partial<Record<RecipeHarmonyType, ItemHarmonyUpgrade>>; // Craft harmony upgrades
   dropHarmonies?: RecipeHarmonyType[]; // Harmony types eligible when item drops with quality
+  maxDroplets?: number; // Extra droplet capacity granted while this equipment is worn
+  dropletRegen?: number; // Extra droplets restored after using this equipment in its activity
 }
 ```
 
@@ -220,7 +231,7 @@ Use the same set definition on its member items. Multiple copies of the same ite
 
 ## Item Categories
 
-AFNM supports 35 distinct item categories:
+AFNM supports 37 distinct item categories:
 
 ### Equipment Types
 
@@ -276,6 +287,7 @@ AFNM supports 35 distinct item categories:
 
 ```typescript
 'device'; // Automated farm devices
+'ore_extractor'; // Ore miners installed in a vein chamber
 ```
 
 ### Special Types
@@ -290,6 +302,18 @@ AFNM supports 35 distinct item categories:
 'blueprint'; // Construction
 'flare'; // Utility items
 'local_map'; // Local map combat encounters
+'misc'; // Generic items with no extra behaviour
+```
+
+### Ore Extractor Items
+
+`ore_extractor` has no dedicated page under `item-types/`. Its only field beyond `ItemBase` is:
+
+```typescript
+interface OreExtractorItem extends ItemBase {
+  kind: 'ore_extractor';
+  extractionSpeed: number; // Ores mined per month once installed in a vein chamber. May be fractional.
+}
 ```
 
 ## Economic System
