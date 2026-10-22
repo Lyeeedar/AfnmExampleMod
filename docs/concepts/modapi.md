@@ -878,7 +878,7 @@ window.modAPI.hooks.onConsumeItem((item, target, flags) => {
 
 ### Combat State Access
 
-During active combat, `modAPI.combat` provides direct access to the current combat state and allows mods to pause and resume the combat screen to inject custom UI or trigger events.
+During active combat, `modAPI.combat` provides direct access to the current combat state.
 
 ```typescript
 if (modAPI.combat) {
@@ -893,8 +893,6 @@ if (modAPI.combat) {
 - **`modAPI.combat.setCombatState(state)`** -- Overwrites the current combat state (use to modify HP, buffs, round number, etc.)
 - **`modAPI.combat.getCombatLog()`** -- Returns the array of `CombatLogEntry` entries so far
 - **`modAPI.combat.isInCombat()`** -- Returns `true` if a combat is in progress
-
-To pause combat and show a custom screen, mods can call `window.modAPI.actions.setCombatPaused(true)` from a hook or UI injection. The `CombatScreen` returns `null` while paused, allowing a parent component to render custom UI instead. Call `window.modAPI.actions.setCombatPaused(false)` to resume.
 
 ### Completion Hooks
 
