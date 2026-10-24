@@ -39,6 +39,14 @@ interface RecipeItem {
   harmonyTypeOverride?: RecipeHarmonyType;         // Override default harmony system
   perfectionEffectOverride?: 'quality';           // Controls what perfection affects in the crafted item
 
+  // Optional presentation and behaviour flags
+  displayPerfect?: boolean;       // Show the perfect result in the compendium
+  displaySublime?: boolean;       // Show the sublime result, takes precedence over displayPerfect
+  hideFromCompendium?: boolean;   // Keep the recipe out of the compendium
+  disableInstantCraft?: boolean;  // Require the manual crafting process even when instant crafting is unlocked
+  forceSublimeCrafting?: boolean; // Forces manual crafts to use a harmony and removes the basic craft option
+  complexityMultiplier?: number;  // Scales the Completion and Perfection this recipe demands
+
   // Optional custom quality threshold
   customThreshold?: CraftCustomThreshold; // A named quality mark shown as its own bar above Completion
 
@@ -67,17 +75,19 @@ Higher difficulty raises the bar during the crafting mini-game: stability costs 
 
 ## Harmony Types
 
-Each recipe uses one of seven harmony systems during crafting. By default the game assigns a harmony type based on the item category. Use `harmonyTypeOverride` to force a specific type:
+Each recipe uses one of nine harmony systems during crafting. By default the game assigns a harmony type based on the item category. Use `harmonyTypeOverride` to force a specific type:
 
-| Value             | Description                                              |
-| ---------------- | -------------------------------------------------------- |
-| `forge`           | Forging -- heat-based combo system                       |
-| `alchemical`      | Alchemy -- charge-and-combo system                       |
-| `inscription`     | Inscription -- pattern-block system                       |
-| `resonance`       | Resonance -- technique-type matching resonance system      |
-| `formless`        | Formless Way -- realm-budget scaling harmony             |
-| `enhancingEcho`   | Enhancing Echo -- enhancement-focused harmony            |
-| `eccentricDecree` | Eccentric Decree -- special decree-based harmony         |
+| Value             | Name                | Harmony rule                                                                 |
+| ---------------- | ------------------- | ----------------------------------------------------------------------------- |
+| `forge`           | Forge Works         | Maintain the heat of the cauldron to maintain Harmony                         |
+| `alchemical`      | Alchemical Arts     | Mix the energies of different actions to maintain Harmony                     |
+| `inscription`     | Inscribed Patterns  | Follow the inscribed pattern blocks to maintain Harmony                        |
+| `resonance`       | Spiritual Resonance | Build the resonance of singular action types to maintain Harmony              |
+| `formless`        | Formless Way        | Requires 100% more Completion and Perfection                                  |
+| `enhancingEcho`   | Enhancing Echo      | Use your actions in echoing pairs to maintain Harmony                         |
+| `eccentricDecree` | Eccentric Decree    | Pour your focus into one bar at a time to maintain Harmony, starting on Completion |
+| `captivatingCadence` | Captivating Cadence | Build a Cadence by changing action types. Each chain point grants Harmony, Qi Intensity and Qi Control. Repeating the previous action type resets the chain, loses 50 Harmony and reduces max Stability by 1 |
+| `returningCycle`  | Returning Cycle     | Store all Qi Pool spent. Every 10% of your starting Qi Pool spent grants 1 Charge. A Stabilize action spends the charges for Harmony and Returned Precision stacks, each of which grants crit chance |
 
 ## Perfection Effect Override
 
@@ -150,7 +160,7 @@ startingStability: 0.5,
 Makes the recipe purchasable at the crafting hall:
 
 ```typescript
-modAPI.addRecipeToLibrary(myRecipe);
+modAPI.actions.addRecipeToLibrary(myRecipe);
 ```
 
 ### Add to the Research System
@@ -159,7 +169,7 @@ Associates a recipe with a base item so players can unlock it through the Vault 
 
 ```typescript
 // Players who obtain ancientScroll can research myRecipe
-modAPI.addRecipeToResearch(ancientScroll, myRecipe);
+modAPI.actions.addRecipeToResearch(ancientScroll, myRecipe);
 ```
 
 ## Full Example
@@ -190,6 +200,6 @@ export const ironheartPillRecipe: RecipeItem = {
 
 // In your mod entry point:
 export function init(modAPI) {
-  modAPI.addRecipeToLibrary(ironheartPillRecipe);
+  modAPI.actions.addRecipeToLibrary(ironheartPillRecipe);
 }
 ```

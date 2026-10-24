@@ -24,12 +24,22 @@ interface CraftingTechnique {
   // Resource costs
   stabilityCost: number;       // Stability removed from current when used
   poolCost: number;             // Qi drawn from pool when used
+  noQiCost?: boolean;           // Pool cost is zero, whatever poolCost says
+  toxicityCost?: number;        // Toxicity added to the crafter when used
+  dropletCost?: number;         // Qi droplets consumed when used
 
   // Effects
   effects: CraftingTechniqueEffect[]; // What happens when technique is used
 
-  // Triggered effects (walked for tooltip substitution — see Tooltip Templates below)
+  // Triggered effects (walked for tooltip substitution, see Tooltip Templates below)
   triggeredEffects?: { trigger: string; effects: CraftingTechniqueEffect[] }[];
+
+  // Requirements
+  conditionRequirement?: CraftingCondition; // Condition that must hold to use it
+  buffRequirement?: { buff: CraftingBuff; amount: number };
+  buffCost?: { buff: CraftingBuff; amount: number };
+  firstActionOnly?: boolean;    // Only usable on the first action of a craft
+  minStability?: number;        // Only usable while current stability is above this
 
   // Mastery upgrades
   upgradeMasteries?: { [key: string]: CraftingTechniqueMasteryRarityMap };
@@ -107,22 +117,23 @@ effects: [
 Understanding stability costs is critical for balanced technique design:
 
 ```typescript
-// Low impact — only affects current stability
+// Reduces current stability when the technique is used
 stabilityCost: 5,
-
-// High impact — reduces the cap, limiting future technique use
-maxStabilityCost: 10,
 
 // Qi pool consumption
 poolCost: 20,
+
+// Optional: this technique does not lower the max stability ceiling
+noMaxStabilityLoss: true,
 ```
 
 **Stability mechanics:**
 
 - Current stability falling to 0 causes craft failure
-- Max stability sets the ceiling for current stability
-- Techniques that reduce max stability without restoring current first are dangerous
-- The `noMaxStabilityLoss` flag on effects preserves max stability (only current drops)
+- `stabilityCost` is taken out of current stability when the technique resolves
+- Every action adds a stability penalty, and that penalty is subtracted from the recipe's stability to give the ceiling for current stability
+- `noMaxStabilityLoss` on the technique stops it adding to that penalty, so the ceiling is not lowered by using it
+- A `maxStability` effect changes the penalty directly, and a buff with `sealedMaxStability` stops the ceiling from rising at all
 
 ## Effects Reference
 
@@ -200,7 +211,13 @@ All `amount` fields use the `Scaling` type for stat-based values:
 ```typescript
 {
   value: number;              // Base value
-  stat?: StatName;            // Stat to scale from (e.g. 'control', 'intensity')
+  stat?:                      // Stat to scale from (e.g. 'control', 'intensity')
+    | PhysicalStatistic
+    | SocialStatistic
+    | CombatStatistic
+    | CraftingStatistic
+    | TechniqueElement
+    | undefined;
   upgradeKey?: string;        // Links to mastery upgrade
   eqn?: string;               // Custom expression multiplied onto the result (e.g. 'floor(perfectionPercentage / 100)')
   additiveEqn?: string;       // Expression added after eqn multiplication
@@ -208,7 +225,7 @@ All `amount` fields use the `Scaling` type for stat-based values:
 }
 ```
 
-The game supports these stats for crafting techniques: `control`, `intensity`, `pool`, `power`, `qiAbsorption`, `masteryPoints`, `charisma`, `speed`.
+The `stat` field takes any physical, social, combat or crafting statistic, or a technique element. The stats the game's own crafting techniques scale off are `power`, `control`, `intensity`, `maxhp`, `maxbarrier`, `maxtoxicity`, `maxpool` and `artefactpower`. Use `undefined` for a flat value that ignores the crafter's stats.
 
 ## Registration
 
@@ -255,16 +272,16 @@ upgradeMasteries: {
 
 Crafting technique masteries use the same rarity tiers as combat techniques:
 
-| Tier | Value |
+| Rarity | Tier numeral |
 |------|-------|
-| mundane | 1 |
-| qitouched | 2 |
-| empowered | 3 |
-| resplendent | 4 |
-| incandescent | 5 |
-| transcendent | 6 |
+| `mundane` | I |
+| `qitouched` | II |
+| `empowered` | III |
+| `resplendent` | IV |
+| `incandescent` | V |
+| `transcendent` | VI |
 
-Use the **tier value** (left column) when specifying `startRarity` arguments in helper functions.
+The helpers take the rarity name, for example `createCraftingCompletionUpgradeMap('completion', 'empowered')`. The tier numerals are for display and for ordering, not for arguments.
 
 ### Upgrade Types
 

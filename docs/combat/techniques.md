@@ -100,7 +100,7 @@ For example, a Sinew-Bound Wraps listener on `damageHp-fist` will now correctly 
 
 ### Origin Techniques
 
-The `type` is the literal `'origin'`. Origin techniques fire `use.<school>` for every non-`none` school simultaneously, and use a single `use.origin` trigger instead of one per school. They represent techniques that draw on every cultivation path:
+The `type` is the literal `'origin'`. Origin techniques fire a single `use.origin` trigger. They do not fire `use.<school>` per school, so a listener on `use.fist` never reacts to an origin technique. `getTechniqueTypes` still reports all six real schools for an origin technique, which is what drives affinity and boost multipliers. They represent techniques that draw on every cultivation path:
 
 ```typescript
 type: 'origin'; // Fires use.origin (not one per school)
@@ -591,12 +591,12 @@ interceptOnly: {
 
 ## Triggered Effects
 
-The `triggeredEffects` field allows technique effects to trigger additional effect chains:
+The `triggeredEffects` field allows technique effects to trigger additional effect chains. The `trigger` string is one of the trigger keys the game fires, so a technique that deals damage listens on `use.damage`:
 
 ```typescript
 triggeredEffects: [
   {
-    trigger: 'onHit',
+    trigger: 'use.damage',
     effects: [
       {
         kind: 'buffSelf',
@@ -608,7 +608,7 @@ triggeredEffects: [
 ],
 ```
 
-Triggers fire when specific combat events occur. See the [Triggers](../combat/triggers/) page for full documentation.
+Triggers fire when specific combat events occur. A technique's triggered effects only run while that technique is resolving, so the chain reacts to the technique's own effects. See the [Triggers](../combat/triggers/) page for full documentation.
 
 ## Hiding Auxiliary Tooltips
 
