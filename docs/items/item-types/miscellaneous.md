@@ -290,6 +290,8 @@ stanceRule: {
 | Condition | Meaning |
 |---|---|
 | `Health` | Player HP percentage (0–100) |
+| `Temporary Health` | Player temporary Health percentage (0–100) |
+| `Total Health` | Player current Health plus temporary Health percentage. Can read above 100% while temporary Health is held |
 | `Enemy Health` | Enemy HP percentage (0–100) |
 | `Toxicity` | Player toxicity percentage |
 | `Barrier` | Player barrier percentage |
@@ -304,7 +306,9 @@ stanceRule: {
 | `Trigger: <name>` | Value of a trigger flag |
 | `(Any) <buff>` | Whether any instance of a multi-instance buff meets the condition |
 
-Percent-based conditions (Health, Toxicity, Barrier, Enemy Health, element boosts, guardian groups) display a `%` suffix in the UI. All other conditions compare raw values.
+Percent-based conditions (Health, Temporary Health, Total Health, Toxicity, Barrier, Enemy Health, element boosts, guardian groups) display a `%` suffix in the UI. All other conditions compare raw values.
+
+Temporary Health absorbs incoming damage after reductions are applied. It degenerates by a third before each technique and is capped at your maximum health, so `Total Health` can read above 100% while temporary Health is held.
 
 **Condition operators:** `<' `>`, `<=`, `>=`, `==`, `!=`
 
