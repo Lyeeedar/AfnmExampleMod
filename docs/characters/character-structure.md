@@ -14,15 +14,24 @@ The `Character` interface defines the core structure for all NPCs in the game, f
 ```typescript
 interface Character {
   name: string; // Unique identifier
+  battleLoadout?: BattleArtLoadout; // Authored army-battle arts, equipped according to the character's current rank or realm
   displayName?: Translatable; // Optional display name (localisation key or plain string)
   allegiance: string | undefined; // Faction affiliation
   bio?: string; // Character description (optional)
   manualDescription?: string; // Alternate description used in certain UI contexts
 
+  /** If present, this character is discovered as an authored sect roster member. */
+  sectMembership?: SectCharacterMembership;
+
   condition: string; // When character appears
 
   /** Required grammatical gender, used for localization and romantic relationship filtering. */
   gender: 'male' | 'female' | 'neutral';
+
+  /** Always active while following, without occupying a companion slot. */
+  ignoresCompanionLimit?: boolean;
+  /** Whether this character contributes to expedition entry costs when following. */
+  paysExpeditionCost?: boolean;
 
   definitions: CharacterDefinition[]; // Realm-based definitions
   relationship?: CharacterRelationshipDefinition[]; // Companion only

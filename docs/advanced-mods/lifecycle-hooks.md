@@ -670,6 +670,52 @@ window.modAPI.hooks.onCompleteEquipmentReforge((baseItem, costItems, resultItem,
 });
 ```
 
+### `onDeriveEquipmentReharmonizeRequirement`
+
+Called before the retarget requirements are shown, when the player changes an item's harmony type. Allows changing the material costs and the resulting item.
+
+**Parameters:**
+- `baseItem: Item` - The item being retargeted
+- `costItems: Item[]` - Items consumed as the retarget cost
+- `resultItem: Item` - The retargeted item: the same item with a new harmony type and half its previous quality, the removed quality returned as hidden potential
+- `gameFlags: Record<string, number>` - Current game flags/state
+
+**Returns:** `{ costItems?: Item[]; resultItem?: Item } | undefined`
+
+The returned `costItems` replaces the entire cost list and the returned `resultItem` replaces the entire resulting item. Nothing is merged field by field, unlike `onDeriveEquipmentReforgeRequirement`, whose `resultItem` is a preview descriptor that is merged field by field. Return a complete `Item` if you change it. Hooks run in registration order and each one receives the output of the previous.
+
+**Example:**
+```typescript
+window.modAPI.hooks.onDeriveEquipmentReharmonizeRequirement((baseItem, costItems, resultItem, gameFlags) => {
+  return {
+    costItems,
+    resultItem: { ...resultItem, hiddenPotential: (resultItem.hiddenPotential ?? 0) + 1 },
+  };
+});
+```
+
+### `onCompleteEquipmentReharmonize`
+
+Called after the retarget completes, before the result dialog is shown. Allows modifying the resulting item.
+
+**Parameters:**
+- `baseItem: Item` - The item that was retargeted
+- `costItems: Item[]` - Items that were consumed
+- `resultItem: Item` - The resulting retargeted item
+- `gameFlags: Record<string, number>` - Current game flags/state
+
+**Returns:** `{ costItems?: Item[]; resultItem?: Item } | undefined`
+
+**Example:**
+```typescript
+window.modAPI.hooks.onCompleteEquipmentReharmonize((baseItem, costItems, resultItem, gameFlags) => {
+  return {
+    costItems,
+    resultItem: resultItem ? { ...resultItem, valueTier: (resultItem.valueTier ?? 0) + 1 } : undefined,
+  };
+});
+```
+
 ---
 
 ## State Access and UI
