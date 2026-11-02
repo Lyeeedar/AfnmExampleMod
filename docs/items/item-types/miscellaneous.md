@@ -297,6 +297,7 @@ stanceRule: {
 | `Barrier` | Player barrier percentage |
 | `Qi Droplets` | Player qi droplet count |
 | `Missing Qi Droplets` | Player missing qi droplets |
+| `Active Pill Effects` | Number of distinct active buff names in the `Pill` buff type, not their total stacks |
 | `Round` | Current combat round number (1-based; 0 before round 1) |
 | `Weapon Boost`, `Fist Boost`, etc. | Element boost percentages |
 | `Weakest <group>` | HP percentage of lowest-health entity in a guardian group |
@@ -309,6 +310,16 @@ stanceRule: {
 Percent-based conditions (Health, Temporary Health, Total Health, Toxicity, Barrier, Enemy Health, element boosts, guardian groups) display a `%` suffix in the UI. All other conditions compare raw values.
 
 Temporary Health absorbs incoming damage after reductions are applied. It degenerates by a third before each technique and is capped at your maximum health, so `Total Health` can read above 100% while temporary Health is held.
+
+`Active Pill Effects` compares a raw count and resolves to the combat expression variable `unique_Pill`. Repeated applications of the same buff name count once. It can also be used as `valueBuff` when comparing another condition against the active pill-effect count:
+
+```typescript
+// Activate while fewer than three distinct pill effects are active
+{ condition: 'Active Pill Effects', check: '<', value: 3 }
+
+// Compare pill replication against the active pill-effect count
+{ condition: 'Pill Replication', check: '<', value: 0, valueBuff: 'Active Pill Effects' }
+```
 
 **Condition operators:** `<' `>`, `<=`, `>=`, `==`, `!=`
 
