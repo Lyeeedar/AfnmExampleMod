@@ -150,7 +150,7 @@ condition: 'totalScore >= requiredScore * 2';
 {
   kind: 'flag',
   flag: 'festivalMonth',
-  value: 'yearMonth',
+  value: 'month',
   global: true
 }
 
@@ -231,7 +231,7 @@ condition: 'buff_Flow >= 5'; // Check Flow buff stack count
 All realm and rarity names are exposed as their index values, useful for comparisons:
 
 ```typescript
-condition: 'realm >= 5'; // Core Formation or above
+condition: 'realm >= 4'; // Core Formation or above
 ```
 
 Realms: `mundane` = 0, `bodyForging` = 1, `meridianOpening` = 2, `qiCondensation` = 3, `coreFormation` = 4, `pillarCreation` = 5, `lifeFlourishing` = 6, `worldShaping` = 7, `innerGenesis` = 8, `soulAscension` = 9
