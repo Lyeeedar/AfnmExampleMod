@@ -423,72 +423,14 @@ export const sunrise: Technique = {
 
 ## Stances and Styles
 
-Stances group techniques into ordered sequences that execute automatically during combat. Each combatant maintains a current stance (the active technique sequence) and a library of stored stances.
+To give a custom enemy a predictable setup-and-payoff sequence, put technique objects in the enemy's `stances` array. Each stance has a unique `name` and a `techniques` array in execution order. Use [`EnemyEntity` combat configuration](../enemies/enemy-structure#combat-configuration) for the definition fields and [Enemy Behavior Patterns](../enemies/behavior-patterns) for rotation examples.
 
-### StoredStance and StoredStyle
+1. Define the techniques for the sequence. For example, place a resource-generating technique before a technique whose `costs` consume that resource. Check that the earlier technique supplies enough stacks for the later cost.
+2. Add those technique objects to a named stance on your `EnemyEntity`. Set `stanceRotation` to rules referencing the stance names. A `kind: 'single'` rule selects one named stance, while `kind: 'random'` selects from a pool of names. Use a fixed rotation when players should be able to learn and counter the sequence.
+3. Use `rotationOverrides` for a stance that should take priority when a condition is met, such as a defensive stance below a health threshold. Overrides are checked before the regular rotation. Set `repeatable: true` if an override should be eligible again after it has fired.
+4. Include the enemy in a `LocationEnemy` entry and register it with `window.modAPI.actions.addEnemiesToLocation(locationName, entries)`, using an existing location name. See the [registration API](../concepts/modapi#modifying-existing-locations). Load the mod and test the encounter through complete stance cycles. Check technique order, resource costs and each override condition, including whether an override repeats as intended.
 
-The `PlayerEntity` and `EnemyEntity` types expose stances via `storedStyles`, a list of `StoredStyle` objects. Each `StoredStyle` holds a named style that contains ordered `StoredStance` entries:
-
-```typescript
-interface StoredStyle {
-  name: string;
-  id: string;
-  autoName?: boolean;
-  stances: StoredStance[];
-  conditionalCycles?: ConditionalCycle[];
-}
-
-interface StoredStance {
-  name: string;
-  autoName?: boolean;
-  techniques: string[];
-  stanceRule?: StoredRule;
-}
-```
-
-### Stance Rule Types
-
-Each `StoredStance` can declare a `stanceRule` to control when it fires:
-
-```typescript
-interface OpenerStoredRule {
-  kind: "opener";
-  position: number;
-}
-```
-
-### Condition Keys
-
-Stance rules that use `kind: 'condition'` can reference these keys in the condition expression:
-
-| Key | Evaluates to | Notes |
-|-----|--------------|-------|
-| `Power` | Current Power stat | Post-weakness value; can be negative |
-| `Enemy Count` | Number of enemies still standing | Defaults to 1 (solo boss); higher for multi-enemy fights |
-| `Enemy Realm` | Realm tier of the enemy combatant | Numeric value; use `enemyRealm >= realmIndex('coreFormation')` in conditions |
-| `Round` | Current combat round | 1-based |
-
-Other keys (buff names, `hp`, `barrier`) are also available depending on the entity's state.
-
-### Conditional Stance Counters
-
-For combatants using the unified stance selector (players, manifested figments, evoked figments), the `enemyStanceData` field tracks per-stance usage so `ConditionalStoredRule.maxCount` is enforced:
-
-```typescript
-enemyStanceData?: {
-  playerStanceIndex: number;
-  usedPlayerStanceOpeners: boolean[];
-  lastPlayerStance: string;
-  lastCycleKey?: string;
-  usedConditionalStanceCounts?: Record<string, number>;
-};
-```
-
-### Manifested and Evoked Life Forms
-
-When a manifested or evoked life form (such as a figment) uses player-style stances, the stance configuration is forwarded from the figment data into the combat entity via `playerStyleStances` and `playerStyleCycles`. This ensures the unified `selectNextStoredStance` selector evaluates both the player entity and life-form entities using the same algorithm.
-
-**For modders adding manifested figments:** Seed `playerStyleStances` and `playerStyleCycles` on the combat entity so conditional stance rules and `maxCount` enforcement behave consistently with the player entity.
+To make a technique available to players, register its definition with `window.modAPI.actions.addTechnique(technique)`. See the [technique registration API](../concepts/modapi#cultivation-content). Enemy stances contain technique objects, while player technique registration makes the definition available by name to the game's technique systems.
 
 ## Mastery System
 
