@@ -101,3 +101,26 @@ The game features three main character types, each with distinct behaviors and c
 - Mount acquisition for companions
 
 The character system provides the social and narrative framework for the game, creating memorable NPCs that players can befriend, romance, trade with, or battle against throughout their cultivation journey.
+
+## Make a Following Summon Match the Player's Realm
+
+For a summon or other follower that should use the player's realm in army battles, set `realmFollowsPlayer: true` on the character's top-level `followInteraction`. While that character belongs to the party, its army-battle roster entry uses the player's current realm and its character details show the player's realm and progress. Omit the option or set it to `false` to keep the authored realm. Use this for a summoned ally intended to remain useful as the player advances.
+
+Starting with your own complete `Character` and `FollowCharacterDefinition`:
+
+```typescript
+import type { Character } from 'afnm-types';
+
+const scalingFollower: Character = {
+  ...myFollower,
+  followInteraction: {
+    ...myFollowDefinition,
+    realmFollowsPlayer: true,
+  },
+};
+window.modAPI.actions.addCharacter(scalingFollower);
+```
+
+See [Character Structure](character-structure.md) for character definitions and `battleLoadout`, and [Companions: Party System](companions.md#party-system) for the follow definition's party configuration. Put this option on `Character.followInteraction`. The realm override is read from that top-level field, even though relationship tiers also accept follow definitions. Keep the authored definitions, party buffs, and battle arts appropriate to the ally's intended role. This option does not replace those definitions or configure their effects.
+
+To test, load the mod, recruit the follower, and check its character details and army-battle realm with players at two different realms. Also check it outside the party, where the authored realm applies. Army-battle participation requires a `battleLoadout` and an eligible non-enemy definition.

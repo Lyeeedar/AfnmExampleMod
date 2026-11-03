@@ -114,7 +114,7 @@ type RecipeDifficulty = 'easy' | 'medium' | 'hard' | 'veryhard' | 'veryhard+' | 
 | `veryhard+` | 2.75 |
 | `extreme` | 3.7 |
 
-These feed into the Completion and Perfection targets alongside realm and realm progress. They do not restrict ingredient rarity or select a harmony pattern. Choose ingredients and any harmony override separately.
+These feed into the Completion and Perfection targets alongside realm and realm progress. They do not restrict ingredient rarity or select a harmony pattern. Choose ingredients and any harmony override separately. For a workflow covering tuning, registration, and playtesting, see [Crafting Recipes](../crafting/recipes.md#recipe-difficulty).
 
 ## Harmony Types
 
@@ -259,12 +259,6 @@ Recipes span all major item categories:
 - **Mystical Keys**: Region access items
 - **Formations**: Environmental enhancements
 - **Breakthrough Pills**: Advancement items
-
-## Quick Access Recipe Filter
-
-The crafting screen's **Quick Access** tab includes recipes whose `baseItem`, `perfectItem`, or `sublimeItem` name matches an item in the player's combat or crafting quick access list, or in either current auto-use loadout. The tab appears when a learned recipe with a valid base output matches. Normal recipe filters still apply.
-
-Custom recipes participate through their output item names. No extra `RecipeItem` field is required. Code that reads or sets `RecipeFilters.category` can now use `'quick-access'` alongside the existing category values.
 
 ## Recipe Design Guidelines
 
