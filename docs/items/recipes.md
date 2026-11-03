@@ -95,49 +95,45 @@ export const healingPillRecipeIV: RecipeItem = {
 
 ## Difficulty System
 
-Recipe difficulty can not be manually set. It is instead derived from 3 fields that control its complexity. `realm`, `realmProgress`, and `difficulty`. In general, the rule of thumb is to set the realm equal to that of the item being made. Then set the realmProgress to be where in that realm is the item intended to be used (is it a progression item (`Early` or `Middle`) or an end-game target (`Late`)). Finally, set the difficulty based on how hard you wish it to be (and if uncertain, set it to `medium`).
+The game derives crafting targets from `realm`, `realmProgress`, and `difficulty`. Set these fields on the recipe rather than supplying numerical Completion and Perfection targets. In general, the rule of thumb is to set the realm equal to that of the item being made. Then set the realmProgress to be where in that realm is the item intended to be used (is it a progression item (`Early` or `Middle`) or an end-game target (`Late`)). Finally, set the difficulty based on how hard you wish it to be (and if uncertain, set it to `medium`).
 
 ```typescript
-type RecipeDifficulty = 'easy' | 'medium' | 'hard' | 'extreme';
+type RecipeDifficulty = 'easy' | 'medium' | 'hard' | 'veryhard' | 'veryhard+' | 'extreme';
 ```
 
 ### Difficulty Effects
 
-**Easy**
+`deriveRecipeDifficulty` uses the following difficulty multipliers when calculating the expected number of crafting steps:
 
-- Basic recipes for new crafters
-- High success rates
-- Minimal skill requirements
-- Common materials only
+| Difficulty | Step multiplier |
+| --- | --- |
+| `easy` | 1 |
+| `medium` | 1.4 |
+| `hard` | 1.5 |
+| `veryhard` | 1.7 |
+| `veryhard+` | 2.75 |
+| `extreme` | 3.7 |
 
-**Medium**
-
-- Intermediate recipes
-- Moderate skill requirements
-- Mix of common and uncommon materials
-- Introduces complexity
-
-**Hard**
-
-- Advanced recipes for experienced crafters
-- High skill requirements
-- Rare materials required
-- Complex harmony patterns
-
-**Extreme**
-
-- Master-tier recipes
-- Maximum skill requirements
-- Legendary materials
-- Punishing failure consequences
+These feed into the Completion and Perfection targets alongside realm and realm progress. They do not restrict ingredient rarity or select a harmony pattern. Choose ingredients and any harmony override separately.
 
 ## Harmony Types
 
 Recipes can override default harmony mechanics:
 
 ```typescript
-type RecipeHarmonyType = 'forge' | 'alchemical' | 'inscription' | 'resonance';
+type RecipeHarmonyType =
+  | 'forge'
+  | 'alchemical'
+  | 'inscription'
+  | 'resonance'
+  | 'formless'
+  | 'enhancingEcho'
+  | 'eccentricDecree'
+  | 'captivatingCadence'
+  | 'returningCycle';
 ```
+
+The additional identifiers select Formless Way, Enhancing Echo, Eccentric Decree, Captivating Cadence, and Returning Cycle, respectively. For a sublime craft, `harmonyTypeOverride` fixes the harmony instead of letting the player choose from unlocked harmonies.
 
 ### Harmony Mechanics
 
@@ -263,6 +259,12 @@ Recipes span all major item categories:
 - **Mystical Keys**: Region access items
 - **Formations**: Environmental enhancements
 - **Breakthrough Pills**: Advancement items
+
+## Quick Access Recipe Filter
+
+The crafting screen's **Quick Access** tab includes recipes whose `baseItem`, `perfectItem`, or `sublimeItem` name matches an item in the player's combat or crafting quick access list, or in either current auto-use loadout. The tab appears when a learned recipe with a valid base output matches. Normal recipe filters still apply.
+
+Custom recipes participate through their output item names. No extra `RecipeItem` field is required. Code that reads or sets `RecipeFilters.category` can now use `'quick-access'` alongside the existing category values.
 
 ## Recipe Design Guidelines
 
