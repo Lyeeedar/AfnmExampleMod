@@ -61,21 +61,27 @@ interface RecipeItem {
 type RecipeDifficulty = 'easy' | 'medium' | 'hard' | 'veryhard' | 'veryhard+' | 'extreme';
 ```
 
-Higher difficulty raises the bar during the crafting mini-game: stability costs increase, starting values are lower, and completion thresholds are tougher.
+Higher `difficulty` increases the Completion and Perfection targets. It does not directly raise technique stability costs or lower starting stability. Choose `medium` as a starting point for an ordinary recipe and test harder settings for optional mastery challenges. See the [recipe difficulty reference](../items/recipes.md#difficulty-system) for the valid choices and their relative effects.
+
+To build a demanding recipe, start with `realm` matching the intended crafting tier and `realmProgress` matching the intended point within that tier. Tune `difficulty` first. Use `complexityMultiplier` when you need finer control: `1.2` demands about 20% more Completion and Perfection than the same recipe without the override, while leaving starting stability unchanged. This also compounds with the chosen harmony's target multiplier on sublime crafts.
+
+Choose [ingredients](../items/recipes.md#ingredient-system) separately from the crafting challenge. Increasing ingredient quantity changes what the player must supply, not the recipe's progress targets. As a design recommendation, test with readily obtainable ingredients first, then choose quantities and acquisition sources appropriate to how often the output should be crafted.
 
 ## Realm Progress
 
-`realmProgress` controls how demanding the craft is within its realm:
+`realmProgress` tunes the expected crafting capability within the recipe's realm. It scales the targets rather than enforcing a cultivation-stage unlock:
 
 | Value    | Meaning                     |
 | -------- | --------------------------- |
-| `Early`  | Accessible at realm entry   |
-| `Middle` | Requires mid-realm progress |
-| `Late`   | Requires late-realm mastery |
+| `Early`  | Targets tuned for realm entry |
+| `Middle` | Targets tuned for mid-realm progress |
+| `Late`   | Targets tuned for late-realm progress |
 
 ## Harmony Types
 
-Each recipe uses one of nine harmony systems during crafting. By default the game assigns a harmony type based on the item category. Use `harmonyTypeOverride` to force a specific type:
+For sublime crafting, omit `harmonyTypeOverride` to let the player choose an unlocked harmony. The fallback when none are unlocked is `formless`. Set the override to pin a specific harmony when the action pattern is part of your recipe's intended challenge. It does not by itself unlock sublime crafting. `forceSublimeCrafting: true` makes manual crafts use a harmony and removes the basic craft option.
+
+For example, set `harmonyTypeOverride: 'forge'` for a heat-management challenge, or use `'formless'` for a challenge without an action-pattern minigame. A sublime craft also applies the selected harmony's target multiplier, so test the override together with `difficulty` and `complexityMultiplier`. The supported identifiers are:
 
 | Value             | Name                | Harmony rule                                                                 |
 | ---------------- | ------------------- | ----------------------------------------------------------------------------- |
@@ -83,7 +89,7 @@ Each recipe uses one of nine harmony systems during crafting. By default the gam
 | `alchemical`      | Alchemical Arts     | Mix the energies of different actions to maintain Harmony                     |
 | `inscription`     | Inscribed Patterns  | Follow the inscribed pattern blocks to maintain Harmony                        |
 | `resonance`       | Spiritual Resonance | Build the resonance of singular action types to maintain Harmony              |
-| `formless`        | Formless Way        | Requires 100% more Completion and Perfection                                  |
+| `formless`        | Formless Way        | Holds Harmony at 33 without an action pattern and multiplies Completion and Perfection targets by 1.5                                  |
 | `enhancingEcho`   | Enhancing Echo      | Use your actions in echoing pairs to maintain Harmony                         |
 | `eccentricDecree` | Eccentric Decree    | Pour your focus into one bar at a time to maintain Harmony, starting on Completion |
 | `captivatingCadence` | Captivating Cadence | Build a Cadence by changing action types. Each chain point grants Harmony, Qi Intensity and Qi Control. Repeating the previous action type resets the chain, loses 50 Harmony and reduces max Stability by 1 |
@@ -147,17 +153,17 @@ const myThreshold: CraftCustomThreshold = {
 
 ## Starting Stability
 
-Set `startingStability` on a `RecipeItem` to override the default starting stability for recipes with a restricted crafting window. The game calculates a default based on difficulty and realm, but fixed recipes may need a specific value.
+Set `startingStability` on a `RecipeItem` to replace the default of 60 stability points. Use a smaller positive value when the recipe should offer a shorter crafting window, or a larger value when it should allow more actions before stabilization is needed. This is an absolute number of points, not a fraction of the default. Technique costs and stabilization effects still determine how long the craft lasts.
 
 ```typescript
-startingStability: 0.5,
+startingStability: 40,
 ```
 
 ## Registering Recipes via the Mod API
 
 ### Add to the Sect Recipe Library
 
-Makes the recipe purchasable at the crafting hall:
+Register your recipe and its mod-owned output and ingredient items with `window.modAPI.actions.addItem` before adding a way to acquire it. Adding a recipe to the library makes it purchasable at the crafting hall:
 
 ```typescript
 modAPI.actions.addRecipeToLibrary(myRecipe);
@@ -175,6 +181,7 @@ modAPI.actions.addRecipeToResearch(ancientScroll, myRecipe);
 ## Full Example
 
 ```typescript
+import type { RecipeItem } from 'afnm-types';
 import recipeIcon from './assets/recipe-icon.png';
 import { ironheartPill, ironheartPillPlus } from './items/ironheartPill';
 import { ironwoodBark } from './items/ironwoodBark';
@@ -198,8 +205,16 @@ export const ironheartPillRecipe: RecipeItem = {
   ],
 };
 
-// In your mod entry point:
-export function init(modAPI) {
-  modAPI.actions.addRecipeToLibrary(ironheartPillRecipe);
+// In a content module imported by your mod entry point:
+for (const item of [ironheartPill, ironheartPillPlus, ironwoodBark, spiritCrystal]) {
+  window.modAPI.actions.addItem(item);
 }
+window.modAPI.actions.addItem(ironheartPillRecipe);
+window.modAPI.actions.addRecipeToLibrary(ironheartPillRecipe);
 ```
+
+## Test the Recipe Challenge
+
+Load the mod using the [packaging and testing guide](../guides/packaging-testing.md), obtain and learn the recipe through its configured acquisition route, and supply the listed ingredients. Start a manual craft with equipment and techniques representative of the intended tier. Check that Completion is achievable, then attempt a perfect result. If sublime crafting is available, test it separately with the intended harmony because its progress targets differ.
+
+Change one setting at a time. Raise `difficulty` or `complexityMultiplier` when progress targets are too easy. Lower `startingStability` only when a tighter action window is the intended challenge. If you leave harmony selection open, try more than one unlocked harmony before deciding the recipe is balanced.
