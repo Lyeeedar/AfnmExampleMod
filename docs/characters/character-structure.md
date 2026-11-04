@@ -210,7 +210,6 @@ interface DynamicMountDefinition {
 ```
 
 ## Character Stats
-## Character Stats
 
 Combat statistics for when the character is fought:
 
@@ -378,23 +377,44 @@ Character moves randomly between locations:
 
 ### Star Location
 
-Character positions themselves based on a ranking relative to others. Useful for making a character appear at wherever the player is strongest or weakest:
+Use `kind: 'star'` in a character definition's `locations` to place an NPC at an active fallen-star site. For example, a trader can seek a site with little remaining threat, while a challenger can seek the most dangerous site. Selection uses the site's remaining threat percentage.
+
+Starting with your complete `Character`, replace the locations on the definition that should follow fallen stars, then [register the character](#registering-characters):
 
 ```typescript
-{
-  kind: 'star',
-  condition: '1',
-  mode: 'highest' | 'more' | 'less' | 'lowest',
-  fallbackLocation: 'Nine Mountain Sect',
-  percentage: 0.7  // Required for 'more' and 'less' modes
-}
+import type { Character } from 'afnm-types';
+
+const starVisitor: Character = {
+  ...myCharacter,
+  definitions: myCharacter.definitions.map((definition) => ({
+    ...definition,
+    locations: [{
+      kind: 'star',
+      condition: '1',
+      mode: 'lowest',
+      fallbackLocation: 'Liang Tiao Village',
+    }],
+  })),
+};
+window.modAPI.actions.addCharacter(starVisitor);
 ```
 
-- `highest` — the location where the player has the highest relevant stat
-- `lowest` — the location where the player has the lowest relevant stat
-- `more` — locations where the player is above `percentage` of the range
-- `less` — locations where the player is below `percentage` of the range
-- `fallbackLocation` — used when no matching location is found
+This example applies the same travel rule to every definition. Edit only the relevant definition if the NPC should follow stars during one stage of progression. Keep the character and definition conditions appropriate to when the NPC should be available. Location rules use [flag expressions](../concepts/flags.md), and the last matching location rule is selected. A following character travels with the player instead of using this location rule. A ready relationship progression event can also override the location, as described in [Relationship System](relationship-system.md).
+
+Choose `mode` according to the role you want the visitor to serve:
+
+| Mode | Site selection | Authoring use |
+| --- | --- | --- |
+| `highest` | Greatest remaining threat above 0%. | A challenger seeking an uncleared site. |
+| `lowest` | Least remaining threat below 100%. | A trader arriving after some threat has been cleared. |
+| `more` | A site with remaining threat at or above `percentage`. | An NPC restricted to sites that still pose a substantial threat. |
+| `less` | A site with remaining threat at or below `percentage`. | An NPC restricted to sites that have been substantially cleared. |
+
+For `more` and `less`, supply a positive `percentage` on the 0–100 scale, such as `70` for 70%. Zero is not supported as a threshold by the current selector. If several sites qualify, these modes select the last qualifying site in the game's site order. They do not select the nearest site or the closest percentage match, so avoid designs that depend on either ordering.
+
+Set `fallbackLocation` to an existing location name where the NPC can be found when there are no active sites. For `highest`, the fallback also applies if all active sites have 0% threat. For `lowest`, it applies if all have 100% threat. With `more` or `less`, active sites that all fail the threshold can leave the NPC without a resolved location. Do not rely on the fallback for that case. Prefer `highest` or `lowest` when a dependable fallback matters more than a strict threshold.
+
+To test, load the registered character in a save with no active fallen stars and check the fallback. Then check a save with active sites at different threat levels, clear some threat, and confirm that the NPC's destination follows the chosen mode. For threshold modes, also test a case where no site qualifies. Keep the NPC out of the party and avoid a ready relationship event with a location override while checking this travel rule.
 
 ## Character Encounters
 
