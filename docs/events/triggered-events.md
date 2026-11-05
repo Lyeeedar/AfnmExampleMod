@@ -90,22 +90,17 @@ trigger: 'yearMonth >= 6 && yearMonth <= 8'; // Summer months only
 
 ### Screen and Location Targeting
 
-**Screen Targeting** - The `screens` array specifies which game screens can trigger this event:
+**Screen Targeting** - Set `screens` to the `GameScreen` identifiers where the encounter should be allowed to interrupt play. Use `'location'` for an exploration encounter, `'market'` for a shopping encounter, or `'recipe'` for an encounter on the recipe screen. The array permits several screens:
 
 ```typescript
-screens: ['location']; // Location/exploration screen only
-screens: ['market', 'home']; // Market or home screen
-screens: ['location', 'inventory']; // Location or inventory screen
+screens: ['location']; // Only while on the location screen
+screens: ['location', 'market']; // At either of these screens
+screens: ['recipe']; // At the recipe screen
 ```
 
-**Common Screen Types:**
+These values must be members of `GameScreen` from `afnm-types`. Select the screen where the encounter belongs rather than a component name or a label visible in the interface. Active crafting is not an allowed `TriggeredEvent.screens` target. For events tied to a crafting challenge, use a [Crafting Step](steps/crafting) in an event instead.
 
-- `'location'` - Location/exploration screen
-- `'market'` - Marketplace screen
-- `'inventory'` - Inventory management screen
-- `'home'` - Home/rest screen
-- `'crafting'` - Crafting interface
-- `'techniques'` - Technique management
+To test the screen restriction, register the definition with `window.modAPI.actions.addTriggeredEvent` as shown in the [location introduction example](#location-introduction-event). Use a fresh save for a one-time trigger, meet its location and flag conditions, and visit both an allowed screen and an excluded screen. Leave `triggerChance` unset while isolating screen restrictions, then restore the intended probability for encounter testing. The `screens` restriction does not replace `locations` or `trigger`. All must permit the encounter.
 
 **Location Targeting** - The optional `locations` array restricts triggering to specific places:
 
