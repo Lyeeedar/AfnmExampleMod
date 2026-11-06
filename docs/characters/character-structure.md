@@ -34,6 +34,7 @@ interface Character {
   paysExpeditionCost?: boolean;
 
   definitions: CharacterDefinition[]; // Realm-based definitions
+  locationOverrides?: { condition: string; location: string }[]; // Story assignments, last match wins
   relationship?: CharacterRelationshipDefinition[]; // Companion only
   relationshipPaths?: Record<string, CharacterRelationshipDefinition[]>; // Named alternate relationship branches
 
@@ -263,7 +264,7 @@ interface EnemyEntity {
     // Loot on defeat
     item: Item;
     amount: number;
-    chance: number;
+    chance?: number;
     condition?: string;
   }[];
 
@@ -319,7 +320,27 @@ interface RandomStance {
 
 ## Location System
 
-Characters move through the world using four location types:
+### Assign a location during a quest phase
+
+Set `Character.locationOverrides` when a registered NPC must stay at a specific location while a story flag is active. This field belongs on the complete `Character`, alongside `definitions`. It takes priority over following the player, ready relationship events and the active definition's travel rules:
+
+```typescript
+// Apply to your complete Character before registering it.
+character.locationOverrides = [
+  ...(character.locationOverrides ?? []),
+  {
+    condition: 'myMod_meetingActive == 1',
+    location: 'Liang Tiao Village',
+  },
+];
+window.modAPI.actions.addCharacter(character);
+```
+
+Each entry requires a `condition` [flag expression](../concepts/flags.md) and an existing location name. The last matching entry wins. With no matching entry, following, relationship events and definition travel rules determine the location. Use a mod-specific flag to activate the assignment and clear it when that phase ends. Reserve this field for assignments that should also take precedence while the NPC is following the player. Use a definition's location rules for ordinary travel.
+
+Test with the flag unset, set to `1`, and cleared again. Repeat while the NPC is following you and while a relationship event is ready. If assignments can overlap, enable both flags and confirm that the final matching entry is the intended destination. See [Registering Characters](#registering-characters) for the complete registration workflow.
+
+Characters otherwise move through the world using four location types:
 
 ### Static Location
 
@@ -399,7 +420,7 @@ const starVisitor: Character = {
 window.modAPI.actions.addCharacter(starVisitor);
 ```
 
-This example applies the same travel rule to every definition. Edit only the relevant definition if the NPC should follow stars during one stage of progression. Keep the character and definition conditions appropriate to when the NPC should be available. Location rules use [flag expressions](../concepts/flags.md), and the last matching location rule is selected. A following character travels with the player instead of using this location rule. A ready relationship progression event can also override the location, as described in [Relationship System](relationship-system.md).
+This example applies the same travel rule to every definition. Edit only the relevant definition if the NPC should follow stars during one stage of progression. Keep the character and definition conditions appropriate to when the NPC should be available. Location rules use [flag expressions](../concepts/flags.md), and the last matching location rule is selected. With no matching `locationOverrides` entry, a following character travels with the player instead of using this location rule. A ready relationship progression event can also override the location, as described in [Relationship System](relationship-system.md).
 
 Choose `mode` according to the role you want the visitor to serve:
 

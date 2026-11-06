@@ -34,8 +34,55 @@ All quest steps share a common base structure:
 ```typescript
 interface QuestStepBase {
   hint: Translatable; // Displayed to player in quest log
+  optionalDialogues?: QuestStepDialogue[];
 }
 ```
+
+### Offer optional conversations during an objective
+
+Set `optionalDialogues` on any quest step when an NPC should offer advice or background while the player works on that objective. Use a `speakToCharacter` objective instead when speaking to the NPC is itself the required task. Each optional entry has this shape:
+
+```typescript
+interface QuestStepDialogue {
+  character: string;
+  name: Translatable;
+  event: EventStep[];
+  condition?: string;
+}
+```
+
+`character` must match a registered character's name. `name` labels the conversation choice, and `event` contains the [event steps](../events/) to run. Omit `condition` to offer it whenever this objective is current, or supply a [flag expression](../concepts/flags.md) to gate the conversation. The entry does not move the NPC, so ensure the character's [location rules](../characters/character-structure.md#location-system) make them reachable during the objective.
+
+Starting with your complete quest, an existing registered NPC and authored conversation steps, attach a conversation before registration:
+
+```typescript
+import type { EventStep, Quest } from 'afnm-types';
+
+function addObjectiveAdvice(
+  quest: Quest,
+  stepIndex: number,
+  characterName: string,
+  conversation: EventStep[],
+): Quest {
+  return {
+    ...quest,
+    steps: quest.steps.map((step, index) => index !== stepIndex ? step : {
+      ...step,
+      optionalDialogues: [
+        ...(step.optionalDialogues ?? []),
+        { character: characterName, name: 'Ask for advice', event: conversation },
+      ],
+    }),
+  };
+}
+
+// Call with your quest, valid objective index, NPC name and conversation.
+// window.modAPI.actions.addQuest(addObjectiveAdvice(quest, 0, npc.name, advice));
+```
+
+Register the returned quest with `window.modAPI.actions.addQuest`, then start it through an [Add Quest event step](../events/steps/addquest.md). Optional conversations do not mark the objective complete and can be replayed while available. Their event steps still have their normal effects, so avoid repeatable rewards unless intended. For a one-time conversation, gate it with a mod-specific flag and set that flag in the conversation.
+
+Test the registered quest with this objective current, then visit the named NPC and run the conversation twice. Verify that the objective stays active unless the conversation deliberately satisfies its condition. Advance to the next objective and confirm that the conversation disappears. If you added a condition, test both its true and false cases.
 
 ### Dynamic Hint Variables
 
@@ -69,7 +116,7 @@ interface EventQuestStep {
   hint: Translatable;
   event: GameEvent; // Full event definition
   locations?: string[]; // Available locations; defaults to event.location
-  completionCondition?: string; // Optional additional completion requirement
+  completionCondition?: string; // If supplied, this expression determines completion
 }
 ```
 
@@ -119,7 +166,7 @@ Event steps are the most powerful and flexible quest step type. They can:
 
 ### Completion Conditions
 
-Event steps normally complete when their event finishes. The optional `completionCondition` adds extra requirements using mathematical expressions if you wish the player to first have to achieve some condition:
+Without `completionCondition`, an event objective completes when its event finishes. When you supply this field, the expression determines completion instead. A true expression can advance the quest without playing the event, and finishing the event while the expression is false leaves the objective active. Use this for a repeatable challenge that sets a success flag, or for an objective that can also be satisfied elsewhere:
 
 ```typescript
 {
@@ -426,7 +473,7 @@ interface SpeakToCharacterQuestStep {
   hint: Translatable;
   character: string; // Character identifier
   event: EventStep[]; // Conversation content
-  completionCondition?: string; // Optional additional requirement (uses same format as other steps)
+  completionCondition?: string; // If supplied, this expression determines completion
 }
 ```
 
@@ -602,34 +649,13 @@ const guidanceObjective: QuestStep = {
 
 ## Step Dependencies
 
-Steps execute sequentially, but completion can be tracked independently. This allows for:
+Objectives are selected in sequence, but different objective kinds track progress differently. Plan the sequence around when an action should count:
 
-### Non-Linear Completion
+- `condition`, `flagValue` and `collect` read current flags or held items. They can already be satisfied when reached. A collection objective does not reserve items, so spending them before reaching it can leave it incomplete.
+- `kill` uses kills accumulated since the quest was accepted, and `raid` uses raids counted for that accepted quest. Earlier actions within the same quest can therefore satisfy later objectives. Two kill objectives naming the same enemy share that quest's tally, rather than each demanding a fresh set of kills.
+- `sell` and `expedition` count qualifying actions only while that specific objective is current. A single successful expedition does not also satisfy the next expedition objective.
+- `event`, `explorationEvent` and `speakToCharacter` normally require their interaction to complete. When supplied, `completionCondition` determines completion instead, as described under [Event Quest Step](#completion-conditions).
 
-```typescript
-// Player might complete step 3 before step 2
-// Both will be marked complete when conditions are met
-steps: [
-  {
-    kind: 'condition',
-    hint: 'Reach Body Forging',
-    completionCondition: 'realm >= bodyForging',
-  },
-  { kind: 'collect', hint: 'Gather herbs', item: 'Herb', amount: 5 },
-  { kind: 'kill', hint: 'Defeat beasts', enemy: 'Beast', amount: 3 },
-];
-```
+Use condition objectives for milestones the player may already have achieved. Use separate active expedition or sale objectives when each stage must require a fresh action. If your design needs kills from a particular encounter rather than the quest-wide tally, set a mod-specific flag in that encounter and check it with a condition objective. See [Flags System](../concepts/flags.md) for authoring those expressions.
 
-### Prerequisite Chains
-
-```typescript
-// Later steps can reference earlier completion
-steps: [
-  { kind: 'event', hint: 'Meet the master', event: { location: 'Liang Tiao Village', steps: [{ kind: 'flag', flag: 'masterMet', value: '1', global: true }] } },
-  {
-    kind: 'condition',
-    hint: 'Wait for training',
-    completionCondition: 'masterMet == 1 && day >= 7',
-  },
-];
-```
+During testing, perform each action before and after its objective becomes current. Also test spending collected items before reaching their objective and repeating an event without meeting its completion condition. This verifies that the quest enforces the sequence you intended.
