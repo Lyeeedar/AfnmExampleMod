@@ -25,8 +25,20 @@ interface EnemyEntity {
     y: number;
   };
   disableBreathing?: boolean; // Disable idle animation
+  ghostly?: 'blue' | 'gray'; // Spectral appearance
 }
 ```
+
+### Spectral enemies
+
+Set `ghostly: 'blue'` for a blue apparition or `ghostly: 'gray'` for a gray spectral form. Use this when a mod-owned enemy represents a spirit or echo but should keep its authored sprite. The field changes its appearance, including attached combat visuals, without granting combat effects such as damage resistance. Omit it for ordinary enemies. Party members default to blue when no explicit value is supplied.
+
+```typescript
+// spectralEnemy is a variant of your complete EnemyEntity definition.
+const spectralEnemy: EnemyEntity = { ...baseEnemy, ghostly: 'gray' };
+```
+
+Pass the variant in an [event combat step](../events/steps/combat.md), then make that event reachable through a [triggered event](../events/triggered-events.md#location-introduction-event) or a registered location interaction. Test the encounter with combat VFX enabled in both combat presentation modes. With VFX disabled, the spectral treatment is hidden, so keep the sprite itself recognizable.
 
 ### Stance Images
 
@@ -88,7 +100,7 @@ How long it should survive.
 
 #### Note on stats
 
-You cannot set stats directly. They are derived from the difficulty and battle length to give roughly that level of danger. You can then modify these after the fact with `spawnCondition` to add flat multipliers on top if necessary.
+For ordinary enemy definitions, choose `difficulty` and `battleLength` to establish the intended danger and endurance, then use [Stat Multipliers](#stat-multipliers) to tune maximum health or power. Use `spawnCondition.hpMult` only when the enemy should begin injured, since it changes current health rather than maximum health.
 
 ## Combat Configuration
 
@@ -180,21 +192,9 @@ interface RandomStance {
 }
 ```
 
-### Defensive Power Scaling
+Choose `statMultipliers.hp` when a variant should survive longer, and `statMultipliers.power` when its techniques should hit harder. Values multiply the generated base stat: `1.25` gives 25% more and `0.75` gives 25% less. Omit a multiplier to keep the generated value. Test damage, survival time and defensive techniques together because power also feeds effects that scale from power. Prefer these fields and authored buffs over constructing runtime combat state.
 
-The game applies a separate **defensive power multiplier** (`defensivePowerMultiplier`) to enemies as they scale toward higher realms. This multiplier is derived from the enemy's realm and progresses from the enemy's natural power toward the player's power at a rate of 30% of the vitality gap per realm tier. This makes enemies progressively harder to kill without making them deal exponentially more damage.
-
-The `defensivePowerMultiplier` is automatically computed for all `Enemy` entities by `createEnemyCombatEntity` based on realm and realm progress. It is accessible as a combat variable for use in buff conditions and scaling expressions.
-
-```typescript
-// CombatEntity fields (set automatically for enemies)
-{
-  vitalityMultiplier?: number;           // Enemy HP scaling vs player (set at combat start)
-  defensivePowerMultiplier?: number;     // Enemy damage scaling vs player (set at combat start)
-}
-```
-
-> Note: `defensivePowerMultiplier` is automatically managed by the game. You do not set it directly on `EnemyEntity`. Use `statMultipliers.power` to apply additional manual damage scaling on top of the game's built-in values.
+For a wounded encounter, keep maximum health unchanged and set `spawnCondition: { hpMult: 0.5, buffs: [] }`. This starts the enemy at half health and can immediately satisfy low-health stance conditions. A tougher variant can instead use `statMultipliers: { hp: 1.5, power: 1.1 }`. Place either variant through an [event combat step](../events/steps/combat.md) and test its opening health, stance transitions and technique effects at the intended realm. See [Behavior Patterns](behavior-patterns.md) to design reactions to the wound.
 
 ### Character Flag
 
@@ -257,20 +257,6 @@ Enemies can fight alongside allies:
   qiDroplets?: number;         // Qi droplet rewards
 }
 ```
-
-## Advanced Configuration
-
-### Preconfigured Combat Entity
-
-For complex enemies, you can provide a complete `CombatEntity` configuration:
-
-```typescript
-{
-  preconfiguredCombatEntity?: CombatEntity;
-}
-```
-
-This allows precise control over initial combat state, including custom stat distributions, pre-applied buffs, and rendering configuration.
 
 ## Enemy Variant Utilities
 

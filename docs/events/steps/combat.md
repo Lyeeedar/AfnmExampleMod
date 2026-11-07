@@ -38,6 +38,7 @@ interface RandomPhaseEnemyBuilder {
   phaseCount: number;
   requiredPools?: EnemyEntity[][];
   finalPool?: EnemyEntity[];
+  firstPool?: EnemyEntity[];
 }
 ```
 
@@ -47,18 +48,7 @@ interface RandomPhaseEnemyBuilder {
 
 - **`enemies`** - Array of enemy entities to fight. Either the full list to fight, or the pool to draw from if `numEnemies` is set.
 
-- **`enemyBuilders`** (optional) - Enemy definitions assembled when combat begins. Use `RandomPhaseEnemyBuilder` to define an enemy whose phase is selected randomly from a pool at combat start. Each builder produces one enemy; combine multiple builders to assemble complex multi-phase enemies from authored pieces.
-
-  ```typescript
-  enemyBuilders: [
-    {
-      kind: 'randomPhases',
-      options: [starRivenMawPhase1, starRivenMawPhase2, starRivenMawPhase3],
-      phaseCount: 1,
-      finalPool: [starRivenMawHeartForm],
-    },
-  ],
-  ```
+- **`enemyBuilders`** (optional) - Each builder assembles one multi-phase enemy when this combat step starts. Use this to vary a boss's middle phases while keeping a recognizable opening and finale. Built enemies join the `enemies` list. Multiple builders produce separate enemies, each with its own phases. See [Building a boss with random phases](#building-a-boss-with-random-phases) for configuration and testing.
 
 - **`playerBuffs`** (optional) - Buffs to apply to the player
 
@@ -133,25 +123,42 @@ interface RandomPhaseEnemyBuilder {
 }
 ```
 
-### Enemy built from random phases
+### Building a boss with random phases
+
+First author each form as a complete [EnemyEntity](../../enemies/enemy-structure.md), including its stances, rotation and drops. Give every form a distinct `name`. The variables below represent your own imported enemy definitions. A restrained opening can introduce the boss's mechanic, two interchangeable middle forms can vary the challenge, and a fixed finale can provide a consistent payoff. These are design choices, not required phase roles.
 
 ```typescript
-{
+const bossFight: CombatStep = {
   kind: 'combat',
   enemies: [],
   enemyBuilders: [
     {
       kind: 'randomPhases',
-      options: [mawPrismForm, mawFilamentForm, mawVeilForm],
-      phaseCount: 2,
-      finalPool: [mawHeartForm],
+      options: [openingForm, assaultForm, guardForm, finalForm],
+      phaseCount: 4,
+      firstPool: [openingForm],
+      finalPool: [finalForm],
     },
   ],
-  victory: [
-    { kind: 'text', text: 'The Star-Riven Maw collapses.' },
-  ],
-  defeat: [
-    { kind: 'text', text: 'The Maw consumes you.' },
-  ],
-}
+  victory: [], // Add your reward and quest-progress steps here.
+  defeat: [], // Add your loss outcome here.
+};
 ```
+
+`phaseCount` counts the opening and finale as well as the middle phases. With this example, the opening and finale are fixed and the two middle forms appear in random order. Set `phaseCount: 3` to select only one of those middle forms.
+
+Configure the builder fields as follows:
+
+- `options` is the complete pool of eligible forms. Include every form referenced by any other pool here. Selection removes forms from availability, so a form cannot be selected twice.
+- `firstPool` chooses one eligible form for the opening. A single entry fixes the opening, while several entries allow a choice of openers. Omit it to let the opening participate in the shuffled selection.
+- `finalPool` chooses one eligible form for the last phase. Omit it to leave the ending unfixed.
+- `requiredPools` chooses one available form from each supplied pool. Use it to guarantee a particular kind of middle phase, such as one defensive form. These selections are shuffled with the other unfixed forms, so pool order does not prescribe phase order.
+- `phaseCount` must be an integer from `1` to `options.length`. Each supplied opening or finale pool reserves one slot. The number of required pools must fit in the remaining slots.
+
+Keep opening, finale and required pools disjoint unless you have checked that every possible draw leaves an available candidate for each later pool. The opening is chosen first, then the finale, then each required pool. An empty pool or a pool exhausted by an earlier selection causes an error. Supplying both opening and finale pools requires at least two slots.
+
+The assembled enemy uses the opening form as its root and replaces its `phases` with the remaining selected forms. Author standalone forms rather than nesting additional `phases` inside them. Drops from all selected forms are combined on the root, so distribute rewards across forms with the total boss reward in mind.
+
+Put `bossFight` in your event's `steps` and register that event through a [triggered event](../triggered-events.md#location-introduction-event), or include it in a registered location's interaction. Keep `enemies: []` when this builder should supply the whole encounter. Leave `numEnemies` unset when you want to fight every enemy supplied by the step.
+
+On a test save, trigger the encounter repeatedly. Check the opening, each allowed middle order and the finale, then finish the fight to check combined drops and both outcome branches. Also test any optional pool combinations with a smaller `phaseCount` so that every reserved pool still has a slot and an available form.

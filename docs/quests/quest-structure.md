@@ -19,11 +19,12 @@ interface Quest {
   name: string; // Internal identifier used in code references
   displayName?: Translatable; // Optional player-facing name (falls back to name)
   description: Translatable; // Quest summary in quest log
-  category: 'main' | 'side' | 'missionHall' | 'craftingMission' | 'requestBoard' | 'guild'; // Determines where quest appears
+  category: 'main' | 'side' | 'missionHall' | 'vaultMission' | 'craftingMission' | 'requestBoard' | 'guild' | 'breakthrough'; // Determines where quest appears
   guild?: string; // Required for guild category quests
   steps: QuestStep[]; // Sequential objectives
   rewards: QuestReward[]; // Benefits upon completion
   acceptFlags?: Record<string, number>; // Flags set when the quest is accepted
+  abandonment?: { throughStep: number; flags: Record<string, number> };
   failureCondition?: string; // Optional failure trigger
   cost?: number; // Optional cost to accept quest
   timeCostDays?: number; // Days consumed by completing the quest's current event
@@ -55,9 +56,11 @@ type QuestCategory =
   | 'main'
   | 'side'
   | 'missionHall'
+  | 'vaultMission'
   | 'craftingMission'
   | 'requestBoard'
-  | 'guild';
+  | 'guild'
+  | 'breakthrough';
 ```
 
 #### Main Quests
@@ -102,6 +105,8 @@ type QuestCategory =
 - Guild advancement
 - Factional conflicts
 
+Use `vaultMission` for vault assignments and `breakthrough` for cultivation guidance objectives. A category groups the quest but does not register it or start it for the player. Register with `window.modAPI.actions.addQuest`, then use an [Add Quest step](../events/steps/addquest.md) to start a directly granted quest.
+
 ### Guild Specification
 
 For guild category quests, specify the organization:
@@ -137,6 +142,27 @@ failureCondition: 'realm > 3 || someQuestFlag == 1';
 All condition variables are numeric. Reputation values are stored as flat flags using the faction name with spaces replaced by underscores (e.g. `Nine_Mountain_Sect`). Item quantities use the item's flag name (e.g. `Spirit_Herb`). String comparisons are not supported.
 
 Note quests are also removed when all the steps in the quest are completed. This is simply a way to remove the quest early.
+
+### Allowing a project to be cancelled
+
+Use `abandonment` on a mod-owned quest when the player should be able to withdraw during preparation, but must commit once work begins. Pair it with `acceptFlags` if accepting the quest reserves a project or blocks competing offers.
+
+```typescript
+// Fields to include in your Quest definition:
+acceptFlags: { myModProjectActive: 1 },
+abandonment: {
+  throughStep: 1,
+  flags: { myModProjectActive: 0 },
+},
+```
+
+`throughStep` is an inclusive, zero-based index into `steps`. Here cancellation is allowed while objective 0 or 1 is current, and stops being available at objective 2. Choose the last cancellable objective deliberately, for example the collection objective before an irreversible construction event. The current objective follows completion conditions as well as completed events. See [Quest Steps](quest-steps.md) when deciding where to place the cutoff.
+
+On cancellation, the game sets every named global flag to the supplied numeric value and removes the active quest. Only list flags your project owns. Cancellation does not refund payments, return contributed items or undo event effects. Settle any promised refunds through your authored events rather than relying on this field. Also release project reservations in your normal completion and failure paths as needed, since `abandonment.flags` only runs when the player cancels.
+
+Without `abandonment`, `missionHall`, `vaultMission`, `requestBoard` and `craftingMission` quests allow abandonment. Other categories do not. Supplying `abandonment` replaces that default with the step cutoff, including for those mission categories. An empty `flags: {}` is useful when you need the cutoff without reservation cleanup.
+
+Register the completed Quest with `window.modAPI.actions.addQuest`, and start it using an [Add Quest step](../events/steps/addquest.md). On a test save with the tutorial completed, cancel at the first and last allowed objectives and check that the reservation flag allows the intended offers again. In a separate run, advance beyond the cutoff and verify cancellation is unavailable. Reaccepting a cancelled quest starts its objectives again and applies `acceptFlags` again, so test that earlier event rewards cannot be repeatedly claimed if you permit reacceptance.
 
 ### Time Cost
 
