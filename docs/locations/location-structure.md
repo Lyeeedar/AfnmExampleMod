@@ -33,15 +33,14 @@ locationArt?: string;             // Isometric scene image path (generated art)
 locationArtOverride?: { condition: string; image: string }[]; // Conditional scene artwork
 ```
 
-Available screen effects:
-- 'none' - No effect
-- 'sun' - Bright sunlight
-- 'rain' - Falling rain
-- 'snow' - Snowfall
-- 'smoke' - Smoky atmosphere
-- 'dust' - Dusty particles
-- 'driftingLeaves' - Floating leaves
-- 'flyingPetals' - Cherry blossoms or similar
+Set `screenEffect` on your `GameLocation` before [registering it](#registering-locations). It selects an ambient visual overlay for the location background, so choose one that fits your artwork. It does not change encounters or apply combat effects. Supported values are:
+
+- Weather and landscape: `'rain'`, `'snow'`, `'mist'`, `'sun'`, `'driftingLeaves'`, `'dust'`.
+- Furnaces and interiors: `'smoke'`, `'forge'`, `'steam'`.
+- Underwater scenes: `'bubbles'`.
+- Magical environments: `'sparkle'`, `'chromatic'`, `'aurora'`, `'fireflies'`, `'jadeForest'`.
+
+For example, use `screenEffect: 'mist'` for a mist-covered location. Load the mod and visit the location to check the overlay against your background image.
 
 locationArt points to an isometric scene image for this location. When set, the location screen renders the scene artwork instead of the standard background image. The value should be a path to a generated scene image (for example nineMountainSectSceneImage).
 
@@ -184,20 +183,64 @@ explorationEvent: [
 ```
 
 #### Map Events
-Timed events that appear on the map:
+
+Use `GameLocation.mapEvents` to offer encounters as temporary map markers. Each `LocationMapEvent` supplies a unique `name` within its location, an `image` asset, a `realm`, a `condition` expression, and the `event: EventStep[]` sequence to run when selected. Build that sequence with the [event system](../events/index). Use `condition` to gate eligibility, including any realm restriction you need. The selection check uses this expression rather than enforcing the event's `realm` as a minimum player realm.
+
+Choose the scheduling mode to suit your encounter design:
+
+- Omit `mapEventSettings` for one active event at a time, with a separate `cooldown` for each event. Eligible events are checked in array order, so the first ready event takes the slot. Use this for a small, ordered encounter pool.
+- Set `mapEventSettings: { maxActive, spawnMonths: { min, max } }` on the location for a shared timer and multiple active events. `maxActive` caps simultaneous markers. Each successful scheduled spawn starts a random delay in the inclusive `spawnMonths` range. An update adds at most one event, rather than filling every empty slot. Use this for a region with several encounters available together.
+
+All map-event timers use **calendar months**. `persist` is the lifetime of a marker. It starts at age zero and expires when its age exceeds `persist`, or when its condition becomes false. Starting the encounter consumes the marker. Choose a longer lifetime if players must travel far to reach it.
+
+Without shared settings, `cooldown: { min, max }` sets the inclusive random delay after an event is consumed or expires. The first delay is drawn from zero through `cooldown.max`. With shared settings, the individual `cooldown` field is still required in each definition but is not used for scheduling. The shared timer controls new spawns instead. An already-active event cannot be selected again, and recently selected events are less likely to recur. Keep event names unique and stable so markers resolve to the intended definition.
+
+`mapIconScale` scales the marker image and its base, defaulting to `1`. Use a smaller positive value, such as `0.5`, when several large encounter images would crowd the same location.
+
+This helper adds two encounters to a complete location definition supplied by your mod. Pass your authored step arrays and packaged icon paths to it, then register the returned location:
+
 ```typescript
-mapEvents: [
-  {
-    name: 'Training Beast',
-    realm: 'meridianOpening',
-    condition: 'trainingFlag == 1',
-    image: beastIcon,
-    persist: 2,              // Days visible
-    cooldown: { min: 5, max: 16 }, // Days between spawns
-    event: []
-  }
-]
+import type { EventStep, GameLocation } from 'afnm-types';
+
+function withMapEncounters(
+  location: GameLocation,
+  patrolIcon: string,
+  patrolSteps: EventStep[],
+  cacheIcon: string,
+  cacheSteps: EventStep[],
+): GameLocation {
+  return {
+    ...location,
+    mapEventSettings: { maxActive: 2, spawnMonths: { min: 1, max: 2 } },
+    mapEvents: [
+      {
+        name: 'myModPatrol',
+        image: patrolIcon,
+        mapIconScale: 0.5,
+        realm: 'meridianOpening',
+        condition: 'realm >= meridianOpening',
+        cooldown: { min: 1, max: 2 },
+        persist: 4,
+        event: patrolSteps,
+      },
+      {
+        name: 'myModSupplyCache',
+        image: cacheIcon,
+        mapIconScale: 0.5,
+        realm: 'meridianOpening',
+        condition: 'realm >= meridianOpening',
+        cooldown: { min: 1, max: 2 },
+        persist: 4,
+        event: cacheSteps,
+      },
+    ],
+  };
+}
 ```
+
+Call `window.modAPI.actions.addLocation(withMapEncounters(myLocation, patrolIcon, patrolSteps, cacheIcon, cacheSteps))` with your definitions. This helper replaces the supplied location's map-event pool, so include every encounter you want in the returned array. Connect the location using [Connecting Locations](connecting-locations). As a design recommendation, supply more eligible encounters than active slots if you want the available choices to vary, and allow enough persistence for more than one scheduled spawn to coexist.
+
+Follow [Packaging and Testing](../guides/packaging-testing) to load the mod. Test below and above the condition's realm threshold, advance calendar months to check spawn spacing and persistence, and confirm that the active count stays within `maxActive`. Select each marker and verify that its steps run and the marker disappears. Also test a false condition while its marker is active. To test individual cooldown scheduling, omit `mapEventSettings` and check that only one event is offered at a time.
 
 ### Gathering Event
 
