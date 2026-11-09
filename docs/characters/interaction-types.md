@@ -103,7 +103,7 @@ Creates a merchant interface for buying/selling items.
 
 ```typescript
 interface ShopCharacterInteraction extends BaseCharacterInteraction {
-  stock: { [key in Realm]: Item[] };  // Items by realm
+  stock: { [key in Realm]: (Item & { condition?: string })[] };  // Items by realm
   costMultiplier: number;              // Price modifier
   introSteps: EventStep[];             // Shop opening dialogue
   exitSteps: EventStep[];              // Shop closing dialogue
@@ -117,7 +117,29 @@ interface ShopCharacterInteraction extends BaseCharacterInteraction {
 }
 ```
 
-`tokenCurrency` adds a separate token-priced section to the shop alongside the regular gold stock. Players spend the specified `currencyItem` instead of gold for those entries.
+`tokenCurrency` selects a token-priced shop using `tokenStock`. Players spend the specified `currencyItem` instead of gold. This mode uses its own stock list rather than the regular `stock` list.
+
+### Unlock Individual Stock Entries
+
+Use a stock entry's optional `condition` when a merchant should offer one item only after a quest milestone or another flag requirement, while keeping the rest of the shop available. The shop interaction's own `condition` controls access to the entire shop. An entry without `condition` has no additional flag requirement. A supplied expression must evaluate to a nonzero value for the entry to be included.
+
+For example, given your registered `basicManual` item, put this entry in the appropriate realm array:
+
+```typescript
+{ ...basicManual, stacks: 1, condition: 'myModManualUnlocked == 1' }
+```
+
+Set the character flag from your quest or interaction with a [flag event step](../events/steps/flag):
+
+```typescript
+{ kind: 'flag', flag: 'myModManualUnlocked', value: '1', global: true }
+```
+
+Define the shop using the [interface above](#shop-interaction) and the realm-based example below. Supply an array for every realm, including empty arrays. Attach the shop to a neutral or companion definition's `shopInteraction` array, then register the containing `Character` with `window.modAPI.actions.addCharacter(character)`. See [Registering Characters](character-structure#registering-characters) for the complete character setup. The character's Trade interaction opens the shop, or your event can use [tradeWithCharacter](../events/steps/tradewithcharacter). The character must have a matching shop interaction for the event's location and current flags.
+
+Regular shop stock accumulates entries through the player's effective content realm. If no stock is available by that realm, the shop can continue into later realm arrays until it finds stock. When included entries share an item name, the later realm's entry replaces the earlier one. Use this to upgrade an offer, and avoid placing a conditional item in several arrays unless each offer has the intended condition. Purchased quantities are tracked by item name, so hiding and revealing an entry does not replenish it.
+
+These per-entry conditions apply to regular `stock`, not `tokenCurrency.tokenStock`. Test with the unlock flag unset and set to `1`, reopen the shop after changing it, and check another realm if you repeat the item there. Buy the item, hide it, then reveal it again to confirm the intended remaining quantity. Keep another unconditional entry available when testing so an empty stock list does not cause the shop to select later-realm stock.
 
 ### Example: Realm-Based Shop
 
