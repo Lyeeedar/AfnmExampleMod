@@ -371,27 +371,36 @@ window.modAPI.hooks.onEventDropItem((item, step, gameFlags) => {
 
 ### `onGenerateExploreEvents`
 
-Modifies the pool of exploration events before one is selected. Fired after base-game eligibility filtering, so every event in the array was already eligible to fire. Add, remove, or reorder events to influence what the player encounters.
+Use this hook to add a bonus encounter to an existing exploration location, remove an encounter under a mod setting, or change an event's rarity without replacing the location definition. The hook receives the location's event definitions before their conditions and cooldowns are checked. Returned events still pass those checks and participate in the game's encounter selection. Returning an event does not force it to run on the next exploration.
 
 **Parameters:**
-- `locationId: string` - The current location identifier
-- `events: LocationEvent[]` - The filtered event pool
-- `gameFlags: Record<string, number>` - Current game flags/state
 
-**Returns:** `LocationEvent[]` - Modified event pool
+- `locationId: string` - The current location's registered name. Scope changes to the intended location.
+- `events: LocationEvent[]` - The current event definitions, including changes from earlier hooks.
+- `gameFlags: Record<string, number>` - Current expression variables and flags.
 
-**Important Warning on Weighted Events:**
-In current runtimes, `onGenerateExploreEvents` fires before the game expands weighted explore candidates into repeated `{ index, event }` entries. Repeat-penalty bookkeeping (`currentLocationLastEvent` / `currentLocationLastEventCount`) is keyed by that expanded weighted event index. If your mod needs to precisely modify drop rates or probabilities without breaking repeat-penalty semantics, you may still need to carefully scope your modifications or narrowly patch the final weighted candidate array in combination with this hook.
+**Returns:** `LocationEvent[]` - The replacement event pool. Return the input unchanged when your rule does not apply.
 
-**Example:**
+### Add a Conditional Bonus Encounter
+
+Define a `LocationEvent` using the [location event fields](../locations/location-structure#events), then register the hook from a module imported by `src/modContent/index.ts`. For example, this helper attaches a mod-owned encounter to one registered location:
+
 ```typescript
-window.modAPI.hooks.onGenerateExploreEvents((locationId, events, gameFlags) => {
-  if (gameFlags.lucky_mode) {
-    return [...events, myBonusEvent];
-  }
-  return events;
-});
+import type { LocationEvent } from 'afnm-types';
+
+function registerBonusEncounter(locationName: string, bonusEvent: LocationEvent) {
+  return window.modAPI.hooks.onGenerateExploreEvents((locationId, events) => {
+    if (locationId !== locationName || events.includes(bonusEvent)) return events;
+    return [...events, bonusEvent];
+  });
+}
 ```
+
+Call the helper once with your location name and event definition, and retain its returned function if you need to remove the hook. Put progression requirements in the event's `condition` and repeat spacing in its `cooldown`. Choose `rarity` to influence relative selection frequency. Lower rarities receive more selection weight, but competing encounters and repetition penalties also affect the result. Prefer changing definitions in the returned array over duplicating an encounter to increase its chances. Preserve array order where possible because reordering can change which encounter receives the repetition penalty.
+
+For an encounter that always belongs to your own location, supply it directly in `GameLocation.events` instead. Use this hook when the pool needs a conditional modification across existing definitions. See [Location Structure](../locations/location-structure) for location registration and event configuration.
+
+Test in the target location and an unrelated location. Try both true and false event conditions, then trigger the encounter and verify its cooldown on subsequent explorations. Repeat exploration enough times to distinguish random selection from an eligibility problem.
 
 ---
 
@@ -476,7 +485,7 @@ window.modAPI.hooks.onAdvanceMonth((month, year, gameFlags) => {
 
 ### `onNewGame`
 
-Fires when the player starts a new game (including after the optional tutorial). Called after all character creation choices are finalized but before the game state is committed. This is the last point where any aspect of the new game can be modified.
+Fires when the player starts a new game (including after the optional tutorial). Called after all character creation choices are finalized but before the game state is committed. Use it to grant starting resources or initialize character-specific flags while preserving the selected backgrounds and alternative start.
 
 **Parameters:**
 - `intent: NewGameIntent` - The full new game state:
@@ -487,104 +496,29 @@ Fires when the player starts a new game (including after the optional tutorial).
   - `quests: string[]` - quest IDs granted at game start
   - `money: number` - starting silver
   - `favour: number` - starting favour
-  - `flags: Record<string, number>` - initial game flags (background flags are set via dispatch after this hook fires)
+  - `flags: Record<string, number>` - initial character flags, including background contributions
   - `player: PlayerEntity` - the player entity after backgrounds are applied
   - `craftingActions: string[]` - crafting action IDs granted at game start
 
 **Returns:** `NewGameIntent` - modified intent (spread the original intent to preserve all required fields)
 
-**Example:**
+### Configure Starting Resources and Flags
+
+Register the hook from a module imported by `src/modContent/index.ts`. This example gives each new character extra starting money and a character-specific flag that your mod's event conditions can read:
+
 ```typescript
-window.modAPI.hooks.onNewGame((intent) => {
-  // Grant a bonus item and extra starting silver
-  return {
-    ...intent,
-    items: [...intent.items, { name: 'Bonus Jade' }],
-    money: intent.money + 500,
-  };
-});
-```
-
-**Usage notes:**
-- Flags at this point are empty, because background flag dispatch runs after the hook returns. For flag-aware modifications, use `onReduxAction` or `onReduxActionPayload`.
-- The `player` field is the entity after backgrounds are applied but before `alternativeStart` modifications. Mods can adjust stats, techniques, buffs, etc. on this entity.
-- All hooks run in registration order. If multiple mods use this hook, chain the modifications by returning an intent that carries the previous hooks' changes.
-
-### `onGameLoad`
-
-Fires when a saved game is loaded, allowing mods to mutate the initial state. The interceptor receives the loaded `RootState` and returns a modified copy. Use this to adjust game state based on loaded save data.
-
-**Parameters:**
-- `state: RootState` - The complete game state that was loaded
-
-**Returns:** `RootState` - Modified state
-
-**Example:**
-```typescript
-window.modAPI.hooks.onGameLoad((state) => ({
-  ...state,
-  gameData: { ...state.gameData, flags: { ...state.gameData.flags, my_mod_flag: 1 } },
+window.modAPI.hooks.onNewGame((intent) => ({
+  ...intent,
+  money: intent.money + 500,
+  flags: { ...intent.flags, myModStarted: 1 },
 }));
 ```
 
----
+Return a spread copy so other mods' starting items, techniques and quests remain intact. To grant your own content, register the definitions first and append their registered names to the corresponding intent arrays. `items` takes `ItemDesc` entries rather than names alone. See [Registering Items](../items/item-structure#1-adding-items-to-the-game) and [Flags](../concepts/flags) for content definitions and flag conditions.
 
-## Redux Hooks
+The hook receives background flags and starting resources already collected into the intent. Its `player` also includes the alternative start's `modifyPlayer` result. Hooks run in registration order, and each receives the preceding hook's changes. This hook configures new characters only. Test both the normal opening and the skip route you support, then save and reload to verify the flag persists without granting the starting bonus again.
 
-### `onReduxAction`
-
-Fires after every Redux action is dispatched. Receives the action type, the state before the action was applied, the state after, and a read-only copy of the action payload. Return a modified copy of `stateAfter` to override what is stored, or return `stateAfter` unchanged.
-
-**This hook runs inside the reducer.** Keep the implementation fast, deterministic, and free of side-effects. Do not make network requests, trigger UI work, or run heavy computation here. Thrown exceptions are caught and logged.
-
-If `subscribe()` can solve your problem, prefer that instead; it runs outside the reducer and is safer for most use cases.
-
-**Parameters:**
-- `actionType: string` - The Redux action type string
-- `stateBefore: RootState` - Game state before the action
-- `stateAfter: RootState` - Game state after the action
-- `payload: Readonly<unknown>` - Read-only snapshot of the (post-interceptor) action payload
-
-**Returns:** `RootState` - The state to store (return `stateAfter` unchanged if not modifying)
-
-**Example:**
-```typescript
-window.modAPI.hooks.onReduxAction((actionType, stateBefore, stateAfter, payload) => {
-  if (actionType === 'inventory/addItem') {
-    if (stateAfter.gameData.flags?.hard_mode) {
-      // Double every item added in hard mode
-      return { ...stateAfter, inventory: myDoubledInventory(stateAfter.inventory) };
-    }
-  }
-  return stateAfter;
-});
-```
-
-### `onReduxActionPayload`
-
-Fires before the reducer runs. Interceptors receive the action type and payload, and return a modified payload to replace it, or `null` to drop the action entirely. Interceptors are chained; each receives the output of the previous.
-
-**This hook runs inside the reducer.** Keep the implementation fast, deterministic, and free of side-effects. Do not make network requests, trigger UI work, or run heavy computation here. Thrown exceptions are caught and logged.
-
-**Parameters:**
-- `actionType: string` - The Redux action type string
-- `payload: unknown` - The action payload
-- `stateBefore: RootState` - Game state before the action
-
-**Returns:** `unknown` - The payload to pass to the reducer (return a modified payload, or `null` to drop the action)
-
-**Example:**
-```typescript
-window.modAPI.hooks.onReduxActionPayload((actionType, payload, stateBefore) => {
-  if (actionType === 'inventory/removeItem') {
-    const p = payload as { name: string; stacks: number };
-    if (modAPI.gameData.items[p.name]?.kind === 'blueprint') {
-      return { ...p, stacks: 0 }; // prevent removal of blueprint items
-    }
-  }
-  return payload;
-});
-```
+For rewards during an existing game, return event steps from the relevant [completion hook](#completion-hooks). For interface settings, use the supported actions described in [Adding Screens](adding-screens#custom-data). Use [state subscriptions](#subscribe) for a display that needs to refresh when game data changes.
 
 ---
 
@@ -736,7 +670,7 @@ const unsub = window.modAPI.subscribe(() => {
 unsub();
 ```
 
-For read-only overlays, advisors, and inspectors, `subscribe()` plus `getGameStateSnapshot()` should be your first integration path. Prefer this pair over direct `window.gameStore` access, React Fiber probing, or DOM polling unless the current runtime is missing the specific state you need.
+For read-only overlays, advisors, and inspectors, `subscribe()` plus `getGameStateSnapshot()` should be your first integration path. Render the result through [UI injection](#injectui) or a [custom screen](adding-screens), and make changes through the actions provided by the Mod API.
 
 **Reactive patterns with `subscribe()`:**
 
