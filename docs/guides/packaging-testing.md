@@ -23,74 +23,43 @@ Think of packaging as "exporting" your mod from development format into somethin
 
 ### The Build Process Explained
 
-When you run the build command, several automated steps happen:
-
-1. **TypeScript Compilation** - Your `.ts` code files become a single `.js` file
-2. **Asset Processing** - Images and resources are optimized and included
-3. **ZIP Package Creation** - Everything gets packaged into a mod file
-4. **Metadata Generation** - Game-readable information is added
-
-This process transforms your development project into a single file that players can install.
+The template bundles `src/mod.ts`, which imports your content from `src/modContent/index.ts`. Keep that wrapper and its default export containing `getMetadata()` so the game can identify the loaded mod. Add your content imports and registration calls under `modContent`, following [Mod Development](mod-development).
 
 ### Building Your Mod
 
-**In VS Code terminal:**
+From the project root, run:
 
 ```bash
+npm run typecheck
 npm run build
 ```
 
-**What you should see:**
+The template's build script extracts mod translation strings before Webpack runs. Webpack compiles the code, emits imported assets and embeds the metadata from `package.json`. The postbuild scripts copy translation JSON files and ZIP the contents of `dist/<package-name>/` into `builds/<package-name>-<version>.zip`.
 
-```
-> your-mod@1.0.0 build
-> webpack --mode production
-
-asset mod.js 12.3 KiB [emitted] (name: main)
-webpack 5.x.x compiled successfully in 2345 ms
-
-Build completed! Check the builds/ folder.
-```
-
-**Success indicators:**
-
-- ✅ No red error messages
-- ✅ New `builds/` folder appears in your project
-- ✅ ZIP file inside like `mystic-tea-cultivation-1.0.0.zip`
+Check that both commands succeed and that the ZIP has a fresh modification time. Before distributing it, open the archive and check its contents.
 
 ### Understanding Build Output
 
-After building, your `builds/` folder contains:
+For a project named `mystic-tea-cultivation` at version `1.0.0`, the ZIP layout is:
 
 ```
-builds/
-└── mystic-tea-cultivation-1.0.0.zip    # ← This is your mod!
-    ├── mod.js                           # Your compiled TypeScript code
-    ├── assets/                          # Your images and resources
-    │   └── mystic-tea.png
-    └── package.json                     # Mod information for the game
+builds/mystic-tea-cultivation-1.0.0.zip
+├── mod.js
+├── mod.js.map
+├── assets/
+│   └── vigor-pill.png
+└── translations/
+    └── ...json files copied from your project's translations folder
 ```
 
-**The ZIP file is your complete mod** - this is what you'll install in the game and eventually upload to Steam Workshop.
+Assets and translation files depend on your project contents. `mod.js` must be directly at the archive root. ZIP the contents of the output directory, without an enclosing project or `dist` folder. The loader extracts the archive and reads that root `mod.js`.
 
 ### Build Configuration Files
 
-Your build process is controlled by several files. Usually you won't need to change these, but here's what they do:
-
-**`package.json`** - Your mod's identity card:
-
-```json
-{
-  "name": "mystic-tea-cultivation",    # Mod's technical name
-  "version": "1.0.0",                  # Version number
-  "description": "Adds tea-based...",  # What your mod does
-  "author": { "name": "TeaMaster" }    # Your name
-}
-```
-
-**`tsconfig.json`** - TypeScript compiler settings (rarely needs changes)
-
-**`webpack.config.js`** - Build tool configuration (advanced users only)
+- `package.json` supplies the mod name, version, description and author. The template embeds these in the JavaScript metadata export. A separate `package.json` inside the ZIP is not required. See [Personalizing Your Mod](project-setup#personalizing-your-mod).
+- `src/mod.ts` supplies `getMetadata()` and the game version from `afnm-types`.
+- `webpack.config.js` keeps the bundle name `mod.js`, the `AFNMMod` default export and the `mod://` asset prefix. Preserve these settings when customizing the build so the loader can find the module and resolve packaged assets.
+- `tsconfig.json` controls TypeScript checking.
 
 ### Common Build Issues
 
@@ -154,39 +123,11 @@ Ascend from Nine Mountains/
     └── mystic-tea-cultivation-1.0.0.zip    # ← Your mod
 ```
 
-## Verifying The Installed Runtime Before Launching
+## Verifying API Compatibility
 
-When you're checking ModAPI surface area, hook names, or whether documentation matches the shipped executable, inspect the installed game bundle before doing a full UI launch.
+Use the `afnm-types` version for the game you are testing and run `npm run typecheck` before packaging. Consult the [ModAPI reference](../concepts/modapi) for registration methods and [Lifecycle Hooks](../advanced-mods/lifecycle-hooks) for callbacks. Keep the template's metadata wrapper so loading errors can identify a game-version mismatch.
 
-**Why this helps:**
-
-- Faster than launching the full game just to confirm a symbol exists
-- Useful when patch notes, docs, and runtime behavior disagree
-- Lets you confirm launcher behavior and hook names without Steam relaunch loops
-
-**Basic extraction flow:**
-
-```bash
-npx -y @electron/asar extract "/path/to/Ascend From Nine Mountains/resources/app.asar" ./tmp/afnm-runtime
-rg -n "getGameStateSnapshot|injectUI|onGenerateExploreEvents" ./tmp/afnm-runtime/dist-electron
-```
-
-Look for the exact hook or API names you care about in the extracted `dist-electron` bundle. For advanced mods, this is often the best first parity check.
-
-**Useful verification queries:**
-
-```bash
-# Check which hooks exist in the shipped runtime
-rg -n "onCalculateDamage|onBeforeCombat|onReduxAction|onAdvanceDay" ./tmp/afnm-runtime/dist-electron
-
-# Check for specific API methods
-rg -n "registerOptionsUI|subscribe|getGameStateSnapshot" ./tmp/afnm-runtime/dist-electron
-
-# Check launcher behavior
-rg -n "disable_steam|Restarting app through Steam" ./tmp/afnm-runtime/dist-electron/main
-```
-
-**Principle:** When documentation, type definitions, and the actual runtime disagree, trust the installed runtime. The extracted bundle is the source of truth for what the game actually supports.
+Test the specific API through a small mod-owned definition or callback. For an item, register it with `addItem`, distribute it with `addItemToShop`, then purchase and use it as described in [Mod Development](mod-development#your-first-item---step-by-step). For a hook, use the registration and testing steps in its lifecycle reference. Check the mod's loading result as well as its behavior in-game. Finding an identifier in an installed bundle does not establish that a mod can call it or that its inputs are supported.
 
 ## Testing Your Mod In-Game
 

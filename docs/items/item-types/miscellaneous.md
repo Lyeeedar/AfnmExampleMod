@@ -223,6 +223,7 @@ Manual items contain a full combat style: a set of named stances each containing
 ```typescript
 export interface ManualItem extends ItemBase {
   kind: 'manual';
+  highlightTechnique?: string; // Registered technique name used for the cover
   style: ManualStyle;
 }
 
@@ -237,6 +238,24 @@ interface ManualStance {
   stanceRule?: StoredRule; // Optional auto-switch rule (see below)
 }
 ```
+
+### Choosing a Manual Cover
+
+Set `ManualItem.highlightTechnique` when a manual should feature its signature technique rather than the first technique in its stance list. Its value is the registered technique's `name`, not its icon path or translated display name. Choose a technique from the manual's stances so the cover represents what the manual teaches. This choice changes the cover artwork and school theme, without changing the stance order or granting an extra technique.
+
+If you omit the field, or its name cannot be resolved, the cover uses the first registered technique found across the manual's stances in order. If none can be resolved, it uses the manual's `icon` with a neutral cover. The selected technique supplies the artwork and determines the cover theme. Origin and multi-school techniques use the combined-school cover.
+
+For example, after defining the `ironFistManual` below and registering its custom techniques with [addTechnique](../../concepts/modapi#cultivation-content), select a defensive technique already present in its stances:
+
+```typescript
+ironFistManual.highlightTechnique = 'Iron Guard';
+window.modAPI.actions.addManual(ironFistManual);
+window.modAPI.actions.addItemToShop(
+  ironFistManual, 1, 'Liang Tiao Village', 'bodyForging',
+);
+```
+
+Use this registration in place of the standalone `addManual` call below. The technique names in this example represent content you must define and register, as explained in [Techniques](../../combat/techniques). See [Shop Integration](../../guides/mod-development#shop-integration) for distributing a registered item. Build and install the mod using [Packaging & Testing](../../guides/packaging-testing), then inspect the manual in the shop and its inventory tooltip. Check that the featured artwork matches Iron Guard even though Iron Strike comes first in the stance list. Also test with the field omitted to confirm the intended default cover.
 
 **Stance rules** control automatic stance switching during combat. Without a rule, the stance is always available for the player to select manually. With a rule, the game may switch stances automatically based on combat state.
 
