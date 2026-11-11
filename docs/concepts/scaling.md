@@ -18,6 +18,8 @@ Every damage number, healing amount, buff strength, and stat modifier flows thro
 
 ### The Scaling Interface
 
+This excerpt covers author-controlled amount settings. Import `Scaling` from `afnm-types` to use the complete type.
+
 ```typescript
 interface Scaling {
   value: number;          // Base multiplier
@@ -46,7 +48,6 @@ interface Scaling {
   divideByStanceLength?: boolean; // Divide the result by the number of techniques in the stance
   multiplyByStanceLength?: boolean; // Multiply the result by the number of techniques in the stance
   upgradeKey?: string;    // Links to mastery upgrades
-  buff?: Buff;            // Buff reference used internally for some effects
   increment?: number;     // For hit-based scaling: each subsequent hit costs this much more of the scaling buff
   cantUpgrade?: boolean;  // When true, this scaling value cannot be improved by technique mastery upgrades
   isItem?: boolean;       // When true, the result is additionally multiplied by (1 + itemEffectiveness * 0.01). Set on pills, concoctions, and formation parts.
@@ -56,10 +57,12 @@ interface Scaling {
   scalesWithCharisma?: boolean;
   /** Value that Charisma scales away from. Defaults to 0; inverse percentages use 100. */
   charismaScalingPivot?: number;
-  /** Snapshot of `value` taken before harmony upgrades are applied; used internally for stacking effects that need the original pre-harmony number. */
-  baseValue?: number;
 }
 ```
+
+The examples below are `Scaling` fragments to place in a technique effect's `amount` or a buff's `stats` entry. Always supply `stat`, including `stat: undefined` when the amount should not multiply a character statistic. Nested caps such as `max` are also `Scaling` objects and require their own `stat`. For a flat stack grant, choose `undefined`. For damage that grows with the user's combat strength, choose `'power'`. Equations and stack multipliers still apply when `stat` is `undefined`.
+
+Define the surrounding content using [Techniques](../combat/techniques) or [Buffs](../combat/buffs), then register the technique with [addTechnique](modapi#cultivation-content). Buff definitions are attached to effects such as `buffSelf`, rather than registered separately. Build and install using [Packaging & Testing](../guides/packaging-testing). Test with zero and several stacks, and at different power values, to distinguish flat amounts from power-scaled amounts.
 
 ### Valid `stat` Values
 
@@ -124,7 +127,7 @@ amount: {
   value: 1,
   stat: undefined,
   scaling: rippleForce.name,  // 1 damage per stack, no stat scaling
-  max: { value: 7, upgradeKey: 'maxStacks' }
+  max: { value: 7, stat: undefined, upgradeKey: 'maxStacks' }
 }
 ```
 
@@ -177,6 +180,7 @@ amount: {
 // Fixed amount per stack (no stat scaling)
 {
   value: 10,         // 10 damage per stack
+  stat: undefined,
   scaling: 'stacks'
 }
 ```
@@ -225,6 +229,7 @@ stats: {
 // Scale with specific buff stacks
 {
   value: 1,
+  stat: undefined,
   scaling: specificBuffName  // Uses that buff's current stacks
 }
 
@@ -241,6 +246,7 @@ stats: {
 ```typescript
 amount: {
   value: 1,
+  stat: undefined,
   scaling: 'target.' + harmonicDiscord.name  // Damage per target's discord
 }
 ```
@@ -267,6 +273,7 @@ amount: {
 // Multi-buff synergy
 {
   value: 4,
+  stat: undefined,
   eqn: `${flag(buff1.name)} + ${flag(buff2.name)}`  // Sum of two buffs
 }
 ```
@@ -287,6 +294,7 @@ amount: {
 // Fixed numerical cap
 {
   value: 10,
+  stat: undefined,
   scaling: 'stacks',
   max: { value: 100, stat: undefined }   // Never exceeds 100
 }
@@ -345,7 +353,7 @@ stats: {
 
 ### Pattern 10: Item-Effectiveness Scaling
 
-**When to use**: Consumables (pills, concoctions, formation parts) where the effect should scale with the item's quality tier.
+**When to use**: Combat consumable effects that should benefit from the user's Item Effectiveness statistic. Set `isItem: true` on each affected amount. Leaving it unset does not apply that bonus. This is separate from choosing the item's rarity or realm.
 
 ```typescript
 // A healing pill that benefits from item effectiveness
@@ -359,10 +367,13 @@ stats: {
 {
   value: 1,
   stat: 'artefactpower',
-  eqn: '1 + (itemEffectiveness * 0.01)',
   isItem: true
 }
 ```
+
+Use one Item Effectiveness multiplier per amount. For example, a base amount of 500 becomes 750 at 50 Item Effectiveness, before other effect modifiers. Adding the same multiplier in `eqn` as well as setting `isItem` would compound the bonus. For a formation part, apply `isItem` to its damage or other intended output, not to the amount that creates the formation buff unless that stack count should also grow.
+
+Place these amounts in the `effects` of a [combat pill](../items/item-types/pill), [concoction](../items/item-types/concoction), or combat consumable. Register the item with [addItem](modapi#items-and-equipment) and distribute it through [the item registration and shop example](../guides/mod-development#your-first-item---step-by-step). Test the item with different Item Effectiveness values while holding its other scaling inputs constant. Check both immediate effects and any attached buff's later effects.
 
 ## Standard scaling
 
@@ -399,7 +410,7 @@ Consumables should normally have a flat scaling to ensure that lower realm items
 {
   value: Math.floor(window.modAPI.utils.getExpectedHealth("bodyForging", "Late") * 0.5), // A flat 50% of the players expected hp in the Body Forging realm
   stat: undefined,
-  eqn: '1 + (itemEffectiveness * 0.01)', // Multiplied by item effectiveness
+  isItem: true, // Apply the user's Item Effectiveness bonus once
 }
 ```
 
@@ -408,10 +419,17 @@ Consumables should normally have a flat scaling to ensure that lower realm items
 Externally controlled / powered items like artefacts and formation parts should scale off artefact power, not power:
 
 ```typescript
+// Artefact effect
+{
+  value: 1,
+  stat: 'artefactpower'
+}
+
+// Formation-part effect that also benefits from Item Effectiveness
 {
   value: 1,
   stat: 'artefactpower',
-  eqn: '1 + (itemEffectiveness * 0.01)', // Only for formation parts scale by item effectiveness too
+  isItem: true
 }
 ```
 
@@ -459,6 +477,7 @@ stats: {
 stats: {
   celestialBoost: {
     value: 4,
+    stat: undefined,
     eqn: `${flag(lunarAttunement.name)} + ${flag(solarAttunement.name)}`
   }
 }
@@ -491,9 +510,11 @@ Link scaling to mastery progression:
 // Upgrade affects caps
 {
   value: 3,
+  stat: undefined,
   scaling: 'stacks',
   max: {
     value: 5,
+    stat: undefined,
     upgradeKey: 'maxStacks'  // Max stacks increase with mastery
   }
 }
@@ -514,6 +535,7 @@ Link scaling to mastery progression:
   kind: 'perfection',
   amount: {
     value: 20,
+    stat: undefined,
     eqn: '(stability < 30) * 20'  // Bonus when desperate
   }
 }
