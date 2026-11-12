@@ -206,20 +206,39 @@ ingredients: [
 
 ## Condition Effects
 
-Recipes can specify custom condition behaviors:
+To make a recipe reward careful timing of Perfection actions, supply a custom `RecipeConditionEffect` through `RecipeItem.conditionEffectOverride`. It replaces the recipe's default condition rules. Omit the override to use the game-selected rules for that recipe's realm. This choice is separate from `harmonyTypeOverride`, which selects the sublime harmony challenge.
 
 ```typescript
 interface RecipeConditionEffect {
-  name: string;
+  name: string; // Condition-rule name
+  displayName?: Translatable; // Optional translated label, falls back to name
+  colour: string; // CSS background value for the condition-rule label
   conditionEffects: Record<
     CraftingCondition,
     {
-      tooltip: string;
-      effects: CraftingConditionEffect[];
+      tooltip: Translatable; // Description of this condition
+      effects: CraftingConditionEffect[]; // Mechanical effects, not inferred from tooltip
     }
   >;
 }
 ```
+
+Define all five keys in `conditionEffects`: `neutral`, `positive`, `negative`, `veryPositive`, and `veryNegative`. Each needs a tooltip and an effects array. Use `effects: []` when a state should have no special effect. `colour` is required even when `displayName` is omitted, and accepts a CSS colour such as `cyan` or a gradient.
+
+For a Perfection-focused recipe, a design option is to put `{ kind: 'control', multiplier: 0.5 }` in the positive state's effects and `{ kind: 'control', multiplier: -0.5 }` in the negative state's effects. These increase and decrease Qi Control by 50%, respectively, giving the player a reason to time Perfection actions around conditions. Set the other three states deliberately, and describe each state's actual effects in its tooltip. These percentages are design choices, not required values.
+
+Attach your completed definition to a recipe before registering it:
+
+```typescript
+// myRecipe is your complete RecipeItem, myConditions your RecipeConditionEffect.
+const timedRecipe: RecipeItem = {
+  ...myRecipe,
+  conditionEffectOverride: myConditions,
+};
+window.modAPI.actions.addItem(timedRecipe);
+```
+
+Follow [Crafting Recipes](../crafting/recipes.md) for recipe construction, distribution, and testing. In a manual craft, verify that the custom rule name and colour appear, inspect each state's description, and compare the same Perfection action under positive and negative conditions. Check that its Qi Control contribution changes as intended. Registration makes the recipe available to the game, so also provide an acquisition source and learn it before testing.
 
 ### Condition Types
 
