@@ -37,7 +37,7 @@ interface RecipeItem {
   // Optional overrides
   conditionEffectOverride?: RecipeConditionEffect; // Override default condition type
   harmonyTypeOverride?: RecipeHarmonyType;         // Override default harmony system
-  perfectionEffectOverride?: 'quality';           // Controls what perfection affects in the crafted item
+  perfectionEffectOverride?: 'none' | 'quality' | 'stacks'; // Reward for extra Perfection
 
   // Optional presentation and behaviour flags
   displayPerfect?: boolean;       // Show the perfect result in the compendium
@@ -97,11 +97,27 @@ For example, set `harmonyTypeOverride: 'forge'` for a heat-management challenge,
 
 ## Perfection Effect Override
 
-Set `perfectionEffectOverride` to `'quality'` to make perfection affect the quality tier of the crafted item (basic/perfect/sublime) rather than applying a stat modifier. This is used by most recipes in the game.
+Choose `perfectionEffectOverride` when the reward for extra Perfection should differ from the output item's default. This setting controls the bonus applied to the result, not which of `baseItem`, `perfectItem` or `sublimeItem` is selected by the craft's success.
+
+| Value | Result and authoring use |
+| ----- | ------------------------ |
+| `quality` | Enables Hidden Potential on perfect results and harmony augments on eligible sublime results. Use for equipment whose reward should improve the item rather than produce more copies. The output must support the chosen bonus. |
+| `stacks` | Extra Perfection increases the output quantity. Use for batches of materials or consumables. Set the output item's `stacks` to a batch size greater than 1 so rounded quantity bonuses can produce extra items. |
+| `none` | Adds neither the Perfection quantity bonus nor the quality bonus. Use when the authored output variants already provide the whole reward. Perfect and sublime results can still be selected. |
+
+When omitted, the default depends on the result item's kind. Equipment such as clothing, talismans, artefacts and cauldrons uses `quality`. Pills, reagents and materials use `stacks`. Manuals, techniques and recipes use `none`. A single-item perfect output with a `stacks` mode is treated as having no extra quantity reward.
+
+For a batch recipe, first define the output items with a useful batch size, such as `stacks: 10`, then configure the recipe:
 
 ```typescript
-perfectionEffectOverride: 'quality';
+// Fields inside your RecipeItem definition:
+perfectionEffectOverride: 'stacks',
+canOvercraft: true,
 ```
+
+`canOvercraft: true` allows the player to keep building Perfection beyond the normal target to earn additional bonuses. For example, a perfect batch of 10 gains 2 extra items for each additional full Perfection tier beyond the perfect-result baseline. Quantity bonuses round down. This is a design choice for repeatable supplies, so balance ingredient costs against the larger yield, not just the initial batch.
+
+Register and distribute the recipe using [Registering Recipes](#registering-recipes-via-the-mod-api). Follow [Test the Recipe Challenge](#test-the-recipe-challenge) and compare a just-perfect result with an overcrafted result. Check the delivered item count for `stacks`, and the resulting item's supported bonuses for `quality`. Test sublime results separately when available, since their bonus baseline differs.
 
 ## Custom Thresholds
 
