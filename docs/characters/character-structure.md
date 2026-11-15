@@ -46,6 +46,7 @@ interface Character {
   portrait: string; // Portrait image path
   image: string; // Full character image
   imageScale?: number; // Image scaling factor
+  combatIdleImage?: string; // Combat idle artwork, see Separate Combat Artwork below
 
   // Optional stance-specific pose images (used during combat display)
   supportImage?: { image: string; scale: number };
@@ -69,6 +70,25 @@ interface Character {
   }[];
 }
 ```
+
+## Separate Combat Artwork
+
+Set `Character.combatIdleImage` when an NPC needs a battle-ready idle pose while keeping their ordinary conversation artwork. It is an optional image URL on the top-level [Character interface](#core-character-interface), alongside `image` and `portrait`. The combat idle image also applies when the character supplies a following or team-up combat buff.
+
+Place your artwork in `src/assets/` and import it from your content module, following the template's asset-import pattern. Starting with your complete character definition, assign the imported image before [registering the character](#registering-characters):
+
+```typescript
+import battleIdle from '../assets/wei-battle-idle.png';
+
+myCharacter.combatIdleImage = battleIdle;
+window.modAPI.actions.addCharacter(myCharacter);
+```
+
+Adjust the import path to your module's location. Keep `image` and `portrait` set for conversations and character browsing. In combat, a supplied `combatIdleImage` takes priority over both `image` and a matching `imageOverride` entry's `image`. If omitted, combat uses the ordinary image selection, including conditional overrides. Use the ordinary override system when combat should share the NPC's changing outfit or story-state image, and a dedicated combat idle image when the battle pose should stay consistent across those states.
+
+The existing `supportImage`, `defensiveImage`, `utilityImage`, `aggressiveImage`, `offensiveImage`, and `hitImage` fields still select action poses. With a dedicated combat idle image, a matching conditional override can provide these poses, and missing poses fall back to the corresponding top-level fields. The combat idle image uses the character's `imageScale`, which defaults to `1`.
+
+To test, load the mod and check the NPC's ordinary artwork, then start a spar or a [fightCharacter event](../events/steps/fightcharacter.md) against that registered character. Confirm the idle pose and scale, then check any action poses you supplied. If the character can follow or [team up](../events/steps/teamup.md), check their combat artwork in that role too. Repeat with any relevant image-override conditions enabled to verify the intended priority.
 
 ## Auction Appearance
 
