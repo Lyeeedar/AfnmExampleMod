@@ -676,15 +676,60 @@ interface CustomCharacterInteractionBlock {
   tooltip: Translatable;    // Hover description
   icon: SvgIconComponent;   // MUI icon
   interaction: CustomCharacterInteraction;  // Single interaction (NOT an array)
-  cooldown?: number;        // Optional cooldown in days between uses
+  cooldown?: number;        // Optional cooldown in months between uses
 }
 
 interface CustomCharacterInteraction extends BaseCharacterInteraction {
   disableCondition?: string;  // When greyed out
   disableTooltip?: string;    // Disabled hover text
+  disableTooltipVariables?: (flags: Record<string, number>) => Record<string, number>;
   event: EventStep[];         // Interaction content
 }
 ```
+
+### Explain a Custom Requirement with Calculated Values
+
+Use `disableCondition` to keep a custom action visible but unavailable until a requirement is met. Supply `disableTooltip` to explain the requirement. When that explanation needs a calculated number, `disableTooltipVariables(flags)` returns numeric values for named `{placeholders}` in the disabled message. The callback receives the current flag values. It formats the explanation, while `disableCondition` controls whether the action is disabled. With no callback, the message can remain static.
+
+For example, a service that unlocks after several contributions can show how many are still needed. Put this block in the active neutral or companion definition's `customInteractions` array:
+
+```typescript
+import type { CustomCharacterInteractionBlock } from 'afnm-types';
+import SchoolIcon from '@mui/icons-material/School';
+
+const contributionService: CustomCharacterInteractionBlock = {
+  condition: '1',
+  name: 'Use Research Service',
+  tooltip: 'Record a use of the research service.',
+  icon: SchoolIcon,
+  interaction: {
+    condition: '1',
+    disableCondition: 'myMod_contributions < 3',
+    disableTooltip: 'Requires {remaining} more contributions.',
+    disableTooltipVariables: (flags) => ({
+      remaining: Math.max(0, 3 - (flags['myMod_contributions'] ?? 0)),
+    }),
+    event: [
+      {
+        kind: 'flag',
+        flag: 'myMod_serviceUses',
+        value: 'myMod_serviceUses + 1',
+        global: true,
+      },
+    ],
+  },
+};
+```
+
+Award `myMod_contributions` with [flag event steps](../events/steps/flag.md) in your contribution quests. The example's service event only records usage. Replace that event with your service's supported event steps. Treat the callback as a calculation and return a placeholder map, without changing the supplied flags. Default missing custom flags explicitly, as shown above. The returned values are substituted when the interaction is disabled, and do not change the event's conditions or create persistent flags.
+
+Attach the block to your own character definition, then register the containing `Character` with `window.modAPI.actions.addCharacter(character)`. See [Character Definitions](character-structure.md#character-definitions) and [Registering Characters](character-structure.md#registering-characters). Test with zero, two, and three contributions. The action should stay visible, show three and one remaining while disabled, and become usable at three. Confirm that using it runs your service event.
+
+### Choose a Repeat Delay
+
+Use the block's `cooldown` for a fixed number of months between uses. Omitted `cooldown` defaults to `0`. By default, the delay starts when the interaction's event successfully opens, so cancelling a choice inside that event still spends the cooldown. Give blocks distinct names within a character because cooldowns are tracked by the block's `name`. For a simple repeatable service, `cooldown: 1` allows another use after one month passes. Test by opening the interaction, checking that a second use is unavailable, then advancing one month and checking again.
+
+A `disableCondition` can independently block the action, even when its cooldown is over. If both apply, the disabled message takes priority over the standard cooldown message. Use `disableTooltipVariables` for a custom requirement such as the contribution example, and the built-in `cooldown` for an ordinary repeat delay.
 
 ### Example: Technique Training
 
@@ -694,7 +739,7 @@ const customInteraction: CustomCharacterInteractionBlock = {
   name: 'Learn Technique',
   tooltip: 'Learn a special technique from this master',
   icon: SchoolIcon,
-  cooldown: 30,  // Can only use once per month
+  cooldown: 1,   // One month between uses
   interaction: {
     condition: 'learned_technique == 0',
     disableCondition: 'realm < 3',
