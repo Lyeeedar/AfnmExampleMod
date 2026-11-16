@@ -37,6 +37,8 @@ interface TriggeredEvent {
     min: number;
     max: number;
   };
+  minLocationCharacters?: number; // Minimum eligible NPCs at the current location
+  requiredLocationCharacters?: string[]; // All named NPCs must be at the current location
   usesCooldown?: boolean; // Optional: uses global encounter cooldown (3 days)
   repeatPenaltyMonths?: number; // Optional: soft decay window (months) applied each time this event fires (default 72, i.e. 6 years)
 }
@@ -109,6 +111,31 @@ locations: ['Crystal Shore']; // Only at Crystal Shore
 locations: ['Sect Grounds', 'Ancient Library']; // Multiple specific locations
 // Omit locations array = can trigger anywhere (if screen matches)
 ```
+
+### Require NPCs to Be Present
+
+Use `requiredLocationCharacters` when an encounter needs specific speakers to be physically present, and `minLocationCharacters` when it needs a crowd of any eligible NPCs. These checks restrict when the event can start. They do not move or spawn characters. Register your NPCs with `window.modAPI.actions.addCharacter` and configure their [appearance conditions and locations](../characters/character-structure) before registering the encounter.
+
+- `requiredLocationCharacters` is an array of exact registered character names. Every named character must have initialized character data, pass their appearance condition, and resolve to the player's current location. A missing or unavailable name blocks the encounter. Omit the field or use `[]` if no specific NPC is needed.
+- `minLocationCharacters` is a minimum count of eligible registered NPCs, excluding the player. Use a positive integer, such as `2`, for an encounter needing at least two NPCs. Counted characters must pass their appearance conditions and have initialized data and a current definition. Beaten enemy definitions do not count. Omit the field or use `0` for no minimum.
+
+Following characters resolve to the player's current location for these checks, provided their appearance conditions still pass. Other NPCs use their configured locations, including applicable story and relationship assignments. Named requirements do not apply the count's beaten-enemy exclusion, so use them for the specific participants you need rather than as a substitute for a crowd requirement. When both fields are supplied, both must pass. Named participants can also contribute to the minimum count if eligible.
+
+For example, to make the [library introduction below](#location-introduction-event) wait for its librarian, add the named requirement to that definition:
+
+```typescript
+const staffedLibraryIntro: TriggeredEvent = {
+  ...libraryIntroTrigger,
+  name: 'exampleModStaffedLibraryIntro',
+  requiredLocationCharacters: ['Ancient Librarian'],
+};
+
+window.modAPI.actions.addTriggeredEvent(staffedLibraryIntro);
+```
+
+Place this snippet after the `libraryIntroTrigger` definition below and register this version instead of `libraryIntroTrigger`. Ensure the mod's content entry point imports its module, and register Ancient Librarian at Ancient Library using the exact names in the example. Add `minLocationCharacters: 2` only if the scene also requires another eligible NPC. This additional minimum is a design choice, not a requirement for dialogue.
+
+Test on fresh saves before the one-time trigger has fired. First make a required NPC absent or make their appearance condition fail, and confirm the encounter stays blocked. Then place all required NPCs at the location and confirm it can start. If using a minimum count, repeat with one fewer than the required number and then with enough NPCs. Test a follower separately if the encounter is meant to work while that character travels with the player. Keep screen, location, flag and chance restrictions permissive while isolating these checks.
 
 ## Practical Examples
 
