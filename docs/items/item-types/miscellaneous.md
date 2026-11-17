@@ -103,6 +103,42 @@ export interface TransportSealItem extends ItemBase {
 **Purpose**: Fast travel consumables
 **Usage**: Teleport to specific locations
 
+## Combine fragments into an item
+
+Use `MiscItem.combine` when a mod-owned fragment should be exchanged directly from the inventory for a finished item. This suits repeated encounter rewards that accumulate toward a fixed prize. Use a [crafting recipe](../../crafting/recipes.md) instead when you want ingredient choices or a crafting challenge.
+
+```typescript
+interface MiscItem extends ItemBase {
+  kind: 'misc';
+  combine?: { amount: number; result: ItemDesc };
+}
+```
+
+- `amount` is the number of matching fragments consumed for one exchange. Choose a positive whole number. For example, ten fragments per result lets you spread one prize across several encounters. This is an authoring recommendation, not an automatic validation rule.
+- `result` is an item descriptor whose `name` identifies a registered item. `result.stacks` sets the output quantity and defaults to `1` when omitted. Choose a positive whole number for this quantity too.
+- Omitting `combine` leaves a miscellaneous item without this exchange action. The field provides one fixed conversion, without a crafting session or extra currency cost.
+
+First create your fragment as a `MiscItem` and your finished item using the appropriate [item definition](../item-structure.md). In a content module loaded by `src/mod.ts`, register the finished item and the fragment with its conversion. This snippet assumes `fragment` and `finishedItem` are your complete item definitions, including their icons and descriptions:
+
+```typescript
+import type { MiscItem } from 'afnm-types';
+
+window.modAPI.actions.addItem(finishedItem);
+
+const combinableFragment: MiscItem = {
+  ...fragment,
+  combine: {
+    amount: 10,
+    result: { name: finishedItem.name, stacks: 1 },
+  },
+};
+window.modAPI.actions.addItem(combinableFragment);
+```
+
+Distribute the fragment through an [Add Item step](../../events/steps/additem.md) or your encounter rewards, referencing `combinableFragment.name`. Registration makes the definition available, but does not give the player fragments. The conversion spends fragments held in the inventory, not storage. Different item variants are not pooled, so avoid distributing differently enchanted or otherwise distinct fragments if you intend them to combine together. Output properties come from `result` and its registered definition, rather than inheriting the consumed fragment's properties.
+
+On a test save, grant nine matching fragments and verify the exchange is unavailable. Add one more, combine, and check that ten fragments disappear and one finished item is received. Repeat with eleven fragments to check the remainder. If you set `result.stacks`, verify that output quantity as well, and test storage-only fragments and any variants you distribute.
+
 ## Life Essence Items
 
 Life essence items are cultivation resources tied to the life system. Each essence levels up as the player invests in it, granting new buffs and techniques at each threshold.
@@ -309,7 +345,7 @@ stanceRule: {
 
 Percent-based conditions (Health, Temporary Health, Total Health, Toxicity, Barrier, Enemy Health, element boosts, guardian groups) display a `%` suffix in the UI. All other conditions compare raw values.
 
-Temporary Health absorbs incoming damage after reductions are applied. It degenerates by a third before each technique and is capped at your maximum health, so `Total Health` can read above 100% while temporary Health is held.
+Temporary Health absorbs incoming damage after reductions are applied. Before each technique, it normally loses 30% of its current amount, rounded up. Temporary Health Decay Reduction reduces that loss. Account for this when choosing a Temporary Health threshold for a stance that should remain usable across several techniques.
 
 `Active Pill Effects` compares a raw count and resolves to the combat expression variable `unique_Pill`. Repeated applications of the same buff name count once. It can also be used as `valueBuff` when comparing another condition against the active pill-effect count:
 
