@@ -22,11 +22,11 @@ Enemies cycle through predefined stances, each containing a sequence of techniqu
 ### Stance Execution Flow
 
 ```
-1. Check rotation overrides (one-time conditions)
+1. At combat setup and after each round, check eligible rotation overrides in order
 2. If no override applies, use stance rotation rules
 3. Select stance based on rule type (single/random)
 4. Execute techniques in order
-5. When stance completes, select next stance
+5. At the end of the round, use the resulting combat state to select the next stance
 ```
 
 ## Rotation Rules
@@ -54,13 +54,14 @@ const randomRotation: StanceRule = {
   kind: 'random',
   stances: ['attack_a', 'attack_b', 'attack_c'],
   condition: 'hp < 0.8 * maxhp',   // When to use this pool
-  repeatable: true,
 };
 ```
 
 ### Rotation Overrides
 
-Special conditions that interrupt normal rotation:
+Use `EnemyEntity.rotationOverrides` to select a named stance in response to combat state. The first eligible override wins and the normal `stanceRotation` resumes from its pending entry when no override applies. A health threshold reached during a round affects the next stance selection.
+
+For a one-time recovery round, define a stance named `desperate` in `EnemyEntity.stances` with your defensive or healing techniques, then add this property to the enemy:
 
 ```typescript
 rotationOverrides: [
@@ -70,8 +71,12 @@ rotationOverrides: [
     condition: 'hp < 0.2 * maxhp',
     repeatable: false,
   },
-];
+],
 ```
+
+Omitting `repeatable` has the same effect as setting it to `false`. The override can be selected once for that enemy phase. Use `true` for a response that should remain eligible at each selection while its condition holds. A repeatable override with no condition always qualifies, so place it last if you want more specific overrides to have a chance.
+
+Put the completed [enemy definition](enemy-structure.md#stances) in an [event combat step](../events/steps/combat.md), or register it as a `LocationEnemy` with [`addEnemiesToLocation`](../concepts/modapi.md#modifying-existing-locations). Fight it through the threshold and keep it alive for another round below 20% health. Check that it finishes its current round, uses `desperate` for one round, then resumes the regular rotation. Start a fresh fight with [reduced starting health](enemy-structure.md#spawn-conditions) to check that the override also works as an opener.
 
 ## Common Behavior Patterns
 
@@ -114,7 +119,7 @@ stanceRotation: [
 
 ### The Chaos Agent
 
-Completely unpredictable:
+Choose randomly among several defined stances:
 
 ```typescript
 stanceRotation: [
@@ -140,7 +145,7 @@ rotationOverrides: [
     condition: 'hp > 0.66 * maxhp',
     repeatable: true // Allow repeating this stance while the condition is true
   },
-  // Phase 2: Increased difficulty (pick one stance, then alternate via stanceRotation)
+  // Phase 2: Increased difficulty (use this stance while in the middle health band)
   {
     kind: 'single',
     stance: 'phase2_a',
@@ -176,8 +181,8 @@ Variables accessible in condition strings:
 
 **Buff Variables:**
 
-- `BuffName` - Stack count of named buff (e.g., `Rage` for rage stacks; `0` if absent)
-- Use buff names directly in expressions
+- `BuffName` - Stack count of named buff (for example, `Rage` for rage stacks and `0` if absent)
+- Use the buff’s expression key. For a name with spaces such as `Iron Shell`, use `Iron_Shell`.
 
 **Target Variables:**
 
@@ -272,7 +277,7 @@ rotationOverrides: [
 
 ### Resource Management
 
-Enemies that build and spend resources:
+Put the charging stance in the regular rotation. Give the payoff stance a technique that consumes the Energy stacks so the charge condition can clear and the regular rotation can resume.
 
 ```typescript
 // Build energy stance
@@ -287,7 +292,7 @@ rotationOverrides: [
     kind: 'single',
     stance: 'unleash_power',
     condition: 'Energy >= 5', // Use buff name directly
-    repeatable: false  // Only spend once per build cycle
+    repeatable: true // Eligible whenever a new round is selected with at least 5 stacks
   }
 ]
 ```
@@ -322,7 +327,7 @@ Strategic cultivator with multiple approaches:
   stances: [
     { name: 'probe', techniques: [lightAttack, dodge, lightAttack] },
     { name: 'pressure', techniques: [combo1, combo2, combo3] },
-    { name: 'finisher', techniques: [lightAttack, ultSetup, ultimate] }
+    { name: 'finisher', techniques: [lightAttack, ultSetup, ultimate] },
     { name: 'defensive', techniques: [dodge, dodge, dodge] }
   ],
   stanceRotation: [
