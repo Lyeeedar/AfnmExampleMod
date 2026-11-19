@@ -21,6 +21,31 @@ Exploration links, conditional connections, and world navigation
 ### [Building Types](building-types)
 All building types with configuration and examples
 
+## Change market stock after a quest
+
+Set `MarketBuilding.refreshOnFlagChange` to the name of a [global flag](../concepts/flags#setting-flag-values) when a quest or event should change the offers. Use the same flag in your stock conditions to choose which offers are eligible. The market treats an unset flag as zero and regenerates its stock when it checks a different numeric value, even during the same rotation month. Reserve the flag for milestones so unrelated events do not refill purchased stock.
+
+For example, register a [supply market](building-types#market) whose reserve stock becomes available after a road reopens. Given a complete `MarketBuilding` called `supplyMarket` and a registered item called `roadSupplies`, configure the flag and listing before registering the market:
+
+```typescript
+supplyMarket.id = 'myModRoadSupplyMarket';
+supplyMarket.refreshOnFlagChange = 'myModRoadOpen';
+supplyMarket.itemPool.mundane.push({
+  ...roadSupplies,
+  stacks: 3,
+  condition: 'myModRoadOpen == 1',
+});
+window.modAPI.actions.addBuildingsToLocation(locationName, [supplyMarket]);
+```
+
+Use the name of an existing location for `locationName`. For a location your mod defines, you can put the market in its `buildings` array before calling `window.modAPI.actions.addLocation`. Add this step to the quest's completion sequence:
+
+```typescript
+{ kind: 'flag', flag: 'myModRoadOpen', value: '1', global: true }
+```
+
+[Load your mod](../guides/packaging-testing), open the market before completing the quest, then complete it and reopen the market in the same calendar month. Verify that the supply listing appears. Buy one unit and reopen the market again to check that an unchanged flag leaves the purchase reflected in stock.
+
 ## Build a token exchange
 
 Use a [market building](building-types#market) with `tokenCurrency` when rewards from your mod should buy a curated set of items rather than goods priced in spirit stones. Put the `MarketBuilding` in your [location's `buildings` array](location-structure), then register the location with `window.modAPI.actions.addLocation`. To add an exchange to an existing location, call `window.modAPI.actions.addBuildingsToLocation(locationName, [exchange])` after that location exists. No shopkeeper character is required.
@@ -81,7 +106,7 @@ Every location requires these essential fields:
   name: string;                  // Unique identifier
   description: string;           // Narrative description
   image: string;                // Background image path
-  icon: string;                 // Map icon image path
+  icon: string;                // Map icon path
   screenEffect: ScreenEffectType; // Visual atmosphere
   music: MusicName;             // Background music
   ambience: AmbienceName;       // Ambient sound effects
