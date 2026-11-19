@@ -115,6 +115,10 @@ Buildings provide services and interactions. See Building Types for all availabl
 enemies?: LocationEnemy[];       // Combat encounters
 ```
 
+Set `GameLocation.battleArena` to pick the default terrain for squad battles at your location. For a battle on a chasm ledge, for example, set `battleArena: 'shugouChasm'` on the location before [registering it](#registering-locations). This selects built-in artwork. If you omit the field, the game chooses a terrain from the location's music and ambience, with a courtyard as the general fallback.
+
+Use [`EventBattleSetup.arena`](../combat/battle-and-visual-apis#battle-terrain-choices) on an individual battle step when that encounter needs different terrain. Test by starting a squad battle at your location with the step's `arena` omitted, then repeat with a different explicit arena and check that it takes precedence.
+
 Enemy encounters with intro events:
 ```typescript
 enemies: [
@@ -248,24 +252,29 @@ Follow [Packaging and Testing](../guides/packaging-testing) to load the mod. Tes
 gatheringEvent?: LocationGatheringEvent;
 ```
 
-A special event that fires when the player visits a location that currently has multiple named characters present. Use it to create social or atmospheric scenes, moments that emerge naturally from character congregation rather than from exploration or time.
+Use `GameLocation.gatheringEvent` for a scene that needs several named characters to be at the same place when the player visits. Write the scene as [event steps](../events/index), then set the minimum crowd size to match the scene. The threshold counts eligible named characters at the location. Pick a threshold that the location's character schedules can reach.
 
 ```typescript
-gatheringEvent: {
-  steps: [
-    {
-      kind: 'text',
-      text: 'The tavern is unusually crowded tonight...'
+import type { EventStep, GameLocation } from 'afnm-types';
+
+function withGathering(location: GameLocation, steps: EventStep[]): GameLocation {
+  return {
+    ...location,
+    gatheringEvent: {
+      steps,
+      triggerChance: 0.3,
+      resetMonths: { min: 2, max: 6 },
+      minCharacters: 3,
     },
-    // ...more event steps
-  ],
-  triggerChance?: 0.3,              // Probability of firing (0 to 1, optional)
-  resetMonths?: { min: 2, max: 6 }, // Cooldown before it can fire again (optional)
-  minCharacters?: 3                 // Minimum characters present to trigger (default: 3)
+  };
 }
 ```
 
-The gathering event respects both the global encounter cooldown and a per-location gathering cooldown. It will not fire if fewer than minCharacters named characters are currently at this location (the default threshold is 3).
+- `minCharacters` is the minimum eligible headcount and defaults to three.
+- `triggerChance` is the probability for an eligible visit, from zero to one. It defaults to `0.15`.
+- `resetMonths` sets the random per-location delay after the event starts and defaults to 12–48 calendar months. The global encounter cooldown also applies.
+
+Pass your location and event steps to `withGathering`, then [register the returned location](#registering-locations). For testing, temporarily use `triggerChance: 1` and visit with the encounter cooldown clear. Check that the scene can start with enough characters present, stays unavailable below the threshold, and respects the configured delay on return visits. Use a lower chance for a scene intended to feel occasional.
 
 ### Missions
 

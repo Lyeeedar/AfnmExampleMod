@@ -28,6 +28,22 @@ interface CraftingEquipmentItem extends ItemBase {
 - **stats**: Crafting stat bonuses (control, intensity, etc.)
 - **buffs**: Optional crafting buffs to apply
 
+## Let a loadout carry another flame
+
+Set `stats.extraFlameSlots` on a `FlameItem` or `CauldronItem` when equipping it should make room for additional flames. The player has one slot by default. Each whole point of the combined bonus adds a slot, with capacity always at least one. A flame can supply the slot it needs when equipped. Give the bonus to a cauldron if the choice should depend on which vessel the player uses.
+
+For example, given your complete `FlameItem` definition named `customFlame`, preserve its other crafting stats and add one slot before [registering the item](../item-structure#1-adding-items-to-the-game):
+
+```typescript
+const supportFlame: FlameItem = {
+  ...customFlame,
+  stats: { ...customFlame.stats, extraFlameSlots: 1 },
+};
+window.modAPI.actions.addItem(supportFlame);
+```
+
+Consider a smaller control or intensity bonus for a support flame if its main benefit should come from pairing with a specialised flame. Make both flames obtainable through an [item acquisition source](../item-structure#2-item-acquisition-sources). [Load your mod](../../guides/packaging-testing) and equip the support flame with an ordinary flame. Verify that both remain equipped, then unequip the support flame and check that the remaining flame still fits in the default slot.
+
 ## Examples
 
 ```typescript
