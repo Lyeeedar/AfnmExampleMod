@@ -31,7 +31,7 @@ Quest chains, branching event sequences, calendar events, triggered events, and 
 
 Custom screens, stat viewers, inventory helpers, map tools, crafting assistants, or any mod that adds a new interface without changing gameplay.
 
-**Default stack:** `addScreen()` for full-page interfaces, `injectUI()` for small affordances in existing dialogs, `useSelector()` and `useGameFlags()` for state, `actions.setModData()` for persistent mod state. Persistent overlay mounted to `document.body` if the UI must survive screen transitions.
+**Default stack:** `addScreen()` for full-page interfaces, `injectUI()` for small affordances in existing dialogs, `useSelector()` and `useGameFlags()` for state, `actions.setModData()` for persistent mod state. See [Add a tool to a dialog](#add-a-tool-to-a-dialog).
 
 ### Gameplay Modifier
 
@@ -47,15 +47,23 @@ Wholesale changes to game balance — enemy stats, crafting difficulty, damage f
 
 ### Cosmetic / Personalization
 
-Player sprites, alternative starts, new backgrounds, custom rooms, new music or sound effects.
+Player sprites, alternative starts, character backgrounds, starting treasures, new music or sound effects.
 
-**Default stack:** `actions.addPlayerSprite()`, `actions.addAlternativeStart()`, `actions.addBirthBackground()`, `gameData.rooms.push(room)`, `actions.addMusic()`, `actions.addSfx()`. Use `AlternativeStart.skipOpeningEvent` to author a separate skip route.
+**Default stack:** `actions.addPlayerSprite()`, `actions.addMusic()`, and `actions.addSfx()` for presentation. Use [`actions.addAlternativeStart()`](../concepts/modapi.md#specialized-content) for a custom starting location and opening event.
+
+#### Add a character creation choice
+
+Use `actions.addChildBackground(background)` in your mod entry point when you want a selectable childhood with its own grants. Give the `Background` a distinct `name` and a `description` that explains the choice. For example, set `spiritStones: 10` for a childhood that provides a small starting purse. Use the optional second argument to display a React glyph beside the choice.
+
+Use `actions.addStartingTreasure(treasure)` when the choice is a starting reward bundle. Supply a `StartingTreasure` with `name`, `description`, and an `items` array of complete item objects. For a starter kit, reuse the item objects your mod registers with `actions.addItem()`.
+
+Enable the mod, start a fresh character, and select the childhood or treasure you registered. Finish character creation and check the starting currency or equipment and inventory. Create a second character with a different choice to confirm that the grant depends on the selection. For grants that apply across character creation choices, see the [new-game hook](lifecycle-hooks.md#onnewgame).
 
 ### Read-Only Advisor / Overlay
 
 Mods that explain, visualize, or recommend without mutating gameplay. These mods observe game state and present information to the player.
 
-**Default stack:** `getGameStateSnapshot()`, `subscribe()`, `injectUI()` for local entry points. Persistent body-mounted overlay only if the UI must survive screen and dialog transitions. No mutation hooks.
+**Default stack:** `getGameStateSnapshot()`, `subscribe()`, `injectUI()` for local entry points. See [Add a tool to a dialog](#add-a-tool-to-a-dialog).
 
 ### Search / Simulation / Optimizer
 
@@ -158,7 +166,7 @@ Global flags are numeric only. Store booleans as `0` / `1`:
 
 ```typescript
 const enabled = (flags['myMod.enabled'] ?? 1) !== 0;
-window.modAPI?.actions?.setGlobalFlag?.('myMod.enabled', enabled ? 1 : 0);
+window.modAPI?.actions?.setGlobalFlag?.('myMod.enabled', enabled ? 0 : 1);
 ```
 
 ---
@@ -207,7 +215,6 @@ const MyOptions: ModOptionsFC = ({ api }) => {
   const flags = window.modAPI.actions.getGlobalFlags();
   const enabled = (flags['myMod.enabled'] ?? 1) === 1;
   const GameButton = api.components.GameButton ?? 'button';
-
   return createElement('div', { style: { padding: '8px' } }, [
     createElement('div', { key: 'title', style: { fontWeight: 700 } }, 'My Mod Settings'),
     createElement(
@@ -225,62 +232,33 @@ Both JSX and createElement produce the same result — use whichever your build 
 
 ---
 
-## Persistent Overlay vs injectUI
+## Add a tool to a dialog
 
-### When to Use `injectUI()`
+Register `window.modAPI.injectUI(slotName, generator)` in your mod entry point. Choose the dialog slot where the tool is relevant. For example, `combat-victory` is a place to show a reminder after a successful fight. The generator receives the mod UI API and an `inject(selector, content, placement?)` helper. Pass an empty selector to append to the slot root by default. To position content beside a specific element, use a selector scoped to the slot and pass a placement such as `'after'`. See the [UI Injection reference](../concepts/modapi.md#ui-injection) for placement options.
 
-Use slot injection when the action belongs to one dialog or screen:
+Put this registration in a `.tsx` file to use JSX:
 
-```typescript
-window.modAPI.injectUI('combat-victory', (api, inject) => {
-  inject(
-    '[aria-live="assertive"]',
-    <api.components.GameButton onClick={() => console.log('bonus!')}>
-      Claim Bonus
-    </api.components.GameButton>,
-    'after',
-  );
+```tsx
+window.modAPI.injectUI('combat-victory', (_api, inject) => {
+  inject('', <p>Check whether your mod quest needs another victory.</p>);
 });
 ```
 
-### When to Use a Persistent Overlay
-
-Use a body-mounted overlay when the affordance must survive location, combat, event, and crafting screen transitions:
-
-```typescript
-function mountPersistentOverlay() {
-  const container = document.createElement('div');
-  container.id = 'my-mod-overlay';
-  container.style.cssText = 'position:fixed;top:8px;right:8px;z-index:9999;pointer-events:auto;';
-  document.body.appendChild(container);
-
-  // Render your React component into the container
-  const root = (window as any).ReactDOM?.createRoot?.(container);
-  if (root) {
-    root.render(<MyOverlayApp />);
-  }
-}
-```
-
-**Choose deliberately.** If a small injected affordance solves the problem, avoid the overhead of a persistent overlay.
+Win a fight with the mod enabled and check that the reminder appears inside the victory dialog. Dismiss it and win another fight to confirm that the dialog mounts one copy each time. For a tool that needs an entire page, see [Adding Screens](adding-screens.md).
 
 ---
 
 ## Hook Risk Classification
 
-Not all hooks carry the same risk. Understand what each hook does before adopting it.
-
-### Observation Hooks (Safe)
-
-These fire for informational purposes and do not return a value that modifies gameplay:
+### Observation Hooks
 
 - `onLocationEnter` — fires when the player moves to a new location
 - `onLootDrop` — fires when combat loot is distributed
 - `onAdvanceDay` / `onAdvanceMonth` — fires on time progression
 
-These are safe to use for logging, triggering side-channel behavior (e.g., showing advice), or updating mod-internal state.
+Use these for logging or updating your mod's own state in response to gameplay.
 
-### Mutation Hooks (Use With Care)
+### Mutation Hooks
 
 These return a value that the game uses, meaning your code directly affects gameplay:
 
@@ -291,11 +269,7 @@ These return a value that the game uses, meaning your code directly affects game
 - `onDeriveRecipeDifficulty` — modifies crafting difficulty
 - `onGenerateExploreEvents` — modifies the event pool
 
-Always return the original value unchanged if your condition does not match. Never forget the `return` statement.
-
-### Dangerous Hooks
-
-- `onReduxAction` — runs inside the Redux reducer. Keep it fast, deterministic, and free of side-effects. Avoid network requests, UI work, and heavy computation here. If `subscribe()` can solve the problem, prefer that.
+Return the original value when your condition does not match.
 
 ---
 
@@ -305,7 +279,7 @@ When docs, types, and actual runtime behavior disagree, trust the installed runt
 
 ### Installed-Runtime Oracle Pattern
 
-Extract and inspect the shipped game bundle before building against undocumented behavior:
+Extract and inspect the shipped game bundle to check the bindings for a documented API:
 
 ```bash
 # Extract the installed game bundle
@@ -318,7 +292,7 @@ rg -n "registerOptionsUI|injectUI|onGenerateExploreEvents" ./tmp/afnm-runtime/di
 rg -n "onAdvanceDay|onAdvanceMonth|onBeforeCombat" ./tmp/afnm-runtime/dist-electron
 ```
 
-This is faster and more reliable than launching the full game just to confirm a symbol exists. Use it as your default parity check when the documentation might be out of date.
+Test the call in game to verify that it behaves as your mod expects.
 
 ---
 
@@ -340,13 +314,3 @@ touch "/path/to/Ascend From Nine Mountains/disable_steam"
 # When done:
 rm "/path/to/Ascend From Nine Mountains/disable_steam"
 ```
-
----
-
-## What You Cannot Hook
-
-Some game behaviors have no ModAPI interception point. Knowing these limitations saves time:
-
-- **World map events** (`EventTrigger.tsx`) — events triggered on location entry via the map have no hook. Workarounds include state manipulation, event replacement via `addMapEventsToLocation`, or adding events through `addEventsToLocation` instead.
-- **Auto-battle state** — not exposed in `getGameStateSnapshot()`. If you need auto-battle status, you may need DOM inspection as a fallback.
-- **Crafting action dispatch** — the ModAPI does not expose a public way to dispatch native crafting actions. `onDeriveRecipeDifficulty` and `onCompleteCrafting` let you observe and modify the process, but not drive it.
