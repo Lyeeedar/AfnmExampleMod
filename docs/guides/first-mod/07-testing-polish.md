@@ -37,9 +37,7 @@ your-mod-project/                  # Project root (contains package.json)
 
 ## Building Your Mod
 
-First, make sure all your files are properly connected.
-
-📁 **File:** `src/modContent/index.ts` — your final entry point should look like this:
+Keep the template's `src/mod.ts` as the bundle entry point. It imports `src/modContent/index.ts`, where you connect the tutorial's registration functions.
 
 ```typescript
 import { initializeTeaItems } from './items/teaItems';
@@ -71,34 +69,13 @@ Build your mod by running this in a terminal from your **project root** (the fol
 npm run build
 ```
 
-This creates a `.zip` file in the `builds/` folder (created next to `package.json` in your project root) with everything the game needs.
+This creates a `.zip` file in your project's `builds/` folder. See [Building Your Mod Package](../packaging-testing#building-your-mod-package) for the expected archive layout.
 
 ## Loading Your Mod
 
-1. **Locate the zip file** in your project's `builds/` folder (e.g., `builds/mystical-tea-garden-1.0.0.zip`)
-
-2. **Copy it to your game installation's mod folder**:
-
-   - Find your game directory (Steam: Right-click game → Properties → Installed Files → Browse)
-   - Create a `mods/` folder next to `Ascend from Nine Mountains.exe` if it doesn't exist
-   - Copy your ZIP file into this `mods/` folder
-   - **Do NOT unzip it** - the game loads ZIP files directly
-
-3. **Start the game** and check the console for your mod's loading messages:
-
-   ```
-   🍵 Initializing Mystical Tea Garden Mod...
-   🍃 Adding tea items...
-   ✅ Added 4 tea items
-   🌱 Adding tea leaf crops...
-   ✅ Added 2 tea leaf crops
-   👤 Adding tea master characters...
-   ✅ Added 1 tea characters
-   ...
-   ✅ Mystical Tea Garden Mod loaded successfully!
-   ```
-
-4. **Check the mod loader** and select the information button on the row for your mod. You should see all your assets and changes displayed.
+1. Find your archive in `builds/`, for example `mystical-tea-garden-1.0.0.zip`.
+2. Follow [Installing Your Mod for Testing](../packaging-testing#installing-your-mod-for-testing) to locate `mods/` for your installation. Copy the ZIP there intact.
+3. Start the game with the local mod enabled. If you are checking the console, look for the initialization messages from your own code. Then use the test below to verify the registered content is reachable.
 
 ## Testing Your Mod In-Game
 
@@ -131,4 +108,4 @@ You've successfully created and deployed a complete AFNM mod! Your tea house mod
 - ✅ Quest systems with proper progression
 - ✅ Triggered events for natural discovery
 
-This foundation can be extended with additional teas, more complex quests, seasonal events, or integration with other mod systems. Happy modding!
+This foundation can be extended with additional teas, more complex quests, seasonal content, and quests. Happy modding!
