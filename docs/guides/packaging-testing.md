@@ -8,372 +8,57 @@ description: 'Building and testing your AFNM mod'
 
 # Packaging & Testing
 
-## What This Guide Covers
-
-Now that you've created mod content, you need to package it into a format the game can understand and test it thoroughly. This guide will show you how to:
-
-- Build your mod into a distributable package
-- Install and test your mod in the actual game
-- Debug common issues and verify everything works
-- Set up a smooth development workflow
-
-Think of packaging as "exporting" your mod from development format into something the game can load and run.
+Build the same ZIP you intend to distribute, install it locally, and test the route a player takes to reach your content.
 
 ## Building Your Mod Package
 
-### The Build Process Explained
+Set `name`, `version`, `description`, and `author.name` in your project's `package.json`. The template uses `name` and `version` for the ZIP filename and embeds the metadata in the JavaScript bundle. The entry point in `src/mod.ts` imports your content and exports `getMetadata()`, which the game calls when it loads the mod. The template supplies `gameVersion` from `afnm-types`, so keep that dependency aligned with the game version you are testing. See [Project Setup](project-setup#keeping-dependencies-compatible).
 
-When you run the build command, several automated steps happen:
-
-1. **TypeScript Compilation** - Your `.ts` code files become a single `.js` file
-2. **Asset Processing** - Images and resources are optimized and included
-3. **ZIP Package Creation** - Everything gets packaged into a mod file
-4. **Metadata Generation** - Game-readable information is added
-
-This process transforms your development project into a single file that players can install.
-
-### Building Your Mod
-
-**In VS Code terminal:**
+From the project root, run:
 
 ```bash
 npm run build
 ```
 
-**What you should see:**
+Find the ZIP in `builds/`. For a project named `mystic-tea-cultivation` at version `1.0.0`, the output is `builds/mystic-tea-cultivation-1.0.0.zip`. Open it in an archive viewer to check its layout:
 
-```
-> your-mod@1.0.0 build
-> webpack --mode production
-
-asset mod.js 12.3 KiB [emitted] (name: main)
-webpack 5.x.x compiled successfully in 2345 ms
-
-Build completed! Check the builds/ folder.
+```text
+mystic-tea-cultivation-1.0.0.zip
+├── mod.js
+├── assets/          # Included if the mod imports assets
+└── translations/    # Included if the project supplies translation JSON files
 ```
 
-**Success indicators:**
+The loader reads `mod.js` from the root of the ZIP. If you package the build output yourself, put `mod.js` and its companion directories directly at the archive root. A ZIP containing an outer project directory will fail to load.
 
-- ✅ No red error messages
-- ✅ New `builds/` folder appears in your project
-- ✅ ZIP file inside like `mystic-tea-cultivation-1.0.0.zip`
-
-### Understanding Build Output
-
-After building, your `builds/` folder contains:
-
-```
-builds/
-└── mystic-tea-cultivation-1.0.0.zip    # ← This is your mod!
-    ├── mod.js                           # Your compiled TypeScript code
-    ├── assets/                          # Your images and resources
-    │   └── mystic-tea.png
-    └── package.json                     # Mod information for the game
-```
-
-**The ZIP file is your complete mod** - this is what you'll install in the game and eventually upload to Steam Workshop.
-
-### Build Configuration Files
-
-Your build process is controlled by several files. Usually you won't need to change these, but here's what they do:
-
-**`package.json`** - Your mod's identity card:
-
-```json
-{
-  "name": "mystic-tea-cultivation",    # Mod's technical name
-  "version": "1.0.0",                  # Version number
-  "description": "Adds tea-based...",  # What your mod does
-  "author": { "name": "TeaMaster" }    # Your name
-}
-```
-
-**`tsconfig.json`** - TypeScript compiler settings (rarely needs changes)
-
-**`webpack.config.js`** - Build tool configuration (advanced users only)
-
-### Common Build Issues
-
-**"Cannot find module '../assets/my-image.png'"**
-
-- Your image file path is wrong or the file doesn't exist
-- Solution: Check the file exists and the import path is correct
-
-**"Build failed with TypeScript errors"**
-
-- There are syntax errors in your code
-- Solution: Look at the error messages, fix the red underlines in VS Code
-
-**"Out of memory" or very slow builds**
-
-- Your image files might be too large
-- Solution: Resize images to the recommended sizes (256x256 for items, 1536x1536 for characters) and ensure files are under 100KB each
+If the build cannot resolve an image, check the import path relative to the source file that imports it. If the build reports TypeScript errors, resolve them before copying a ZIP from `builds/`, since that folder may still contain an earlier build.
 
 ## Installing Your Mod for Testing
 
-### Step 1: Find Your Game Installation
+1. Find the `mods/` directory for the game you will launch. Create it if needed.
 
-**Steam version:**
+   | Game installation | Location of `mods/` |
+   | --- | --- |
+   | Packaged game | Beside the game executable. For Steam, use **Properties → Installed Files → Browse** to locate the installation. |
+   | Linux AppImage | Beside the `.AppImage` file you launch. |
+   | Game running from a development checkout | Under the game application root. |
 
-1. Open Steam Library
-2. Right-click "Ascend from Nine Mountains"
-3. Properties → Installed Files → Browse
-4. This opens your game directory
-
-**Typical locations:**
-
-- **Steam:** `C:\Program Files (x86)\Steam\steamapps\common\Ascend from Nine Mountains\`
-- **Direct download:** Wherever you installed it
-
-**You should see:** `Ascend from Nine Mountains.exe` in this folder
-
-### Step 2: Create Mods Folder
-
-**In your game directory:**
-
-1. Create a new folder called `mods` (lowercase, no spaces)
-2. **Final structure should be:**
-   ```
-   Ascend from Nine Mountains/           # ← Game directory
-   ├── Ascend from Nine Mountains.exe    # ← Game executable
-   └── mods/                             # ← New folder you create
-   ```
-
-### Step 3: Install Your Mod
-
-1. **Copy your mod ZIP file** from your project's `builds/` folder
-2. **Paste it into the `mods/` folder** you just created
-3. **Do NOT unzip it** - the game loads ZIP files directly
-
-**Final structure:**
-
-```
-Ascend from Nine Mountains/
-├── Ascend from Nine Mountains.exe
-└── mods/
-    └── mystic-tea-cultivation-1.0.0.zip    # ← Your mod
-```
-
-## Verifying The Installed Runtime Before Launching
-
-When you're checking ModAPI surface area, hook names, or whether documentation matches the shipped executable, inspect the installed game bundle before doing a full UI launch.
-
-**Why this helps:**
-
-- Faster than launching the full game just to confirm a symbol exists
-- Useful when patch notes, docs, and runtime behavior disagree
-- Lets you confirm launcher behavior and hook names without Steam relaunch loops
-
-**Basic extraction flow:**
-
-```bash
-npx -y @electron/asar extract "/path/to/Ascend From Nine Mountains/resources/app.asar" ./tmp/afnm-runtime
-rg -n "getGameStateSnapshot|injectUI|onGenerateExploreEvents" ./tmp/afnm-runtime/dist-electron
-```
-
-Look for the exact hook or API names you care about in the extracted `dist-electron` bundle. For advanced mods, this is often the best first parity check.
-
-**Useful verification queries:**
-
-```bash
-# Check which hooks exist in the shipped runtime
-rg -n "onCalculateDamage|onBeforeCombat|onReduxAction|onAdvanceDay" ./tmp/afnm-runtime/dist-electron
-
-# Check for specific API methods
-rg -n "registerOptionsUI|subscribe|getGameStateSnapshot" ./tmp/afnm-runtime/dist-electron
-
-# Check launcher behavior
-rg -n "disable_steam|Restarting app through Steam" ./tmp/afnm-runtime/dist-electron/main
-```
-
-**Principle:** When documentation, type definitions, and the actual runtime disagree, trust the installed runtime. The extracted bundle is the source of truth for what the game actually supports.
+2. Copy the built archive directly into `mods/`. Use a lowercase `.zip` extension and leave the archive intact. The local scan checks files directly inside `mods/`.
+3. Start the game and make sure the local mod is enabled. When iterating, keep one copy of your test mod in `mods/`. If you change the package version, remove the older ZIP before restarting so the loader finds only the intended build.
 
 ## Testing Your Mod In-Game
 
-### Step 1: Launch the Game
+1. Use a test save that meets the requirements you authored. For content that runs at character creation, test with a fresh character.
+2. Follow the content's distribution path. For a shop item, visit the shop where you registered the stock, then check the item's name and icon, purchase it, and try its effect. For a quest reward, complete the relevant objective and verify that the intended reward arrives.
+3. If your content has a condition, also test with the condition unmet. For example, try a realm-gated item with eligible and ineligible characters to check the restriction you configured.
 
-1. **Start the game** normally (from Steam or by double-clicking the exe)
-2. **Check the main menu** - you should see mod loading messages
-3. **Look for your mod name** in the loading text
+### Troubleshooting
 
-**Signs your mod loaded successfully:**
+| Symptom | What to check |
+| --- | --- |
+| The local ZIP is missing from mod loading | Check the platform-specific directory above, the `.zip` extension, and that the archive is directly inside `mods/`. |
+| The ZIP is found but fails to load | Check the mod loading error for the failing step. Verify that `mod.js` is at the archive root, that `src/mod.ts` exports the template's `getMetadata()`, and that it imports your registration code. |
+| The mod loads but its content is missing | Trace both registration and distribution. For example, `window.modAPI.actions.addItem()` registers an item definition, and `addItemToShop()` places stock in a shop. Check the names used by both calls and the authored availability requirements. See the [ModAPI reference](../concepts/modapi). |
+| Content appears but artwork is missing | Check the source import, inspect the ZIP for the emitted asset, and retest with the rebuilt archive. |
 
-- No error popups on startup
-- Mod name appears in loading messages
-- Game starts normally
-
-### Direct Binary Testing Without Steam Relaunch Loops
-
-If you need to launch the executable directly instead of going through Steam, current runtimes support a `disable_steam` sentinel file beside the game executable.
-
-**Safe workflow:**
-
-1. Create an empty file named `disable_steam` beside the executable
-2. Launch using `launch-native.sh` (Linux), or the executable directly
-3. For browser DevTools access, launch with `--remote-debugging-port=9222` and open `chrome://inspect` in Chrome
-4. Delete `disable_steam` when you finish testing
-
-**Critical warning:** If you leave `disable_steam` behind, Workshop mods will stop loading until you remove it. Always clean up after testing.
-
-```bash
-# Linux example
-touch "/path/to/Ascend From Nine Mountains/disable_steam"
-"/path/to/Ascend From Nine Mountains/launch-native.sh"
-# When done:
-rm "/path/to/Ascend From Nine Mountains/disable_steam"
-```
-
-### Step 2: Test Your Content
-
-**If you created an item (like our Mystic Tea example):**
-
-1. **Start a new game** or load an existing save
-2. **Visit the shop** where you added your item (e.g., Liang Tiao Village)
-3. **Look for your item** in the shop inventory
-4. **Try purchasing and using it**
-
-**What to verify:**
-
-- ✅ Item appears in shop with correct name and icon
-- ✅ Item can be purchased (if you have enough money)
-- ✅ Item effects work when consumed
-- ✅ No error messages or crashes
-
-### Enabling Debug Mode (Highly Recommended)
-
-Debug mode shows detailed information about what's happening, making it much easier to troubleshoot issues.
-
-**To enable debug mode:**
-
-1. **Go to your game directory** (same folder as the exe)
-2. **Create a new file** called `devMode` (no file extension)
-   - Right-click in empty space → New → Text Document
-   - Name it `devMode` (delete the `.txt` part)
-3. **Restart the game**
-
-**With debug mode enabled:**
-
-- Console window appears showing detailed logs
-- Mod loading information is visible
-- Error messages are more descriptive
-- You can see exactly what your mod is doing
-
-**Structure with debug mode:**
-
-```
-Ascend from Nine Mountains/
-├── Ascend from Nine Mountains.exe
-├── devMode                              # ← Empty file, no extension
-└── mods/
-    └── mystic-tea-cultivation-1.0.0.zip
-```
-
-### Reading Debug Output
-
-**Good signs in debug console:**
-
-```
-Loading mod: mystic-tea-cultivation-1.0.0.zip
-Mod loaded successfully: mystic-tea-cultivation
-Added item: Mystic Tea
-Added item to shop: Mystic Tea at Liang Tiao Village
-```
-
-**Warning signs:**
-
-```
-Error loading mod: mystic-tea-cultivation-1.0.0.zip
-TypeError: Cannot read property 'addItem' of undefined
-Image not found: ../assets/missing-image.png
-```
-
-## Troubleshooting Common Issues
-
-### Mod Not Loading
-
-**"Mod doesn't appear in loading messages"**
-
-- Check ZIP file is in correct `mods/` folder
-- Ensure file isn't corrupted (try rebuilding: `npm run build`)
-- Verify game directory is correct
-
-**"Mod loads but content doesn't appear"**
-
-- Enable debug mode to see error messages
-- Check your `package.json` has correct mod name
-- Verify you're calling `window.modAPI.actions.addItem()` etc.
-
-### Content Not Working
-
-**"Item doesn't appear in shop"**
-
-- Verify the location name is spelled correctly ('Liang Tiao Village')
-- Check you called both `addItem()` and `addItemToShop()`
-- Ensure your realm requirement isn't too high
-
-**"Images not showing"**
-
-- Check image files exist in `src/assets/`
-- Verify import paths are correct (`../assets/my-image.png`)
-- Try rebuilding your mod
-
-**"Effects not working"**
-
-- Check effect names are spelled correctly ('restoreQi' not 'restoreQI')
-- Verify syntax matches the examples
-- Enable debug mode to see runtime errors
-
-### Performance Issues
-
-**"Game is slow/laggy with mod"**
-
-- Check image file sizes (should be under 100KB each)
-- Avoid creating too many items/NPCs at once
-- Use `npm run build` not `npm run dev` for testing
-
-## Development Workflow
-
-### Efficient Testing Cycle
-
-**For quick iteration:**
-
-1. **Make changes** to your mod code
-2. **Build:** `npm run build`
-3. **Copy new ZIP** to game's `mods/` folder (overwrite old one)
-4. **Restart game** to test changes
-5. **Repeat**
-
-**Pro tip:** Keep both VS Code and the game folder open in separate windows for quick file copying.
-
-### Version Management
-
-**Before major changes:**
-
-```bash
-# Save your current work
-git add .
-git commit -m "Working tea item before adding NPCs"
-```
-
-**When releasing updates:**
-
-```json
-// In package.json, bump the version
-"version": "1.0.1"  // Increment for bug fixes
-"version": "1.1.0"  // Increment for new features
-```
-
-## Next Steps
-
-🎉 **Excellent!** Your mod is now working in-game. You've successfully:
-
-**✅ Completed the full development cycle:**
-
-- Created mod content with the ModAPI
-- Built a distributable package
-- Installed and tested in the actual game
-- Learned to debug issues when they arise
-
-**Ready to share your creation?** The final step is publishing to Steam Workshop so other players can enjoy your mod.
-
-Continue to: **[Publishing Your Mod](publishing)**
+For each iteration, rebuild, replace the test archive, restart the game, and repeat the in-game action that reaches the changed content. Once the ZIP passes your checks, continue to [Publishing Your Mod](publishing).
