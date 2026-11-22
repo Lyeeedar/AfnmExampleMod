@@ -278,6 +278,32 @@ amount: {
 }
 ```
 
+#### Trade a guardian for a finishing attack
+
+Use `sacrificedHealthFraction` in a later effect's `amount.eqn` to reward spending a healthy guardian. Create a [guardian buff](../combat/buffs#guardian-sub-entity) and apply it with `buffSelf` on a setup technique. Give that buff `flag: 'WorkshopGuardian'` and `canStack: false`, and apply one stack so removing that stack spends the guardian.
+
+Put these effects in the finisher's `effects` array in this order:
+
+```typescript
+effects: [
+  {
+    kind: 'modifyBuffGroup',
+    group: 'WorkshopGuardian',
+    mode: 'lowestHealth',
+    amount: { value: -1, stat: undefined },
+  },
+  {
+    kind: 'damage',
+    condition: { kind: 'condition', condition: 'original_WorkshopGuardian > 0' },
+    amount: { value: 3, stat: 'power', eqn: '1 + sacrificedHealthFraction' },
+  },
+]
+```
+
+[`modifyBuffGroup`](../combat/effects#modifybuffgroup) selects the matching guardian with the lowest current HP in absolute points. A negative amount removes stacks and supplies the selected guardian's remaining fraction of maximum HP, from 0 to 1, to later effects in this technique. The fraction starts at 0 for each use. The `original_WorkshopGuardian` condition checks for the flag as it stood before the sacrifice, so the finisher skips damage when there was no guardian to spend.
+
+The example requests 450% of Power at half guardian health and 600% at full health, before damage modifiers. This gives the player a reason to use the finisher while the guardian could still absorb damage. Register the setup and finisher through [`actions.addTechnique`](modapi#cultivation-content). Make them available to your test character through a [manual](../items/item-types/miscellaneous#manual-items) and try the finisher with a full guardian, a damaged guardian, and no guardian. For multiple guardians, test with different maximum HP values to confirm which one is spent.
+
 ### Pattern 7: Capped Scaling
 
 **When to use**: Preventing runaway scaling, maintaining game balance.
@@ -529,17 +555,22 @@ Link scaling to mastery progression:
 
 ### State-Dependent Effects
 
+Use `amount.eqn` to make a [crafting perfection effect](../crafting/techniques#perfection-perfection) grant a fixed bonus when stability is low. Add this effect alongside the technique's regular effects to reward saving the technique for a risky turn:
+
 ```typescript
-// Desperation bonus
 {
   kind: 'perfection',
   amount: {
     value: 20,
     stat: undefined,
-    eqn: '(stability < 30) * 20'  // Bonus when desperate
+    eqn: 'stability < 30 ? 1 : 0'
   }
 }
 ```
+
+The expression multiplies the base amount by 1 below 30 current stability points and by 0 at 30 or above. The effect requests 20 perfection or zero before other crafting modifiers. Choose the threshold with the recipe's stability budget and the technique's cost in mind. The bonus only changes this effect's amount, so the technique still pays its normal costs.
+
+[Register the crafting technique](../crafting/techniques#registration) with `actions.addCraftingTechnique`. To teach it in your mod, register a `CraftingTechniqueItem` with `actions.addItem`, `kind: 'action'`, and `technique` set to the registered technique's exact name. Give the item to your test character and learn it. Test the effect above and below the threshold on a craft with room to gain perfection.
 
 ## Tips and Best Practices
 
@@ -601,4 +632,4 @@ Link scaling to mastery progression:
 4. **Missing progression** - Static effects feel unrewarding
 5. **Inconsistent patterns** - Makes the system unpredictable
 
-The scaling system is powerful and flexible. Master these patterns, and you will create techniques and effects that feel both impactful and balanced, scaling naturally with player progression while maintaining strategic depth.
+The scaling system is powerful and flexible. Master these patterns, and you will create techniques and effects that feel both impactful and balanced, scaling naturally with character progression while maintaining strategic depth.
