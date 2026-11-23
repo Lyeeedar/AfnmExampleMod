@@ -79,7 +79,19 @@ Choose [ingredients](../items/recipes.md#ingredient-system) separately from the 
 
 ## Harmony Types
 
-For sublime crafting, omit `harmonyTypeOverride` to let the player choose an unlocked harmony. The fallback when none are unlocked is `formless`. Set the override to pin a specific harmony when the action pattern is part of your recipe's intended challenge. It does not by itself unlock sublime crafting. `forceSublimeCrafting: true` makes manual crafts use a harmony and removes the basic craft option.
+### Make a recipe eligible for sublime crafting
+
+Once the player unlocks sublime crafting, a manual craft offers Harmony if the recipe can deliver a sublime reward. Configure one of these rewards:
+
+- Set `sublimeItem` to a distinct output when the sublime craft should award a different item or a fixed larger batch.
+- Use an effective [Perfection effect](#perfection-effect-override) of `stacks` with a multi-item `perfectItem` when Harmony should improve the yield of the same output.
+- Use an effective Perfection effect of `quality` when Harmony should improve the perfect item's properties. The `perfectItem` must support a Harmony stat bonus or upgrade. If you pin a harmony, that specific harmony must supply the effect. With free choice, at least one harmony must supply an effect.
+
+`forceSublimeCrafting: true` bypasses the ordinary unlock and reward checks for manual crafts and removes the basic craft option. Use it when the Harmony challenge is mandatory and configure the intended reward explicitly.
+
+### Choose a harmony
+
+Omit `harmonyTypeOverride` to let the player choose an unlocked harmony. The fallback when none are unlocked is `formless`. Set the override to pin a specific harmony when its action pattern is part of your recipe's intended challenge.
 
 For example, set `harmonyTypeOverride: 'forge'` for a heat-management challenge, or use `'formless'` for a challenge without an action-pattern minigame. A sublime craft also applies the selected harmony's target multiplier, so test the override together with `difficulty` and `complexityMultiplier`. The supported identifiers are:
 

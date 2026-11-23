@@ -61,8 +61,8 @@ interface TechniqueEnhancementDust extends BaseTechniqueItem {
 ## Examples
 
 ```typescript
-// Technique manual (generated from actual techniques)
-export const basicPunchManual: TechniqueItem = {
+// Item that teaches one technique
+export const basicPunchItem: TechniqueItem = {
   subKind: 'technique',
   technique: 'Basic Punch',
   kind: 'technique',
@@ -117,3 +117,19 @@ export const enhancementDust: TechniqueEnhancementDust = {
   valueTier: 0.35,
 };
 ```
+
+## Choose a manual's cover technique
+
+A `ManualItem` bundles a combat style with stances. Use `highlightTechnique` when a signature technique should supply the cover's school and artwork even though another technique comes first in the style. Set it to the exact `name` of a registered technique in the manual's stances. The default is the first resolvable technique in stance order. If no technique resolves, the artwork comes from the manual's `icon`.
+
+For a manual whose stances already include your signature technique, register that [technique](../../combat/techniques) before registering the manual:
+
+```typescript
+window.modAPI.actions.addTechnique(signatureTechnique);
+window.modAPI.actions.addManual({
+  ...myManual,
+  highlightTechnique: signatureTechnique.name,
+});
+```
+
+Use your complete `ManualItem` for `myManual`. The highlighted technique changes the cover. The manual teaches the stances defined in `style`. Inspect the manual in game to check that the intended artwork appears.

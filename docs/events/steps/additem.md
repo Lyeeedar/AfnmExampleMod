@@ -53,3 +53,27 @@ interface AddItemStep {
   amount: 'realm * 2'
 }
 ```
+
+## Reward a random attunement gem
+
+Use `item.dropAttunements` when a quest should give an attunement gem whose technique and mastery vary with the player. Use the exact base item name `Attunement Gem` for combat equipment or `Crafting Attunement Gem` for cauldrons and flames.
+
+- `realm` is the highest realm from which the roll may select techniques. Eligible techniques must have an incandescent mastery entry of kind `upgrade` or `overwriteEffects`.
+- `count` is the requested number of distinct techniques per gem. Use a positive whole number. If fewer techniques qualify, the roll uses the available candidates. An empty pool yields a gem without attunements.
+- Use `school` to narrow a combat gem to a combat school, or `craftingType` to narrow a crafting gem to `fusion`, `refine`, `stabilize`, or `support`. Omit the filter for a broader pool. The roll favors techniques the player has used.
+- `bonusSlotChance` gives the gem a chance at one more distinct technique when a candidate is available. Use a fraction from 0 to 1. Omission means no bonus slot.
+
+For a reward themed around refining, add this step to your [event sequence](../index):
+
+```typescript
+{
+  kind: 'addItem',
+  item: {
+    name: 'Crafting Attunement Gem',
+    dropAttunements: { realm: 'coreFormation', craftingType: 'refine', count: 1 },
+  },
+  amount: '1',
+}
+```
+
+This awards one gem with one eligible refining technique if the pool contains a match. Run the event and check that the gem can be applied to a cauldron or flame. Changing `amount` to `2` rolls two separate gems.
