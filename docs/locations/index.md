@@ -58,7 +58,7 @@ Keep the required `itemPool`, `costMultiplier`, and `refreshMonths` fields. Toke
 
 `tokenSell` lets players exchange only the items you explicitly accept for currency tokens. Each group's `itemMap` contains full item definitions keyed by name, and `tokensPerItem` is the number of tokens granted for each unit sold. Without accepted entries, the exchange only sells goods to the player. If an item appears in more than one group, the first group's rate wins. As a design precaution, keep buyback rates below purchase prices and exclude easily crafted or farmed goods unless earning tokens that way is intentional.
 
-`rotation: { stockCount: 8 }` offers up to eight eligible listings each calendar month. Use a positive safe integer. The schedule covers the eligible catalogue before repeating, and the final month of a cycle can have fewer offers. Purchases and reopening the exchange do not reroll or refill that month's stock. Omit `rotation` to offer the full eligible catalogue with the normal `refreshMonths` stock refresh. Choose rotation for a large reward catalogue whose availability should vary over time, and full stock when players should always be able to redeem a particular reward.
+`rotation: { stockCount: 8 }` offers up to eight eligible listings each calendar month. Use a positive safe integer. Each month draws from the eligible catalogue, so a listing can repeat in consecutive months or go several months without appearing. Sold-out listings still occupy their slots for the month. Reopening the exchange preserves purchases. If you also configure `refreshOnFlagChange`, changing that flag regenerates the stock during the month. Omit `rotation` to offer the full eligible catalogue with the normal `refreshMonths` stock refresh. Choose rotation for a large reward catalogue whose availability should vary over time, and full stock when players should always be able to redeem a particular reward.
 
 This helper builds a market from item definitions supplied by your mod. Import the types from `afnm-types` and register your currency and reward items with `window.modAPI.actions.addItem` before adding the building.
 
@@ -106,7 +106,7 @@ Every location requires these essential fields:
   name: string;                  // Unique identifier
   description: string;           // Narrative description
   image: string;                // Background image path
-  icon: string;                // Map icon path
+  icon: string;                 // Map icon path
   screenEffect: ScreenEffectType; // Visual atmosphere
   music: MusicName;             // Background music
   ambience: AmbienceName;       // Ambient sound effects
@@ -133,7 +133,7 @@ Locations can include various optional content:
 - Exploration-triggered events
 - Map events with cooldowns
 
-**Progression Elements**: Realm and reputation systems
+**Progression Elements**: Realm and reputation tracking
 - Realm requirements and progression levels
 - Location-specific reputation tracking
 
@@ -142,7 +142,7 @@ Locations can include various optional content:
 **Villages & Settlements**
 - Trading hubs with markets
 - Quest givers and mission boards
-- Crafting facilities
+- Basic services and facilities
 
 **Wilderness Areas**
 - Enemy encounters

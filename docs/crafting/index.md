@@ -58,3 +58,7 @@ Temporary states and conditions affecting the crafting process
 ### [Techniques](techniques.md)
 
 Active abilities used during crafting to manipulate materials and outcomes
+
+### [Crafting commissions](../events/steps/crafting.md#reward-a-quality-target)
+
+Use a registered recipe in an event and branch on the quality the player achieves.
