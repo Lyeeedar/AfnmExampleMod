@@ -181,13 +181,14 @@ condition: {
 
 ### Custom Conditions
 
+Use an expression condition when an effect depends on a combat value such as temporary health. In the condition's entity scope, `temphp` is the current amount of temporary health. For example, put this condition on a buff effect that should run only while its fighter has temporary health. Use the `tooltip` to explain the requirement to the player. See [buff condition variables](triggers.md#variables-available-in-buff-conditions) for other values.
+
 ```typescript
 condition: {
   kind: 'condition',
-  condition: 'custom_flag > 0',
-  tooltip: 'If the custom condition is met then'
+  condition: 'temphp > 0',
+  tooltip: 'While you have temporary health'
 }
-// Uses the custom tooltip text
 ```
 
 ## Conditional Tooltip Fragments
@@ -243,6 +244,22 @@ const myBuff: Buff = {
 
 Both fields are also available on `Technique`.
 
+
+## Show a technique's damage bonus separately
+
+By default, a damage effect's displayed amount includes its [`amount.additiveEqn`](../concepts/scaling.md#the-scaling-interface). If your technique tooltip describes that bonus separately, set `excludeAdditiveScalingFromTooltip: true` on the `kind: 'damage'` effect. The numeric amount in the tooltip then leaves out the additive term. Combat still applies the full equation.
+
+In the `effects` array of a technique you [register with `addTechnique`](../concepts/modapi.md#cultivation-content), for example:
+
+```typescript
+{
+  kind: 'damage',
+  amount: { value: 2, stat: 'power', additiveEqn: 'maxhp * 0.1' },
+  excludeAdditiveScalingFromTooltip: true,
+}
+```
+
+For this effect, use `{damage.amount}` for the power-based amount in your technique's `tooltip` and describe the extra 10% of maximum health separately. Changing the coefficient in the equation changes the bonus dealt in combat, so keep the tooltip wording in sync. Leave the option unset if the displayed amount should include the bonus.
 
 ## Special Tooltips
 
