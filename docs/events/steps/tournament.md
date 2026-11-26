@@ -37,7 +37,7 @@ interface TournamentPlacementBranch {
 The roster is a function returning authored `EnemyEntity` objects. Choose a realm matching those enemies. The competitors below are enemies defined elsewhere in your mod; import them before using this example.
 
 ```typescript
-import { TournamentConfig, TournamentStep } from 'afnm-types';
+import type { EventStep, TournamentConfig, TournamentStep } from 'afnm-types';
 
 const harvestTournament: TournamentConfig = {
   id: 'myMod_harvestTournament',
@@ -88,7 +88,9 @@ Use the exported `TournamentConfig` from `afnm-types` as the authoritative inter
 
 ## Conditional Entry and Commentary
 
-Assume `arenaCompetitors` contains the enemies defined by your mod:
+Use `announcerIntro.openingVariables` to reuse an opening line across tournaments with different names or titles. Each key supplies a value for a matching `{placeholder}` in a credential or flavour line. The game translates the selected line before substituting the values. Supply translatable names so the substituted text can be localized too. The game supplies `{player}` from the player's name and `{n}` from the selected entry's `countFlag`, using zero when the flag or its value is absent. Put the most specific conditions first in each list because the first match supplies the line.
+
+In this configuration, `{arena}` names the venue and `{n}` shows the number of prior wins. Assume `arenaCompetitors` contains enemies defined by your mod.
 
 ```typescript
 const arenaTournament: TournamentConfig = {
@@ -100,11 +102,12 @@ const arenaTournament: TournamentConfig = {
   participantBuffs: [],
   entryFee: 500,
   announcerIntro: {
+    openingVariables: { arena: 'Shen Henda Arena' },
     credentials: [
       {
         condition: 'myMod_arenaWins >= 3',
         countFlag: 'myMod_arenaWins',
-        lines: ['{player} returns with {n} prior victories!'],
+        lines: ['{player} returns to {arena} with {n} prior victories!'],
       },
       { condition: '1', lines: ['A new challenger enters the arena!'] },
     ],
