@@ -163,6 +163,24 @@ Copy the local helpers from [Item Structure](../item-structure.md#helper-functio
 
 `harmonyStatUpgrade` accepts `threshold` and `percent`. `harmonyStatStep` accepts `step` and a boolean `percent` for its label. `harmonyStacksStep` accepts `step`. For a custom tooltip, change the returned object's `tooltip` field.
 
+### Set a floor when reducing a requirement
+
+Use `minimumValue` on an `ItemHarmonyUpgrade` when better crafting quality should reduce a tagged requirement while preserving a minimum cost. Each whole multiple of the upgrade's positive `threshold` applies another step. After applying the upgrade, the game raises the resulting numeric field to the floor if needed. Below the threshold the upgrade is inactive, and omitting the floor leaves the adjusted value unchanged.
+
+For a triggered buff effect whose condition compares a counter against `count: 5` and `upgradeKey: 'myModRequiredStacks'`, put this entry, with your own `myReductionTooltip` string, in the clothing item's `upgradeHarmonies` map. A Forge item at quality 5 requires a count of three. At quality 10 or higher it requires two.
+
+```typescript
+forge: {
+  upgradeKey: 'myModRequiredStacks',
+  threshold: 5,
+  change: -2,
+  minimumValue: 2,
+  tooltip: myReductionTooltip,
+},
+```
+
+Register the clothing with `window.modAPI.actions.addItem` and craft it with the matching harmony at qualities above and below the threshold to check the requirement. See [Item Structure](../item-structure.md#upgrade-harmonies) for how to tag other upgrade targets.
+
 ### Harmony upgrade tooltips and the {change} placeholder
 
 The local helpers use `{change}` in their tooltips for the amount supplied by the game. The stat or buff label is included directly in the string. For custom phrasing, set `tooltip` on the returned upgrade object.
