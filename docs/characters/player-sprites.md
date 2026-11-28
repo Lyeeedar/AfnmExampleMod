@@ -43,6 +43,8 @@ For new sprites, use `image: EntityImage`. Its base pose key is `idle`, and all 
 
 Variants are evaluated in order; the first non-zero or empty `condition` wins. Missing poses inherit from the base pack. Combat and crafting variants can use live variables such as `hp`, `maxhp`, `pool`, and `stability`, as well as game flags.
 
+To correct the facing of a pose set in combat and events, set `flipX: true` on your registered sprite's `image`. This mirrors the pose pack horizontally, including poses filled by fallback. Omit the field to keep the art's original orientation. A matching variant inherits the base setting unless it supplies its own `flipX`. For example, with `image.flipX: true`, set `flipX: false` on a variant whose art already faces the intended direction. Select the sprite and check both packs in combat if your variant changes the facing.
+
 ## Give a Player Sprite a Dual Cultivation Pose
 
 Set `image.dualCultivationImageOverrides` on the registered sprite to change its art during dual cultivation. Each entry can set an idle `image`, a `condition` evaluated against game flags and session values, and an exact `lastUsedTechnique` name. Omitting a selector leaves it unrestricted. The last entry that meets both selectors wins, so put broad matches first and more specific ones later. The active pose pack's `idle` fills in when the winning entry has no `image` or no entry matches.

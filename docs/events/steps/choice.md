@@ -21,7 +21,8 @@ interface ChoiceStep {
 }
 
 interface ChoiceStepChoice {
-  text: string;
+  text: Translatable;
+  school?: TechniqueElement;
   showCondition?: string;
   condition?: EventChoiceCondition;
   hideIfDisabled?: boolean;
@@ -40,6 +41,8 @@ interface ChoiceStepChoice {
 ### ChoiceStepChoice Properties
 
 **`text`** - Display text shown to the player for this choice.
+
+**`school`** *(optional)* - Set the tint of `<elem>…</elem>` text in this option. Use it when labeling a school-themed branch with words other than the exact school name. Choose `blood`, `blossom`, `fist`, `cloud`, `weapon`, `celestial` or `none` for Neutral. If omitted, the game infers the tint from the first element tag when it contains an exact English school name and uses the default element tint otherwise. The choice's requirements and effects come from `condition` and `children`.
 
 **`showCondition`** *(optional)* - Flag expression controlling whether this choice appears in the menu.
 
@@ -80,7 +83,8 @@ interface ChoiceStepChoice {
   kind: 'choice',
   choices: [
     {
-      text: 'Demonstrate advanced cultivation technique (Core Formation+)',
+      text: 'Demonstrate a <elem>sword form</elem>',
+      school: 'weapon',
       condition: {
         kind: 'realm',
         realm: 'coreFormation',
@@ -103,6 +107,9 @@ interface ChoiceStepChoice {
 ```
 
 ### Item Requirement Choice
+
+Use `condition.item` to decide which inventory stacks count toward the required amount. Match the registered item by name and omit `corruption` to accept it in any corruption state. Set `corruption` to a corruption name to require that corruption, including an item's innate corruption. Set it to `null` to match a copy explicitly cleared of its innate corruption. A copy with no corruption field still uses its innate corruption, if any. For a payment branch, specify the same corruption rule in the [Remove Item step](removeitem.md). The requirement counts matching stacks across the inventory. Removal takes from the first matching stack for each supplied descriptor, so test payments with the item spread across multiple stacks.
+
 ```typescript
 {
   kind: 'choice',
